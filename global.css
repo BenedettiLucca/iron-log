@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* LIGHT MODE (Padrão) */
+    --background: 244 241 222; /* #F4F1DE */
+    --card: 255 255 255;       /* #FFFFFF */
+    --text: 61 64 91;          /* #3D405B (Dark Blue Text) */
+    --subtext: 129 129 135;
+    --border: 224 224 224;
+    
+    --primary: 224 122 95;     /* #E07A5F (Terracotta) */
+    --secondary: 61 90 128;    /* #3D5A80 (Deep Blue) */
+    --accent: 242 204 143;     /* #F2CC8F (Yellow/Cream) */
+    
+    --success: 129 178 154;    /* #81B29A */
+    --danger: 224 122 95;      /* Primary Red/Orange */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* DARK MODE */
+      --background: 29 25 23;    /* #1D1917 */
+      --card: 42 36 34;          /* #2A2422 */
+      --text: 244 241 222;       /* #F4F1DE */
+      --subtext: 156 163 175;
+      --border: 60 50 50;
+
+      --primary: 224 122 95;     /* Mantém a identidade */
+      --secondary: 152 193 217;  /* #98C1D9 (Light Blue for contrast) */
+      --accent: 242 204 143;
+      
+      --success: 129 178 154;
+      --danger: 239 100 100;
+    }
+  }
+}
