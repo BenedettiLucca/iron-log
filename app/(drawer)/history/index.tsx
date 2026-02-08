@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, useColorScheme } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
@@ -9,26 +9,39 @@ import { Card } from '../../../components/Card';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
-  monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-  monthNamesShort: ['Jan.', 'Fev.', 'Mar.', 'Abr.', 'Mai.', 'Jun.', 'Jul.', 'Ago.', 'Set.', 'Out.', 'Nov.', 'Dez.'],
+  monthNames: ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'],
+  monthNamesShort: ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'],
   dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
-  today: 'Hoje'
+  dayNamesShort: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'],
+  today: 'HOJE'
 };
 LocaleConfig.defaultLocale = 'br';
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [allSessions, setAllSessions] = useState<any[]>([]);
   const [markedDates, setMarkedDates] = useState<any>({});
   const [selectedDate, setSelectedDate] = useState('');
   const [daySessions, setDaySessions] = useState<any[]>([]);
 
+  // Theme Colors
+  const colors = {
+    background: isDark ? '#2A2422' : '#FFFFFF',
+    calendarBackground: isDark ? '#2A2422' : '#FFFFFF',
+    text: isDark ? '#F4F1DE' : '#3D405B',
+    subtext: isDark ? '#9CA3AF' : '#818185',
+    primary: '#E07A5F',
+    secondary: '#3D5A80',
+    border: isDark ? '#605050' : '#E0E0E0',
+  };
+
   useEffect(() => {
     loadSessions();
-  }, []);
+  }, [loadSessions]);
 
-  const loadSessions = async () => {
+  const loadSessions = useCallback(async () => {
     try {
       const result = await db.select().from(sessions).orderBy(desc(sessions.startTime));
       setAllSessions(result);
@@ -38,14 +51,14 @@ export default function HistoryScreen() {
         const dateStr = new Date(s.startTime).toISOString().split('T')[0];
         marks[dateStr] = { 
             marked: true, 
-            dotColor: '#E07A5F', 
+            dotColor: colors.primary,
         };
       });
       setMarkedDates(marks);
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [colors.primary]);
 
   const handleDayPress = (day: any) => {
     setSelectedDate(day.dateString);
@@ -60,55 +73,74 @@ export default function HistoryScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{ title: 'Histórico' }} />
 
-      <View className="bg-card border-b border-border pb-2 shadow-sm z-10">
-        <Calendar
-          onDayPress={handleDayPress}
-          markedDates={{
-            ...markedDates,
-            [selectedDate]: { 
-                selected: true, 
-                disableTouchEvent: true, 
-                selectedColor: '#E07A5F', 
-                selectedTextColor: '#fff' 
-            }
-          }}
-          theme={{
-            backgroundColor: 'transparent',
-            calendarBackground: 'transparent',
-            textSectionTitleColor: '#3D405B',
-            selectedDayBackgroundColor: '#E07A5F',
-            selectedDayTextColor: '#fff',
-            todayTextColor: '#E07A5F',
-            dayTextColor: '#3D405B',
-            textDisabledColor: '#9CA3AF',
-            dotColor: '#E07A5F',
-            selectedDotColor: '#fff',
-            arrowColor: '#E07A5F',
-            monthTextColor: '#3D405B',
-            indicatorColor: '#E07A5F',
-            textDayFontWeight: '300',
-            textMonthFontWeight: 'bold',
-            textDayHeaderFontWeight: '300',
-            textDayFontSize: 16,
-            textMonthFontSize: 16,
-            textDayHeaderFontSize: 14
-          }}
-        />
+      <View className="p-4 pb-0">
+        <View className="rounded-2xl overflow-hidden border border-border shadow-sm bg-card">
+            <Calendar
+            onDayPress={handleDayPress}
+            markedDates={{
+                ...markedDates,
+                [selectedDate]: { 
+                    selected: true, 
+                    disableTouchEvent: true, 
+                    selectedColor: colors.primary, 
+                    selectedTextColor: '#FFFFFF',
+                    marked: markedDates[selectedDate]?.marked,
+                    dotColor: '#FFFFFF'
+                }
+            }}
+            theme={{
+                backgroundColor: colors.calendarBackground,
+                calendarBackground: colors.calendarBackground,
+                textSectionTitleColor: colors.subtext,
+                selectedDayBackgroundColor: colors.primary,
+                selectedDayTextColor: '#FFFFFF',
+                todayTextColor: colors.secondary,
+                dayTextColor: colors.text,
+                textDisabledColor: isDark ? '#444' : '#D1D5DB',
+                dotColor: colors.primary,
+                selectedDotColor: '#FFFFFF',
+                arrowColor: colors.primary,
+                monthTextColor: colors.text,
+                indicatorColor: colors.primary,
+                textDayFontWeight: '600',
+                textMonthFontWeight: '900',
+                textDayHeaderFontWeight: '800',
+                textDayFontSize: 14,
+                textMonthFontSize: 18,
+                textDayHeaderFontSize: 10,
+                
+                // Custom spacing
+                'stylesheet.calendar.header': {
+                    week: {
+                        marginTop: 10,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        paddingHorizontal: 10,
+                        borderTopWidth: 1,
+                        borderTopColor: colors.border,
+                        paddingTop: 10
+                    }
+                }
+            }}
+            />
+        </View>
       </View>
 
       <View className="flex-1 p-4">
-        <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest pl-1">
+        <Text className="text-subtext font-black uppercase text-[10px] mb-3 tracking-widest pl-1">
             {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : 'Selecione um dia'}
         </Text>
 
         <FlatList
           data={daySessions}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ gap: 12 }}
+          contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
           ListEmptyComponent={
-            selectedDate ? 
-            <Text className="text-subtext text-center italic mt-10">Nenhum treino neste dia.</Text> : 
-            <Text className="text-subtext text-center italic mt-10">Toque no calendário para ver os detalhes.</Text>
+            <View className="flex-1 justify-center items-center mt-10 opacity-50">
+                <Text className="text-4xl mb-2">📅</Text>
+                <Text className="text-subtext font-bold text-center">Nenhum treino</Text>
+                <Text className="text-subtext text-xs text-center">Nenhum registro para esta data.</Text>
+            </View>
           }
           renderItem={({ item }) => (
             <Card 
@@ -117,13 +149,13 @@ export default function HistoryScreen() {
             >
               <View className="flex-row justify-between items-center">
                 <View>
-                  <Text className="text-text font-bold text-lg mb-1">{item.routineName}</Text>
-                  <Text className="text-subtext text-sm">
+                  <Text className="text-text font-black text-lg mb-1 tracking-tight">{item.routineName}</Text>
+                  <Text className="text-subtext text-xs font-bold uppercase tracking-wider">
                       {new Date(item.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {item.durationMinutes} min
                   </Text>
                 </View>
-                <View className="bg-primary/10 px-3 py-1.5 rounded-lg">
-                    <Text className="text-primary font-bold text-xs uppercase tracking-wider">Ver Detalhes</Text>
+                <View className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20">
+                    <Text className="text-primary font-black text-[10px] uppercase tracking-wider">Ver</Text>
                 </View>
               </View>
             </Card>
