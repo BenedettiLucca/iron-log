@@ -135,10 +135,14 @@ The app supports importing workout routines via JSON. Structure:
 - **strength** - Weight/reps based exercises (requires explicit save)
 - **duration** - Time-based exercises (e.g., plank) with explicit save button (no auto-save)
 
-### Recent Updates (v3.0)
+**Recent Updates (v3.0)**
+
+**Database Portability:**
+- **Service:** `services/DatabaseBackupService.ts` handles all file operations and API calls.
+- **Features:** Local export/import (Share/DocumentPicker) and Google Drive upload.
+- **Dependencies:** `expo-sharing`, `expo-document-picker`, `expo-auth-session`, `expo-file-system`.
+- **Config:** Requires `EXPO_PUBLIC_GOOGLE_CLIENT_ID` for cloud features.
 
 **Frontend Polish:**
 - Integrated `react-native-reanimated` for tactile button feedback and staggered entry animations.
 - Unified UI with polished `Card`, `Input`, and `Button` components.
-- Refined typography and spacing across all screens.
-- Improved Bio section with better modal and history list design.
