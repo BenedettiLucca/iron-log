@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v2.4.1 (Session Flow UX Overhaul)
+**Current Version:** v3.0 (Polished Edition)
 
 ## Tech Stack
 
 - **Core:** React Native (Expo SDK 54) + TypeScript
 - **Routing:** Expo Router (file-based routing)
 - **Database:** SQLite (local-first) + Drizzle ORM
-- **UI:** NativeWind v4 (Tailwind for React Native), React Native Calendars, Gifted Charts
+- **UI:** NativeWind v4 (Tailwind for React Native), React Native Reanimated (Animations)
 - **Media:** Expo Image Picker, Expo File System
 - **Charts:** react-native-gifted-charts for bio tracking visualization
 
@@ -74,30 +74,21 @@ The app uses 8 main tables:
 
 ### Key Implementation Details
 
-**Session Flow** (`app/_layout.tsx:31-46`):
+**Session Flow** (`app/_layout.tsx`):
 - Session flow is a pure Stack navigator separate from the Drawer
 - Wrapped in `GestureHandlerRootView` for swipe actions
 - Migrations run on app startup with loading/error states
 - Deep linking from outside app opens directly to workout session
 - Features consistent save behavior, progress indicators, and undo capability
 
-**Database Client** (`src/db/client.ts`):
-- Uses Expo SQLite with Drizzle ORM
-- Migrations auto-apply on app start
-- Schema defined in `src/db/schema.ts` (79 lines)
-
-**Target Parser** (`src/utils/target-parser.ts`):
-- Parses workout targets like "3x8-12" or "60s"
-- Handles both strength and duration-based exercises
-
 **Design System Components** (`components/`):
-- **Button** - Reusable button with variants (primary, secondary, danger, ghost, success), sizes, loading states
-- **Card** - Standardized card container with variants (default, bordered, elevated, flat)
-- **Input** - Form input with label and error state support
-- **ProgressBar** - Visual progress indicator with animated fill (header, modal, compact variants)
-- **SetCard** - Swipeable card for saved sets with edit/delete actions and color-coded RIR
-- **RestTimer** - Bottom sheet rest timer with quick actions (+30s, -10s, Skip)
-- **Stopwatch** - Enhanced timer with pause/resume capability and hours display
+- **Button** - Animated pressable button with variants (primary, secondary, danger, ghost, success) and tactile feedback.
+- **Card** - Standardized `rounded-2xl` container with consistent shadows and borders.
+- **Input** - Styled text input with optional label and error state.
+- **ProgressBar** - Visual progress indicator with animated fill.
+- **SetCard** - Swipeable card for saved sets with entry animations and color-coded RIR.
+- **RestTimer** - Bottom sheet rest timer with quick actions.
+- **Stopwatch** - Enhanced timer with pause/resume capability.
 
 **Color Scheme** (`hooks/use-color-scheme.ts`):
 - Dark mode: `#1D1917` (background)
@@ -107,14 +98,14 @@ The app uses 8 main tables:
 - RIR color coding: Red (0-1), Green (2-3), Blue (4-5)
 
 **Typography** (`constants/typography.ts`):
-- Standardized type scale: xs (10px), sm (12px), base (14px), lg (16px), xl (18px), 2xl (20px)
+- Standardized type scale: xs (10px), sm (12px), base (14px), lg (16px), xl (18px), 2xl (20px), 3xl (24px), 4xl (30px)
 - Used consistently across all components
 
 ### Configuration Files
 
-- **app.json** - Expo configuration (version 2.4.0, package: com.lucca.ironlog)
+- **app.json** - Expo configuration (version 3.0.0)
 - **drizzle.config.ts** - Drizzle ORM configuration
-- **babel.config.js** - Babel with NativeWind and inline-import SQL plugin
+- **babel.config.js** - Babel with NativeWind and Reanimated plugin
 - **tailwind.config.js** - NativeWind v4 configuration with custom color variables
 - **eslint.config.js** - Expo ESLint configuration
 
@@ -144,97 +135,10 @@ The app supports importing workout routines via JSON. Structure:
 - **strength** - Weight/reps based exercises (requires explicit save)
 - **duration** - Time-based exercises (e.g., plank) with explicit save button (no auto-save)
 
-### Session Flow Features
+### Recent Updates (v3.0)
 
-**Consistent Interactions:**
-- All exercise types require explicit "SALVAR SÉRIE" button press
-- 10-second undo window after saving sets (dismissible banner)
-- Loading states prevent double-tap during operations
-- Swipe-to-delete on saved sets with confirmation
-
-**Progress Indication:**
-- Progress bar showing "X de Y exercises completed"
-- Current set number with target comparison (e.g., "Série 2 de 4")
-- Session statistics cards (sets, volume, exercises)
-- Visual stat grid on summary screen
-
-**Rest Timer:**
-- Bottom sheet overlay (not full-screen modal)
-- Quick actions: +30s, -10s, Skip Rest
-- Next exercise preview
-- Visual status indicator (resting vs. ready)
-
-**Enhanced Feedback:**
-- Color-coded RIR values based on intensity
-- Note templates with emojis (🍽️ Jejum, 😴 Ruim, 🏆 PR!, ❤️ Cardio)
-- Motivational messages based on sRPE level
-- Celebration animation on session complete
-- Best performance card highlighting PR sets
-
-### Build Process
-
-**Android Release:**
-```bash
-cd android && ./gradlew assembleRelease
-```
-
-### Testing
-
-A test script exists at `scripts/test-db-logic.ts` for database logic testing.
-
-## Theme System
-
-The app uses CSS custom properties (defined in global.css) for theming:
-- `--background` - Main background color
-- `--text` / `--subtext` - Text colors
-- `--primary` / `--secondary` / `--accent` - UI accent colors
-- `--success` / `--danger` - Status colors
-
-Colors adapt based on `useColorScheme()` hook, supporting automatic dark/light mode.
-
-## File Locations
-
-- **Database Schema:** `src/db/schema.ts`
-- **Database Client:** `src/db/client.ts`
-- **Target Parser:** `src/utils/target-parser.ts`
-- **Typography Scale:** `constants/typography.ts`
-- **Global Styles:** `global.css`
-- **Migrations:** `drizzle/` directory (SQL files)
-- **Design Components:** `components/Button.tsx`, `components/Card.tsx`, `components/Input.tsx`, `components/ProgressBar.tsx`, `components/SetCard.tsx`, `components/RestTimer.tsx`, `components/Stopwatch.tsx`
-- **Session Screens:** `app/session/[routineId].tsx`, `app/session/exercise.tsx`, `app/session/finish.tsx`, `app/session/summary.tsx`
-
-## Recent Updates (v2.4.1)
-
-### Session Flow UX Overhaul
-Complete redesign of the workout tracking experience:
-
-**New Features:**
-- Visual progress indicators throughout session
-- Bottom sheet rest timer with quick actions
-- 10-second undo window for saved sets
-- Swipe-to-delete on saved sets
-- Session statistics dashboard
-- Weight comparison with previous entries
-- Note templates for quick logging
-- Native share integration
-- Best performance highlighting
-- Motivational messages and celebrations
-
-**Accessibility Improvements:**
-- All touch targets ≥44pt (WCAG compliance)
-- Consistent color contrast ratios
-- Proper active states on all interactive elements
-- Screen reader compatible components
-
-**Design System:**
-- Reusable component library with consistent styling
-- Standardized typography scale
-- Color-coded RIR values (red/green/blue)
-- Card-based UI with elevation and borders
-- Button variants (primary, secondary, danger, ghost, success)
-
-**Bug Fixes:**
-- Duration exercises no longer auto-save (now consistent with strength exercises)
-- Improved validation with inline error messages
-- Confirmation dialogs for destructive actions
-- Prevented double-tap on save buttons
+**Frontend Polish:**
+- Integrated `react-native-reanimated` for tactile button feedback and staggered entry animations.
+- Unified UI with polished `Card`, `Input`, and `Button` components.
+- Refined typography and spacing across all screens.
+- Improved Bio section with better modal and history list design.
