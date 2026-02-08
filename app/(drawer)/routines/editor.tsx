@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
@@ -33,9 +33,9 @@ export default function RoutineEditorScreen() {
     if (isEditing) {
       loadRoutineData();
     }
-  }, [id]);
+  }, [id, isEditing, loadRoutineData]);
 
-  const loadRoutineData = async () => {
+  const loadRoutineData = useCallback(async () => {
     try {
       const routineData = await db.select().from(routines).where(eq(routines.id, Number(id)));
       if (routineData.length > 0) {
@@ -63,10 +63,10 @@ export default function RoutineEditorScreen() {
           notes: j.notes || '',
           restSeconds: j.restSeconds || undefined
       })));
-    } catch (e) {
+    } catch {
       setToast({ visible: true, message: 'Falha ao carregar rotina.', type: 'error' });
     }
-  };
+  }, [id]);
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -124,7 +124,7 @@ export default function RoutineEditorScreen() {
           setRenamingEx(null);
           setNewName('');
           setToast({ visible: true, message: 'Exercício renomeado.', type: 'success' });
-      } catch (e) {
+      } catch {
           setToast({ visible: true, message: 'Falha ao renomear.', type: 'error' });
       }
   };
@@ -301,7 +301,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           type: newType
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
-    } catch (e) {
+    } catch {
       setToast({ visible: true, message: 'Falha ao criar exercício.', type: 'error' });
     }
   };
@@ -314,7 +314,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
             .where(eq(exercises.id, editingEx.id));
           setEditingEx(null);
           setEditName('');
-      } catch (e) {
+      } catch {
           setToast({ visible: true, message: 'Falha ao atualizar.', type: 'error' });
       }
   };
@@ -369,7 +369,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
             search ? (
               <View className="mt-4 bg-card p-4 rounded-xl border border-border">
                   <Text className="text-subtext text-center mb-2">Não encontrado.</Text>
-                  <Text className="text-text font-bold text-lg text-center mb-4">CRIAR "{search}"</Text>
+                  <Text className="text-text font-bold text-lg text-center mb-4">CRIAR &quot;{search}&quot;</Text>
                   
                   <View className="flex-row gap-4 mb-4 justify-center">
                       <TouchableOpacity 

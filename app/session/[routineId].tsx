@@ -1,13 +1,12 @@
-import { View, Text, FlatList, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
-import { eq, and, count, sql } from 'drizzle-orm';
+import { eq, and, count } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
-import { Card } from '../../components/Card';
 import { Dialog } from '../../components/Dialog';
 
 export default function SessionScreen() {
@@ -46,7 +45,7 @@ export default function SessionScreen() {
   // Garante que routineId é string única
   const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
 
-  const loadExercises = async () => {
+  const loadExercises = useCallback(async () => {
       try {
           const data = await db.select({
             id: exercises.id,
@@ -65,7 +64,7 @@ export default function SessionScreen() {
       } catch (e) {
           console.error(e);
       }
-  };
+  }, [rIdStr]);
 
   // 1. Inicializar Sessão e Carregar Exercícios
   useEffect(() => {
@@ -91,7 +90,7 @@ export default function SessionScreen() {
         initSession();
         loadExercises();
     }
-  }, [rIdStr]);
+  }, [rIdStr, loadExercises, routineName, router]);
 
   const finishSession = () => {
     if (!sessionId) return;

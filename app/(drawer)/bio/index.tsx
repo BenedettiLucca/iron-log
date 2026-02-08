@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Toast } from '../../../components/Toast';
@@ -46,7 +46,7 @@ export default function BioScreen() {
         setTodayWeight('');
         loadMetrics();
         setToast({ visible: true, message: 'Peso registrado!', type: 'success' });
-    } catch (e) {
+    } catch {
         setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
     }
   };
@@ -72,7 +72,7 @@ export default function BioScreen() {
               await FileSystem.copyAsync({ from: uri, to: newPath });
               setPhotos(prev => ({ ...prev, [field]: newPath }));
           }
-      } catch (e) {
+      } catch {
           setToast({ visible: true, message: 'Falha ao selecionar imagem.', type: 'error' });
       }
   };
@@ -131,7 +131,7 @@ export default function BioScreen() {
             className="bg-card border border-primary p-4 rounded-xl items-center mb-6 flex-row justify-center gap-2"
         >
             <Text className="text-primary font-bold text-lg uppercase tracking-widest">VER EVOLUÇÃO COMPLETA</Text>
-            <Text className="text-primary font-bold text-lg">></Text>
+            <Text className="text-primary font-bold text-lg">{'>'}</Text>
         </TouchableOpacity>
 
         {/* Botão de Check-in Mensal */}

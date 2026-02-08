@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, Animated } from 'react-native';
+import React, { View, Text, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface ProgressBarProps {
@@ -29,7 +29,7 @@ export function ProgressBar({
     } else {
       progressAnim.setValue(percentage);
     }
-  }, [percentage, animated]);
+  }, [percentage, animated, progressAnim]);
 
   const getVariantClasses = () => {
     switch (variant) {

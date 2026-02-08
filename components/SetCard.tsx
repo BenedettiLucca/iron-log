@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import React, { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 
 interface SetCardProps {

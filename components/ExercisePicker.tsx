@@ -34,7 +34,7 @@ export function ExercisePicker({ visible, onClose, onSelect }: Props) {
           type: newType 
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
-    } catch (e) {
+    } catch {
       setToast({ visible: true, message: 'Falha ao criar exercício', type: 'error' });
     }
   };
@@ -65,7 +65,7 @@ export function ExercisePicker({ visible, onClose, onSelect }: Props) {
             search ? (
               <View className="mt-4 bg-card p-4 rounded-xl border border-border">
                   <Text className="text-subtext text-center mb-2">Exercício não encontrado.</Text>
-                  <Text className="text-text font-bold text-lg text-center mb-4">Criar "{search}"</Text>
+                  <Text className="text-text font-bold text-lg text-center mb-4">Criar &quot;{search}&quot;</Text>
                   
                   <View className="flex-row gap-4 mb-4 justify-center">
                       <TouchableOpacity 

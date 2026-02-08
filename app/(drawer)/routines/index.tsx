@@ -45,7 +45,7 @@ export default function RoutinesListScreen() {
           await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
           await db.delete(routines).where(eq(routines.id, id));
           fetchRoutines();
-        } catch (e) {
+        } catch {
           setToast({ visible: true, message: 'Não foi possível excluir.', type: 'error' });
         }
       }
@@ -60,7 +60,7 @@ export default function RoutinesListScreen() {
       let data;
       try {
           data = JSON.parse(content);
-      } catch (e) {
+      } catch {
           return setToast({ visible: true, message: 'O texto copiado não é um JSON válido.', type: 'error' });
       }
 

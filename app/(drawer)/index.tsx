@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
-import { Link, useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 
@@ -132,7 +132,7 @@ export default function HomeScreen() {
                   <Text className="text-subtext mt-1">{routine.description}</Text>
                 </View>
                 <View className="w-8 h-8 bg-primary rounded-full justify-center items-center">
-                  <Text className="text-white font-bold text-lg">></Text>
+                  <Text className="text-white font-bold text-lg">{'>'}</Text>
                 </View>
               </View>
             </TouchableOpacity>

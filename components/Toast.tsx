@@ -17,6 +17,11 @@ export function Toast({
   onHide,
 }: ToastProps) {
   const slideAnim = useRef(new Animated.Value(-100)).current;
+  const onHideRef = useRef(onHide);
+
+  useEffect(() => {
+    onHideRef.current = onHide;
+  }, [onHide]);
 
   useEffect(() => {
     if (visible) {
@@ -33,7 +38,7 @@ export function Toast({
           duration: 300,
           useNativeDriver: true,
         }).start(() => {
-          onHide?.();
+          onHideRef.current?.();
         });
       }, duration);
 
@@ -41,7 +46,7 @@ export function Toast({
     } else {
       slideAnim.setValue(-100);
     }
-  }, [visible, duration]);
+  }, [visible, duration, slideAnim]);
 
   if (!visible) return null;
 

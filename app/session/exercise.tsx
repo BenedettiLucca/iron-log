@@ -4,14 +4,11 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  Alert,
-  Platform,
   Modal,
   StyleSheet,
-  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -103,7 +100,7 @@ export default function ExerciseScreen() {
     return () => clearInterval(interval);
   }, [timerStatus, timerTarget]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setNextExercise(null);
 
@@ -155,9 +152,9 @@ export default function ExerciseScreen() {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [sessionId, exerciseId, routineId]);
 
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     try {
       const history = await db.select({
         sessionId: sets.sessionId,
@@ -177,12 +174,12 @@ export default function ExerciseScreen() {
     } catch (e) {
       console.error("Erro SQL Histórico:", e);
     }
-  };
+  }, [exerciseId]);
 
   useEffect(() => {
     loadData();
     loadHistory();
-  }, [sessionId, exerciseId]);
+  }, [loadData, loadHistory]);
 
   // Cleanup undo timeout
   useEffect(() => {

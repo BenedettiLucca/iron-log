@@ -4,14 +4,12 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
-  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { db } from '../../src/db/client';
-import { sessions, bodyMetrics, sets, exercises } from '../../src/db/schema';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { sessions, bodyMetrics, sets } from '../../src/db/schema';
+import { eq, desc } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';

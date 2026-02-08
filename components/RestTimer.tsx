@@ -1,4 +1,4 @@
-import React, { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import React, { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface RestTimerProps {
@@ -33,7 +33,7 @@ export function RestTimer({
     } else {
       slideAnim.setValue(1);
     }
-  }, [visible]);
+  }, [visible, slideAnim]);
 
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60);

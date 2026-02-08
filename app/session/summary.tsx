@@ -2,14 +2,13 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '../../src/db/client';
-import { sessions, sets, routineExercises, sessions as sessionsTable } from '../../src/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { sets, routineExercises, sessions as sessionsTable } from '../../src/db/schema';
+import { eq } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
@@ -45,9 +44,9 @@ export default function SummaryScreen() {
 
   useEffect(() => {
     generateMarkdown();
-  }, []);
+  }, [generateMarkdown]);
 
-  const generateMarkdown = async () => {
+  const generateMarkdown = useCallback(async () => {
     try {
       // 1. Buscar Sessão
       const sessionDataResult = await db.select().from(sessionsTable).where(eq(sessionsTable.id, Number(sessionId)));
@@ -160,7 +159,7 @@ export default function SummaryScreen() {
       console.error(e);
       setReport('Erro ao gerar relatório.');
     }
-  };
+  }, [sessionId]);
 
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(report);
