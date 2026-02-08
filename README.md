@@ -51,6 +51,14 @@ Para habilitar o backup no Google Drive:
     EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id-aqui.apps.googleusercontent.com
     ```
 
+### 📦 Build de Produção (APK)
+Para que o Google Login funcione no APK gerado:
+
+1.  **Variáveis de Ambiente:** As variáveis `EXPO_PUBLIC_` são embutidas no app durante o build. Certifique-se de que o arquivo `.env` existe no ambiente onde o build será gerado.
+2.  **Assinatura (SHA-1):** No Google Cloud Console, você deve adicionar o **SHA-1 da sua Keystore de Produção**.
+    *   O SHA-1 de desenvolvimento (Expo Go/Dev Client) é diferente do SHA-1 de produção.
+    *   Se usar **EAS Build**, o EAS gerencia isso para você. Use `eas credentials` para ver o hash correto.
+
 ---
 
 ## 📋 Guia de Importação (JSON)
