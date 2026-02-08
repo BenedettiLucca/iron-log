@@ -7,7 +7,6 @@ import {
   Alert,
   Platform,
   Modal,
-  ScrollView,
   StyleSheet,
   ActivityIndicator
 } from 'react-native';
@@ -354,12 +353,8 @@ export default function ExerciseScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <ScrollView
-        className="flex-1"
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
-        <View className="bg-card border-b border-border">
+      {/* Header */}
+      <View className="bg-card border-b border-border">
           <View className="p-4">
             {/* Progress Bar */}
             {totalExercises > 0 && (
@@ -631,8 +626,6 @@ export default function ExerciseScreen() {
         onAddTime={addTime}
         nextExerciseName={nextExercise?.name}
       />
-
-      </ScrollView>
 
       <Toast
         visible={toast.visible}
