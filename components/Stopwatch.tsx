@@ -6,9 +6,10 @@ interface StopwatchProps {
   paused?: boolean;
   onTogglePause?: () => void;
   editable?: boolean;
+  className?: string;
 }
 
-export function Stopwatch({ startTime, paused = false, onTogglePause, editable = false }: StopwatchProps) {
+export function Stopwatch({ startTime, paused = false, onTogglePause, editable = false, className }: StopwatchProps) {
   const [seconds, setSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(paused);
 
@@ -45,7 +46,7 @@ export function Stopwatch({ startTime, paused = false, onTogglePause, editable =
   };
 
   const content = (
-    <Text className="text-white font-mono text-xl font-bold tracking-widest">
+    <Text className={`font-mono text-xl font-bold tracking-widest ${className || 'text-text'}`}>
       {formatTime(seconds)}
     </Text>
   );

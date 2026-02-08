@@ -426,9 +426,10 @@ export default function ExerciseScreen() {
               <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
             </View>
           ) : (
-            sessionSets.map((item) => (
+            sessionSets.map((item, index) => (
               <SetCard
                 key={item.id}
+                index={index}
                 setNumber={item.setNumber}
                 weight={item.weightKg}
                 reps={item.reps || undefined}

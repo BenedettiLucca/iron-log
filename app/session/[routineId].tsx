@@ -8,6 +8,7 @@ import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
+import Animated, { FadeInLeft } from 'react-native-reanimated';
 
 export default function SessionScreen() {
   const { routineId, routineName } = useLocalSearchParams();
@@ -23,18 +24,10 @@ export default function SessionScreen() {
   // Proteção contra saída acidental
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      // Se for para a tela de finalização, permite sem perguntar
-      // Mas como usamos router.replace para finalização, o evento é diferente?
-      // Vamos verificar se a ação é POP (voltar)
-
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
-
-      // Previne a saída padrão
       e.preventDefault();
-
-      // Mostra dialog customizado
       setPendingNavigation(e.data.action);
       setShowExitDialog(true);
     });
@@ -42,7 +35,6 @@ export default function SessionScreen() {
     return unsubscribe;
   }, [navigation]);
 
-  // Garante que routineId é string única
   const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
 
   const loadExercises = useCallback(async () => {
@@ -66,7 +58,6 @@ export default function SessionScreen() {
       }
   }, [rIdStr]);
 
-  // 1. Inicializar Sessão e Carregar Exercícios
   useEffect(() => {
     const initSession = async () => {
       try {
@@ -110,17 +101,17 @@ export default function SessionScreen() {
   return (
     <View className="flex-1 bg-background">
       <Stack.Screen options={{
-        headerTitle: () => <Stopwatch startTime={startTime} />,
+        headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
         headerRight: () => (
-          <TouchableOpacity onPress={finishSession} className="bg-danger px-3 py-1 rounded">
-            <Text className="text-white font-bold text-xs">FIM</Text>
+          <TouchableOpacity onPress={finishSession} className="bg-danger px-3 py-1.5 rounded-lg shadow-sm">
+            <Text className="text-white font-bold text-xs uppercase tracking-wide">FIM</Text>
           </TouchableOpacity>
         ),
       }} />
 
-      <View className="p-4 bg-card border-b border-border">
-        <Text className="text-subtext uppercase text-xs font-bold tracking-widest mb-1">Treino Atual</Text>
-        <Text className="text-text text-2xl font-bold mb-4">{routineName}</Text>
+      <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
+        <Text className="text-subtext uppercase text-[10px] font-black tracking-widest mb-1">Treino Ativo</Text>
+        <Text className="text-text text-3xl font-black mb-4 tracking-tight">{routineName}</Text>
 
         <SessionProgress sessionId={sessionId} routineExs={routineExs} />
       </View>
@@ -129,10 +120,11 @@ export default function SessionScreen() {
         data={routineExs}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, gap: 12 }}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <ExerciseCard 
             exercise={item} 
             sessionId={sessionId} 
+            index={index}
             onPress={() => router.push({
               pathname: '/session/exercise',
               params: { 
@@ -183,9 +175,7 @@ export default function SessionScreen() {
   );
 }
 
-// Subcomponente para mostrar status de cada exercício
-function ExerciseCard({ exercise, sessionId, onPress }: any) {
-  // Query reativa para saber quantos sets já foram feitos deste exercício
+function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
@@ -196,56 +186,63 @@ function ExerciseCard({ exercise, sessionId, onPress }: any) {
   const isActive = doneSets > 0;
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className={`p-4 rounded-xl border ${isActive ? 'bg-card border-primary shadow-md' : 'bg-card border-border'} flex-row justify-between items-center`}
-    >
-      <View className="flex-1">
-        <View className="flex-row items-center gap-2">
-          <Text className={`text-lg font-bold ${isActive ? 'text-text' : 'text-subtext'}`}>
-            {exercise.name}
-          </Text>
-          {isActive && (
-            <View className="bg-success/20 px-2 py-0.5 rounded-full border border-success/30">
-              <Text className="text-success text-[10px] font-bold">{doneSets} {doneSets === 1 ? 'série' : 'séries'}</Text>
-            </View>
+    <Animated.View entering={FadeInLeft.delay(index * 100).springify()}>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.7}
+        className={`p-5 rounded-2xl border flex-row justify-between items-center transition-all ${
+          isActive 
+            ? 'bg-card border-primary shadow-md' 
+            : 'bg-card border-border shadow-sm'
+        }`}
+      >
+        <View className="flex-1">
+          <View className="flex-row items-center gap-2 mb-1">
+            <Text className={`text-lg font-black tracking-tight ${isActive ? 'text-text' : 'text-subtext'}`}>
+              {exercise.name}
+            </Text>
+            {isActive && (
+              <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
+                <Text className="text-success text-[10px] font-bold uppercase tracking-wide">
+                  {doneSets} {doneSets === 1 ? 'série' : 'séries'}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {(exercise.target || exercise.notes) && (
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                  {exercise.target && (
+                      <Text className="text-primary text-[10px] bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
+                          Meta: {exercise.target}
+                      </Text>
+                  )}
+                  {exercise.notes && (
+                      <Text className="text-subtext text-xs italic" numberOfLines={1}>
+                        📝 {exercise.notes}
+                      </Text>
+                  )}
+              </View>
           )}
+
+          <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
+            {doneSets > 0 ? 'Em andamento...' : 'Toque para iniciar'}
+          </Text>
         </View>
 
-        {/* Metadados (Target/Notes) */}
-        {(exercise.target || exercise.notes) && (
-            <View className="mt-2 flex-row flex-wrap gap-2">
-                {exercise.target && (
-                    <Text className="text-primary text-xs bg-background px-2 py-1 rounded-md border border-primary/20 font-semibold">
-                        {exercise.target}
-                    </Text>
-                )}
-                {exercise.notes && (
-                    <Text className="text-subtext text-xs italic" numberOfLines={1}>
-                      📝 {exercise.notes}
-                    </Text>
-                )}
-            </View>
+        {doneSets > 0 && (
+          <View className="ml-4">
+              <View className="w-6 h-6 bg-success rounded-full border-[3px] border-white shadow-sm items-center justify-center">
+                <Text className="text-white text-[8px] font-bold">✓</Text>
+              </View>
+          </View>
         )}
-
-        <Text className={`text-sm mt-2 ${isActive ? 'text-text font-semibold' : 'text-subtext'}`}>
-          {doneSets > 0 ? `${doneSets} ${doneSets === 1 ? 'série' : 'séries'} concluída${doneSets === 1 ? '' : 's'}` : 'Toque para iniciar'}
-        </Text>
-      </View>
-
-      {doneSets > 0 && (
-        <View className="ml-3">
-            <View className="w-4 h-4 bg-success rounded-full border-2 border-white shadow-sm" />
-        </View>
-      )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
-// Subcomponente para mostrar progresso da sessão
 function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
-  // Query reativa para contar exercícios conclúdos (usa DISTINCT para não duplicar)
   const { data: completedData } = useLiveQuery(
     db.select({ exerciseId: sets.exerciseId })
       .from(sets)
@@ -253,16 +250,14 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
       .orderBy(sets.exerciseId)
   );
 
-  // Usa Set para remover duplicatas e contar exercícios únicos
   const completedExerciseIds = new Set(completedData?.map(s => s.exerciseId) || []);
   const completedCount = completedExerciseIds.size;
   const totalCount = routineExs.length;
 
-  // Se não tiver exercícios, não mostra a barra
   if (totalCount === 0) return null;
 
   return (
-    <View className="mt-2">
+    <View className="mt-4">
       <ProgressBar
         current={completedCount}
         total={totalCount}

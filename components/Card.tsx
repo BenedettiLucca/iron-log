@@ -33,7 +33,7 @@ export function Card({
     }
   };
 
-  const cardClasses = `${getVariantClasses()} rounded-xl overflow-hidden ${
+  const cardClasses = `${getVariantClasses()} rounded-2xl overflow-hidden ${
     contentPadding ? 'p-4' : ''
   }`;
 
