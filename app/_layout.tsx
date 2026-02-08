@@ -3,6 +3,7 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { db } from '../src/db/client';
 import migrations from '../drizzle/migrations';
 import { View, Text, ActivityIndicator } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
 import { useColorScheme } from '../hooks/use-color-scheme';
 
@@ -29,20 +30,22 @@ export default function Layout() {
   }
 
   return (
-    <Stack screenOptions={{ 
-      headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' }, 
-      headerTintColor: '#fff',
-      headerTitleStyle: { fontWeight: 'bold' },
-      contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }
-    }}>
-      {/* O Drawer é a tela principal */}
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-      
-      {/* Fluxo de Sessão (Stack Pura) */}
-      <Stack.Screen name="session/[routineId]" options={{ title: 'Treino Ativo' }} />
-      <Stack.Screen name="session/exercise" options={{ title: 'Exercício', headerShown: false }} />
-      <Stack.Screen name="session/finish" options={{ title: 'Finalizar' }} />
-      <Stack.Screen name="session/summary" options={{ title: 'Resumo' }} />
-    </Stack>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Stack screenOptions={{
+        headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
+        contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }
+      }}>
+        {/* O Drawer é a tela principal */}
+        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+
+        {/* Fluxo de Sessão (Stack Pura) */}
+        <Stack.Screen name="session/[routineId]" options={{ title: 'Treino Ativo' }} />
+        <Stack.Screen name="session/exercise" options={{ title: 'Exercício', headerShown: false }} />
+        <Stack.Screen name="session/finish" options={{ title: 'Finalizar' }} />
+        <Stack.Screen name="session/summary" options={{ title: 'Resumo' }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 }

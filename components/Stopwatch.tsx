@@ -1,27 +1,71 @@
 import { useState, useEffect } from 'react';
-import { Text } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
-export function Stopwatch({ startTime }: { startTime: number }) {
+interface StopwatchProps {
+  startTime: number;
+  paused?: boolean;
+  onTogglePause?: () => void;
+  editable?: boolean;
+}
+
+export function Stopwatch({ startTime, paused = false, onTogglePause, editable = false }: StopwatchProps) {
   const [seconds, setSeconds] = useState(0);
+  const [isPaused, setIsPaused] = useState(paused);
 
   useEffect(() => {
-    console.log("Stopwatch mounted with startTime:", startTime);
+    setIsPaused(paused);
+  }, [paused]);
+
+  useEffect(() => {
+    if (isPaused) return;
+
     const interval = setInterval(() => {
       setSeconds(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startTime]);
+  }, [startTime, isPaused]);
 
   const formatTime = (totalSeconds: number) => {
-    const m = Math.floor(totalSeconds / 60);
-    const s = totalSeconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  return (
+  const handlePress = () => {
+    if (editable && onTogglePause) {
+      setIsPaused(!isPaused);
+      onTogglePause();
+    }
+  };
+
+  const content = (
     <Text className="text-white font-mono text-xl font-bold tracking-widest">
       {formatTime(seconds)}
     </Text>
   );
+
+  if (editable) {
+    return (
+      <TouchableOpacity
+        onPress={handlePress}
+        className="flex-row items-center gap-2"
+        activeOpacity={0.7}
+      >
+        {content}
+        {isPaused && (
+          <View className="bg-warning/20 px-2 py-0.5 rounded">
+            <Text className="text-warning text-[10px] font-bold">PAUSADO</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 }

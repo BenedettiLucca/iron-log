@@ -1,11 +1,13 @@
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
-import { eq, and, count } from 'drizzle-orm';
+import { eq, and, count, sql } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { ProgressBar } from '../../components/ProgressBar';
+import { Card } from '../../components/Card';
 
 export default function SessionScreen() {
   const { routineId, routineName } = useLocalSearchParams();
@@ -98,10 +100,24 @@ export default function SessionScreen() {
 
   const finishSession = () => {
     if (!sessionId) return;
-    router.replace({
-      pathname: '/session/finish',
-      params: { sessionId, startTime }
-    });
+
+    Alert.alert(
+      'Finalizar Treino?',
+      'Você ainda pode estar com exercícios pendentes. Deseja finalizar mesmo assim?',
+      [
+        { text: 'Continuar Treino', style: 'cancel' },
+        {
+          text: 'Finalizar',
+          style: 'destructive',
+          onPress: () => {
+            router.replace({
+              pathname: '/session/finish',
+              params: { sessionId, startTime }
+            });
+          }
+        },
+      ]
+    );
   };
 
   if (!sessionId) return <View className="flex-1 bg-background" />;
@@ -119,7 +135,9 @@ export default function SessionScreen() {
 
       <View className="p-4 bg-card border-b border-border">
         <Text className="text-subtext uppercase text-xs font-bold tracking-widest mb-1">Treino Atual</Text>
-        <Text className="text-text text-2xl font-bold">{routineName}</Text>
+        <Text className="text-text text-2xl font-bold mb-4">{routineName}</Text>
+
+        <SessionProgress sessionId={sessionId} routineExs={routineExs} />
       </View>
 
       <FlatList 
@@ -163,41 +181,74 @@ function ExerciseCard({ exercise, sessionId, onPress }: any) {
   const isActive = doneSets > 0;
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
+      activeOpacity={0.7}
       className={`p-4 rounded-xl border ${isActive ? 'bg-card border-primary shadow-md' : 'bg-card border-border'} flex-row justify-between items-center`}
     >
       <View className="flex-1">
-        <Text className={`text-lg font-bold ${isActive ? 'text-text' : 'text-subtext'}`}>
-          {exercise.name}
-        </Text>
-        
+        <View className="flex-row items-center gap-2">
+          <Text className={`text-lg font-bold ${isActive ? 'text-text' : 'text-subtext'}`}>
+            {exercise.name}
+          </Text>
+          {isActive && (
+            <View className="bg-success/20 px-2 py-0.5 rounded-full border border-success/30">
+              <Text className="text-success text-[10px] font-bold">{doneSets} {doneSets === 1 ? 'série' : 'séries'}</Text>
+            </View>
+          )}
+        </View>
+
         {/* Metadados (Target/Notes) */}
         {(exercise.target || exercise.notes) && (
-            <View className="mt-1 flex-row flex-wrap gap-2">
+            <View className="mt-2 flex-row flex-wrap gap-2">
                 {exercise.target && (
-                    <Text className="text-primary text-xs bg-background px-2 py-0.5 rounded border border-primary/20">
-                        Meta: {exercise.target}
+                    <Text className="text-primary text-xs bg-background px-2 py-1 rounded-md border border-primary/20 font-semibold">
+                        {exercise.target}
                     </Text>
                 )}
                 {exercise.notes && (
-                    <Text className="text-subtext text-xs italic mt-0.5" numberOfLines={1}>
-                        {exercise.notes}
+                    <Text className="text-subtext text-xs italic" numberOfLines={1}>
+                      📝 {exercise.notes}
                     </Text>
                 )}
             </View>
         )}
 
-        <Text className="text-subtext text-sm mt-1">
-          {doneSets > 0 ? `${doneSets} séries feitas` : 'Toque para iniciar'}
+        <Text className={`text-sm mt-2 ${isActive ? 'text-text font-semibold' : 'text-subtext'}`}>
+          {doneSets > 0 ? `${doneSets} ${doneSets === 1 ? 'série' : 'séries'} concluída${doneSets === 1 ? '' : 's'}` : 'Toque para iniciar'}
         </Text>
       </View>
-      
+
       {doneSets > 0 && (
-        <View className="ml-2">
-            <View className="w-3 h-3 bg-success rounded-full" />
+        <View className="ml-3">
+            <View className="w-4 h-4 bg-success rounded-full border-2 border-white shadow-sm" />
         </View>
       )}
     </TouchableOpacity>
+  );
+}
+
+// Subcomponente para mostrar progresso da sessão
+function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
+  // Query reativa para contar exercícios concluídos
+  const { data: completedData } = useLiveQuery(
+    db.select({ exerciseId: sets.exerciseId })
+      .from(sets)
+      .where(eq(sets.sessionId, sessionId))
+  );
+
+  const completedExerciseIds = new Set(completedData?.map(s => s.exerciseId) || []);
+  const completedCount = completedExerciseIds.size;
+  const totalCount = routineExs.length;
+
+  return (
+    <View className="mt-2">
+      <ProgressBar
+        current={completedCount}
+        total={totalCount}
+        variant="header"
+        showLabel={true}
+      />
+    </View>
   );
 }

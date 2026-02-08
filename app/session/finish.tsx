@@ -1,106 +1,299 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { db } from '../../src/db/client';
-import { sessions, bodyMetrics } from '../../src/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { sessions, bodyMetrics, sets, exercises } from '../../src/db/schema';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
+import { Button } from '../../components/Button';
+import { Stopwatch } from '../../components/Stopwatch';
+
+interface NoteTemplate {
+  label: string;
+  emoji: string;
+  text: string;
+}
+
+const NOTE_TEMPLATES: NoteTemplate[] = [
+  { label: 'Jejum', emoji: '🍽️', text: 'Treino feito em jejum' },
+  { label: 'Ruim', emoji: '😴', text: 'Dia ruim, baixa energia' },
+  { label: 'PR!', emoji: '🏆', text: 'Recorde pessoal batido!' },
+  { label: 'Cardio', emoji: '❤️', text: 'Incluí cardio extra' },
+];
+
+const SRPE_DESCRIPTIONS: Record<number, string> = {
+  1: 'Recuperação',
+  2: 'Muito Leve',
+  3: 'Leve',
+  4: 'Moderado',
+  5: 'Moderado',
+  6: 'Intenso',
+  7: 'Muito Intenso',
+  8: 'Extremo',
+  9: 'Máximo',
+  10: 'Falha',
+};
 
 export default function FinishSessionScreen() {
   const router = useRouter();
   const { sessionId, startTime } = useLocalSearchParams();
-  
-  const [weight, setWeight] = useState('');
-  const [sRpe, setSRpe] = useState<number>(7); // Média
-  const [notes, setNotes] = useState('');
 
-  // Pré-carregar peso da Bio
+  const [weight, setWeight] = useState('');
+  const [previousWeight, setPreviousWeight] = useState<number | null>(null);
+  const [lastWeightDate, setLastWeightDate] = useState<string>('');
+  const [sRpe, setSRpe] = useState<number>(7);
+  const [notes, setNotes] = useState('');
+  const [sessionStats, setSessionStats] = useState({
+    totalSets: 0,
+    totalVolume: 0,
+    totalExercises: 0,
+    completedExercises: 0,
+    prCount: 0,
+  });
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
-    const fetchLastWeight = async () => {
-        try {
-            const lastMetrics = await db.select({ weight: bodyMetrics.weight })
-                .from(bodyMetrics)
-                .where(eq(bodyMetrics.type, 'daily')) // Ou qualquer tipo que tenha peso
-                .orderBy(desc(bodyMetrics.date))
-                .limit(1);
-            
-            if (lastMetrics.length > 0 && lastMetrics[0].weight) {
-                setWeight(lastMetrics[0].weight.toString());
-            }
-        } catch (e) {
-            console.error("Erro ao buscar peso:", e);
+    const loadData = async () => {
+      try {
+        // Load last weight
+        const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
+          .from(bodyMetrics)
+          .where(eq(bodyMetrics.type, 'daily'))
+          .orderBy(desc(bodyMetrics.date))
+          .limit(1);
+
+        if (lastMetrics.length > 0 && lastMetrics[0].weight) {
+          setWeight(lastMetrics[0].weight.toString());
+          setPreviousWeight(lastMetrics[0].weight);
+
+          const date = new Date(lastMetrics[0].date);
+          setLastWeightDate(date.toLocaleDateString());
         }
+
+        // Calculate session statistics
+        const sessionIdNum = Number(sessionId);
+
+        // Get all sets for this session
+        const sessionSets = await db.select()
+          .from(sets)
+          .where(eq(sets.sessionId, sessionIdNum));
+
+        // Calculate total volume (weight × reps for strength exercises)
+        let totalVolume = 0;
+        let totalSets = sessionSets.length;
+
+        for (const set of sessionSets) {
+          if (set.reps && set.weightKg) {
+            totalVolume += set.reps * set.weightKg;
+          }
+        }
+
+        // Count unique exercises
+        const uniqueExercises = new Set(sessionSets.map(s => s.exerciseId)).size;
+
+        setSessionStats({
+          totalSets,
+          totalVolume,
+          totalExercises: uniqueExercises,
+          completedExercises: uniqueExercises,
+          prCount: 0, // TODO: Calculate PR count by comparing with previous sessions
+        });
+
+      } catch (e) {
+        console.error("Erro ao carregar dados:", e);
+      }
     };
-    fetchLastWeight();
-  }, []);
+    loadData();
+  }, [sessionId]);
+
+  const adjustWeight = (delta: number) => {
+    const current = parseFloat(weight) || 0;
+    const newValue = Math.max(0, current + delta);
+    setWeight(newValue.toString());
+  };
+
+  const insertTemplate = (template: NoteTemplate) => {
+    const currentText = notes.trim();
+    const newText = currentText ? `${currentText}\n${template.text}` : template.text;
+    setNotes(newText);
+  };
 
   const handleFinish = async () => {
-    try {
-      const endTimestamp = Date.now();
-      const startTimestamp = Number(startTime);
-      const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
+    if (isFinishing) return;
 
-      // 1. Atualizar Sessão
-      await db.update(sessions)
-        .set({
-          endTime: endTimestamp,
-          durationMinutes: durationMinutes > 0 ? durationMinutes : 1, // Mínimo 1 min
-          bodyWeight: weight ? Number(weight) : null,
-          sRpe: sRpe,
-          notes: notes
-        })
-        .where(eq(sessions.id, Number(sessionId)));
+    Alert.alert(
+      'Finalizar Treino?',
+      `Confira os dados antes de finalizar:\n\n` +
+      `• ${sessionStats.totalSets} séries\n` +
+      `• ${sessionStats.totalExercises} exercícios\n` +
+      `• ${(sessionStats.totalVolume / 1000).toFixed(1)} toneladas de volume\n` +
+      `• Peso: ${weight || 'N/A'} kg\n` +
+      `• sRPE: ${sRpe}`,
+      [
+        { text: 'Voltar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            setIsFinishing(true);
+            try {
+              const endTimestamp = Date.now();
+              const startTimestamp = Number(startTime);
+              const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
 
-      // 2. Salvar Peso na Bio (Sincronização)
-      if (weight) {
-          await db.insert(bodyMetrics).values({
-              date: endTimestamp,
-              type: 'daily',
-              weight: Number(weight)
-          });
-      }
+              // 1. Atualizar Sessão
+              await db.update(sessions)
+                .set({
+                  endTime: endTimestamp,
+                  durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
+                  bodyWeight: weight ? Number(weight) : null,
+                  sRpe: sRpe,
+                  notes: notes
+                })
+                .where(eq(sessions.id, Number(sessionId)));
 
-      // Navegar para o resumo
-      router.replace({
-        pathname: '/session/summary',
-        params: { sessionId }
-      });
+              // 2. Salvar Peso na Bio (Sincronização)
+              if (weight) {
+                await db.insert(bodyMetrics).values({
+                  date: endTimestamp,
+                  type: 'daily',
+                  weight: Number(weight)
+                });
+              }
 
-    } catch (e) {
-      console.error(e);
-      Alert.alert('Erro', 'Falha ao finalizar sessão.');
-    }
+              // Navegar para o resumo
+              router.replace({
+                pathname: '/session/summary',
+                params: { sessionId }
+              });
+
+            } catch (e) {
+              console.error(e);
+              Alert.alert('Erro', 'Falha ao finalizar sessão.');
+              setIsFinishing(false);
+            }
+          }
+        }
+      ]
+    );
   };
+
+  const getWeightDiff = () => {
+    if (!previousWeight || !weight) return null;
+    const current = parseFloat(weight);
+    const diff = current - previousWeight;
+    if (Math.abs(diff) < 0.1) return null;
+    return diff;
+  };
+
+  const weightDiff = getWeightDiff();
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <Text className="text-text text-3xl font-bold mb-6">Finalizar Treino</Text>
+        <Text className="text-text text-3xl font-bold mb-2">Finalizar Treino</Text>
+        <Text className="text-subtext mb-6">Revise seus dados antes de salvar</Text>
+
+        {/* Session Statistics Card */}
+        <View style={styles.statsCard}>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Estatísticas da Sessão</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{sessionStats.totalSets}</Text>
+              <Text style={styles.statLabel}>Séries</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>{sessionStats.totalExercises}</Text>
+              <Text style={styles.statLabel}>Exercícios</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>
+                {sessionStats.totalVolume >= 1000
+                  ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
+                  : sessionStats.totalVolume}
+              </Text>
+              <Text style={styles.statLabel}>kg Volume</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Session Duration */}
+        <View className="bg-card p-4 rounded-xl border border-border mb-6 flex-row items-center justify-between">
+          <View>
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">Duração</Text>
+            <View className="flex-row items-center gap-2">
+              <Stopwatch startTime={Number(startTime)} />
+            </View>
+          </View>
+        </View>
 
         {/* Peso Corporal */}
-        <View className="mb-6">
-          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">Peso Corporal (KG)</Text>
-          <TextInput
-            className="bg-card text-text text-xl p-4 rounded-xl border border-border"
-            keyboardType="numeric"
-            placeholder="Ex: 82.5"
-            placeholderTextColor="#9CA3AF"
-            value={weight}
-            onChangeText={setWeight}
-          />
+        <View style={styles.inputSection}>
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Peso Corporal (KG)</Text>
+            {lastWeightDate && (
+              <Text className="text-subtext text-xs">Último: {lastWeightDate}</Text>
+            )}
+          </View>
+
+          <View style={styles.weightInputContainer}>
+            <TextInput
+              style={styles.weightInput}
+              keyboardType="numeric"
+              placeholder="82.5"
+              placeholderTextColor="#9CA3AF"
+              value={weight}
+              onChangeText={setWeight}
+              textAlign="center"
+            />
+
+            <View style={styles.weightButtons}>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => adjustWeight(-0.5)}
+              >
+                <Text style={styles.weightButtonText}>-0.5</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.weightButton}
+                onPress={() => adjustWeight(0.5)}
+              >
+                <Text style={styles.weightButtonText}>+0.5</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {weightDiff !== null && (
+            <Text style={[
+              styles.weightDiff,
+              { color: weightDiff > 0 ? '#81B29A' : '#EF6464' }
+            ]}>
+              {weightDiff > 0 ? '↑' : '↓'} {Math.abs(weightDiff).toFixed(1)}kg vs. anterior
+            </Text>
+          )}
         </View>
 
         {/* sRPE Selector */}
-        <View className="mb-6">
+        <View style={styles.inputSection}>
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Esforço Percebido (sRPE)</Text>
-            <View className="bg-primary px-4 py-1 rounded-full">
-                <Text className="text-white font-bold text-xl">{sRpe}</Text>
+            <View className="bg-primary px-4 py-1.5 rounded-full">
+              <Text className="text-white font-bold text-xl">{sRpe}</Text>
             </View>
           </View>
-          
+
           <Slider
-            style={{width: '100%', height: 40}}
+            style={{ width: '100%', height: 40 }}
             minimumValue={1}
             maximumValue={10}
             step={1}
@@ -111,23 +304,53 @@ export default function FinishSessionScreen() {
             thumbTintColor="#E07A5F"
           />
 
-          <View className="flex-row justify-between px-1">
-              <Text className="text-subtext text-[10px]">REGENERATIVO</Text>
-              <Text className="text-subtext text-[10px]">MÁXIMO</Text>
+          <View className="flex-row justify-between px-1 mt-1">
+            <Text className="text-subtext text-[10px]">REGENERATIVO</Text>
+            <Text className="text-subtext text-[10px]">MÁXIMO</Text>
           </View>
 
-          <Text className="text-primary font-bold text-center mt-4 text-lg">
-            {sRpe <= 4 ? "Leve / Aquecimento" : sRpe <= 6 ? "Moderado" : sRpe <= 8 ? "Intenso / RPE 8-9" : "Falha Total"}
-          </Text>
+          <View className="bg-background mt-4 p-4 rounded-xl border border-border">
+            <Text className="text-text text-center font-semibold text-lg">
+              {SRPE_DESCRIPTIONS[sRpe] || 'Moderado'}
+            </Text>
+            <Text className="text-subtext text-center text-xs mt-1">
+              {sRpe <= 4 ? 'Treino leve, pode treinar novamente amanhã' :
+                sRpe <= 6 ? 'Treino moderado, recuperação normal' :
+                  sRpe <= 8 ? 'Treino intenso, precisa de descanso' :
+                    'Treino extremo, descanse bem'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Note Templates */}
+        <View style={styles.inputSection}>
+          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">Notas Rápidas</Text>
+          <View style={styles.templatesGrid}>
+            {NOTE_TEMPLATES.map((template) => (
+              <TouchableOpacity
+                key={template.label}
+                style={styles.templateButton}
+                onPress={() => insertTemplate(template)}
+              >
+                <Text style={styles.templateEmoji}>{template.emoji}</Text>
+                <Text style={styles.templateLabel}>{template.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* Notas */}
-        <View className="mb-8">
-          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">Observações</Text>
+        <View style={styles.inputSection}>
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Observações</Text>
+            {notes.length > 0 && (
+              <Text className="text-subtext text-xs">{notes.length} caracteres</Text>
+            )}
+          </View>
           <TextInput
-            className="bg-card text-text text-lg p-4 rounded-xl border border-border min-h-[100px]"
+            className="bg-card text-text text-base p-4 rounded-xl border border-border min-h-[120px]"
             multiline
-            placeholder="Dores, ajustes de carga, energia..."
+            placeholder="Como você se sentiu? Dores, ajustes de carga, energia..."
             placeholderTextColor="#9CA3AF"
             value={notes}
             onChangeText={setNotes}
@@ -135,14 +358,115 @@ export default function FinishSessionScreen() {
           />
         </View>
 
-        <TouchableOpacity 
-          className="bg-success p-4 rounded-xl items-center shadow-lg active:opacity-90"
+        <Button
+          title={isFinishing ? 'FINALIZANDO...' : 'GERAR RELATÓRIO'}
           onPress={handleFinish}
-        >
-          <Text className="text-white font-bold text-xl uppercase tracking-widest">Gerar Relatório</Text>
-        </TouchableOpacity>
+          variant="success"
+          size="lg"
+          fullWidth
+          disabled={isFinishing}
+          style={{ marginTop: 8 }}
+        />
 
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  statsCard: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    marginBottom: 24,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#3D405B',
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#9CA3AF',
+    marginTop: 4,
+    textTransform: 'uppercase',
+  },
+  inputSection: {
+    marginBottom: 24,
+  },
+  weightInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  weightInput: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#3D405B',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    textAlign: 'center',
+  },
+  weightButtons: {
+    gap: 8,
+  },
+  weightButton: {
+    backgroundColor: '#F4F1DE',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  weightButtonText: {
+    color: '#3D405B',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  weightDiff: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 8,
+  },
+  templatesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  templateButton: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  templateEmoji: {
+    fontSize: 16,
+  },
+  templateLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#3D405B',
+  },
+});
