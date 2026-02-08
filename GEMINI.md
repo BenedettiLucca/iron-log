@@ -78,6 +78,10 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 ### Routine Import
 *   The app supports JSON import for routines. When generating routine data, strictly follow the JSON structure defined in `README.md` or `CLAUDE.md`.
 
+### Data & Backup
+*   **Export/Import:** Located in `app/(drawer)/settings.tsx`. Uses `services/DatabaseBackupService.ts`.
+*   **Google Drive Backup:** Requires `EXPO_PUBLIC_GOOGLE_CLIENT_ID` in `.env`. Uses `expo-auth-session` and Google Drive API (v3).
+
 ## 6. Important Files to Reference
 *   `package.json`: Dependencies.
 *   `src/db/schema.ts`: Database definitions.
