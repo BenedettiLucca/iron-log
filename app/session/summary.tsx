@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Alert,
   Share,
-  StyleSheet
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';

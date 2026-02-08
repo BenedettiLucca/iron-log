@@ -7,7 +7,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
@@ -281,7 +280,7 @@ export default function FinishSessionScreen() {
         </View>
 
         {/* sRPE Selector */}
-        <View style={styles.inputSection}>
+        <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Esforço Percebido (sRPE)</Text>
             <View className="bg-primary px-4 py-1.5 rounded-full">
@@ -297,7 +296,7 @@ export default function FinishSessionScreen() {
             value={sRpe}
             onValueChange={setSRpe}
             minimumTrackTintColor="#E07A5F"
-            maximumTrackTintColor="#3D405B"
+            maximumTrackTintColor="#D1D5DB"
             thumbTintColor="#E07A5F"
           />
 
