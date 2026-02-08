@@ -30,54 +30,66 @@ export function SetCard({
     if (!onEdit && !onDelete) return null;
 
     return (
-      <View style={styles.actionsContainer}>
+      <View className="flex-row items-center ml-[-1px]">
         {onEdit && (
           <TouchableOpacity
-            style={[styles.actionButton, styles.editButton]}
+            className="w-20 h-full justify-center items-center bg-secondary"
             onPress={() => {
               swipeableRef?.close();
               onEdit();
             }}
           >
-            <Text style={styles.actionButtonText}>Editar</Text>
+            <Text className="text-white text-sm font-semibold">Editar</Text>
           </TouchableOpacity>
         )}
         {onDelete && (
           <TouchableOpacity
-            style={[styles.actionButton, styles.deleteButton]}
+            className="w-20 h-full justify-center items-center bg-danger"
             onPress={() => {
               swipeableRef?.close();
               onDelete();
             }}
           >
-            <Text style={styles.actionButtonText}>Excluir</Text>
+            <Text className="text-white text-sm font-semibold">Excluir</Text>
           </TouchableOpacity>
         )}
       </View>
     );
   };
 
+  const getRirColorClass = (rir: number) => {
+    if (rir <= 1) return 'text-danger'; // Red - near failure
+    if (rir <= 3) return 'text-success'; // Green - good range
+    return 'text-secondary'; // Blue - light
+  };
+
   const content = (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      style={[styles.container, isPR && styles.prContainer]}
+      className={`p-3 rounded-xl border flex-row items-center min-h-[56px] ${
+        isPR ? 'bg-accent/10 border-accent' : 'bg-card border-border'
+      }`}
     >
-      <View style={styles.leftSection}>
-        <Text style={styles.setNumber}>#{setNumber}</Text>
-        {isPR && <View style={styles.prBadge}><Text style={styles.prText}>PR</Text></View>}
+      <View className="mr-3 items-center">
+        <Text className="text-subtext font-bold text-sm">#{setNumber}</Text>
+        {isPR && (
+          <View className="bg-accent px-1.5 py-0.5 rounded mt-1">
+            <Text className="text-text text-[10px] font-bold">PR</Text>
+          </View>
+        )}
       </View>
 
-      <View style={styles.middleSection}>
-        <Text style={styles.mainText}>
+      <View className="flex-1">
+        <Text className="text-text text-base font-semibold">
           {weight > 0 ? `${weight}kg × ` : ''}
           {duration !== undefined ? `${duration}s` : `${reps || 0} reps`}
         </Text>
       </View>
 
-      <View style={styles.rightSection}>
+      <View className="ml-3">
         {rir !== null && rir !== undefined && (
-          <Text style={[styles.rirText, getRirColor(rir)]}>RIR {rir}</Text>
+          <Text className={`text-xs font-semibold ${getRirColorClass(rir)}`}>RIR {rir}</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -97,84 +109,3 @@ export function SetCard({
 
   return content;
 }
-
-const getRirColor = (rir: number) => {
-  if (rir <= 1) return { color: '#EF6464' }; // Red - near failure
-  if (rir <= 3) return { color: '#81B29A' }; // Green - good range
-  return { color: '#3D5A80' }; // Blue - light
-};
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 56,
-  },
-  prContainer: {
-    borderColor: '#F2CC8F',
-    backgroundColor: '#FFFBF0',
-  },
-  leftSection: {
-    marginRight: 12,
-    alignItems: 'center',
-  },
-  setNumber: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#9CA3AF',
-  },
-  prBadge: {
-    backgroundColor: '#F2CC8F',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginTop: 4,
-  },
-  prText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#3D405B',
-  },
-  middleSection: {
-    flex: 1,
-  },
-  mainText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3D405B',
-  },
-  rightSection: {
-    marginLeft: 12,
-  },
-  rirText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: -1,
-  },
-  actionButton: {
-    width: 80,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editButton: {
-    backgroundColor: '#3D5A80',
-  },
-  deleteButton: {
-    backgroundColor: '#EF6464',
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

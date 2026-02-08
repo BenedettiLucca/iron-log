@@ -1,4 +1,4 @@
-import React, { View, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import React, { View, TouchableOpacity, ViewStyle } from 'react-native';
 
 export type CardVariant = 'default' | 'bordered' | 'elevated' | 'flat';
 
@@ -19,58 +19,31 @@ export function Card({
   style,
   contentPadding = true,
 }: CardProps) {
-  const getVariantStyles = (): ViewStyle => {
+  const getVariantClasses = () => {
     switch (variant) {
       case 'bordered':
-        return {
-          backgroundColor: '#FFFFFF',
-          borderWidth: 1,
-          borderColor: '#E0E0E0',
-          ...StyleSheet.hairlineWidth,
-        };
+        return 'bg-card border border-border';
       case 'elevated':
-        return {
-          backgroundColor: '#FFFFFF',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 3,
-        };
+        return 'bg-card shadow-md';
       case 'flat':
-        return {
-          backgroundColor: 'transparent',
-        };
+        return 'bg-transparent';
       case 'default':
       default:
-        return {
-          backgroundColor: '#FFFFFF',
-          borderWidth: 1,
-          borderColor: '#E0E0E0',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 2,
-          elevation: 1,
-        };
+        return 'bg-card border border-border shadow-sm';
     }
   };
 
-  const cardStyle: ViewStyle = {
-    borderRadius: 12,
-    overflow: 'hidden',
-    ...getVariantStyles(),
-    ...(contentPadding && { padding: 16 }),
-    ...style,
-  };
+  const cardClasses = `${getVariantClasses()} rounded-xl overflow-hidden ${
+    contentPadding ? 'p-4' : ''
+  }`;
 
   if (pressable && onPress) {
     return (
-      <TouchableOpacity onPress={onPress} style={cardStyle} activeOpacity={0.7}>
+      <TouchableOpacity onPress={onPress} className={cardClasses} activeOpacity={0.7} style={style}>
         {children}
       </TouchableOpacity>
     );
   }
 
-  return <View style={cardStyle}>{children}</View>;
+  return <View className={cardClasses} style={style}>{children}</View>;
 }

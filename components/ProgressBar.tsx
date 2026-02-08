@@ -31,71 +31,36 @@ export function ProgressBar({
     }
   }, [percentage, animated]);
 
-  const getVariantStyles = () => {
+  const getVariantClasses = () => {
     switch (variant) {
       case 'modal':
-        return {
-          height: 8,
-          borderRadius: 4,
-        };
+        return 'h-2';
       case 'compact':
-        return {
-          height: 4,
-          borderRadius: 2,
-        };
+        return 'h-1';
       case 'header':
       default:
-        return {
-          height: 6,
-          borderRadius: 3,
-        };
+        return 'h-1.5';
     }
   };
 
-  const barStyle = getVariantStyles();
-
   return (
-    <View style={styles.container}>
+    <View className="w-full">
       {showLabel && variant !== 'compact' && (
-        <Text style={styles.label}>
+        <Text className="text-text text-xs font-bold uppercase tracking-widest mb-2">
           {current} de {total} {total === 1 ? 'exercício' : 'exercícios'}
         </Text>
       )}
-      <View style={[styles.track, barStyle]}>
+      <View className={`bg-border overflow-hidden ${getVariantClasses()}`}>
         <Animated.View
-          style={[
-            styles.fill,
-            barStyle,
-            {
-              width: progressAnim.interpolate({
-                inputRange: [0, 100],
-                outputRange: ['0%', '100%'],
-              }),
-            },
-          ]}
+          className={`bg-primary ${getVariantClasses()}`}
+          style={{
+            width: progressAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: ['0%', '100%'],
+            }),
+          }}
         />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#3D405B',
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  track: {
-    backgroundColor: '#E0E0E0',
-    overflow: 'hidden',
-  },
-  fill: {
-    backgroundColor: '#E07A5F',
-  },
-});

@@ -1,4 +1,4 @@
-import React, { TouchableOpacity, Text, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
+import React, { TouchableOpacity, Text, ActivityIndicator, View, ViewStyle, TextStyle } from 'react-native';
 import { useState } from 'react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
@@ -31,89 +31,60 @@ export function Button({
 }: ButtonProps) {
   const [isPressed, setIsPressed] = useState(false);
 
-  const getSizeStyles = (): { view: ViewStyle; text: TextStyle } => {
+  const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return {
-          view: { paddingHorizontal: 12, paddingVertical: 8, minHeight: 36 },
-          text: { fontSize: 12, fontWeight: '600' },
-        };
+        return 'px-3 py-2 min-h-[36px]';
       case 'lg':
-        return {
-          view: { paddingHorizontal: 24, paddingVertical: 16, minHeight: 56 },
-          text: { fontSize: 18, fontWeight: '700' },
-        };
+        return 'px-6 py-4 min-h-[56px]';
       case 'md':
       default:
-        return {
-          view: { paddingHorizontal: 16, paddingVertical: 12, minHeight: 44 },
-          text: { fontSize: 14, fontWeight: '600' },
-        };
+        return 'px-4 py-3 min-h-[44px]';
     }
   };
 
-  const getVariantStyles = (): { view: ViewStyle; text: TextStyle } => {
+  const getTextSizeClasses = () => {
+    switch (size) {
+      case 'sm':
+        return 'text-xs font-semibold';
+      case 'lg':
+        return 'text-lg font-bold';
+      case 'md':
+      default:
+        return 'text-sm font-semibold';
+    }
+  };
+
+  const getVariantClasses = () => {
+    const baseClasses = 'rounded-xl items-center justify-center flex-row';
+
     switch (variant) {
       case 'secondary':
-        return {
-          view: {
-            backgroundColor: isPressed ? 'rgba(61, 90, 128, 0.2)' : 'transparent',
-            borderWidth: 1,
-            borderColor: '#3D5A80',
-          },
-          text: { color: '#3D5A80' },
-        };
+        return `${baseClasses} bg-transparent border border-secondary ${isPressed ? 'bg-secondary/20' : ''}`;
       case 'danger':
-        return {
-          view: {
-            backgroundColor: isPressed ? 'rgba(239, 100, 100, 0.8)' : '#EF6464',
-          },
-          text: { color: '#FFFFFF' },
-        };
+        return `${baseClasses} bg-danger ${isPressed ? 'opacity-80' : ''}`;
       case 'ghost':
-        return {
-          view: {
-            backgroundColor: isPressed ? 'rgba(0, 0, 0, 0.05)' : 'transparent',
-          },
-          text: { color: '#3D405B' },
-        };
+        return `${baseClasses} bg-transparent ${isPressed ? 'bg-black/5' : ''}`;
       case 'success':
-        return {
-          view: {
-            backgroundColor: isPressed ? 'rgba(129, 178, 154, 0.8)' : '#81B29A',
-          },
-          text: { color: '#FFFFFF' },
-        };
+        return `${baseClasses} bg-success ${isPressed ? 'opacity-80' : ''}`;
       case 'primary':
       default:
-        return {
-          view: {
-            backgroundColor: isPressed ? '#C96A52' : '#E07A5F',
-          },
-          text: { color: '#FFFFFF' },
-        };
+        return `${baseClasses} bg-primary ${isPressed ? 'opacity-80' : ''}`;
     }
   };
 
-  const sizeStyles = getSizeStyles();
-  const variantStyles = getVariantStyles();
-
-  const containerStyle: ViewStyle = {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    opacity: disabled ? 0.5 : 1,
-    ...sizeStyles.view,
-    ...variantStyles.view,
-    ...(fullWidth && { width: '100%' }),
-    ...style,
-  };
-
-  const contentTextStyle: TextStyle = {
-    ...sizeStyles.text,
-    ...variantStyles.text,
-    ...textStyle,
+  const getTextClasses = () => {
+    switch (variant) {
+      case 'secondary':
+        return 'text-secondary';
+      case 'danger':
+      case 'success':
+      case 'primary':
+        return 'text-white';
+      case 'ghost':
+      default:
+        return 'text-text';
+    }
   };
 
   return (
@@ -123,14 +94,24 @@ export function Button({
       onPressOut={() => setIsPressed(false)}
       disabled={disabled || loading}
       activeOpacity={0.8}
-      style={containerStyle}
+      style={[
+        { opacity: disabled ? 0.5 : 1 },
+        fullWidth && { width: '100%' },
+        style,
+      ]}
+      className={`${getVariantClasses()} ${getSizeClasses()}`}
     >
       {loading ? (
         <ActivityIndicator color="#FFFFFF" />
       ) : (
         <>
-          {icon && <View style={{ marginRight: 8 }}>{icon}</View>}
-          <Text style={contentTextStyle}>{title}</Text>
+          {icon && <View className="mr-2">{icon}</View>}
+          <Text
+            className={`${getTextSizeClasses()} ${getTextClasses()}`}
+            style={textStyle}
+          >
+            {title}
+          </Text>
         </>
       )}
     </TouchableOpacity>

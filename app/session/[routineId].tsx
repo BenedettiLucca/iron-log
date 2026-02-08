@@ -230,16 +230,21 @@ function ExerciseCard({ exercise, sessionId, onPress }: any) {
 
 // Subcomponente para mostrar progresso da sessão
 function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
-  // Query reativa para contar exercícios concluídos
+  // Query reativa para contar exercícios conclúdos (usa DISTINCT para não duplicar)
   const { data: completedData } = useLiveQuery(
     db.select({ exerciseId: sets.exerciseId })
       .from(sets)
       .where(eq(sets.sessionId, sessionId))
+      .orderBy(sets.exerciseId)
   );
 
+  // Usa Set para remover duplicatas e contar exercícios únicos
   const completedExerciseIds = new Set(completedData?.map(s => s.exerciseId) || []);
   const completedCount = completedExerciseIds.size;
   const totalCount = routineExs.length;
+
+  // Se não tiver exercícios, não mostra a barra
+  if (totalCount === 0) return null;
 
   return (
     <View className="mt-2">

@@ -48,63 +48,61 @@ export function RestTimer({
       {/* Backdrop */}
       <TouchableOpacity
         activeOpacity={1}
-        style={styles.backdrop}
+        className="absolute top-0 left-0 right-0 bottom-0 bg-black/40"
         onPress={onClose}
       />
 
       {/* Bottom Sheet */}
       <Animated.View
-        style={[
-          styles.bottomSheet,
-          {
-            transform: [{ translateY: slideAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 500]
-            }) }],
-          }
-        ]}
+        className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl pt-3 pb-8 px-6 shadow-xl"
+        style={{
+          transform: [{ translateY: slideAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 500]
+          }) }],
+        }}
       >
-        <View style={styles.handle} />
+        <View className="w-10 h-1 bg-border rounded-full self-center mb-5" />
 
-        <View style={styles.content}>
-          <Text style={styles.title}>Descanso</Text>
+        <View className="items-center">
+          <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">Descanso</Text>
 
-          <Text style={styles.timer}>
+          <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-success' : 'text-primary'}`}>
             {formatTime(seconds)}
           </Text>
 
-          <Text style={[styles.status, status === 'finished' && styles.statusFinished]}>
+          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-secondary'}`}>
             {status === 'finished' ? '✓ Pronto para próxima série' : '⏱️ Descansando...'}
           </Text>
 
           {/* Quick Actions */}
-          <View style={styles.quickActions}>
+          <View className="flex-row gap-3 w-full justify-center mb-6">
             <TouchableOpacity
-              style={styles.quickActionButton}
+              className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(30)}
             >
-              <Text style={styles.quickActionText}>+30s</Text>
+              <Text className="text-text font-bold text-base">+30s</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.quickActionButton}
+              className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(-10)}
             >
-              <Text style={styles.quickActionText}>-10s</Text>
+              <Text className="text-text font-bold text-base">-10s</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.quickActionButton, styles.skipButton]}
+              className="flex-1 bg-primary p-4 rounded-xl items-center min-h-[52px] justify-center"
               onPress={onSkip}
             >
-              <Text style={[styles.quickActionText, styles.skipButtonText]}>Pular</Text>
+              <Text className="text-white font-bold text-base">Pular</Text>
             </TouchableOpacity>
           </View>
 
           {nextExerciseName && (
-            <View style={styles.nextExercise}>
-              <Text style={styles.nextExerciseLabel}>Próximo:</Text>
-              <Text style={styles.nextExerciseName}>{nextExerciseName}</Text>
+            <View className="items-center pt-4 border-t border-border w-full">
+              <Text className="text-subtext text-xs font-bold uppercase mb-1">Próximo:</Text>
+              <Text className="text-text font-semibold text-base">{nextExerciseName}</Text>
             </View>
           )}
         </View>
@@ -112,111 +110,3 @@ export function RestTimer({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-  },
-  bottomSheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 12,
-    paddingBottom: 32,
-    paddingHorizontal: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  content: {
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  timer: {
-    fontSize: 64,
-    fontWeight: '700',
-    color: '#3D405B',
-    fontFamily: 'monospace',
-    marginBottom: 12,
-  },
-  status: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#3D5A80',
-    marginBottom: 24,
-  },
-  statusFinished: {
-    color: '#81B29A',
-  },
-  quickActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
-  },
-  quickActionButton: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    backgroundColor: '#F4F1DE',
-    borderRadius: 12,
-    alignItems: 'center',
-    minHeight: 52,
-    justifyContent: 'center',
-  },
-  quickActionText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3D405B',
-  },
-  skipButton: {
-    backgroundColor: '#E07A5F',
-  },
-  skipButtonText: {
-    color: '#FFFFFF',
-  },
-  nextExercise: {
-    alignItems: 'center',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    width: '100%',
-  },
-  nextExerciseLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  nextExerciseName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3D405B',
-  },
-});
