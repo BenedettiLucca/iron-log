@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
@@ -8,6 +8,7 @@ import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
+import { Dialog } from '../../components/Dialog';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -15,6 +16,7 @@ export default function SettingsScreen() {
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'DUMMY_ID_FOR_DEV', // Fallback to avoid crash
@@ -41,34 +43,32 @@ export default function SettingsScreen() {
   };
 
   const handleImport = async () => {
-    Alert.alert(
-      'Importar Backup',
-      'Isso substituirá TODOS os dados atuais pelos do backup. Essa ação é irreversível. Deseja continuar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Importar',
-          style: 'destructive',
-          onPress: async () => {
-            setLoading(true);
-            try {
-              const success = await DatabaseBackupService.importDb();
-              if (success) {
-                Alert.alert(
-                  'Sucesso!',
-                  'Backup importado. O app será reiniciado para aplicar as alterações.',
-                  [{ text: 'OK', onPress: () => Updates.reloadAsync() }]
-                );
-              }
-            } catch (e: any) {
-              setToast({ visible: true, message: e.message || 'Falha ao importar.', type: 'error' });
-            } finally {
-              setLoading(false);
-            }
+    setDialog({
+      visible: true,
+      title: 'Importar Backup',
+      message: 'Isso substituirá TODOS os dados atuais pelos do backup. Essa ação é irreversível. Deseja continuar?',
+      type: 'destructive',
+      onConfirm: async () => {
+        setDialog(prev => ({ ...prev, visible: false }));
+        setLoading(true);
+        try {
+          const success = await DatabaseBackupService.importDb();
+          if (success) {
+            setDialog({
+              visible: true,
+              title: 'Sucesso!',
+              message: 'Backup importado. O app será reiniciado para aplicar as alterações.',
+              type: 'default',
+              onConfirm: () => Updates.reloadAsync()
+            });
           }
+        } catch (e: any) {
+          setToast({ visible: true, message: e.message || 'Falha ao importar.', type: 'error' });
+        } finally {
+          setLoading(false);
         }
-      ]
-    );
+      }
+    });
   };
 
   const handleCloudBackup = async () => {
@@ -86,7 +86,13 @@ export default function SettingsScreen() {
 
   const initiateGoogleAuth = () => {
     if (!process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID) {
-      Alert.alert('Configuração Necessária', 'Adicione EXPO_PUBLIC_GOOGLE_CLIENT_ID ao seu arquivo .env para usar o Google Drive.');
+      setDialog({
+        visible: true,
+        title: 'Configuração Necessária',
+        message: 'Adicione EXPO_PUBLIC_GOOGLE_CLIENT_ID ao seu arquivo .env para usar o Google Drive.',
+        type: 'default',
+        onConfirm: () => setDialog(prev => ({ ...prev, visible: false }))
+      });
       return;
     }
     promptAsync();
@@ -157,6 +163,15 @@ export default function SettingsScreen() {
         message={toast.message}
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <Dialog
+        visible={dialog.visible}
+        title={dialog.title}
+        message={dialog.message}
+        type={dialog.type}
+        onConfirm={dialog.onConfirm}
+        onCancel={() => setDialog(prev => ({ ...prev, visible: false }))}
       />
     </ScrollView>
   );
