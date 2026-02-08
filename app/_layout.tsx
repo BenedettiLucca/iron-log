@@ -30,13 +30,16 @@ export default function Layout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack screenOptions={{
-        headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
-        contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }
-      }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }}>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
+          headerTintColor: '#fff',
+          headerTitleStyle: { fontWeight: 'bold' },
+          contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
+          animation: 'default',
+        }}
+      >
         {/* O Drawer é a tela principal */}
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
 

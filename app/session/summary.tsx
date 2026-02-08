@@ -3,7 +3,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +13,7 @@ import { eq, and } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
+import { Toast } from '../../components/Toast';
 
 interface ExerciseSummary {
   name: string;
@@ -41,6 +41,7 @@ export default function SummaryScreen() {
     averageIntensity: 0,
   });
   const [copied, setCopied] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     generateMarkdown();
@@ -164,8 +165,8 @@ export default function SummaryScreen() {
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(report);
     setCopied(true);
+    setShowToast(true);
     setTimeout(() => setCopied(false), 2000);
-    Alert.alert('Copiado!', 'Relatório pronto para colar no WhatsApp/Notes.');
   };
 
   const nativeShare = async () => {
@@ -276,6 +277,13 @@ export default function SummaryScreen() {
           />
         </View>
       </ScrollView>
+
+      <Toast
+        visible={showToast}
+        message="Relatório copiado!"
+        type="success"
+        onHide={() => setShowToast(false)}
+      />
     </View>
   );
 }
