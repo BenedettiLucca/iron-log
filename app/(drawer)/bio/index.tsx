@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal, Platform } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
 import { desc, eq } from 'drizzle-orm';
@@ -103,8 +103,6 @@ export default function BioScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Bio & Evolução' }} />
-
       <ScrollView
         className="p-4"
         keyboardShouldPersistTaps="handled"

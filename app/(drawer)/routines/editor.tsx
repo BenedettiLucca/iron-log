@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, Platform } from 'react-native';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
 import { eq } from 'drizzle-orm';
@@ -144,8 +144,6 @@ export default function RoutineEditorScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: isEditing ? 'Editar Rotina' : 'Nova Rotina' }} />
-
       <ScrollView
         className="p-4"
         keyboardShouldPersistTaps="handled"
