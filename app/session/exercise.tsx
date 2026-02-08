@@ -355,79 +355,94 @@ export default function ExerciseScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       className="flex-1 bg-background"
     >
-      {/* Header */}
-      <View className="bg-card border-b border-border">
-        <View className="p-4">
-          {/* Progress Bar */}
-          {totalExercises > 0 && (
-            <View className="mb-4">
-              <ProgressBar
-                current={currentExerciseIndex + 1}
-                total={totalExercises}
-                variant="compact"
-                showLabel={true}
-              />
-            </View>
-          )}
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 20 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View className="bg-card border-b border-border">
+          <View className="p-4">
+            {/* Progress Bar */}
+            {totalExercises > 0 && (
+              <View className="mb-4">
+                <ProgressBar
+                  current={currentExerciseIndex + 1}
+                  total={totalExercises}
+                  variant="compact"
+                  showLabel={true}
+                />
+              </View>
+            )}
 
-          <View className="flex-row justify-between items-center mb-4">
-            <View className="flex-1">
-              <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
-              <Stopwatch startTime={startTime} />
+            <View className="flex-row justify-between items-center mb-4">
+              <View className="flex-1">
+                <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
+                <Stopwatch startTime={startTime} />
+              </View>
+              <TouchableOpacity
+                onPress={() => setHistoryVisible(true)}
+                className="bg-background px-3 py-2 rounded-lg border border-border"
+              >
+                <Text className="text-subtext text-xs font-bold uppercase">Histórico</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => setHistoryVisible(true)}
-              className="bg-background px-3 py-2 rounded-lg border border-border"
-            >
-              <Text className="text-subtext text-xs font-bold uppercase">Histórico</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View className="flex-row justify-between items-start">
-            <View className="flex-1">
-              <Text className="text-text text-2xl font-bold">{currentName}</Text>
-              <View className="flex-row items-center gap-2 mt-2">
-                <Text className="text-primary text-sm font-semibold bg-primary/10 px-2 py-1 rounded-md">
-                  Série {currentSetNumber}
-                  {targetInfo && ` de ${targetInfo.sets}`}
-                </Text>
-                {routineRest && (
-                  <Text className="text-subtext text-xs bg-background px-2 py-1 rounded-md border border-border">
-                    ⏱ {routineRest}s
+            <View className="flex-row justify-between items-start">
+              <View className="flex-1">
+                <Text className="text-text text-2xl font-bold">{currentName}</Text>
+                <View className="flex-row items-center gap-2 mt-2">
+                  <Text className="text-primary text-sm font-semibold bg-primary/10 px-2 py-1 rounded-md">
+                    Série {currentSetNumber}
+                    {targetInfo && ` de ${targetInfo.sets}`}
                   </Text>
-                )}
+                  {routineRest && (
+                    <Text className="text-subtext text-xs bg-background px-2 py-1 rounded-md border border-border">
+                      ⏱ {routineRest}s
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
-          </View>
 
-          {(target || notes) && (
-            <View className="mt-3 bg-background p-3 rounded-lg border border-border">
-              {target && <Text className="text-primary font-semibold text-sm">🎯 Meta: {target}</Text>}
-              {notes && <Text className="text-subtext text-xs italic mt-1">📝 {notes}</Text>}
-            </View>
-          )}
+            {(target || notes) && (
+              <View className="mt-3 bg-background p-3 rounded-lg border border-border">
+                {target && <Text className="text-primary font-semibold text-sm">🎯 Meta: {target}</Text>}
+                {notes && <Text className="text-subtext text-xs italic mt-1">📝 {notes}</Text>}
+              </View>
+            )}
+          </View>
         </View>
-      </View>
 
-      {/* Saved Sets List */}
-      <View className="flex-1 p-4">
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-          Séries Registradas ({sessionSets?.length || 0})
-        </Text>
-        {sessionSets?.length === 0 ? (
-          <View className="flex-1 justify-center items-center py-8">
-            <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
+        {/* Undo Button (visible for 10s after save) */}
+        {lastSavedSet && (
+          <View className="mx-4 mt-4">
+            <TouchableOpacity
+              onPress={handleUndo}
+              className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
+            >
+              <Text className="text-white font-bold text-sm">↩ Desfazer última série (10s)</Text>
+            </TouchableOpacity>
           </View>
-        ) : (
-          <FlatList
-            data={sessionSets}
-            scrollEnabled={true}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
+        )}
+
+        {/* Saved Sets List */}
+        <View className="p-4">
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
+            Séries Registradas ({sessionSets?.length || 0})
+          </Text>
+          {sessionSets?.length === 0 ? (
+            <View className="py-8">
+              <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
+            </View>
+          ) : (
+            sessionSets.map((item) => (
               <SetCard
+                key={item.id}
                 setNumber={item.setNumber}
                 weight={item.weightKg}
                 reps={item.reps || undefined}
@@ -435,27 +450,12 @@ export default function ExerciseScreen() {
                 rir={item.rir}
                 onDelete={() => handleDeleteSet(item.id)}
               />
-            )}
-            ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-            contentContainerStyle={{ paddingBottom: 16 }}
-          />
-        )}
-      </View>
-
-      {/* Undo Button (visible for 10s after save) */}
-      {lastSavedSet && (
-        <View className="absolute top-20 left-4 right-4">
-          <TouchableOpacity
-            onPress={handleUndo}
-            className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
-          >
-            <Text className="text-white font-bold text-sm">↩ Desfazer última série (10s)</Text>
-          </TouchableOpacity>
+            ))
+          )}
         </View>
-      )}
 
-      {/* Input Area */}
-      <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
+        {/* Input Area */}
+        <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
         {exerciseType === 'duration' ? (
           <View className="items-center mb-6">
             <Text className="text-text font-mono text-6xl font-bold mb-4">
@@ -637,6 +637,8 @@ export default function ExerciseScreen() {
         onAddTime={addTime}
         nextExerciseName={nextExercise?.name}
       />
+
+      </ScrollView>
 
       <Toast
         visible={toast.visible}

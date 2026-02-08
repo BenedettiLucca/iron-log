@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
@@ -102,10 +102,18 @@ export default function BioScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      className="flex-1 bg-background"
+    >
       <Stack.Screen options={{ title: 'Bio & Evolução' }} />
-      
-      <ScrollView className="p-4">
+
+      <ScrollView
+        className="p-4"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         {/* Card de Peso Diário */}
         <View className="bg-card p-4 rounded-xl border border-border mb-6 shadow-sm">
             <Text className="text-subtext font-bold uppercase text-xs mb-2 tracking-widest">Registrar Peso (kg)</Text>
@@ -244,6 +252,7 @@ export default function BioScreen() {
               </ScrollView>
           </View>
       </Modal>
+      </ScrollView>
 
       <Toast
         visible={toast.visible}

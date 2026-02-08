@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
@@ -143,10 +143,18 @@ export default function RoutineEditorScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      className="flex-1 bg-background"
+    >
       <Stack.Screen options={{ title: isEditing ? 'Editar Rotina' : 'Nova Rotina' }} />
-      
-      <ScrollView className="p-4">
+
+      <ScrollView
+        className="p-4"
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         <Text className="text-subtext text-xs font-bold uppercase mb-1">Nome da Rotina</Text>
         <TextInput 
           className="bg-card text-text p-4 rounded-xl border border-border mb-4 text-lg"
@@ -219,7 +227,7 @@ export default function RoutineEditorScreen() {
           </View>
         ))}
 
-        <View className="h-20" /> 
+        <View className="h-20" />
       </ScrollView>
 
       <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full">
@@ -271,7 +279,7 @@ export default function RoutineEditorScreen() {
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -320,7 +328,16 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <View className="flex-1 bg-background p-4">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        className="flex-1 bg-background"
+      >
+        <ScrollView
+          className="p-4"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-text text-xl font-bold uppercase">Selecionar</Text>
           <TouchableOpacity onPress={onClose}>
@@ -411,6 +428,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
             </View>
           )}
         />
+        </ScrollView>
 
         <Toast
           visible={toast.visible}
@@ -418,7 +436,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           type={toast.type}
           onHide={() => setToast({ ...toast, visible: false })}
         />
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
