@@ -6,15 +6,16 @@ export default function DrawerLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer screenOptions={{ 
-        headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' }, 
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }}>
+      <Drawer screenOptions={{
+        headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
         drawerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
         drawerActiveTintColor: '#E07A5F',
         drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#000',
-        sceneContainerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }
+        sceneContainerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
+        safeAreaInsets: { top: false, bottom: false, left: false, right: false },
       }}>
         <Drawer.Screen 
           name="index" 

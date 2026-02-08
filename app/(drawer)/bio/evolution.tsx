@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
-import { desc, asc } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { LineChart } from 'react-native-gifted-charts';
 
 export default function EvolutionScreen() {

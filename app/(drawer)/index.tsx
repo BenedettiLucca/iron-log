@@ -1,14 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
-import { Link, useRouter, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
+import { Toast } from '../../components/Toast';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [routinesList, setRoutinesList] = useState<any[]>([]);
   const [lastSession, setLastSession] = useState<any>(null);
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Função para buscar dados
   const fetchData = async () => {
@@ -63,15 +65,15 @@ export default function HomeScreen() {
       ]);
 
       fetchData();
-      Alert.alert('Sucesso', 'Banco de dados populado!');
+      setToast({ visible: true, message: 'Banco de dados populado!', type: 'success' });
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao popular banco.');
+      setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
     }
   };
 
   return (
-    <View className="flex-1 bg-background p-4">
+    <View className="flex-1 bg-background px-4 pb-4">
       <View className="mb-8 mt-4">
         <View className="flex-row justify-between items-center mb-1">
             <Text className="text-subtext text-sm uppercase tracking-wider font-bold">Última Sessão</Text>
@@ -130,7 +132,7 @@ export default function HomeScreen() {
                   <Text className="text-subtext mt-1">{routine.description}</Text>
                 </View>
                 <View className="w-8 h-8 bg-primary rounded-full justify-center items-center">
-                  <Text className="text-white font-bold text-lg">></Text>
+                  <Text className="text-white font-bold text-lg">{'>'}</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -147,6 +149,13 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
     </View>
   );
 }

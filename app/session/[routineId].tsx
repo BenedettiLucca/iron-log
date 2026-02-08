@@ -1,11 +1,13 @@
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
 import { eq, and, count } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { ProgressBar } from '../../components/ProgressBar';
+import { Dialog } from '../../components/Dialog';
 
 export default function SessionScreen() {
   const { routineId, routineName } = useLocalSearchParams();
@@ -14,6 +16,9 @@ export default function SessionScreen() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [routineExs, setRoutineExs] = useState<any[]>([]);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<any>(null);
 
   // Proteção contra saída acidental
   useEffect(() => {
@@ -21,7 +26,7 @@ export default function SessionScreen() {
       // Se for para a tela de finalização, permite sem perguntar
       // Mas como usamos router.replace para finalização, o evento é diferente?
       // Vamos verificar se a ação é POP (voltar)
-      
+
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
@@ -29,18 +34,9 @@ export default function SessionScreen() {
       // Previne a saída padrão
       e.preventDefault();
 
-      Alert.alert(
-        'Sair do Treino?',
-        'Se você sair agora, o treino ficará aberto em segundo plano. Deseja sair?',
-        [
-          { text: 'Ficar', style: 'cancel', onPress: () => {} },
-          {
-            text: 'Sair',
-            style: 'destructive',
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]
-      );
+      // Mostra dialog customizado
+      setPendingNavigation(e.data.action);
+      setShowExitDialog(true);
     });
 
     return unsubscribe;
@@ -49,7 +45,7 @@ export default function SessionScreen() {
   // Garante que routineId é string única
   const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
 
-  const loadExercises = async () => {
+  const loadExercises = useCallback(async () => {
       try {
           const data = await db.select({
             id: exercises.id,
@@ -68,7 +64,7 @@ export default function SessionScreen() {
       } catch (e) {
           console.error(e);
       }
-  };
+  }, [rIdStr]);
 
   // 1. Inicializar Sessão e Carregar Exercícios
   useEffect(() => {
@@ -94,10 +90,15 @@ export default function SessionScreen() {
         initSession();
         loadExercises();
     }
-  }, [rIdStr]);
+  }, [rIdStr, loadExercises, routineName, router]);
 
   const finishSession = () => {
     if (!sessionId) return;
+    setShowFinishDialog(true);
+  };
+
+  const confirmFinish = () => {
+    setShowFinishDialog(false);
     router.replace({
       pathname: '/session/finish',
       params: { sessionId, startTime }
@@ -119,7 +120,9 @@ export default function SessionScreen() {
 
       <View className="p-4 bg-card border-b border-border">
         <Text className="text-subtext uppercase text-xs font-bold tracking-widest mb-1">Treino Atual</Text>
-        <Text className="text-text text-2xl font-bold">{routineName}</Text>
+        <Text className="text-text text-2xl font-bold mb-4">{routineName}</Text>
+
+        <SessionProgress sessionId={sessionId} routineExs={routineExs} />
       </View>
 
       <FlatList 
@@ -146,6 +149,36 @@ export default function SessionScreen() {
           />
         )}
       />
+
+      <Dialog
+        visible={showExitDialog}
+        title="Sair do Treino?"
+        message="Se você sair agora, o treino ficará aberto em segundo plano. Deseja sair?"
+        confirmText="Sair"
+        cancelText="Ficar"
+        type="destructive"
+        onConfirm={() => {
+          setShowExitDialog(false);
+          if (pendingNavigation) {
+            navigation.dispatch(pendingNavigation);
+          }
+        }}
+        onCancel={() => {
+          setShowExitDialog(false);
+          setPendingNavigation(null);
+        }}
+      />
+
+      <Dialog
+        visible={showFinishDialog}
+        title="Finalizar Treino?"
+        message="Você ainda pode estar com exercícios pendentes. Deseja finalizar mesmo assim?"
+        confirmText="Finalizar"
+        cancelText="Continuar Treino"
+        type="destructive"
+        onConfirm={confirmFinish}
+        onCancel={() => setShowFinishDialog(false)}
+      />
     </View>
   );
 }
@@ -163,41 +196,79 @@ function ExerciseCard({ exercise, sessionId, onPress }: any) {
   const isActive = doneSets > 0;
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
+      activeOpacity={0.7}
       className={`p-4 rounded-xl border ${isActive ? 'bg-card border-primary shadow-md' : 'bg-card border-border'} flex-row justify-between items-center`}
     >
       <View className="flex-1">
-        <Text className={`text-lg font-bold ${isActive ? 'text-text' : 'text-subtext'}`}>
-          {exercise.name}
-        </Text>
-        
+        <View className="flex-row items-center gap-2">
+          <Text className={`text-lg font-bold ${isActive ? 'text-text' : 'text-subtext'}`}>
+            {exercise.name}
+          </Text>
+          {isActive && (
+            <View className="bg-success/20 px-2 py-0.5 rounded-full border border-success/30">
+              <Text className="text-success text-[10px] font-bold">{doneSets} {doneSets === 1 ? 'série' : 'séries'}</Text>
+            </View>
+          )}
+        </View>
+
         {/* Metadados (Target/Notes) */}
         {(exercise.target || exercise.notes) && (
-            <View className="mt-1 flex-row flex-wrap gap-2">
+            <View className="mt-2 flex-row flex-wrap gap-2">
                 {exercise.target && (
-                    <Text className="text-primary text-xs bg-background px-2 py-0.5 rounded border border-primary/20">
-                        Meta: {exercise.target}
+                    <Text className="text-primary text-xs bg-background px-2 py-1 rounded-md border border-primary/20 font-semibold">
+                        {exercise.target}
                     </Text>
                 )}
                 {exercise.notes && (
-                    <Text className="text-subtext text-xs italic mt-0.5" numberOfLines={1}>
-                        {exercise.notes}
+                    <Text className="text-subtext text-xs italic" numberOfLines={1}>
+                      📝 {exercise.notes}
                     </Text>
                 )}
             </View>
         )}
 
-        <Text className="text-subtext text-sm mt-1">
-          {doneSets > 0 ? `${doneSets} séries feitas` : 'Toque para iniciar'}
+        <Text className={`text-sm mt-2 ${isActive ? 'text-text font-semibold' : 'text-subtext'}`}>
+          {doneSets > 0 ? `${doneSets} ${doneSets === 1 ? 'série' : 'séries'} concluída${doneSets === 1 ? '' : 's'}` : 'Toque para iniciar'}
         </Text>
       </View>
-      
+
       {doneSets > 0 && (
-        <View className="ml-2">
-            <View className="w-3 h-3 bg-success rounded-full" />
+        <View className="ml-3">
+            <View className="w-4 h-4 bg-success rounded-full border-2 border-white shadow-sm" />
         </View>
       )}
     </TouchableOpacity>
+  );
+}
+
+// Subcomponente para mostrar progresso da sessão
+function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
+  // Query reativa para contar exercícios conclúdos (usa DISTINCT para não duplicar)
+  const { data: completedData } = useLiveQuery(
+    db.select({ exerciseId: sets.exerciseId })
+      .from(sets)
+      .where(eq(sets.sessionId, sessionId))
+      .orderBy(sets.exerciseId)
+  );
+
+  // Usa Set para remover duplicatas e contar exercícios únicos
+  const completedExerciseIds = new Set(completedData?.map(s => s.exerciseId) || []);
+  const completedCount = completedExerciseIds.size;
+  const totalCount = routineExs.length;
+
+  // Se não tiver exercícios, não mostra a barra
+  if (totalCount === 0) return null;
+
+  return (
+    <View className="mt-2">
+      <ProgressBar
+        current={completedCount}
+        total={totalCount}
+        variant="header"
+        showLabel={true}
+      />
+    </View>
   );
 }

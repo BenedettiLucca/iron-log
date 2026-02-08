@@ -1,15 +1,19 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
-import { useRouter, Stack, useFocusEffect } from 'expo-router';
+import { View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
 import { eq, like } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
+import { Toast } from '../../../components/Toast';
+import { Dialog } from '../../../components/Dialog';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
   const [allRoutines, setAllRoutines] = useState<any[]>([]);
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
 
   useFocusEffect(
     useCallback(() => {
@@ -32,26 +36,20 @@ export default function RoutinesListScreen() {
     : allRoutines?.filter(r => (r.folder || 'Geral') === selectedFolder);
 
   const handleDelete = (id: number, name: string) => {
-    Alert.alert(
-      'Excluir Rotina',
-      `Tem certeza que deseja apagar "${name}"? O histórico de treinos passados será mantido.`, 
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
-              await db.delete(routines).where(eq(routines.id, id));
-              fetchRoutines();
-            } catch (e) {
-              Alert.alert('Erro', 'Não foi possível excluir.');
-            }
-          }
+    setDialog({
+      visible: true,
+      title: 'Excluir Rotina',
+      message: `Tem certeza que deseja apagar "${name}"? O histórico de treinos passados será mantido.`,
+      onConfirm: async () => {
+        try {
+          await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
+          await db.delete(routines).where(eq(routines.id, id));
+          fetchRoutines();
+        } catch {
+          setToast({ visible: true, message: 'Não foi possível excluir.', type: 'error' });
         }
-      ]
-    );
+      }
+    });
   };
 
   const handleImportFromClipboard = async () => {
@@ -62,24 +60,24 @@ export default function RoutinesListScreen() {
       let data;
       try {
           data = JSON.parse(content);
-      } catch (e) {
-          return Alert.alert('Formato Inválido', 'O texto copiado não é um JSON válido.');
+      } catch {
+          return setToast({ visible: true, message: 'O texto copiado não é um JSON válido.', type: 'error' });
       }
 
       if (!data.name || !Array.isArray(data.exercises)) {
-          return Alert.alert('Estrutura Inválida', 'O JSON deve ter "name" e uma lista de "exercises".');
+          return setToast({ visible: true, message: 'O JSON deve ter "name" e uma lista de "exercises".', type: 'error' });
       }
 
       // Verifica duplicidade
       const existingRoutine = await db.select().from(routines).where(eq(routines.name, data.name));
       if (existingRoutine.length > 0) {
-        return Alert.alert('Erro', `Já existe uma rotina com o nome "${data.name}".`);
+        return setToast({ visible: true, message: `Já existe uma rotina com o nome "${data.name}".`, type: 'error' });
       }
 
       // 2. Criar Rotina
-      const routineRes = await db.insert(routines).values({ 
-          name: data.name, 
-          description: data.description || '' 
+      const routineRes = await db.insert(routines).values({
+          name: data.name,
+          description: data.description || ''
       }).returning();
       const routineId = routineRes[0].id;
 
@@ -120,19 +118,17 @@ export default function RoutinesListScreen() {
       }
 
       fetchRoutines();
-      Alert.alert('Sucesso', `Rotina "${data.name}" importada com ${order-1} exercícios!`);
+      setToast({ visible: true, message: `Rotina "${data.name}" importada com ${order-1} exercícios!`, type: 'success' });
 
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao importar do clipboard.');
+      setToast({ visible: true, message: 'Falha ao importar do clipboard.', type: 'error' });
     }
   };
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Gerenciar Rotinas' }} />
-      
-      <View className="p-4 pb-0">
+      <View className="px-4 pb-0">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
           {folders.map(folder => (
             <TouchableOpacity 
@@ -205,13 +201,31 @@ export default function RoutinesListScreen() {
           <Text className="text-primary font-bold uppercase tracking-widest text-xs">Importar</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-primary p-4 rounded-xl items-center flex-[2]"
           onPress={() => router.push('/routines/editor')}
         >
           <Text className="text-white font-bold uppercase tracking-widest text-xs">Criar</Text>
         </TouchableOpacity>
       </View>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <Dialog
+        visible={dialog.visible}
+        title={dialog.title}
+        message={dialog.message}
+        onConfirm={() => {
+          dialog.onConfirm();
+          setDialog({ ...dialog, visible: false });
+        }}
+        onCancel={() => setDialog({ ...dialog, visible: false })}
+      />
     </View>
   );
 }

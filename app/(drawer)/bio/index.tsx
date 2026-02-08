@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Alert, Modal } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal } from 'react-native';
+import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import { Toast } from '../../../components/Toast';
 
 export default function BioScreen() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export default function BioScreen() {
       waist: '', armRight: '', thighRight: '', chest: '', calf: ''
   });
   const [photos, setPhotos] = useState<Record<string, string | null>>({ front: null, back: null, side: null });
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   useEffect(() => {
     loadMetrics();
@@ -43,16 +45,19 @@ export default function BioScreen() {
         });
         setTodayWeight('');
         loadMetrics();
-        Alert.alert('Sucesso', 'Peso registrado!');
-    } catch (e) {
-        Alert.alert('Erro', 'Falha ao salvar peso.');
+        setToast({ visible: true, message: 'Peso registrado!', type: 'success' });
+    } catch {
+        setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
     }
   };
 
   const pickImage = async (field: 'front' | 'back' | 'side') => {
       try {
           const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-          if (!permission.granted) return Alert.alert('Permissão necessária', 'Precisamos de acesso às fotos para salvar sua evolução.');
+          if (!permission.granted) {
+            setToast({ visible: true, message: 'Precisamos de acesso às fotos para salvar sua evolução.', type: 'error' });
+            return;
+          }
 
           const result = await ImagePicker.launchImageLibraryAsync({
               mediaTypes: ['images'],
@@ -63,12 +68,12 @@ export default function BioScreen() {
               const uri = result.assets[0].uri;
               const fileName = `checkin_${Date.now()}_${field}.jpg`;
               const newPath = FileSystem.documentDirectory + fileName;
-              
+
               await FileSystem.copyAsync({ from: uri, to: newPath });
               setPhotos(prev => ({ ...prev, [field]: newPath }));
           }
-      } catch (e) {
-          Alert.alert('Erro', 'Falha ao selecionar imagem.');
+      } catch {
+          setToast({ visible: true, message: 'Falha ao selecionar imagem.', type: 'error' });
       }
   };
 
@@ -89,18 +94,19 @@ export default function BioScreen() {
           });
           setModalVisible(false);
           loadMetrics();
-          Alert.alert('Parabéns', 'Check-in mensal realizado!');
+          setToast({ visible: true, message: 'Check-in mensal realizado!', type: 'success' });
       } catch (e) {
           console.error(e);
-          Alert.alert('Erro', 'Falha ao salvar check-in.');
+          setToast({ visible: true, message: 'Falha ao salvar check-in.', type: 'error' });
       }
   };
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Bio & Evolução' }} />
-      
-      <ScrollView className="p-4">
+      <ScrollView
+        className="px-4 pb-4"
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Card de Peso Diário */}
         <View className="bg-card p-4 rounded-xl border border-border mb-6 shadow-sm">
             <Text className="text-subtext font-bold uppercase text-xs mb-2 tracking-widest">Registrar Peso (kg)</Text>
@@ -125,7 +131,7 @@ export default function BioScreen() {
             className="bg-card border border-primary p-4 rounded-xl items-center mb-6 flex-row justify-center gap-2"
         >
             <Text className="text-primary font-bold text-lg uppercase tracking-widest">VER EVOLUÇÃO COMPLETA</Text>
-            <Text className="text-primary font-bold text-lg">></Text>
+            <Text className="text-primary font-bold text-lg">{'>'}</Text>
         </TouchableOpacity>
 
         {/* Botão de Check-in Mensal */}
@@ -239,6 +245,13 @@ export default function BioScreen() {
               </ScrollView>
           </View>
       </Modal>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
     </View>
   );
 }

@@ -49,3 +49,4 @@ app-example
 /android
 /android-sdk
 .claude
+.vscode
