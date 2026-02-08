@@ -1,14 +1,16 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
+import { Toast } from '../../components/Toast';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [routinesList, setRoutinesList] = useState<any[]>([]);
   const [lastSession, setLastSession] = useState<any>(null);
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Função para buscar dados
   const fetchData = async () => {
@@ -63,10 +65,10 @@ export default function HomeScreen() {
       ]);
 
       fetchData();
-      Alert.alert('Sucesso', 'Banco de dados populado!');
+      setToast({ visible: true, message: 'Banco de dados populado!', type: 'success' });
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao popular banco.');
+      setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
     }
   };
 
@@ -147,6 +149,13 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
     </View>
   );
 }

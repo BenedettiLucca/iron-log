@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { Toast } from '../../../components/Toast';
 
 type SelectedExercise = {
   id: number;
@@ -26,6 +27,7 @@ export default function RoutineEditorScreen() {
   
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   useEffect(() => {
     if (isEditing) {
@@ -62,13 +64,19 @@ export default function RoutineEditorScreen() {
           restSeconds: j.restSeconds || undefined
       })));
     } catch (e) {
-      Alert.alert('Erro', 'Falha ao carregar rotina.');
+      setToast({ visible: true, message: 'Falha ao carregar rotina.', type: 'error' });
     }
   };
 
   const handleSave = async () => {
-    if (!name.trim()) return Alert.alert('Atenção', 'Nome é obrigatório');
-    if (selectedExercises.length === 0) return Alert.alert('Atenção', 'Adicione pelo menos um exercício');
+    if (!name.trim()) {
+      setToast({ visible: true, message: 'Nome é obrigatório', type: 'error' });
+      return;
+    }
+    if (selectedExercises.length === 0) {
+      setToast({ visible: true, message: 'Adicione pelo menos um exercício', type: 'error' });
+      return;
+    }
 
     try {
       let routineId = Number(id);
@@ -98,7 +106,7 @@ export default function RoutineEditorScreen() {
       router.back();
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao salvar.');
+      setToast({ visible: true, message: 'Falha ao salvar.', type: 'error' });
     }
   };
 
@@ -108,16 +116,16 @@ export default function RoutineEditorScreen() {
           await db.update(exercises)
             .set({ name: newName })
             .where(eq(exercises.id, renamingEx.id));
-          
-          setSelectedExercises(prev => prev.map(ex => 
+
+          setSelectedExercises(prev => prev.map(ex =>
               ex.id === renamingEx.id ? { ...ex, name: newName } : ex
           ));
-          
+
           setRenamingEx(null);
           setNewName('');
-          Alert.alert('Sucesso', 'Exercício renomeado.');
+          setToast({ visible: true, message: 'Exercício renomeado.', type: 'success' });
       } catch (e) {
-          Alert.alert('Erro', 'Falha ao renomear.');
+          setToast({ visible: true, message: 'Falha ao renomear.', type: 'error' });
       }
   };
 
@@ -256,6 +264,13 @@ export default function RoutineEditorScreen() {
               </View>
           </View>
       </Modal>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
     </View>
   );
 }
@@ -267,6 +282,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
   const [newType, setNewType] = useState<'strength' | 'duration'>('strength');
   const [editingEx, setEditingEx] = useState<{id: number, name: string} | null>(null);
   const [editName, setEditName] = useState('');
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   useEffect(() => {
     if (allExercises) {
@@ -279,13 +295,13 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
   const createNewExercise = async () => {
     if (!search.trim()) return;
     try {
-      const res = await db.insert(exercises).values({ 
+      const res = await db.insert(exercises).values({
           name: search,
-          type: newType 
+          type: newType
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
     } catch (e) {
-      Alert.alert('Erro', 'Falha ao criar exercício.');
+      setToast({ visible: true, message: 'Falha ao criar exercício.', type: 'error' });
     }
   };
 
@@ -298,7 +314,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           setEditingEx(null);
           setEditName('');
       } catch (e) {
-          Alert.alert('Erro', 'Falha ao atualizar.');
+          setToast({ visible: true, message: 'Falha ao atualizar.', type: 'error' });
       }
   };
 
@@ -394,6 +410,13 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                 </TouchableOpacity>
             </View>
           )}
+        />
+
+        <Toast
+          visible={toast.visible}
+          message={toast.message}
+          type={toast.type}
+          onHide={() => setToast({ ...toast, visible: false })}
         />
       </View>
     </Modal>
