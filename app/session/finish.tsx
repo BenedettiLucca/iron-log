@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -188,7 +187,7 @@ export default function FinishSessionScreen() {
   const weightDiff = getWeightDiff();
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 bg-background">
+    <View className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <Text className="text-text text-3xl font-bold mb-2">Finalizar Treino</Text>
         <Text className="text-subtext mb-6">Revise seus dados antes de salvar</Text>
@@ -370,6 +369,6 @@ export default function FinishSessionScreen() {
         onConfirm={confirmFinish}
         onCancel={() => setShowConfirmDialog(false)}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }

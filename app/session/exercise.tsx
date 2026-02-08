@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   FlatList,
   Alert,
-  KeyboardAvoidingView,
   Platform,
   Modal,
   ScrollView,
@@ -354,14 +353,9 @@ export default function ExerciseScreen() {
   const currentSetNumber = (sessionSets?.length || 0) + 1;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-      className="flex-1 bg-background"
-    >
+    <View className="flex-1 bg-background">
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 20 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Header */}
@@ -646,7 +640,7 @@ export default function ExerciseScreen() {
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

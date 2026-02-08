@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
@@ -143,17 +143,12 @@ export default function RoutineEditorScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-      className="flex-1 bg-background"
-    >
+    <View className="flex-1 bg-background">
       <Stack.Screen options={{ title: isEditing ? 'Editar Rotina' : 'Nova Rotina' }} />
 
       <ScrollView
         className="p-4"
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingBottom: 20 }}
       >
         <Text className="text-subtext text-xs font-bold uppercase mb-1">Nome da Rotina</Text>
         <TextInput 
@@ -279,7 +274,7 @@ export default function RoutineEditorScreen() {
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -328,15 +323,10 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-        className="flex-1 bg-background"
-      >
+      <View className="flex-1 bg-background">
         <ScrollView
           className="p-4"
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: 20 }}
         >
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-text text-xl font-bold uppercase">Selecionar</Text>
@@ -436,7 +426,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           type={toast.type}
           onHide={() => setToast({ ...toast, visible: false })}
         />
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
