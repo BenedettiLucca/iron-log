@@ -193,72 +193,71 @@ export default function SummaryScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View className="flex-1 bg-background">
+      <ScrollView contentContainerClassName="p-5">
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.celebration}>🎉</Text>
-          <Text style={styles.headerTitle}>Treino Concluído!</Text>
-          <Text style={styles.motivational}>{getMotivationalMessage()}</Text>
+        <View className="items-center mb-6 pt-5">
+          <Text className="text-6xl">🎉</Text>
+          <Text className="text-text text-[28px] font-bold mt-2">Treino Concluído!</Text>
+          <Text className="text-primary text-base font-semibold mt-1">{getMotivationalMessage()}</Text>
         </View>
 
         {/* Stats Dashboard */}
-        <View style={styles.statsGrid}>
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{stats.totalSets}</Text>
-            <Text style={styles.statLabel}>Séries</Text>
+        <View className="flex-row flex-wrap gap-3 mb-5">
+          <Card className="flex-1 min-w-[45%] items-center py-5">
+            <Text className="text-text text-[32px] font-bold">{stats.totalSets}</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
           </Card>
 
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>
+          <Card className="flex-1 min-w-[45%] items-center py-5">
+            <Text className="text-text text-[32px] font-bold">
               {stats.totalVolume >= 1000
                 ? `${(stats.totalVolume / 1000).toFixed(1)}k`
                 : stats.totalVolume}
             </Text>
-            <Text style={styles.statLabel}>kg Volume</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">kg Volume</Text>
           </Card>
 
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{sessionData?.sRpe || '-'}</Text>
-            <Text style={styles.statLabel}>sRPE</Text>
+          <Card className="flex-1 min-w-[45%] items-center py-5">
+            <Text className="text-text text-[32px] font-bold">{sessionData?.sRpe || '-'}</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">sRPE</Text>
           </Card>
 
-          <Card style={styles.statCard}>
-            <Text style={styles.statValue}>{sessionData?.durationMinutes || 0}</Text>
-            <Text style={styles.statLabel}>Minutos</Text>
+          <Card className="flex-1 min-w-[45%] items-center py-5">
+            <Text className="text-text text-[32px] font-bold">{sessionData?.durationMinutes || 0}</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Minutos</Text>
           </Card>
         </View>
 
         {/* Best Performance */}
         {stats.bestSet && (
-          <Card style={styles.bestSetCard}>
-            <Text style={styles.bestSetTitle}>🏆 Melhor Série</Text>
-            <Text style={styles.bestSetValue}>
+          <Card className="items-center p-4 mb-5 bg-accent/10 border-accent">
+            <Text className="text-subtext text-xs font-bold uppercase mb-2">🏆 Melhor Série</Text>
+            <Text className="text-text text-[24px] font-bold">
               {stats.bestSet.weight}kg × {stats.bestSet.reps} reps
             </Text>
-            <Text style={styles.bestSetExercise}>{stats.bestSet.exercise}</Text>
+            <Text className="text-primary text-sm font-medium mt-1">{stats.bestSet.exercise}</Text>
           </Card>
         )}
 
         {/* Markdown Report */}
-        <Card style={styles.reportCard}>
-          <Text style={styles.reportTitle}>📄 Relatório Completo</Text>
-          <ScrollView style={styles.reportContent}>
-            <Text style={styles.reportText} selectable>
+        <Card className="mb-5 max-h-[300px]">
+          <Text className="text-text text-sm font-semibold mb-3">📄 Relatório Completo</Text>
+          <ScrollView className="max-h-[240px]">
+            <Text className="text-text text-xs leading-5 font-mono select-text">
               {report}
             </Text>
           </ScrollView>
         </Card>
 
         {/* Action Buttons */}
-        <View style={styles.actions}>
+        <View className="gap-3">
           <Button
             title={copied ? '✓ Copiado' : '📋 Copiar Texto'}
             onPress={copyToClipboard}
             variant="primary"
             size="lg"
             fullWidth
-            style={styles.actionButton}
           />
 
           <Button
@@ -267,7 +266,6 @@ export default function SummaryScreen() {
             variant="secondary"
             size="lg"
             fullWidth
-            style={styles.actionButton}
           />
 
           <Button
@@ -282,107 +280,3 @@ export default function SummaryScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F1DE',
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingTop: 20,
-  },
-  celebration: {
-    fontSize: 64,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#3D405B',
-    marginTop: 8,
-  },
-  motivational: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#E07A5F',
-    marginTop: 4,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 20,
-  },
-  statCard: {
-    flex: 1,
-    minWidth: '45%',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  statValue: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#3D405B',
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginTop: 4,
-    textTransform: 'uppercase',
-  },
-  bestSetCard: {
-    alignItems: 'center',
-    padding: 16,
-    marginBottom: 20,
-    backgroundColor: '#FFFBF0',
-    borderColor: '#F2CC8F',
-  },
-  bestSetTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  bestSetValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#3D405B',
-  },
-  bestSetExercise: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#E07A5F',
-    marginTop: 4,
-  },
-  reportCard: {
-    marginBottom: 20,
-    maxHeight: 300,
-  },
-  reportTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3D405B',
-    marginBottom: 12,
-  },
-  reportContent: {
-    maxHeight: 240,
-  },
-  reportText: {
-    fontSize: 12,
-    lineHeight: 20,
-    color: '#3D405B',
-    fontFamily: 'monospace',
-  },
-  actions: {
-    gap: 12,
-  },
-  actionButton: {
-    minHeight: 52,
-  },
-});

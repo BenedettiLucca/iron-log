@@ -205,24 +205,24 @@ export default function FinishSessionScreen() {
         <Text className="text-subtext mb-6">Revise seus dados antes de salvar</Text>
 
         {/* Session Statistics Card */}
-        <View style={styles.statsCard}>
+        <View className="bg-card p-4 rounded-xl border border-border mb-6">
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Estatísticas da Sessão</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{sessionStats.totalSets}</Text>
-              <Text style={styles.statLabel}>Séries</Text>
+          <View className="flex-row justify-around">
+            <View className="items-center">
+              <Text className="text-text text-[28px] font-bold">{sessionStats.totalSets}</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{sessionStats.totalExercises}</Text>
-              <Text style={styles.statLabel}>Exercícios</Text>
+            <View className="items-center">
+              <Text className="text-text text-[28px] font-bold">{sessionStats.totalExercises}</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Exercícios</Text>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>
+            <View className="items-center">
+              <Text className="text-text text-[28px] font-bold">
                 {sessionStats.totalVolume >= 1000
                   ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
                   : sessionStats.totalVolume}
               </Text>
-              <Text style={styles.statLabel}>kg Volume</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">kg Volume</Text>
             </View>
           </View>
         </View>
@@ -238,7 +238,7 @@ export default function FinishSessionScreen() {
         </View>
 
         {/* Peso Corporal */}
-        <View style={styles.inputSection}>
+        <View className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Peso Corporal (KG)</Text>
             {lastWeightDate && (
@@ -246,9 +246,9 @@ export default function FinishSessionScreen() {
             )}
           </View>
 
-          <View style={styles.weightInputContainer}>
+          <View className="flex-row items-center gap-3">
             <TextInput
-              style={styles.weightInput}
+              className="flex-1 bg-card text-text text-[32px] font-bold py-4 px-5 rounded-xl border border-border text-center"
               keyboardType="numeric"
               placeholder="82.5"
               placeholderTextColor="#9CA3AF"
@@ -257,27 +257,24 @@ export default function FinishSessionScreen() {
               textAlign="center"
             />
 
-            <View style={styles.weightButtons}>
+            <View className="gap-2">
               <TouchableOpacity
-                style={styles.weightButton}
+                className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(-0.5)}
               >
-                <Text style={styles.weightButtonText}>-0.5</Text>
+                <Text className="text-text text-sm font-semibold">-0.5</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.weightButton}
+                className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(0.5)}
               >
-                <Text style={styles.weightButtonText}>+0.5</Text>
+                <Text className="text-text text-sm font-semibold">+0.5</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {weightDiff !== null && (
-            <Text style={[
-              styles.weightDiff,
-              { color: weightDiff > 0 ? '#81B29A' : '#EF6464' }
-            ]}>
+            <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-success' : 'text-danger'}`}>
               {weightDiff > 0 ? '↑' : '↓'} {Math.abs(weightDiff).toFixed(1)}kg vs. anterior
             </Text>
           )}
@@ -323,24 +320,24 @@ export default function FinishSessionScreen() {
         </View>
 
         {/* Note Templates */}
-        <View style={styles.inputSection}>
+        <View className="mb-6">
           <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">Notas Rápidas</Text>
-          <View style={styles.templatesGrid}>
+          <View className="flex-row flex-wrap gap-2">
             {NOTE_TEMPLATES.map((template) => (
               <TouchableOpacity
                 key={template.label}
-                style={styles.templateButton}
+                className="bg-card px-3 py-2.5 rounded-lg border border-border flex-row items-center gap-1.5"
                 onPress={() => insertTemplate(template)}
               >
-                <Text style={styles.templateEmoji}>{template.emoji}</Text>
-                <Text style={styles.templateLabel}>{template.label}</Text>
+                <Text className="text-base">{template.emoji}</Text>
+                <Text className="text-text text-sm font-semibold">{template.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
         {/* Notas */}
-        <View style={styles.inputSection}>
+        <View className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Observações</Text>
             {notes.length > 0 && (
@@ -372,101 +369,3 @@ export default function FinishSessionScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  statsCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    marginBottom: 24,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#3D405B',
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginTop: 4,
-    textTransform: 'uppercase',
-  },
-  inputSection: {
-    marginBottom: 24,
-  },
-  weightInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  weightInput: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#3D405B',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    textAlign: 'center',
-  },
-  weightButtons: {
-    gap: 8,
-  },
-  weightButton: {
-    backgroundColor: '#F4F1DE',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    minWidth: 60,
-    alignItems: 'center',
-  },
-  weightButtonText: {
-    color: '#3D405B',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  weightDiff: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  templatesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  templateButton: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  templateEmoji: {
-    fontSize: 16,
-  },
-  templateLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#3D405B',
-  },
-});
