@@ -73,7 +73,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background p-4">
+    <View className="flex-1 bg-background px-4 pb-4">
       <View className="mb-8 mt-4">
         <View className="flex-row justify-between items-center mb-1">
             <Text className="text-subtext text-sm uppercase tracking-wider font-bold">Última Sessão</Text>

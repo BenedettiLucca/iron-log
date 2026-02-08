@@ -104,7 +104,7 @@ export default function BioScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScrollView
-        className="p-4"
+        className="px-4 pb-4"
         keyboardShouldPersistTaps="handled"
       >
         {/* Card de Peso Diário */}

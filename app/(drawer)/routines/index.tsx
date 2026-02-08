@@ -128,7 +128,7 @@ export default function RoutinesListScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="p-4 pb-0">
+      <View className="px-4 pb-0">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
           {folders.map(folder => (
             <TouchableOpacity 
