@@ -46,7 +46,7 @@ export default function Layout() {
 
         {/* Fluxo de Sessão (Stack Pura) */}
         <Stack.Screen name="session/[routineId]" options={{ title: 'Treino Ativo' }} />
-        <Stack.Screen name="session/exercise" options={{ title: 'Exercício', headerShown: false }} />
+        <Stack.Screen name="session/exercise" options={{ title: 'Exercício', headerShown: false, safeAreaInsets: { top: 0, bottom: 0, left: 0, right: 0 } }} />
         <Stack.Screen name="session/finish" options={{ title: 'Finalizar' }} />
         <Stack.Screen name="session/summary" options={{ title: 'Resumo' }} />
       </Stack>
