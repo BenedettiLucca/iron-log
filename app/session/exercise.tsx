@@ -420,7 +420,7 @@ export default function ExerciseScreen() {
         )}
 
         {/* Saved Sets List */}
-        <View className="p-4">
+        <View className="flex-1 px-4">
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
             Séries Registradas ({sessionSets?.length || 0})
           </Text>

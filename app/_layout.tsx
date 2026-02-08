@@ -36,7 +36,7 @@ export default function Layout() {
           headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
+          contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE', paddingTop: 0 },
           animation: 'default',
           safeAreaInsets: { top: false, bottom: false, left: false, right: false },
         }}
