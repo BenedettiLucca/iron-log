@@ -253,8 +253,6 @@ export default function BioScreen() {
           </View>
       </Modal>
 
-      </ScrollView>
-
       <Toast
         visible={toast.visible}
         message={toast.message}
