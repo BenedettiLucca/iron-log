@@ -8,6 +8,7 @@ import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Card } from '../../components/Card';
+import { Dialog } from '../../components/Dialog';
 
 export default function SessionScreen() {
   const { routineId, routineName } = useLocalSearchParams();
@@ -16,6 +17,9 @@ export default function SessionScreen() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [routineExs, setRoutineExs] = useState<any[]>([]);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showFinishDialog, setShowFinishDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<any>(null);
 
   // Proteção contra saída acidental
   useEffect(() => {
@@ -23,7 +27,7 @@ export default function SessionScreen() {
       // Se for para a tela de finalização, permite sem perguntar
       // Mas como usamos router.replace para finalização, o evento é diferente?
       // Vamos verificar se a ação é POP (voltar)
-      
+
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
@@ -31,18 +35,9 @@ export default function SessionScreen() {
       // Previne a saída padrão
       e.preventDefault();
 
-      Alert.alert(
-        'Sair do Treino?',
-        'Se você sair agora, o treino ficará aberto em segundo plano. Deseja sair?',
-        [
-          { text: 'Ficar', style: 'cancel', onPress: () => {} },
-          {
-            text: 'Sair',
-            style: 'destructive',
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]
-      );
+      // Mostra dialog customizado
+      setPendingNavigation(e.data.action);
+      setShowExitDialog(true);
     });
 
     return unsubscribe;
@@ -100,24 +95,15 @@ export default function SessionScreen() {
 
   const finishSession = () => {
     if (!sessionId) return;
+    setShowFinishDialog(true);
+  };
 
-    Alert.alert(
-      'Finalizar Treino?',
-      'Você ainda pode estar com exercícios pendentes. Deseja finalizar mesmo assim?',
-      [
-        { text: 'Continuar Treino', style: 'cancel' },
-        {
-          text: 'Finalizar',
-          style: 'destructive',
-          onPress: () => {
-            router.replace({
-              pathname: '/session/finish',
-              params: { sessionId, startTime }
-            });
-          }
-        },
-      ]
-    );
+  const confirmFinish = () => {
+    setShowFinishDialog(false);
+    router.replace({
+      pathname: '/session/finish',
+      params: { sessionId, startTime }
+    });
   };
 
   if (!sessionId) return <View className="flex-1 bg-background" />;
@@ -163,6 +149,36 @@ export default function SessionScreen() {
             })}
           />
         )}
+      />
+
+      <Dialog
+        visible={showExitDialog}
+        title="Sair do Treino?"
+        message="Se você sair agora, o treino ficará aberto em segundo plano. Deseja sair?"
+        confirmText="Sair"
+        cancelText="Ficar"
+        type="destructive"
+        onConfirm={() => {
+          setShowExitDialog(false);
+          if (pendingNavigation) {
+            navigation.dispatch(pendingNavigation);
+          }
+        }}
+        onCancel={() => {
+          setShowExitDialog(false);
+          setPendingNavigation(null);
+        }}
+      />
+
+      <Dialog
+        visible={showFinishDialog}
+        title="Finalizar Treino?"
+        message="Você ainda pode estar com exercícios pendentes. Deseja finalizar mesmo assim?"
+        confirmText="Finalizar"
+        cancelText="Continuar Treino"
+        type="destructive"
+        onConfirm={confirmFinish}
+        onCancel={() => setShowFinishDialog(false)}
       />
     </View>
   );

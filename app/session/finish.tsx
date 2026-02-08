@@ -16,6 +16,7 @@ import { eq, desc, and, sql } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
+import { Dialog } from '../../components/Dialog';
 
 interface NoteTemplate {
   label: string;
@@ -60,6 +61,7 @@ export default function FinishSessionScreen() {
     prCount: 0,
   });
   const [isFinishing, setIsFinishing] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
@@ -128,63 +130,51 @@ export default function FinishSessionScreen() {
     setNotes(newText);
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (isFinishing) return;
+    setShowConfirmDialog(true);
+  };
 
-    Alert.alert(
-      'Finalizar Treino?',
-      `Confira os dados antes de finalizar:\n\n` +
-      `• ${sessionStats.totalSets} séries\n` +
-      `• ${sessionStats.totalExercises} exercícios\n` +
-      `• ${(sessionStats.totalVolume / 1000).toFixed(1)} toneladas de volume\n` +
-      `• Peso: ${weight || 'N/A'} kg\n` +
-      `• sRPE: ${sRpe}`,
-      [
-        { text: 'Voltar', style: 'cancel' },
-        {
-          text: 'Confirmar',
-          onPress: async () => {
-            setIsFinishing(true);
-            try {
-              const endTimestamp = Date.now();
-              const startTimestamp = Number(startTime);
-              const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
+  const confirmFinish = async () => {
+    setIsFinishing(true);
+    setShowConfirmDialog(false);
 
-              // 1. Atualizar Sessão
-              await db.update(sessions)
-                .set({
-                  endTime: endTimestamp,
-                  durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
-                  bodyWeight: weight ? Number(weight) : null,
-                  sRpe: sRpe,
-                  notes: notes
-                })
-                .where(eq(sessions.id, Number(sessionId)));
+    try {
+      const endTimestamp = Date.now();
+      const startTimestamp = Number(startTime);
+      const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
 
-              // 2. Salvar Peso na Bio (Sincronização)
-              if (weight) {
-                await db.insert(bodyMetrics).values({
-                  date: endTimestamp,
-                  type: 'daily',
-                  weight: Number(weight)
-                });
-              }
+      // 1. Atualizar Sessão
+      await db.update(sessions)
+        .set({
+          endTime: endTimestamp,
+          durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
+          bodyWeight: weight ? Number(weight) : null,
+          sRpe: sRpe,
+          notes: notes
+        })
+        .where(eq(sessions.id, Number(sessionId)));
 
-              // Navegar para o resumo
-              router.replace({
-                pathname: '/session/summary',
-                params: { sessionId }
-              });
+      // 2. Salvar Peso na Bio (Sincronização)
+      if (weight) {
+        await db.insert(bodyMetrics).values({
+          date: endTimestamp,
+          type: 'daily',
+          weight: Number(weight)
+        });
+      }
 
-            } catch (e) {
-              console.error(e);
-              Alert.alert('Erro', 'Falha ao finalizar sessão.');
-              setIsFinishing(false);
-            }
-          }
-        }
-      ]
-    );
+      // Navegar para o resumo
+      router.replace({
+        pathname: '/session/summary',
+        params: { sessionId }
+      });
+
+    } catch (e) {
+      console.error(e);
+      setShowConfirmDialog(false);
+      setIsFinishing(false);
+    }
   };
 
   const getWeightDiff = () => {
@@ -365,6 +355,21 @@ export default function FinishSessionScreen() {
         />
 
       </ScrollView>
+
+      <Dialog
+        visible={showConfirmDialog}
+        title="Finalizar Treino?"
+        message={`Confira os dados antes de finalizar:\n\n` +
+          `• ${sessionStats.totalSets} séries\n` +
+          `• ${sessionStats.totalExercises} exercícios\n` +
+          `• ${(sessionStats.totalVolume / 1000).toFixed(1)} toneladas de volume\n` +
+          `• Peso: ${weight || 'N/A'} kg\n` +
+          `• sRPE: ${sRpe}`}
+        confirmText="Confirmar"
+        cancelText="Voltar"
+        onConfirm={confirmFinish}
+        onCancel={() => setShowConfirmDialog(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
