@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Toast } from '../../../components/Toast';
+import { Input } from '../../../components/Input';
+import { Button } from '../../../components/Button';
+import { Card } from '../../../components/Card';
 
 type SelectedExercise = {
   id: number;
@@ -147,89 +150,95 @@ export default function RoutineEditorScreen() {
       <ScrollView
         className="px-4 pb-4"
         keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ gap: 16 }}
       >
-        <Text className="text-subtext text-xs font-bold uppercase mb-1">Nome da Rotina</Text>
-        <TextInput 
-          className="bg-card text-text p-4 rounded-xl border border-border mb-4 text-lg"
-          value={name}
-          onChangeText={setName}
-          placeholder="Ex: Treino C (Pernas)"
-          placeholderTextColor="#9CA3AF"
+        <Input
+            label="NOME DA ROTINA"
+            value={name}
+            onChangeText={setName}
+            placeholder="Ex: Treino C (Pernas)"
         />
 
-        <Text className="text-subtext text-xs font-bold uppercase mb-1">Descrição</Text>
-        <TextInput 
-          className="bg-card text-text p-4 rounded-xl border border-border mb-6"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Foco em quadríceps..."
-          placeholderTextColor="#9CA3AF"
+        <Input 
+            label="DESCRIÇÃO"
+            value={description}
+            onChangeText={setDescription}
+            placeholder="Foco em quadríceps..."
         />
 
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-subtext text-xs font-bold uppercase">Exercícios ({selectedExercises.length})</Text>
-          <TouchableOpacity onPress={() => setModalVisible(true)}>
-            <Text className="text-primary font-bold">+ ADICIONAR</Text>
-          </TouchableOpacity>
+        <View className="flex-row justify-between items-center mt-2">
+          <Text className="text-subtext text-xs font-bold uppercase tracking-wider">Exercícios ({selectedExercises.length})</Text>
+          <Button 
+            title="+ Adicionar"
+            onPress={() => setModalVisible(true)}
+            variant="ghost"
+            size="sm"
+          />
         </View>
 
         {selectedExercises.map((ex, index) => (
-          <View key={`${ex.id}-${index}`} className="bg-card p-3 mb-3 rounded-lg border border-border shadow-sm">
-            <View className="flex-row justify-between items-center mb-2">
+          <Card key={`${ex.id}-${index}`}>
+            <View className="flex-row justify-between items-center mb-3">
                 <TouchableOpacity 
                     onPress={() => {
                         setRenamingEx({ id: ex.id, name: ex.name });
                         setNewName(ex.name);
                     }}
                 >
-                    <Text className="text-text font-bold text-lg underline decoration-dashed decoration-subtext"><Text className="text-subtext mr-2 no-underline">#{index+1}</Text> {ex.name} ✎</Text>
+                    <Text className="text-text font-bold text-lg underline decoration-dashed decoration-subtext"><Text className="text-subtext mr-2 no-underline font-normal text-sm">#{index+1}</Text> {ex.name} ✎</Text>
                 </TouchableOpacity>
                 
-                <TouchableOpacity onPress={() => removeExercise(index)} className="bg-background px-2 py-1 rounded">
-                    <Text className="text-danger text-xs font-bold">X</Text>
-                </TouchableOpacity>
+                <Button 
+                    title="X"
+                    onPress={() => removeExercise(index)}
+                    variant="danger"
+                    size="sm"
+                    style={{ minHeight: 32, paddingVertical: 4, paddingHorizontal: 12 }}
+                />
             </View>
 
-            <View className="flex-row gap-2">
-                <TextInput 
-                    className="flex-1 bg-background text-text p-2 rounded text-xs"
-                    placeholder="Meta (ex: 4x10)"
-                    placeholderTextColor="#9CA3AF"
-                    value={ex.target}
-                    onChangeText={(t) => updateExerciseField(index, 'target', t)}
-                />
-                <TextInput 
-                    className="flex-[2] bg-background text-text p-2 rounded text-xs"
-                    placeholder="Notas (ex: Banco 45°)"
-                    placeholderTextColor="#9CA3AF"
-                    value={ex.notes}
-                    onChangeText={(t) => updateExerciseField(index, 'notes', t)}
-                />
+            <View className="flex-row gap-3">
+                <View className="flex-1">
+                    <Input 
+                        placeholder="Meta (ex: 4x10)"
+                        value={ex.target}
+                        onChangeText={(t) => updateExerciseField(index, 'target', t)}
+                        style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
+                    />
+                </View>
+                <View className="flex-[2]">
+                    <Input 
+                        placeholder="Notas (ex: Banco 45°)"
+                        value={ex.notes}
+                        onChangeText={(t) => updateExerciseField(index, 'notes', t)}
+                        style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
+                    />
+                </View>
             </View>
-            <View className="mt-2 flex-row items-center gap-2">
+            <View className="mt-3 flex-row items-center gap-3">
                 <Text className="text-subtext text-xs font-bold uppercase">Descanso (s):</Text>
-                <TextInput 
-                    className="bg-background text-text p-2 rounded text-xs w-20 text-center"
+                <Input 
                     placeholder="90"
                     keyboardType="numeric"
-                    placeholderTextColor="#9CA3AF"
                     value={ex.restSeconds?.toString()}
                     onChangeText={(t) => updateExerciseField(index, 'restSeconds', t)}
+                    style={{ fontSize: 12, paddingVertical: 8, minHeight: 36, width: 60, textAlign: 'center' }}
+                    containerStyle={{ flex: 0 }}
                 />
             </View>
-          </View>
+          </Card>
         ))}
 
-        <View className="h-20" />
+        <View className="h-24" />
       </ScrollView>
 
-      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full">
-        <TouchableOpacity 
-          className="bg-success p-4 rounded-xl items-center"
+      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg">
+        <Button 
+          title="SALVAR ROTINA"
           onPress={handleSave}
-        >
-          <Text className="text-white font-bold uppercase tracking-widest">SALVAR</Text>
-        </TouchableOpacity>
+          variant="success"
+          fullWidth
+        />
       </View>
 
       <ExercisePickerModal 
@@ -242,25 +251,29 @@ export default function RoutineEditorScreen() {
       />
 
       <Modal visible={!!renamingEx} transparent animationType="fade">
-          <View className="flex-1 bg-black/80 justify-center items-center p-4">
-              <View className="bg-card p-6 rounded-xl w-full border border-primary">
-                  <Text className="text-text font-bold text-lg mb-4 uppercase">Renomear</Text>
-                  <Text className="text-subtext text-xs mb-4">Isso mudará o nome em TODAS as rotinas.</Text>
+          <View className="flex-1 bg-black/60 justify-center items-center p-4">
+              <View className="bg-card p-6 rounded-2xl w-full border border-border shadow-xl">
+                  <Text className="text-text font-bold text-lg mb-2 uppercase tracking-wide">Renomear</Text>
+                  <Text className="text-subtext text-xs mb-6">Isso mudará o nome em TODAS as rotinas.</Text>
                   
-                  <TextInput 
-                      className="bg-background text-text p-4 rounded-lg border border-border mb-4 font-bold"
+                  <Input 
                       value={newName}
                       onChangeText={setNewName}
                       autoFocus
+                      containerStyle={{ marginBottom: 24 }}
                   />
 
-                  <View className="flex-row justify-end gap-4">
-                      <TouchableOpacity onPress={() => setRenamingEx(null)}>
-                          <Text className="text-subtext font-bold uppercase">CANCELAR</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={handleRename}>
-                          <Text className="text-primary font-bold uppercase">SALVAR</Text>
-                      </TouchableOpacity>
+                  <View className="flex-row justify-end gap-3">
+                      <Button 
+                        title="CANCELAR"
+                        onPress={() => setRenamingEx(null)}
+                        variant="ghost"
+                      />
+                      <Button 
+                        title="SALVAR"
+                        onPress={handleRename}
+                        variant="primary"
+                      />
                   </View>
               </View>
           </View>
@@ -322,101 +335,101 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <View className="flex-1 bg-background">
-        <ScrollView
-          className="p-4"
-          keyboardShouldPersistTaps="handled"
-        >
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-text text-xl font-bold uppercase">Selecionar</Text>
-          <TouchableOpacity onPress={onClose}>
-            <Text className="text-secondary font-bold uppercase">FECHAR</Text>
-          </TouchableOpacity>
+        <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
+          <Text className="text-text text-xl font-bold uppercase tracking-wide">Selecionar</Text>
+          <Button 
+            title="FECHAR"
+            onPress={onClose}
+            variant="ghost"
+            size="sm"
+          />
         </View>
 
-        {editingEx ? (
-            <View className="bg-card p-4 mb-4 rounded-lg border border-primary">
-                <Text className="text-subtext text-xs mb-1">Editando: {editingEx.name}</Text>
-                <View className="flex-row gap-2">
-                    <TextInput 
-                        className="flex-1 bg-background text-text p-2 rounded border border-border"
-                        value={editName}
-                        onChangeText={setEditName}
-                        autoFocus
+        <View className="p-4">
+            {editingEx ? (
+                <Card className="mb-4 border-primary">
+                    <Text className="text-subtext text-xs mb-2">Editando: {editingEx.name}</Text>
+                    <View className="flex-row gap-2">
+                        <View className="flex-1">
+                            <Input 
+                                value={editName}
+                                onChangeText={setEditName}
+                                autoFocus
+                            />
+                        </View>
+                        <Button title="OK" onPress={handleUpdateName} size="sm" variant="success" />
+                        <Button title="X" onPress={() => setEditingEx(null)} size="sm" variant="danger" />
+                    </View>
+                </Card>
+            ) : (
+                <Input 
+                    placeholder="Buscar ou Criar..."
+                    value={search}
+                    onChangeText={setSearch}
+                    autoFocus
+                    containerStyle={{ marginBottom: 16 }}
+                />
+            )}
+
+            <FlatList
+            data={filtered}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            ListEmptyComponent={
+                search ? (
+                <Card className="mt-4 items-center p-6">
+                    <Text className="text-subtext text-center mb-2">Não encontrado.</Text>
+                    <Text className="text-text font-bold text-lg text-center mb-6">CRIAR &quot;{search}&quot;</Text>
+                    
+                    <View className="flex-row gap-4 mb-6 justify-center">
+                        <Button 
+                            title="FORÇA"
+                            onPress={() => setNewType('strength')}
+                            variant={newType === 'strength' ? 'primary' : 'ghost'}
+                            size="sm"
+                        />
+                        <Button 
+                            title="TEMPO"
+                            onPress={() => setNewType('duration')}
+                            variant={newType === 'duration' ? 'primary' : 'ghost'}
+                            size="sm"
+                        />
+                    </View>
+
+                    <Button 
+                        title="CONFIRMAR CRIAÇÃO"
+                        onPress={createNewExercise}
+                        variant="success"
+                        fullWidth
                     />
-                    <TouchableOpacity onPress={handleUpdateName} className="bg-success px-4 justify-center rounded">
-                        <Text className="text-white font-bold text-xs uppercase">OK</Text>
+                </Card>
+                ) : <Text className="text-subtext text-center mt-10 uppercase text-xs font-bold tracking-widest">Digite para buscar</Text>
+            }
+            renderItem={({ item }) => (
+                <TouchableOpacity 
+                    className="p-4 border-b border-border flex-row justify-between items-center active:bg-black/5"
+                    onPress={() => onSelect({ id: item.id, name: item.name })}
+                >
+                    <View className="flex-1">
+                        <Text className="text-text font-bold text-lg">{item.name}</Text>
+                        {item.type === 'duration' && (
+                            <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">Tempo</Text>
+                        )}
+                    </View>
+                    
+                    <TouchableOpacity 
+                        onPress={() => {
+                            setEditingEx({ id: item.id, name: item.name });
+                            setEditName(item.name);
+                        }}
+                        className="p-2"
+                    >
+                        <Text className="text-primary text-xs font-bold uppercase">Editar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setEditingEx(null)} className="bg-danger px-4 justify-center rounded">
-                        <Text className="text-white font-bold text-xs uppercase">X</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        ) : (
-            <TextInput 
-            className="bg-card text-text p-3 rounded-lg border border-border mb-4"
-            placeholder="Buscar ou Criar..."
-            placeholderTextColor="#9CA3AF"
-            value={search}
-            onChangeText={setSearch}
-            autoFocus
+                </TouchableOpacity>
+            )}
             />
-        )}
-
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id.toString()}
-          ListEmptyComponent={
-            search ? (
-              <View className="mt-4 bg-card p-4 rounded-xl border border-border">
-                  <Text className="text-subtext text-center mb-2">Não encontrado.</Text>
-                  <Text className="text-text font-bold text-lg text-center mb-4">CRIAR &quot;{search}&quot;</Text>
-                  
-                  <View className="flex-row gap-4 mb-4 justify-center">
-                      <TouchableOpacity 
-                        onPress={() => setNewType('strength')}
-                        className={`px-4 py-2 rounded-lg border ${newType === 'strength' ? 'bg-primary border-primary' : 'bg-background border-border'}`}
-                      >
-                          <Text className={newType === 'strength' ? 'text-white font-bold text-xs' : 'text-text font-bold text-xs'}>FORÇA</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        onPress={() => setNewType('duration')}
-                        className={`px-4 py-2 rounded-lg border ${newType === 'duration' ? 'bg-primary border-primary' : 'bg-background border-border'}`}
-                      >
-                          <Text className={newType === 'duration' ? 'text-white font-bold text-xs' : 'text-text font-bold text-xs'}>TEMPO</Text>
-                      </TouchableOpacity>
-                  </View>
-
-                  <TouchableOpacity onPress={createNewExercise} className="bg-success p-3 rounded-lg">
-                    <Text className="text-white text-center font-bold uppercase text-xs">CONFIRMAR</Text>
-                  </TouchableOpacity>
-              </View>
-            ) : <Text className="text-subtext text-center mt-4 uppercase text-xs font-bold">Digite para buscar</Text>
-          }
-          renderItem={({ item }) => (
-            <View className="p-4 border-b border-border flex-row justify-between items-center">
-                <TouchableOpacity 
-                className="flex-1"
-                onPress={() => onSelect({ id: item.id, name: item.name })}
-                >
-                    <Text className="text-text font-bold text-lg">{item.name}</Text>
-                    {item.type === 'duration' && (
-                        <Text className="text-xs bg-background text-subtext px-2 py-1 rounded self-start mt-1">Tempo</Text>
-                    )}
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                    onPress={() => {
-                        setEditingEx({ id: item.id, name: item.name });
-                        setEditName(item.name);
-                    }}
-                    className="p-2"
-                >
-                    <Text className="text-primary text-xs font-bold uppercase">Editar</Text>
-                </TouchableOpacity>
-            </View>
-          )}
-        />
-        </ScrollView>
+        </View>
 
         <Toast
           visible={toast.visible}

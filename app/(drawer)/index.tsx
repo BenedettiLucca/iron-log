@@ -5,6 +5,8 @@ import { routines, exercises, routineExercises, sessions } from '../../src/db/sc
 import { useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,48 +77,50 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-background px-4 pb-4">
       <View className="mb-8 mt-4">
-        <View className="flex-row justify-between items-center mb-1">
-            <Text className="text-subtext text-sm uppercase tracking-wider font-bold">Última Sessão</Text>
+        <View className="flex-row justify-between items-center mb-2 px-1">
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest">Última Sessão</Text>
             <TouchableOpacity onPress={() => router.push('/history')}>
                 <Text className="text-secondary text-xs font-bold uppercase tracking-wider">Ver Calendário</Text>
             </TouchableOpacity>
         </View>
         
         {lastSession ? (
-            <TouchableOpacity 
+            <Card
+                pressable
                 onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: lastSession.id } })}
-                className="bg-card p-4 rounded-xl border border-border shadow-sm flex-row justify-between items-center"
             >
-                <View>
-                    <Text className="text-text font-bold text-lg">{lastSession.routineName}</Text>
-                    <Text className="text-subtext text-xs mt-1">
-                        {new Date(lastSession.startTime).toLocaleDateString()} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
-                    </Text>
+                <View className="flex-row justify-between items-center">
+                    <View>
+                        <Text className="text-text font-black text-xl mb-1">{lastSession.routineName}</Text>
+                        <Text className="text-subtext text-xs font-medium">
+                            {new Date(lastSession.startTime).toLocaleDateString()} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
+                        </Text>
+                    </View>
+                    <View className="bg-primary/10 p-2 rounded-full">
+                        <Text className="text-primary text-xl">→</Text>
+                    </View>
                 </View>
-                <View className="bg-background p-2 rounded-full border border-border">
-                    <Text className="text-primary font-bold text-xs">VER</Text>
-                </View>
-            </TouchableOpacity>
+            </Card>
         ) : (
-            <View className="bg-card p-4 rounded-xl border border-border shadow-sm">
-                <Text className="text-subtext italic">Nenhum treino registrado.</Text>
-            </View>
+            <Card>
+                <Text className="text-subtext italic text-center py-2">Nenhum treino registrado.</Text>
+            </Card>
         )}
       </View>
 
-      <View className="flex-row justify-between items-end mb-3">
-        <Text className="text-subtext text-sm uppercase tracking-wider font-bold">Rotinas Disponíveis</Text>
+      <View className="flex-row justify-between items-end mb-3 px-1">
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest">Rotinas Disponíveis</Text>
         <TouchableOpacity onPress={() => router.push('/routines')}>
-          <Text className="text-primary font-bold text-sm">GERENCIAR</Text>
+          <Text className="text-primary font-bold text-xs uppercase tracking-wider">Gerenciar</Text>
         </TouchableOpacity>
       </View>
       
-      <ScrollView className="flex-1 space-y-4">
+      <ScrollView className="flex-1" contentContainerStyle={{ gap: 12 }}>
         {routinesList && routinesList.length > 0 ? (
           routinesList.map((routine) => (
-            <TouchableOpacity 
+            <Card
               key={routine.id}
-              className="bg-card p-5 rounded-xl border border-border shadow-sm active:bg-border/50"
+              pressable
               onPress={() => router.push({
                 pathname: '/session/[routineId]',
                 params: { 
@@ -127,25 +131,24 @@ export default function HomeScreen() {
               })}
             >
               <View className="flex-row justify-between items-center">
-                <View>
-                  <Text className="text-text text-xl font-bold">{routine.name}</Text>
-                  <Text className="text-subtext mt-1">{routine.description}</Text>
+                <View className="flex-1 mr-4">
+                  <Text className="text-text text-xl font-bold mb-1">{routine.name}</Text>
+                  <Text className="text-subtext text-sm" numberOfLines={1}>{routine.description}</Text>
                 </View>
-                <View className="w-8 h-8 bg-primary rounded-full justify-center items-center">
-                  <Text className="text-white font-bold text-lg">{'>'}</Text>
+                <View className="w-10 h-10 bg-primary rounded-full justify-center items-center shadow-sm">
+                  <Text className="text-white font-bold text-xl">{'>'}</Text>
                 </View>
               </View>
-            </TouchableOpacity>
+            </Card>
           ))
         ) : (
-          <View className="items-center mt-10">
-            <Text className="text-subtext mb-4 text-center">Nenhuma rotina encontrada.</Text>
-            <TouchableOpacity 
+          <View className="items-center mt-10 px-4">
+            <Text className="text-subtext mb-6 text-center">Nenhuma rotina encontrada.</Text>
+            <Button 
+              title="Gerar Rotinas de Exemplo"
               onPress={seedDatabase}
-              className="bg-primary px-6 py-3 rounded-lg"
-            >
-              <Text className="text-white font-bold">Gerar Rotinas de Exemplo</Text>
-            </TouchableOpacity>
+              variant="secondary"
+            />
           </View>
         )}
       </ScrollView>

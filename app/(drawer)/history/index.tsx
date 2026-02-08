@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { sessions } from '../../../src/db/schema';
 import { desc } from 'drizzle-orm';
+import { Card } from '../../../components/Card';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
@@ -59,7 +60,7 @@ export default function HistoryScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{ title: 'Histórico' }} />
 
-      <View className="bg-card border-b border-border pb-2">
+      <View className="bg-card border-b border-border pb-2 shadow-sm z-10">
         <Calendar
           onDayPress={handleDayPress}
           markedDates={{
@@ -96,33 +97,36 @@ export default function HistoryScreen() {
       </View>
 
       <View className="flex-1 p-4">
-        <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">
+        <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest pl-1">
             {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : 'Selecione um dia'}
         </Text>
 
         <FlatList
           data={daySessions}
           keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ gap: 12 }}
           ListEmptyComponent={
             selectedDate ? 
-            <Text className="text-subtext text-center italic">Nenhum treino neste dia.</Text> : 
-            <Text className="text-subtext text-center italic">Toque no calendário para ver os detalhes.</Text>
+            <Text className="text-subtext text-center italic mt-10">Nenhum treino neste dia.</Text> : 
+            <Text className="text-subtext text-center italic mt-10">Toque no calendário para ver os detalhes.</Text>
           }
           renderItem={({ item }) => (
-            <TouchableOpacity 
-              className="bg-card p-4 rounded-xl border border-border mb-3 flex-row justify-between items-center shadow-sm"
+            <Card 
+              pressable
               onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
             >
-              <View>
-                <Text className="text-text font-bold text-lg">{item.routineName}</Text>
-                <Text className="text-subtext text-sm">
-                    {new Date(item.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {item.durationMinutes} min
-                </Text>
+              <View className="flex-row justify-between items-center">
+                <View>
+                  <Text className="text-text font-bold text-lg mb-1">{item.routineName}</Text>
+                  <Text className="text-subtext text-sm">
+                      {new Date(item.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {item.durationMinutes} min
+                  </Text>
+                </View>
+                <View className="bg-primary/10 px-3 py-1.5 rounded-lg">
+                    <Text className="text-primary font-bold text-xs uppercase tracking-wider">Ver Detalhes</Text>
+                </View>
               </View>
-              <View className="bg-primary px-3 py-1 rounded">
-                  <Text className="text-white font-bold text-xs uppercase">Ver</Text>
-              </View>
-            </TouchableOpacity>
+            </Card>
           )}
         />
       </View>
