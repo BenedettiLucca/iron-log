@@ -65,6 +65,13 @@ export default function DrawerLayout() {
             drawerLabel: 'Sobre o App' 
           }} 
         />
+        <Drawer.Screen 
+          name="settings" 
+          options={{ 
+            title: 'Dados & Backup', 
+            drawerLabel: 'Backup & Dados' 
+          }} 
+        />
       </Drawer>
     </GestureHandlerRootView>
   );

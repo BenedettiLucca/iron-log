@@ -28,9 +28,36 @@ O **Iron Log** é uma plataforma completa de monitoramento físico "local-first"
 *   **Visualização de Evolução:** Gráficos de Média Móvel (7 dias) e Galeria de Fotos organizada por data.
 *   **Sincronização:** O peso do treino alimenta a Bio e vice-versa.
 
+### 💾 Portabilidade de Dados
+*   **Backup Local:** Exporte seu banco de dados completo (`.db`) para guardar ou transferir.
+*   **Importação:** Restaure backups anteriores facilmente.
+*   **Backup em Nuvem (Google Drive):** Sincronize seus dados com sua conta Google (Requer configuração).
+
 ### 🎨 Experiência de Uso
 *   **Tema Dinâmico:** Adaptação automática ao modo Claro/Escuro do sistema.
 *   **Importação Inteligente (JSON):** Copie treinos estruturados e o app cria a rotina automaticamente.
+
+---
+
+## ⚙️ Configuração (Opcional)
+
+Para habilitar o backup no Google Drive:
+
+1.  Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/).
+2.  Habilite a **Google Drive API**.
+3.  Crie credenciais OAuth 2.0 (Web Client ou Android/iOS conforme o uso).
+4.  Crie um arquivo `.env` na raiz do projeto:
+    ```env
+    EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id-aqui.apps.googleusercontent.com
+    ```
+
+### 📦 Build de Produção (APK)
+Para que o Google Login funcione no APK gerado:
+
+1.  **Variáveis de Ambiente:** As variáveis `EXPO_PUBLIC_` são embutidas no app durante o build. Certifique-se de que o arquivo `.env` existe no ambiente onde o build será gerado.
+2.  **Assinatura (SHA-1):** No Google Cloud Console, você deve adicionar o **SHA-1 da sua Keystore de Produção**.
+    *   O SHA-1 de desenvolvimento (Expo Go/Dev Client) é diferente do SHA-1 de produção.
+    *   Se usar **EAS Build**, o EAS gerencia isso para você. Use `eas credentials` para ver o hash correto.
 
 ---
 
