@@ -1,5 +1,6 @@
-import React, { TouchableOpacity, Text, ActivityIndicator, View, ViewStyle, TextStyle } from 'react-native';
-import { useState } from 'react';
+import React from 'react';
+import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -17,6 +18,8 @@ interface ButtonProps {
   textStyle?: TextStyle;
 }
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export function Button({
   title,
   onPress,
@@ -29,47 +32,61 @@ export function Button({
   style,
   textStyle,
 }: ButtonProps) {
-  const [isPressed, setIsPressed] = useState(false);
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    if (disabled || loading) return;
+    scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    if (disabled || loading) return;
+    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+  };
 
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'px-3 py-2 min-h-[36px]';
+        return 'px-4 py-2 min-h-[40px]';
       case 'lg':
-        return 'px-6 py-4 min-h-[56px]';
+        return 'px-8 py-4 min-h-[60px]';
       case 'md':
       default:
-        return 'px-4 py-3 min-h-[44px]';
+        return 'px-6 py-3.5 min-h-[50px]';
     }
   };
 
   const getTextSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'text-xs font-semibold';
+        return 'text-xs font-bold tracking-wider uppercase';
       case 'lg':
-        return 'text-lg font-bold';
+        return 'text-lg font-bold tracking-widest uppercase';
       case 'md':
       default:
-        return 'text-sm font-semibold';
+        return 'text-sm font-bold tracking-wider uppercase';
     }
   };
 
   const getVariantClasses = () => {
-    const baseClasses = 'rounded-xl items-center justify-center flex-row';
+    const baseClasses = 'rounded-2xl items-center justify-center flex-row shadow-sm';
 
     switch (variant) {
       case 'secondary':
-        return `${baseClasses} bg-transparent border border-secondary ${isPressed ? 'bg-secondary/20' : ''}`;
+        return `${baseClasses} bg-background border-2 border-secondary/20 active:bg-secondary/10`;
       case 'danger':
-        return `${baseClasses} bg-danger ${isPressed ? 'opacity-80' : ''}`;
+        return `${baseClasses} bg-danger active:opacity-90`;
       case 'ghost':
-        return `${baseClasses} bg-transparent ${isPressed ? 'bg-black/5' : ''}`;
+        return `${baseClasses} bg-transparent border-transparent shadow-none active:bg-black/5`;
       case 'success':
-        return `${baseClasses} bg-success ${isPressed ? 'opacity-80' : ''}`;
+        return `${baseClasses} bg-success active:opacity-90`;
       case 'primary':
       default:
-        return `${baseClasses} bg-primary ${isPressed ? 'opacity-80' : ''}`;
+        return `${baseClasses} bg-primary active:opacity-90`;
     }
   };
 
@@ -83,26 +100,26 @@ export function Button({
         return 'text-white';
       case 'ghost':
       default:
-        return 'text-text';
+        return 'text-subtext';
     }
   };
 
   return (
-    <TouchableOpacity
+    <AnimatedPressable
       onPress={onPress}
-      onPressIn={() => setIsPressed(true)}
-      onPressOut={() => setIsPressed(false)}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       disabled={disabled || loading}
-      activeOpacity={0.8}
       style={[
-        { opacity: disabled ? 0.5 : 1 },
+        animatedStyle,
+        { opacity: disabled ? 0.6 : 1 },
         fullWidth && { width: '100%' },
         style,
       ]}
       className={`${getVariantClasses()} ${getSizeClasses()}`}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? '#3D5A80' : '#FFFFFF'} />
       ) : (
         <>
           {icon && <View className="mr-2">{icon}</View>}
@@ -114,6 +131,6 @@ export function Button({
           </Text>
         </>
       )}
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }

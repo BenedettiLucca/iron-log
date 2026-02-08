@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Text, FlatList, ScrollView } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
@@ -7,6 +7,8 @@ import { eq, like } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Toast } from '../../../components/Toast';
 import { Dialog } from '../../../components/Dialog';
+import { Card } from '../../../components/Card';
+import { Button } from '../../../components/Button';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -128,18 +130,17 @@ export default function RoutinesListScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 pb-0">
+      <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
           {folders.map(folder => (
-            <TouchableOpacity 
+            <Button
               key={folder}
+              title={folder}
               onPress={() => setSelectedFolder(folder)}
-              className={`px-4 py-2 rounded-full border ${selectedFolder === folder ? 'bg-primary border-primary' : 'bg-card border-border'}`}
-            >
-              <Text className={`${selectedFolder === folder ? 'text-white' : 'text-text'} font-bold text-xs`}>
-                {folder}
-              </Text>
-            </TouchableOpacity>
+              size="sm"
+              variant={selectedFolder === folder ? 'primary' : 'ghost'}
+              style={{ borderRadius: 9999, borderWidth: 1, borderColor: selectedFolder === folder ? 'transparent' : 'rgba(156, 163, 175, 0.2)' }}
+            />
           ))}
         </ScrollView>
       </View>
@@ -147,66 +148,72 @@ export default function RoutinesListScreen() {
       <FlatList
         data={filteredRoutines}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ padding: 16, paddingTop: 0 }}
+        contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
         ListHeaderComponent={
-            <View className="bg-card/50 border border-border p-4 rounded-xl mb-6">
-                <Text className="text-primary font-bold mb-1">💡 Importação via JSON</Text>
+            <Card className="mb-6 bg-card/50">
+                <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>
                 <Text className="text-subtext text-xs leading-5">
                     Peça para a IA gerar um JSON neste formato:{"\n"}
                     <Text className="font-mono text-[10px] text-text">
                         {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}
                     </Text>
                 </Text>
-            </View>
+            </Card>
         }
         ListEmptyComponent={
           <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
         }
         renderItem={({ item }) => (
-          <View className="bg-card p-4 mb-3 rounded-xl border border-border flex-row justify-between items-center shadow-sm">
-            <View className="flex-1 mr-4">
-              <View className="flex-row items-center gap-2 mb-1">
-                <Text className="text-text text-lg font-bold">{item.name}</Text>
-                {item.folder && item.folder !== 'Geral' && (
-                  <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
-                    {item.folder}
-                  </Text>
-                )}
-              </View>
-              <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
+          <Card>
+            <View className="flex-row justify-between items-center">
+                <View className="flex-1 mr-4">
+                <View className="flex-row items-center gap-2 mb-1">
+                    <Text className="text-text text-lg font-bold">{item.name}</Text>
+                    {item.folder && item.folder !== 'Geral' && (
+                    <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
+                        {item.folder}
+                    </Text>
+                    )}
+                </View>
+                <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
+                </View>
+                <View className="flex-row gap-2">
+                <Button 
+                    title="Editar"
+                    onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
+                    variant="ghost"
+                    size="sm"
+                />
+                <Button 
+                    title="Excluir"
+                    onPress={() => handleDelete(item.id, item.name)}
+                    variant="danger"
+                    size="sm"
+                />
+                </View>
             </View>
-            <View className="flex-row gap-2">
-              <TouchableOpacity 
-                onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
-                className="bg-background px-3 py-2 rounded-lg border border-border"
-              >
-                <Text className="text-primary font-bold text-xs uppercase">Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => handleDelete(item.id, item.name)}
-                className="bg-background px-3 py-2 rounded-lg border border-border"
-              >
-                <Text className="text-danger font-bold text-xs uppercase">X</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          </Card>
         )}
       />
 
-      <View className="p-4 border-t border-border flex-row gap-3 bg-card">
-        <TouchableOpacity 
-          className="bg-background p-4 rounded-xl items-center flex-1 border border-border"
-          onPress={handleImportFromClipboard}
-        >
-          <Text className="text-primary font-bold uppercase tracking-widest text-xs">Importar</Text>
-        </TouchableOpacity>
+      <View className="p-4 border-t border-border flex-row gap-3 bg-card shadow-lg">
+        <View className="flex-1">
+            <Button 
+            title="Importar"
+            onPress={handleImportFromClipboard}
+            variant="secondary"
+            fullWidth
+            />
+        </View>
 
-        <TouchableOpacity
-          className="bg-primary p-4 rounded-xl items-center flex-[2]"
-          onPress={() => router.push('/routines/editor')}
-        >
-          <Text className="text-white font-bold uppercase tracking-widest text-xs">Criar</Text>
-        </TouchableOpacity>
+        <View className="flex-[2]">
+            <Button
+            title="Criar Nova Rotina"
+            onPress={() => router.push('/routines/editor')}
+            variant="primary"
+            fullWidth
+            />
+        </View>
       </View>
 
       <Toast

@@ -1,10 +1,12 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Image, Dimensions } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
 import { asc } from 'drizzle-orm';
 import { LineChart } from 'react-native-gifted-charts';
+import { Button } from '../../../components/Button';
+import { Card } from '../../../components/Card';
 
 export default function EvolutionScreen() {
   const [weightData, setWeightData] = useState<any[]>([]);
@@ -65,14 +67,14 @@ export default function EvolutionScreen() {
 
   const renderChart = (data: any[], title: string, color: string) => {
       if (!data || data.length < 2) return (
-          <View className="h-40 justify-center items-center bg-card rounded-xl mb-6">
+          <Card style={{ marginBottom: 24, height: 160, justifyContent: 'center', alignItems: 'center' }}>
               <Text className="text-subtext italic">Dados insuficientes para {title}</Text>
-          </View>
+          </Card>
       );
 
       return (
-        <View className="bg-card p-4 rounded-xl border border-border mb-6">
-            <Text className="text-text font-bold mb-4 uppercase text-xs tracking-widest">{title}</Text>
+        <Card style={{ marginBottom: 24 }}>
+            <Text className="text-text font-bold mb-6 uppercase text-xs tracking-widest">{title}</Text>
             <LineChart 
                 data={data} 
                 color={color} 
@@ -88,7 +90,7 @@ export default function EvolutionScreen() {
                 spacing={40}
                 textFontSize={10}
             />
-        </View>
+        </Card>
       );
   };
 
@@ -99,22 +101,21 @@ export default function EvolutionScreen() {
       {/* Tabs */}
       <View className="flex-row p-4 gap-2">
           {['weight', 'measures', 'photos'].map(tab => (
-              <TouchableOpacity 
-                key={tab}
-                onPress={() => setActiveTab(tab as any)}
-                className={`flex-1 p-3 rounded-lg border items-center ${activeTab === tab ? 'bg-primary border-primary' : 'bg-card border-border'}`}
-              >
-                  <Text className={activeTab === tab ? 'text-white font-bold' : 'text-subtext font-bold'}>
-                      {tab === 'weight' ? 'PESO' : tab === 'measures' ? 'MEDIDAS' : 'FOTOS'}
-                  </Text>
-              </TouchableOpacity>
+              <View key={tab} className="flex-1">
+                <Button
+                    title={tab === 'weight' ? 'PESO' : tab === 'measures' ? 'MEDIDAS' : 'FOTOS'}
+                    onPress={() => setActiveTab(tab as any)}
+                    variant={activeTab === tab ? 'primary' : 'ghost'}
+                    size="sm"
+                />
+              </View>
           ))}
       </View>
 
-      <ScrollView className="flex-1 px-4">
+      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
               <>
-                <Text className="text-subtext text-xs mb-2 text-center">Média Móvel (7 Dias)</Text>
+                <Text className="text-subtext text-xs mb-4 text-center font-medium">Média Móvel (7 Dias)</Text>
                 {renderChart(weightData, 'Evolução de Peso', '#E07A5F')}
               </>
           )}
@@ -129,29 +130,40 @@ export default function EvolutionScreen() {
 
           {activeTab === 'photos' && (
               <View>
-                  {photos.length === 0 && <Text className="text-subtext text-center mt-10">Nenhuma foto registrada.</Text>}
+                  {photos.length === 0 && (
+                    <View className="items-center mt-10">
+                        <Text className="text-4xl mb-4">📷</Text>
+                        <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
+                        <Text className="text-subtext/60 text-xs text-center mt-2">Faça um Check-in mensal para adicionar fotos.</Text>
+                    </View>
+                  )}
                   {photos.map((entry) => (
                       <View key={entry.id} className="mb-8">
-                          <Text className="text-primary font-bold mb-2 uppercase tracking-widest border-b border-border pb-1">
-                              {new Date(entry.date).toLocaleDateString()}
-                          </Text>
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2">
+                          <View className="flex-row items-center gap-2 mb-4">
+                            <View className="h-[1px] flex-1 bg-border" />
+                            <Text className="text-primary font-bold text-sm uppercase tracking-widest">
+                                {new Date(entry.date).toLocaleDateString()}
+                            </Text>
+                            <View className="h-[1px] flex-1 bg-border" />
+                          </View>
+                          
+                          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-4 pl-2">
                               {entry.photoFront && (
                                   <View>
-                                      <Image source={{ uri: entry.photoFront }} className="w-40 h-56 rounded-lg bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-1">FRENTE</Text>
+                                      <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">FRENTE</Text>
                                   </View>
                               )}
                               {entry.photoBack && (
                                   <View>
-                                      <Image source={{ uri: entry.photoBack }} className="w-40 h-56 rounded-lg bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-1">COSTAS</Text>
+                                      <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">COSTAS</Text>
                                   </View>
                               )}
                               {entry.photoSide && (
                                   <View>
-                                      <Image source={{ uri: entry.photoSide }} className="w-40 h-56 rounded-lg bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-1">PERFIL</Text>
+                                      <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">PERFIL</Text>
                                   </View>
                               )}
                           </ScrollView>
@@ -159,8 +171,6 @@ export default function EvolutionScreen() {
                   ))}
               </View>
           )}
-          
-          <View className="h-10" />
       </ScrollView>
     </View>
   );

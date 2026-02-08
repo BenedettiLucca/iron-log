@@ -4,20 +4,24 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento físico "local-first". Projetado para quem leva o treino a sério, ele une o registro rápido de cargas com o acompanhamento de evolução corporal.
 
-**Versão Atual:** v2.4 (Final Release - Warm Adaptive)
+**Versão Atual:** v3.0 (Polished Edition)
 
 ---
 
 ## 📱 Funcionalidades Principais
 
+### ✨ Nova Interface (v3.0)
+*   **Design System "Warm & Earthy":** Estética refinada com cartões arredondados, tipografia hierárquica e paleta de cores acolhedora.
+*   **Feedback Tátil:** Botões e interações com animações de escala para uma sensação física e responsiva.
+*   **Motion Design:** Animações de entrada escalonadas e transições suaves.
+
 ### 💪 Treino & Performance
 *   **Gestão de Sessão:** Cronômetro persistente e controle de duração real.
-*   **Stopwatch Ativo (NOVO):** Para exercícios de Tempo (ex: Prancha), um cronômetro gigante substitui o input manual.
+*   **Stopwatch Ativo:** Para exercícios de Tempo (ex: Prancha), um cronômetro gigante substitui o input manual.
 *   **Timer Pro:** Cronômetro de descanso inteligente que funciona em segundo plano.
 *   **Fluxo Contínuo:** Botão "Próximo Exercício" elimina a necessidade de voltar ao menu.
 *   **Planejamento:** Metas (`target`) e Notas Técnicas (`notes`) visíveis durante a execução.
 *   **Histórico Instantâneo:** Consulte cargas anteriores sem sair da tela de exercício.
-*   **Auto-Fill:** O app sugere a carga usada no último treino daquele exercício.
 
 ### 🧬 Bio & Evolução
 *   **Bio-Tracking Completo:** Peso, Medidas e Fotos.
@@ -25,7 +29,7 @@ O **Iron Log** é uma plataforma completa de monitoramento físico "local-first"
 *   **Sincronização:** O peso do treino alimenta a Bio e vice-versa.
 
 ### 🎨 Experiência de Uso
-*   **Tema Dinâmico:** Visual "Warm & Earthy" (Terracota/Creme) que se adapta automaticamente ao modo Claro/Escuro do sistema.
+*   **Tema Dinâmico:** Adaptação automática ao modo Claro/Escuro do sistema.
 *   **Importação Inteligente (JSON):** Copie treinos estruturados e o app cria a rotina automaticamente.
 
 ---
@@ -62,7 +66,8 @@ Para garantir precisão total, o Iron Log usa JSON para importação. Peça para
 
 *   **Core:** React Native (Expo SDK 54) + TypeScript.
 *   **Data:** SQLite (Local) + Drizzle ORM.
-*   **UI:** NativeWind v4 (Tailwind), React Native Calendars, Gifted Charts.
+*   **UI:** NativeWind v4 (Tailwind), React Native Reanimated (Animações).
+*   **Charts:** React Native Gifted Charts.
 *   **Media:** Expo Image Picker, Expo File System.
 
 ---
@@ -98,6 +103,7 @@ iron-log/
 ├── app/
 │   ├── (drawer)/         # Menu Lateral (Home, Bio, Histórico, Rotinas)
 │   └── session/          # Fluxo de Treino (Stack Isolada)
+├── components/           # Componentes de UI Reutilizáveis (Button, Card, Input)
 ├── src/db/
 │   ├── schema.ts         # Tabelas (Inclui body_metrics)
 └── drizzle/              # Migrações SQL

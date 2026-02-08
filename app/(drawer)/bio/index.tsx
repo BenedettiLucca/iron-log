@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
@@ -7,6 +7,9 @@ import { desc } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { Toast } from '../../../components/Toast';
+import { Button } from '../../../components/Button';
+import { Input } from '../../../components/Input';
+import { Card } from '../../../components/Card';
 
 export default function BioScreen() {
   const router = useRouter();
@@ -106,54 +109,62 @@ export default function BioScreen() {
       <ScrollView
         className="px-4 pb-4"
         keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ gap: 16 }}
       >
         {/* Card de Peso Diário */}
-        <View className="bg-card p-4 rounded-xl border border-border mb-6 shadow-sm">
-            <Text className="text-subtext font-bold uppercase text-xs mb-2 tracking-widest">Registrar Peso (kg)</Text>
-            <View className="flex-row gap-4">
-                <TextInput 
-                    className="flex-1 bg-background text-text p-3 rounded-lg border border-border font-bold text-lg"
-                    keyboardType="numeric"
-                    value={todayWeight}
-                    onChangeText={setTodayWeight}
-                    placeholder="00.0"
-                    placeholderTextColor="#9CA3AF"
-                />
-                <TouchableOpacity onPress={saveDailyWeight} className="bg-primary justify-center px-6 rounded-lg shadow-sm">
-                    <Text className="text-white font-bold uppercase text-xs">SALVAR</Text>
-                </TouchableOpacity>
+        <Card>
+            <View className="flex-row items-center gap-4">
+                <View className="flex-1">
+                    <Input
+                        label="REGISTRAR PESO (KG)"
+                        keyboardType="numeric"
+                        value={todayWeight}
+                        onChangeText={setTodayWeight}
+                        placeholder="00.0"
+                        returnKeyType="done"
+                        onSubmitEditing={saveDailyWeight}
+                    />
+                </View>
+                <View className="pt-6">
+                    <Button 
+                        title="SALVAR" 
+                        onPress={saveDailyWeight} 
+                        size="sm"
+                    />
+                </View>
             </View>
-        </View>
+        </Card>
 
         {/* Botão Evolução */}
-        <TouchableOpacity 
+        <Button 
+            title="VER EVOLUÇÃO COMPLETA"
             onPress={() => router.push('/bio/evolution')}
-            className="bg-card border border-primary p-4 rounded-xl items-center mb-6 flex-row justify-center gap-2"
-        >
-            <Text className="text-primary font-bold text-lg uppercase tracking-widest">VER EVOLUÇÃO COMPLETA</Text>
-            <Text className="text-primary font-bold text-lg">{'>'}</Text>
-        </TouchableOpacity>
+            variant="ghost"
+            fullWidth
+            icon={<Text className="text-primary text-lg mr-2">📈</Text>}
+        />
 
         {/* Botão de Check-in Mensal */}
         <TouchableOpacity 
             onPress={() => setModalVisible(true)}
-            className="bg-secondary p-5 rounded-xl border border-secondary/20 mb-6 flex-row justify-between items-center shadow-md"
+            activeOpacity={0.8}
+            className="bg-secondary rounded-2xl p-5 shadow-md flex-row justify-between items-center"
         >
             <View>
-                <Text className="text-white font-bold text-lg uppercase tracking-wider">NOVO CHECK-IN</Text>
-                <Text className="text-white/70 text-xs mt-1 italic">Medidas e Fotos de Evolução</Text>
+                <Text className="text-white font-bold text-xl uppercase tracking-wider">NOVO CHECK-IN</Text>
+                <Text className="text-white/70 text-sm mt-1">Medidas e Fotos de Evolução</Text>
             </View>
-            <View className="bg-white/20 w-8 h-8 rounded-full justify-center items-center">
-                <Text className="text-white text-xl font-bold">+</Text>
+            <View className="bg-white/20 w-10 h-10 rounded-full justify-center items-center">
+                <Text className="text-white text-2xl font-bold">+</Text>
             </View>
         </TouchableOpacity>
 
         {/* Galeria Recente (Último Monthly) */}
         {metrics.find(m => m.type === 'monthly') && (
-            <View className="bg-card p-4 rounded-xl border border-border mb-6 shadow-sm">
+            <Card>
                 <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">FOTOS RECENTES</Text>
                 <View className="flex-row justify-between">
-                    {['photoFront', 'photoBack', 'photoSide'].map((p, idx) => {
+                    {['photoFront', 'photoBack', 'photoSide'].map((p) => {
                         const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
                         const uri = latestMonthly?.[p];
                         return (
@@ -162,86 +173,107 @@ export default function BioScreen() {
                                     <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
                                     <View className="w-full h-full justify-center items-center">
-                                        <Text className="text-[8px] text-subtext uppercase">VAZIO</Text>
+                                        <Text className="text-[8px] text-subtext uppercase font-bold">VAZIO</Text>
                                     </View>
                                 )}
                             </View>
                         );
                     })}
                 </View>
-            </View>
+            </Card>
         )}
 
         {/* Histórico Detalhado */}
-        <Text className="text-subtext font-bold uppercase text-xs mb-2 tracking-widest pl-1">HISTÓRICO</Text>
-        <View className="gap-2 mb-10">
-            {metrics.map((item) => (
-                <View key={item.id} className="bg-card p-3 rounded-lg border border-border flex-row justify-between items-center">
-                    <Text className="text-subtext text-xs font-mono">{new Date(item.date).toLocaleDateString()}</Text>
-                    <View>
-                        {item.type === 'monthly' ? (
-                            <Text className="text-primary font-bold text-xs uppercase">CHECK-IN</Text>
-                        ) : (
-                            <Text className="text-text font-bold">{item.weight}kg</Text>
-                        )}
+        <View>
+            <Text className="text-subtext font-bold uppercase text-xs mb-3 tracking-widest pl-1">HISTÓRICO RECENTE</Text>
+            <View className="gap-2">
+                {metrics.slice(0, 10).map((item) => (
+                    <View key={item.id} className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
+                        <View className="flex-row items-center gap-3">
+                            <View className={`w-2 h-2 rounded-full ${item.type === 'monthly' ? 'bg-secondary' : 'bg-primary'}`} />
+                            <Text className="text-subtext text-xs font-mono font-medium">
+                                {new Date(item.date).toLocaleDateString()}
+                            </Text>
+                        </View>
+                        
+                        <View className="flex-row items-center gap-2">
+                            {item.type === 'monthly' && (
+                                <Text className="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">CHECK-IN</Text>
+                            )}
+                            <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
+                        </View>
                     </View>
-                </View>
-            ))}
+                ))}
+            </View>
         </View>
       </ScrollView>
 
       {/* Modal de Check-in */}
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
           <View className="flex-1 bg-background">
-              <View className="flex-row justify-between items-center p-4 border-b border-border bg-card">
+              <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
                   <Text className="text-text text-xl font-bold uppercase tracking-widest">CHECK-IN</Text>
-                  <TouchableOpacity onPress={() => setModalVisible(false)} className="p-2 bg-danger/10 rounded-full">
-                      <Text className="text-danger font-bold text-xs">FECHAR</Text>
-                  </TouchableOpacity>
+                  <Button 
+                    title="FECHAR" 
+                    onPress={() => setModalVisible(false)} 
+                    variant="ghost" 
+                    size="sm" 
+                  />
               </View>
 
-              <ScrollView className="p-4">
-                  <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">MEDIDAS (CM)</Text>
-                  <View className="flex-row flex-wrap justify-between gap-y-4 mb-8">
-                      {[
-                          { label: 'CINTURA', key: 'waist' },
-                          { label: 'TÓRAX', key: 'chest' },
-                          { label: 'BRAÇO D.', key: 'armRight' },
-                          { label: 'COXA D.', key: 'thighRight' },
-                          { label: 'PANTUR.', key: 'calf' }
-                      ].map(item => (
-                        <View key={item.key} className="w-[48%]">
-                            <Text className="text-subtext text-[10px] uppercase font-bold mb-1 ml-1">{item.label}</Text>
-                            <TextInput 
-                                className="bg-card text-text p-3 rounded-xl border border-border"
-                                placeholder="00.0" placeholderTextColor="#9CA3AF"
-                                keyboardType="numeric"
-                                onChangeText={t => setMonthlyData(p => ({...p, [item.key]: t}))}
-                            />
-                        </View>
-                      ))}
+              <ScrollView className="p-5" contentContainerStyle={{ gap: 24 }}>
+                  <View>
+                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">MEDIDAS (CM)</Text>
+                    <View className="flex-row flex-wrap justify-between gap-y-4">
+                        {[
+                            { label: 'CINTURA', key: 'waist' },
+                            { label: 'TÓRAX', key: 'chest' },
+                            { label: 'BRAÇO D.', key: 'armRight' },
+                            { label: 'COXA D.', key: 'thighRight' },
+                            { label: 'PANTUR.', key: 'calf' }
+                        ].map(item => (
+                            <View key={item.key} className="w-[48%]">
+                                <Input
+                                    label={item.label}
+                                    keyboardType="numeric"
+                                    placeholder="00.0"
+                                    onChangeText={t => setMonthlyData(p => ({...p, [item.key]: t}))}
+                                />
+                            </View>
+                        ))}
+                    </View>
                   </View>
 
-                  <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">FOTOS</Text>
-                  <View className="flex-row justify-between mb-10">
-                      {(['front', 'back', 'side'] as const).map(side => (
-                          <TouchableOpacity 
-                            key={side} 
-                            onPress={() => pickImage(side)}
-                            className="w-[31%] aspect-[3/4] bg-card border border-border border-dashed rounded-xl justify-center items-center overflow-hidden"
-                          >
-                              {photos[side] ? (
-                                  <Image source={{ uri: photos[side] }} className="w-full h-full" />
-                              ) : (
-                                  <Text className="text-subtext text-xs uppercase">{side}</Text>
-                              )}
-                          </TouchableOpacity>
-                      ))}
+                  <View>
+                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">FOTOS</Text>
+                    <View className="flex-row justify-between">
+                        {(['front', 'back', 'side'] as const).map(side => (
+                            <TouchableOpacity 
+                                key={side} 
+                                onPress={() => pickImage(side)}
+                                className="w-[31%] aspect-[3/4] bg-card border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70"
+                            >
+                                {photos[side] ? (
+                                    <Image source={{ uri: photos[side] }} className="w-full h-full" />
+                                ) : (
+                                    <View className="items-center">
+                                        <Text className="text-2xl mb-1">📷</Text>
+                                        <Text className="text-subtext text-[10px] uppercase font-bold">{side}</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                   </View>
 
-                  <TouchableOpacity onPress={saveMonthlyCheckin} className="bg-success p-5 rounded-2xl items-center mb-20 shadow-lg shadow-success/30">
-                      <Text className="text-white font-bold text-lg uppercase tracking-widest">SALVAR</Text>
-                  </TouchableOpacity>
+                  <Button 
+                    title="SALVAR CHECK-IN" 
+                    onPress={saveMonthlyCheckin} 
+                    variant="success" 
+                    size="lg"
+                    fullWidth
+                    style={{ marginBottom: 40 }}
+                  />
               </ScrollView>
           </View>
       </Modal>

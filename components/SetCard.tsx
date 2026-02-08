@@ -1,5 +1,6 @@
 import React, { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface SetCardProps {
   setNumber: number;
@@ -8,6 +9,7 @@ interface SetCardProps {
   duration?: number;
   rir?: number | null;
   isPR?: boolean;
+  index?: number;
   onEdit?: () => void;
   onDelete?: () => void;
   onPress?: () => void;
@@ -20,6 +22,7 @@ export function SetCard({
   duration,
   rir,
   isPR = false,
+  index = 0,
   onEdit,
   onDelete,
   onPress,
@@ -30,27 +33,27 @@ export function SetCard({
     if (!onEdit && !onDelete) return null;
 
     return (
-      <View className="flex-row items-center ml-[-1px]">
+      <View className="flex-row items-center ml-2 h-full">
         {onEdit && (
           <TouchableOpacity
-            className="w-20 h-full justify-center items-center bg-secondary"
+            className="w-16 h-full justify-center items-center bg-secondary rounded-l-2xl"
             onPress={() => {
               swipeableRef?.close();
               onEdit();
             }}
           >
-            <Text className="text-white text-sm font-semibold">Editar</Text>
+            <Text className="text-white text-xs font-bold uppercase">Editar</Text>
           </TouchableOpacity>
         )}
         {onDelete && (
           <TouchableOpacity
-            className="w-20 h-full justify-center items-center bg-danger"
+            className={`w-16 h-full justify-center items-center bg-danger ${!onEdit ? 'rounded-l-2xl' : ''} rounded-r-2xl`}
             onPress={() => {
               swipeableRef?.close();
               onDelete();
             }}
           >
-            <Text className="text-white text-sm font-semibold">Excluir</Text>
+            <Text className="text-white text-xs font-bold uppercase">Excluir</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -58,41 +61,62 @@ export function SetCard({
   };
 
   const getRirColorClass = (rir: number) => {
-    if (rir <= 1) return 'text-danger'; // Red - near failure
-    if (rir <= 3) return 'text-success'; // Green - good range
-    return 'text-secondary'; // Blue - light
+    if (rir <= 1) return 'text-danger bg-danger/10 border-danger/20'; 
+    if (rir <= 3) return 'text-success bg-success/10 border-success/20'; 
+    return 'text-secondary bg-secondary/10 border-secondary/20'; 
   };
 
   const content = (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className={`p-3 rounded-xl border flex-row items-center min-h-[56px] ${
-        isPR ? 'bg-accent/10 border-accent' : 'bg-card border-border'
-      }`}
+    <Animated.View 
+      entering={FadeInDown.delay(index * 50).springify()} 
+      className="mb-3"
     >
-      <View className="mr-3 items-center">
-        <Text className="text-subtext font-bold text-sm">#{setNumber}</Text>
-        {isPR && (
-          <View className="bg-accent px-1.5 py-0.5 rounded mt-1">
-            <Text className="text-text text-[10px] font-bold">PR</Text>
-          </View>
-        )}
-      </View>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.7}
+        className={`p-4 rounded-2xl border flex-row items-center min-h-[64px] shadow-sm ${
+          isPR ? 'bg-accent/10 border-accent' : 'bg-card border-border'
+        }`}
+      >
+        <View className="mr-4 items-center justify-center w-8">
+          <Text className="text-subtext/50 font-black text-xs uppercase tracking-widest">SET</Text>
+          <Text className="text-text font-black text-xl leading-5">{setNumber}</Text>
+          {isPR && (
+            <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
+              <Text className="text-text text-[8px] font-bold">PR</Text>
+            </View>
+          )}
+        </View>
 
-      <View className="flex-1">
-        <Text className="text-text text-base font-semibold">
-          {weight > 0 ? `${weight}kg × ` : ''}
-          {duration !== undefined ? `${duration}s` : `${reps || 0} reps`}
-        </Text>
-      </View>
+        <View className="h-8 w-[1px] bg-border mr-4" />
 
-      <View className="ml-3">
-        {rir !== null && rir !== undefined && (
-          <Text className={`text-xs font-semibold ${getRirColorClass(rir)}`}>RIR {rir}</Text>
-        )}
-      </View>
-    </TouchableOpacity>
+        <View className="flex-1 flex-row items-baseline gap-1">
+          <Text className="text-text text-2xl font-black tracking-tight">
+            {weight > 0 ? weight : '-'}
+          </Text>
+          <Text className="text-subtext text-xs font-bold uppercase mr-2">kg</Text>
+          
+          <Text className="text-subtext/50 text-lg font-light">×</Text>
+          
+          <Text className="text-text text-2xl font-black tracking-tight ml-2">
+             {duration !== undefined ? duration : (reps || 0)}
+          </Text>
+          <Text className="text-subtext text-xs font-bold uppercase">
+            {duration !== undefined ? 's' : 'reps'}
+          </Text>
+        </View>
+
+        <View className="ml-3">
+          {rir !== null && rir !== undefined && (
+            <View className={`px-2.5 py-1 rounded-lg border ${getRirColorClass(rir)}`}>
+              <Text className={`text-[10px] font-bold uppercase ${getRirColorClass(rir).split(' ')[0]}`}>
+                RIR {rir}
+              </Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   if (onEdit || onDelete) {
@@ -101,6 +125,7 @@ export function SetCard({
         ref={(ref) => { swipeableRef = ref; }}
         renderRightActions={renderRightActions}
         rightThreshold={40}
+        containerStyle={{ overflow: 'visible' }} 
       >
         {content}
       </Swipeable>
