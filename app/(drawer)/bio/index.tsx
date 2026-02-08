@@ -252,6 +252,7 @@ export default function BioScreen() {
               </ScrollView>
           </View>
       </Modal>
+
       </ScrollView>
 
       <Toast
@@ -260,6 +261,6 @@ export default function BioScreen() {
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
