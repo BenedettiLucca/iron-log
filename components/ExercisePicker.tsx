@@ -1,8 +1,9 @@
-import { View, Text, TextInput, TouchableOpacity, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, FlatList, Modal } from 'react-native';
 import { useState, useEffect } from 'react';
 import { db } from '../src/db/client';
 import { exercises } from '../src/db/schema';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { Toast } from './Toast';
 
 type Props = {
   visible: boolean;
@@ -15,6 +16,7 @@ export function ExercisePicker({ visible, onClose, onSelect }: Props) {
   const { data: allExercises } = useLiveQuery(db.select().from(exercises));
   const [filtered, setFiltered] = useState<typeof allExercises>([]);
   const [newType, setNewType] = useState<'strength' | 'duration'>('strength');
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   useEffect(() => {
     if (allExercises) {
@@ -33,7 +35,7 @@ export function ExercisePicker({ visible, onClose, onSelect }: Props) {
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
     } catch (e) {
-      Alert.alert('Erro', 'Falha ao criar exercício.');
+      setToast({ visible: true, message: 'Falha ao criar exercício', type: 'error' });
     }
   };
 
@@ -99,6 +101,13 @@ export function ExercisePicker({ visible, onClose, onSelect }: Props) {
           )}
         />
       </View>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
     </Modal>
   );
 }

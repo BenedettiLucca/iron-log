@@ -22,6 +22,7 @@ import { ProgressBar } from '../../components/ProgressBar';
 import { SetCard } from '../../components/SetCard';
 import { RestTimer } from '../../components/RestTimer';
 import { Button } from '../../components/Button';
+import { Toast } from '../../components/Toast';
 import Slider from '@react-native-community/slider';
 
 export default function ExerciseScreen() {
@@ -65,6 +66,9 @@ export default function ExerciseScreen() {
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Get current exercise index
   const currentExerciseIndex = allExercises.findIndex(e => e.id === exerciseId);
@@ -212,15 +216,15 @@ export default function ExerciseScreen() {
 
     // Validation
     if (isDuration && finalDuration <= 0) {
-      Alert.alert('Atenção', 'Digite o tempo da série (em segundos)');
+      setToast({ visible: true, message: 'Digite o tempo da série (em segundos)', type: 'error' });
       return;
     }
     if (!isDuration && finalReps <= 0) {
-      Alert.alert('Atenção', 'Digite o número de repetições');
+      setToast({ visible: true, message: 'Digite o número de repetições', type: 'error' });
       return;
     }
     if (!isDuration && !weight) {
-      Alert.alert('Atenção', 'Digite a carga utilizada');
+      setToast({ visible: true, message: 'Digite a carga utilizada', type: 'error' });
       return;
     }
 
@@ -263,7 +267,7 @@ export default function ExerciseScreen() {
 
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao salvar série');
+      setToast({ visible: true, message: 'Falha ao salvar série', type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -276,34 +280,22 @@ export default function ExerciseScreen() {
       await db.delete(sets).where(eq(sets.id, lastSavedSet.id));
       setLastSavedSet(null);
       await loadData();
-      Alert.alert('Desfeito', 'A última série foi removida');
+      setToast({ visible: true, message: 'A última série foi removida', type: 'success' });
     } catch (e) {
       console.error(e);
-      Alert.alert('Erro', 'Falha ao desfazer');
+      setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
     }
   };
 
   const handleDeleteSet = async (setId: number) => {
-    Alert.alert(
-      'Excluir Série',
-      'Tem certeza que deseja excluir esta série?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await db.delete(sets).where(eq(sets.id, setId));
-              await loadData();
-            } catch (e) {
-              console.error(e);
-              Alert.alert('Erro', 'Falha ao excluir série');
-            }
-          }
-        }
-      ]
-    );
+    try {
+      await db.delete(sets).where(eq(sets.id, setId));
+      await loadData();
+      setToast({ visible: true, message: 'Série excluída', type: 'success' });
+    } catch (e) {
+      console.error(e);
+      setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
+    }
   };
 
   const goToNextOrFinish = () => {
@@ -540,7 +532,7 @@ export default function ExerciseScreen() {
             <View className="mb-4">
               <View className="flex-row justify-between items-center mb-2 px-1">
                 <TouchableOpacity
-                  onPress={() => Alert.alert('RIR', 'Repetições na Reserva (0 = Falha)')}
+                  onPress={() => setToast({ visible: true, message: 'Repetições na Reserva (0 = Falha)', type: 'info' })}
                   className="flex-row items-center gap-1"
                 >
                   <Text className="text-subtext font-bold uppercase text-[10px]">Reserva (RIR)</Text>
@@ -644,6 +636,13 @@ export default function ExerciseScreen() {
         }}
         onAddTime={addTime}
         nextExerciseName={nextExercise?.name}
+      />
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
       />
     </KeyboardAvoidingView>
   );
