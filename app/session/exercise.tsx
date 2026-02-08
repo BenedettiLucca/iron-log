@@ -5,10 +5,12 @@ import {
   TouchableOpacity,
   FlatList,
   Modal,
-  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -349,310 +351,303 @@ export default function ExerciseScreen() {
   const currentSetNumber = (sessionSets?.length || 0) + 1;
 
   return (
-    <View className="flex-1 bg-background">
-      {/* Header */}
-      <View className="bg-card border-b border-border">
-          <View className="p-4">
-            {/* Progress Bar */}
-            {totalExercises > 0 && (
-              <View className="mb-4">
-                <ProgressBar
-                  current={currentExerciseIndex + 1}
-                  total={totalExercises}
-                  variant="compact"
-                  showLabel={true}
-                />
-              </View>
-            )}
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+    >
+      <View className="flex-1 bg-background">
+        {/* Header */}
+        <View className="bg-card border-b border-border">
+            <View className="p-4">
+              {/* Progress Bar */}
+              {totalExercises > 0 && (
+                <View className="mb-4">
+                  <ProgressBar
+                    current={currentExerciseIndex + 1}
+                    total={totalExercises}
+                    variant="compact"
+                    showLabel={true}
+                  />
+                </View>
+              )}
 
-            <View className="flex-row justify-between items-center mb-4">
-              <View className="flex-1">
-                <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
-                <Stopwatch startTime={startTime} />
+              <View className="flex-row justify-between items-center mb-4">
+                <View className="flex-1">
+                  <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
+                  <Stopwatch startTime={startTime} />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setHistoryVisible(true)}
+                  className="bg-background px-3 py-2 rounded-lg border border-border"
+                >
+                  <Text className="text-subtext text-xs font-bold uppercase">Histórico</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                onPress={() => setHistoryVisible(true)}
-                className="bg-background px-3 py-2 rounded-lg border border-border"
+
+              <Animated.View 
+                key={`header-${exerciseId}`} 
+                entering={FadeInRight.duration(300)} 
+                exiting={FadeOutLeft.duration(300)}
               >
-                <Text className="text-subtext text-xs font-bold uppercase">Histórico</Text>
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1">
+                    <Text className="text-text text-2xl font-bold">{currentName}</Text>
+                    <View className="flex-row items-center gap-2 mt-2">
+                      <Text className="text-primary text-sm font-semibold bg-primary/10 px-2 py-1 rounded-md">
+                        Série {currentSetNumber}
+                        {targetInfo && ` de ${targetInfo.sets}`}
+                      </Text>
+                      {routineRest && (
+                        <Text className="text-subtext text-xs bg-background px-2 py-1 rounded-md border border-border">
+                          ⏱ {routineRest}s
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                </View>
+
+                {(target || notes) && (
+                  <View className="mt-3 bg-background p-3 rounded-lg border border-border">
+                    {target && <Text className="text-primary font-semibold text-sm">🎯 Meta: {target}</Text>}
+                    {notes && <Text className="text-subtext text-xs italic mt-1">📝 {notes}</Text>}
+                  </View>
+                )}
+              </Animated.View>
+            </View>
+          </View>
+
+          {/* Undo Button (visible for 10s after save) */}
+          {lastSavedSet && (
+            <View className="mx-4 mt-4">
+              <TouchableOpacity
+                onPress={handleUndo}
+                className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
+              >
+                <Text className="text-white font-bold text-sm">↩ Desfazer última série (10s)</Text>
               </TouchableOpacity>
             </View>
+          )}
 
-            <View className="flex-row justify-between items-start">
-              <View className="flex-1">
-                <Text className="text-text text-2xl font-bold">{currentName}</Text>
-                <View className="flex-row items-center gap-2 mt-2">
-                  <Text className="text-primary text-sm font-semibold bg-primary/10 px-2 py-1 rounded-md">
-                    Série {currentSetNumber}
-                    {targetInfo && ` de ${targetInfo.sets}`}
-                  </Text>
-                  {routineRest && (
-                    <Text className="text-subtext text-xs bg-background px-2 py-1 rounded-md border border-border">
-                      ⏱ {routineRest}s
-                    </Text>
-                  )}
+          {/* Saved Sets List */}
+          <View className="flex-1 px-4">
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3 mt-4">
+              Séries Registradas ({sessionSets?.length || 0})
+            </Text>
+            <FlatList
+              data={sessionSets}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item, index }) => (
+                <SetCard
+                  key={item.id}
+                  index={index}
+                  setNumber={item.setNumber}
+                  weight={item.weightKg}
+                  reps={item.reps || undefined}
+                  duration={item.durationSeconds || undefined}
+                  rir={item.rir}
+                  onDelete={() => handleDeleteSet(item.id)}
+                />
+              )}
+              ListEmptyComponent={
+                <View className="py-8">
+                  <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
                 </View>
-              </View>
-            </View>
-
-            {(target || notes) && (
-              <View className="mt-3 bg-background p-3 rounded-lg border border-border">
-                {target && <Text className="text-primary font-semibold text-sm">🎯 Meta: {target}</Text>}
-                {notes && <Text className="text-subtext text-xs italic mt-1">📝 {notes}</Text>}
-              </View>
-            )}
+              }
+            />
           </View>
-        </View>
 
-        {/* Undo Button (visible for 10s after save) */}
-        {lastSavedSet && (
-          <View className="mx-4 mt-4">
-            <TouchableOpacity
-              onPress={handleUndo}
-              className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
-            >
-              <Text className="text-white font-bold text-sm">↩ Desfazer última série (10s)</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {/* Input Area */}
+          <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
+          {exerciseType === 'duration' ? (
+            <View className="items-center mb-6">
+              <Text className="text-text font-mono text-6xl font-bold mb-4">
+                {formatTimer(activeSetTime)}
+              </Text>
 
-        {/* Saved Sets List */}
-        <View className="flex-1 px-4">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            Séries Registradas ({sessionSets?.length || 0})
-          </Text>
-          {sessionSets?.length === 0 ? (
-            <View className="py-8">
-              <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
+              {!isActiveSetRunning && activeSetTime === 0 && (
+                <View className="w-full flex-row items-center justify-center gap-2 mb-4">
+                  <Text className="text-subtext text-xs uppercase font-bold">Carga Extra (kg):</Text>
+                  <TextInput
+                    className="bg-background text-text p-2 rounded border border-border w-20 text-center"
+                    keyboardType="numeric"
+                    value={weight}
+                    onChangeText={setWeight}
+                    placeholder="0"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
+              )}
+
+              <TouchableOpacity
+                onPress={toggleActiveSet}
+                style={[
+                  styles.timerButton,
+                  isActiveSetRunning ? styles.timerButtonStop : styles.timerButtonStart
+                ]}
+              >
+                <Text className="text-white font-bold text-xl uppercase tracking-widest">
+                  {isActiveSetRunning ? 'PARAR' : 'INICIAR SÉRIE'}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Explicit save button for duration exercises */}
+              {!isActiveSetRunning && activeSetTime > 0 && (
+                <View className="mt-4">
+                  <Button
+                    title="SALVAR SÉRIE"
+                    onPress={() => handleSaveSet(activeSetTime)}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                  />
+                </View>
+              )}
             </View>
           ) : (
-            sessionSets.map((item, index) => (
-              <SetCard
-                key={item.id}
-                index={index}
-                setNumber={item.setNumber}
-                weight={item.weightKg}
-                reps={item.reps || undefined}
-                duration={item.durationSeconds || undefined}
-                rir={item.rir}
-                onDelete={() => handleDeleteSet(item.id)}
-              />
-            ))
-          )}
-        </View>
+            <>
+              <View className="flex-row gap-3 mb-4">
+                <View className="flex-1">
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">Carga (kg)</Text>
+                  <TextInput
+                    className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
+                    keyboardType="numeric"
+                    value={weight}
+                    onChangeText={setWeight}
+                    placeholder="0"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
 
-        {/* Input Area */}
-        <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
-        {exerciseType === 'duration' ? (
-          <View className="items-center mb-6">
-            <Text className="text-text font-mono text-6xl font-bold mb-4">
-              {formatTimer(activeSetTime)}
-            </Text>
-
-            {!isActiveSetRunning && activeSetTime === 0 && (
-              <View className="w-full flex-row items-center justify-center gap-2 mb-4">
-                <Text className="text-subtext text-xs uppercase font-bold">Carga Extra (kg):</Text>
-                <TextInput
-                  className="bg-background text-text p-2 rounded border border-border w-20 text-center"
-                  keyboardType="numeric"
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="0"
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-            )}
-
-            <TouchableOpacity
-              onPress={toggleActiveSet}
-              style={[
-                styles.timerButton,
-                isActiveSetRunning ? styles.timerButtonStop : styles.timerButtonStart
-              ]}
-            >
-              <Text className="text-white font-bold text-xl uppercase tracking-widest">
-                {isActiveSetRunning ? 'PARAR' : 'INICIAR SÉRIE'}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Explicit save button for duration exercises */}
-            {!isActiveSetRunning && activeSetTime > 0 && (
-              <View className="mt-4">
-                <Button
-                  title="SALVAR SÉRIE"
-                  onPress={() => handleSaveSet(activeSetTime)}
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                />
-              </View>
-            )}
-          </View>
-        ) : (
-          <>
-            <View className="flex-row gap-3 mb-4">
-              <View className="flex-1">
-                <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">Carga (kg)</Text>
-                <TextInput
-                  className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
-                  keyboardType="numeric"
-                  value={weight}
-                  onChangeText={setWeight}
-                  placeholder="0"
-                  placeholderTextColor="#9CA3AF"
-                />
+                <View className="flex-1">
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">REPS</Text>
+                  <TextInput
+                    className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
+                    keyboardType="numeric"
+                    value={reps}
+                    onChangeText={setReps}
+                    placeholder="0"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
               </View>
 
-              <View className="flex-1">
-                <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">REPS</Text>
-                <TextInput
-                  className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
-                  keyboardType="numeric"
-                  value={reps}
-                  onChangeText={setReps}
-                  placeholder="0"
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-            </View>
-
-            <View className="mb-4">
-              <View className="flex-row justify-between items-center mb-2 px-1">
-                <TouchableOpacity
-                  onPress={() => setToast({ visible: true, message: 'Repetições na Reserva (0 = Falha)', type: 'info' })}
-                  className="flex-row items-center gap-1"
-                >
-                  <Text className="text-subtext font-bold uppercase text-[10px]">Reserva (RIR)</Text>
-                  <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">
-                    <Text className="text-subtext text-[8px] font-bold">?</Text>
+              <View className="mb-4">
+                <View className="flex-row justify-between items-center mb-2 px-1">
+                  <TouchableOpacity
+                    onPress={() => setToast({ visible: true, message: 'Repetições na Reserva (0 = Falha)', type: 'info' })}
+                    className="flex-row items-center gap-1"
+                  >
+                    <Text className="text-subtext font-bold uppercase text-[10px]">Reserva (RIR)</Text>
+                    <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">
+                      <Text className="text-subtext text-[8px] font-bold">?</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View
+                    className="px-3 py-1 rounded-full border"
+                    style={{ backgroundColor: `${getRirColor(rir)}20`, borderColor: getRirColor(rir) }}
+                  >
+                    <Text style={{ color: getRirColor(rir) }} className="font-bold text-lg">
+                      {rir === 0 ? 'FALHA' : rir}
+                    </Text>
                   </View>
-                </TouchableOpacity>
-                <View
-                  className="px-3 py-1 rounded-full border"
-                  style={{ backgroundColor: `${getRirColor(rir)}20`, borderColor: getRirColor(rir) }}
-                >
-                  <Text style={{ color: getRirColor(rir) }} className="font-bold text-lg">
-                    {rir === 0 ? 'FALHA' : rir}
-                  </Text>
+                </View>
+
+                <Slider
+                  style={{ width: '100%', height: 40 }}
+                  minimumValue={0}
+                  maximumValue={5}
+                  step={1}
+                  value={rir}
+                  onValueChange={setRir}
+                  minimumTrackTintColor="#E07A5F"
+                  maximumTrackTintColor="#D1D5DB"
+                  thumbTintColor="#E07A5F"
+                />
+                <View className="flex-row justify-between px-1">
+                  <Text className="text-gray-400 text-[8px]">MÁXIMO</Text>
+                  <Text className="text-gray-400 text-[8px]">LEVE</Text>
                 </View>
               </View>
 
-              <Slider
-                style={{ width: '100%', height: 40 }}
-                minimumValue={0}
-                maximumValue={5}
-                step={1}
-                value={rir}
-                onValueChange={setRir}
-                minimumTrackTintColor="#E07A5F"
-                maximumTrackTintColor="#D1D5DB"
-                thumbTintColor="#E07A5F"
+              <Button
+                title={isSaving ? 'SALVANDO...' : 'SALVAR SÉRIE'}
+                onPress={() => handleSaveSet()}
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={isSaving}
               />
-              <View className="flex-row justify-between px-1">
-                <Text className="text-gray-400 text-[8px]">MÁXIMO</Text>
-                <Text className="text-gray-400 text-[8px]">LEVE</Text>
-              </View>
-            </View>
+            </>
+          )}
 
+          <View className="mt-4">
             <Button
-              title={isSaving ? 'SALVANDO...' : 'SALVAR SÉRIE'}
-              onPress={() => handleSaveSet()}
-              variant="primary"
-              size="lg"
+              title={nextExercise ? `PRÓXIMO: ${nextExercise.name}` : 'FINALIZAR TREINO'}
+              onPress={goToNextOrFinish}
+              variant={nextExercise ? 'secondary' : 'danger'}
+              size="md"
               fullWidth
-              disabled={isSaving}
             />
-          </>
-        )}
-
-        <View className="mt-4">
-          <Button
-            title={nextExercise ? `PRÓXIMO: ${nextExercise.name}` : 'FINALIZAR TREINO'}
-            onPress={goToNextOrFinish}
-            variant={nextExercise ? 'secondary' : 'danger'}
-            size="md"
-            fullWidth
-          />
-        </View>
-      </View>
-
-      {/* History Modal */}
-      <Modal visible={historyVisible} animationType="slide" presentationStyle="pageSheet">
-        <View className="flex-1 bg-background p-4">
-          <View className="flex-row justify-between items-center mb-4 mt-2">
-            <Text className="text-text text-xl font-bold uppercase">Histórico</Text>
-            <TouchableOpacity onPress={() => setHistoryVisible(false)}>
-              <Text className="text-primary font-bold uppercase">Fechar</Text>
-            </TouchableOpacity>
           </View>
-          <FlatList
-            data={historyData}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              const date = new Date(item.date);
-              return (
-                <View className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center">
-                  <Text className="text-subtext font-mono text-xs">
-                    {date.toLocaleDateString()}
-                  </Text>
-                  <Text className="text-text font-bold">
-                    {item.weight}kg × {item.duration ? `${item.duration}s` : item.reps}
-                  </Text>
-                  {item.rir !== null && (
-                    <Text className="text-subtext text-xs">RIR {item.rir}</Text>
-                  )}
-                </View>
-              );
-            }}
-          />
         </View>
-      </Modal>
 
-      {/* Rest Timer Bottom Sheet */}
-      <RestTimer
-        visible={timerStatus !== 'idle'}
-        seconds={timerSeconds || 0}
-        status={timerStatus}
-        onClose={() => {
-          setTimerStatus('idle');
-          setTimerSeconds(null);
-        }}
-        onSkip={() => {
-          setTimerStatus('idle');
-          setTimerSeconds(null);
-        }}
-        onAddTime={addTime}
-        nextExerciseName={nextExercise?.name}
-      />
+        {/* History Modal */}
+        <Modal visible={historyVisible} animationType="slide" presentationStyle="pageSheet">
+          <View className="flex-1 bg-background p-4">
+            <View className="flex-row justify-between items-center mb-4 mt-2">
+              <Text className="text-text text-xl font-bold uppercase">Histórico</Text>
+              <TouchableOpacity onPress={() => setHistoryVisible(false)}>
+                <Text className="text-primary font-bold uppercase">Fechar</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={historyData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => {
+                const date = new Date(item.date);
+                return (
+                  <View className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center">
+                    <Text className="text-subtext font-mono text-xs">
+                      {date.toLocaleDateString()}
+                    </Text>
+                    <Text className="text-text font-bold">
+                      {item.weight}kg × {item.duration ? `${item.duration}s` : item.reps}
+                    </Text>
+                    {item.rir !== null && (
+                      <Text className="text-subtext text-xs">RIR {item.rir}</Text>
+                    )}
+                  </View>
+                );
+              }}
+            />
+          </View>
+        </Modal>
 
-      <Toast
-        visible={toast.visible}
-        message={toast.message}
-        type={toast.type}
-        onHide={() => setToast({ ...toast, visible: false })}
-      />
-    </View>
+        {/* Rest Timer Bottom Sheet */}
+        <RestTimer
+          visible={timerStatus !== 'idle'}
+          seconds={timerSeconds || 0}
+          status={timerStatus}
+          onClose={() => {
+            setTimerStatus('idle');
+            setTimerSeconds(null);
+          }}
+          onSkip={() => {
+            setTimerStatus('idle');
+            setTimerSeconds(null);
+          }}
+          onAddTime={addTime}
+          nextExerciseName={nextExercise?.name}
+        />
+
+        <Toast
+          visible={toast.visible}
+          message={toast.message}
+          type={toast.type}
+          onHide={() => setToast({ ...toast, visible: false })}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  timerButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 48,
-    borderRadius: 16,
-    borderWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  timerButtonStart: {
-    backgroundColor: '#81B29A',
-    borderColor: '#81B29A80',
-  },
-  timerButtonStop: {
-    backgroundColor: '#EF6464',
-    borderColor: '#EF646480',
-  },
-});

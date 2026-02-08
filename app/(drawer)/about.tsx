@@ -28,7 +28,7 @@ export default function AboutScreen() {
             • Timer Pro com Background Mode
             • Bio-Tracking Completo
             • Importação Inteligente (IA)
-            • Design System "Warm & Earthy"
+            • Design System &quot;Warm & Earthy&quot;
         </Text>
       </Card>
 
