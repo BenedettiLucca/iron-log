@@ -38,6 +38,7 @@ export default function Layout() {
           headerTitleStyle: { fontWeight: 'bold' },
           contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
           animation: 'default',
+          safeAreaInsets: { top: false, bottom: false, left: false, right: false },
         }}
       >
         {/* O Drawer é a tela principal */}
