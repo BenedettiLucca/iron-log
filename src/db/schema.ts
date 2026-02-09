@@ -85,3 +85,14 @@ export const notificationSettings = sqliteTable('notification_settings', {
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
   lastNotificationDate: integer('last_notification_date'), // Epoch timestamp
 });
+
+// TABELA: Metas de Medidas Corporais
+export const measurementGoals = sqliteTable('measurement_goals', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  type: text('type').notNull(), // 'weight', 'waist', 'armRight', 'thighRight', 'chest', 'calf'
+  targetValue: real('target_value').notNull(),
+  startDate: integer('start_date').notNull(), // Epoch
+  targetDate: integer('target_date').notNull(), // Epoch
+  achieved: integer('achieved', { mode: 'boolean' }).notNull().default(false),
+  achievedDate: integer('achieved_date'), // Epoch
+});
