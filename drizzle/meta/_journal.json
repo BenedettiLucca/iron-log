@@ -71,6 +71,13 @@
       "when": 1770652204247,
       "tag": "0009_dapper_vampiro",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1770652314885,
+      "tag": "0010_mute_archangel",
+      "breakpoints": true
     }
   ]
 }

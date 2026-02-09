@@ -96,3 +96,14 @@ export const measurementGoals = sqliteTable('measurement_goals', {
   achieved: integer('achieved', { mode: 'boolean' }).notNull().default(false),
   achievedDate: integer('achieved_date'), // Epoch
 });
+
+// TABELA: Recordes Pessoais (PRs)
+export const personalRecords = sqliteTable('personal_records', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  exerciseId: integer('exercise_id').notNull().references(() => exercises.id),
+  sessionId: integer('session_id').references(() => sessions.id),
+  recordType: text('record_type').notNull(), // 'weight', 'reps', 'volume', 'duration'
+  value: real('value').notNull(),
+  date: integer('date').notNull(), // Epoch
+  setDetails: text('set_details'), // JSON string with set details
+});
