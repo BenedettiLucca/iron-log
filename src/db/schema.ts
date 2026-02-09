@@ -76,3 +76,12 @@ export const userSettings = sqliteTable('user_settings', {
   height: real('height'),
   sex: text('sex'), // 'M' | 'F' | 'O'
 });
+
+// TABELA: Configurações de Notificações (Single Row)
+export const notificationSettings = sqliteTable('notification_settings', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  checkinDay: integer('checkin_day').notNull().default(1), // 1-31
+  checkinHour: integer('checkin_hour').notNull().default(9), // 0-23
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+  lastNotificationDate: integer('last_notification_date'), // Epoch timestamp
+});

@@ -6,10 +6,38 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
 import { useColorScheme } from '../hooks/use-color-scheme';
+import { useEffect } from 'react';
+import { notificationService } from '@/services/NotificationService';
+import * as Notifications from 'expo-notifications';
 
 export default function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme();
+
+  // Initialize notifications after migrations complete
+  useEffect(() => {
+    if (success) {
+      notificationService.initialize().catch((err) => {
+        console.error('Failed to initialize notifications:', err);
+      });
+    }
+  }, [success]);
+
+  // Set up notification response listener for deep linking
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const url = response.notification.request.content.data?.url;
+        if (url) {
+          // Navigate to the URL when notification is tapped
+          // The router will handle the navigation
+          console.log('Notification tapped, navigating to:', url);
+        }
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
 
   if (error) {
     return (

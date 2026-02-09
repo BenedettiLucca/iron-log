@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, useColorScheme } from 'react-native';
+import { View, Text, FlatList, useColorScheme, RefreshControl, ScrollView } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
@@ -25,6 +25,7 @@ export default function HistoryScreen() {
   const [markedDates, setMarkedDates] = useState<any>({});
   const [selectedDate, setSelectedDate] = useState('');
   const [daySessions, setDaySessions] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Theme Colors
   const colors = {
@@ -45,12 +46,12 @@ export default function HistoryScreen() {
     try {
       const result = await db.select().from(sessions).orderBy(desc(sessions.startTime));
       setAllSessions(result);
-      
+
       const marks: any = {};
       result.forEach(s => {
         const dateStr = new Date(s.startTime).toISOString().split('T')[0];
-        marks[dateStr] = { 
-            marked: true, 
+        marks[dateStr] = {
+            marked: true,
             dotColor: colors.primary,
         };
       });
@@ -59,6 +60,12 @@ export default function HistoryScreen() {
       console.error(e);
     }
   }, [colors.primary]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadSessions();
+    setRefreshing(false);
+  }, [loadSessions]);
 
   const handleDayPress = (day: any) => {
     setSelectedDate(day.dateString);
@@ -73,21 +80,34 @@ export default function HistoryScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{ title: 'Histórico' }} />
 
+      <ScrollView
+        className="flex-1"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E07A5F"
+            colors={['#E07A5F']}
+          />
+        }
+      >
+
       <View className="p-4 pb-0">
         <View className="rounded-2xl overflow-hidden border border-border shadow-sm bg-card">
             <Calendar
             onDayPress={handleDayPress}
             markedDates={{
                 ...markedDates,
-                [selectedDate]: { 
-                    selected: true, 
-                    disableTouchEvent: true, 
-                    selectedColor: colors.primary, 
+                [selectedDate]: {
+                    selected: true,
+                    disableTouchEvent: true,
+                    selectedColor: colors.primary,
                     selectedTextColor: '#FFFFFF',
                     marked: markedDates[selectedDate]?.marked,
                     dotColor: '#FFFFFF'
                 }
             }}
+            enableSwipeMonths={true}
             theme={{
                 backgroundColor: colors.calendarBackground,
                 calendarBackground: colors.calendarBackground,
@@ -126,7 +146,7 @@ export default function HistoryScreen() {
         </View>
       </View>
 
-      <View className="flex-1 p-4">
+      <View className="p-4">
         <Text className="text-subtext font-black uppercase text-[10px] mb-3 tracking-widest pl-1">
             {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : 'Selecione um dia'}
         </Text>
@@ -162,6 +182,7 @@ export default function HistoryScreen() {
           )}
         />
       </View>
+      </ScrollView>
     </View>
   );
 }

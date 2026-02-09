@@ -57,6 +57,13 @@
       "when": 1768949783123,
       "tag": "0007_high_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1770652016376,
+      "tag": "0008_loose_the_watchers",
+      "breakpoints": true
     }
   ]
 }

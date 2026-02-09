@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -13,6 +13,7 @@ export default function HomeScreen() {
   const [routinesList, setRoutinesList] = useState<any[]>([]);
   const [lastSession, setLastSession] = useState<any>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const [refreshing, setRefreshing] = useState(false);
 
   // Função para buscar dados
   const fetchData = async () => {
@@ -25,11 +26,19 @@ export default function HomeScreen() {
       const sResult = await db.select().from(sessions).orderBy(desc(sessions.startTime)).limit(1);
       if (sResult.length > 0) {
           setLastSession(sResult[0]);
+      } else {
+          setLastSession(null);
       }
     } catch (e) {
       console.error(e);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, []);
 
   // Recarrega sempre que a tela ganha foco
   useFocusEffect(
@@ -115,7 +124,18 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      <ScrollView className="flex-1" contentContainerStyle={{ gap: 12 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ gap: 12 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E07A5F"
+            colors={['#E07A5F']}
+          />
+        }
+      >
         {routinesList && routinesList.length > 0 ? (
           routinesList.map((routine) => (
             <Card

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, ScrollView } from 'react-native';
+import { View, Text, FlatList, ScrollView, RefreshControl } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises, exercises } from '../../../src/db/schema';
@@ -16,6 +16,7 @@ export default function RoutinesListScreen() {
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
+  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -31,6 +32,12 @@ export default function RoutinesListScreen() {
           console.error(e);
       }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchRoutines();
+    setRefreshing(false);
+  }, []);
 
   const folders = ['Todos', ...Array.from(new Set(allRoutines?.map(r => r.folder || 'Geral') || []))];
   const filteredRoutines = selectedFolder === 'Todos' 
@@ -149,6 +156,14 @@ export default function RoutinesListScreen() {
         data={filteredRoutines}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E07A5F"
+            colors={['#E07A5F']}
+          />
+        }
         ListHeaderComponent={
             <Card className="mb-6 bg-card/50">
                 <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useHaptics } from '@/hooks/use-haptics';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -33,6 +34,7 @@ export function Button({
   textStyle,
 }: ButtonProps) {
   const scale = useSharedValue(1);
+  const { trigger } = useHaptics();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -46,6 +48,19 @@ export function Button({
   const handlePressOut = () => {
     if (disabled || loading) return;
     scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+  };
+
+  const handlePress = () => {
+    if (disabled || loading) return;
+
+    // Trigger haptic feedback based on variant
+    if (variant === 'danger') {
+      trigger('warning');
+    } else {
+      trigger('medium');
+    }
+
+    onPress();
   };
 
   const getSizeClasses = () => {
@@ -106,7 +121,7 @@ export function Button({
 
   return (
     <AnimatedPressable
-      onPress={onPress}
+      onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled || loading}

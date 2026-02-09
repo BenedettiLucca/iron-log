@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Switch } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
@@ -9,6 +9,7 @@ import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
+import { useNotifications } from '@/hooks/use-notifications';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -17,6 +18,7 @@ export default function SettingsScreen() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
+  const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'DUMMY_ID_FOR_DEV', // Fallback to avoid crash
@@ -100,7 +102,40 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 16 }}>
-      <Stack.Screen options={{ title: 'Dados & Backup' }} />
+      <Stack.Screen options={{ title: 'Configurações' }} />
+
+      <Card>
+        <Text className="text-text font-bold text-lg mb-2">Lembretes de Check-in</Text>
+        <Text className="text-subtext text-sm mb-6 leading-5">
+          Receba lembretes mensais para registrar suas métricas corporais e acompanhar seu progresso.
+        </Text>
+
+        <View className="flex-row items-center justify-between mb-4">
+          <View className="flex-1">
+            <Text className="text-text font-semibold">Ativar Lembretes</Text>
+            <Text className="text-subtext text-xs mt-1">
+              Dia {notificationSettings.checkinDay} às {notificationSettings.checkinHour}:00
+            </Text>
+          </View>
+          <Switch
+            value={notificationSettings.enabled}
+            onValueChange={toggleEnabled}
+            disabled={notificationsLoading}
+            trackColor={{ false: '#3e3e3e', true: '#E07A5F' }}
+            thumbColor="#fff"
+          />
+        </View>
+
+        {notificationSettings.enabled && (
+          <Button
+            title="TESTAR NOTIFICAÇÃO"
+            onPress={sendTestNotification}
+            variant="ghost"
+            loading={loading}
+            fullWidth
+          />
+        )}
+      </Card>
 
       <Card>
         <Text className="text-text font-bold text-lg mb-2">Backup Local</Text>
