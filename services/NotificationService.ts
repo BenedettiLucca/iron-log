@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { db } from '@/db';
-import { notificationSettings } from '@/db/schema';
+import { db } from '../src/db/client';
+import { notificationSettings } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
 
 // Configure notification handler
