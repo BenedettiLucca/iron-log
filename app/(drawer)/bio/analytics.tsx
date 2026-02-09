@@ -31,7 +31,7 @@ export default function AnalyticsScreen() {
       }
 
       // Filter metrics with weight
-      const weightMetrics = allMetrics.filter((m) => m.weight !== null && m.weight !== undefined);
+      const weightMetrics = allMetrics.filter((m: any) => m.weight !== null && m.weight !== undefined);
 
       if (weightMetrics.length === 0) {
         setMetrics(allMetrics);
@@ -46,7 +46,7 @@ export default function AnalyticsScreen() {
       }
 
       // Calculate average weight
-      const totalWeight = weightMetrics.reduce((sum, m) => sum + (m.weight || 0), 0);
+      const totalWeight = weightMetrics.reduce((sum: number, m: any) => sum + (m.weight || 0), 0);
       const averageWeight = totalWeight / weightMetrics.length;
 
       // Calculate weight change rate (kg/week)

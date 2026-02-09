@@ -17,6 +17,7 @@ interface ButtonProps {
   icon?: React.ReactNode;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  className?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -32,6 +33,7 @@ export function Button({
   icon,
   style,
   textStyle,
+  className = '',
 }: ButtonProps) {
   const scale = useSharedValue(1);
   const { trigger } = useHaptics();
@@ -131,7 +133,7 @@ export function Button({
         fullWidth && { width: '100%' },
         style,
       ]}
-      className={`${getVariantClasses()} ${getSizeClasses()}`}
+      className={`${getVariantClasses()} ${getSizeClasses()} ${className}`}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? '#3D5A80' : '#FFFFFF'} />
