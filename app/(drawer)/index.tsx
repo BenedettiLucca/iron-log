@@ -6,9 +6,7 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { EmptyState } from '../../components/EmptyState';
-import { InlineEmptyState } from '../../components/EmptyState';
+import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
 
 export default function HomeScreen() {
   const router = useRouter();

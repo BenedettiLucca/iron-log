@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Stack } from 'expo-router';
-import { db } from '@/db/client';
-import { measurementGoals, bodyMetrics } from '@/db/schema';
+import { db } from '../../../src/db/client';
+import { measurementGoals } from '../../../src/db/schema';
 import { desc } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -46,34 +46,6 @@ export default function GoalsScreen() {
       setGoals(data);
     } catch (error) {
       console.error('Error loading goals:', error);
-    }
-  };
-
-  const calculateProgress = async (goal: any) => {
-    try {
-      // Get latest measurement for this type
-      const latest = await db
-        .select()
-        .from(bodyMetrics)
-        .where((row) => {
-          // This is a simplified check - in production you'd want proper type filtering
-          return true;
-        })
-        .orderBy(desc(bodyMetrics.date))
-        .limit(1);
-
-      if (latest.length === 0) return 0;
-
-      const currentValue = latest[0][goal.type];
-      if (!currentValue) return 0;
-
-      const target = goal.targetValue;
-      const start = goal.type === 'weight' && currentValue > target ? currentValue : 0;
-      const progress = ((currentValue - start) / (target - start)) * 100;
-
-      return Math.min(Math.max(progress, 0), 100);
-    } catch (error) {
-      return 0;
     }
   };
 

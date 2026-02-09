@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
-import { db } from '@/db/client';
-import { bodyMetrics } from '@/db/schema';
+import { db } from '../../../src/db/client';
+import { bodyMetrics } from '../../../src/db/schema';
 import { desc } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';

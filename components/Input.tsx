@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextInput, View, Text, TextInputProps, Animated } from 'react-native';
+import { TextInput, View, Text, TextInputProps } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
 
 interface InputProps extends TextInputProps {
