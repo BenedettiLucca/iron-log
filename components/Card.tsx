@@ -9,6 +9,7 @@ interface CardProps {
   onPress?: () => void;
   style?: ViewStyle;
   contentPadding?: boolean;
+  className?: string;
 }
 
 export function Card({
@@ -18,6 +19,7 @@ export function Card({
   onPress,
   style,
   contentPadding = true,
+  className = '',
 }: CardProps) {
   const getVariantClasses = () => {
     switch (variant) {
@@ -35,7 +37,7 @@ export function Card({
 
   const cardClasses = `${getVariantClasses()} rounded-2xl overflow-hidden ${
     contentPadding ? 'p-4' : ''
-  }`;
+  } ${className}`;
 
   if (pressable && onPress) {
     return (

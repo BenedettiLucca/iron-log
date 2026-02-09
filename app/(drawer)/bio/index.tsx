@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Modal } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
@@ -16,6 +16,7 @@ export default function BioScreen() {
   const [metrics, setMetrics] = useState<any[]>([]);
   const [todayWeight, setTodayWeight] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   
   // Estados para o Check-in Mensal
   const [monthlyData, setMonthlyData] = useState({
@@ -37,6 +38,12 @@ export default function BioScreen() {
       setMetrics([]);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadMetrics();
+    setRefreshing(false);
+  }, []);
 
   const saveDailyWeight = async () => {
     if (!todayWeight) return;
@@ -110,6 +117,14 @@ export default function BioScreen() {
         className="px-4 pb-4"
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ gap: 16 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E07A5F"
+            colors={['#E07A5F']}
+          />
+        }
       >
         {/* Card de Peso Diário */}
         <Card>
@@ -135,14 +150,23 @@ export default function BioScreen() {
             </View>
         </Card>
 
-        {/* Botão Evolução */}
-        <Button 
-            title="VER EVOLUÇÃO COMPLETA"
-            onPress={() => router.push('/bio/evolution')}
-            variant="ghost"
-            fullWidth
-            icon={<Text className="text-primary text-lg mr-2">📈</Text>}
-        />
+        {/* Botões de Ação Rápida */}
+        <View className="flex-row gap-3 mb-4">
+            <Button
+                title="METAS"
+                onPress={() => router.push('/bio/goals')}
+                variant="secondary"
+                className="flex-1"
+                icon={<Text className="text-lg mr-1">🎯</Text>}
+            />
+            <Button
+                title="EVOLUÇÃO"
+                onPress={() => router.push('/bio/evolution')}
+                variant="secondary"
+                className="flex-1"
+                icon={<Text className="text-lg mr-1">📈</Text>}
+            />
+        </View>
 
         {/* Botão de Check-in Mensal */}
         <TouchableOpacity 

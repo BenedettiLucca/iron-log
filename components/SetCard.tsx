@@ -1,6 +1,7 @@
 import React, { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useHaptics } from '@/hooks/use-haptics';
 
 interface SetCardProps {
   setNumber: number;
@@ -28,6 +29,7 @@ export function SetCard({
   onPress,
 }: SetCardProps) {
   let swipeableRef: Swipeable | null = null;
+  const { trigger } = useHaptics();
 
   const renderRightActions = () => {
     if (!onEdit && !onDelete) return null;
@@ -38,6 +40,7 @@ export function SetCard({
           <TouchableOpacity
             className="w-16 h-full justify-center items-center bg-secondary rounded-l-2xl"
             onPress={() => {
+              trigger('medium');
               swipeableRef?.close();
               onEdit();
             }}
@@ -49,6 +52,7 @@ export function SetCard({
           <TouchableOpacity
             className={`w-16 h-full justify-center items-center bg-danger ${!onEdit ? 'rounded-l-2xl' : ''} rounded-r-2xl`}
             onPress={() => {
+              trigger('warning');
               swipeableRef?.close();
               onDelete();
             }}

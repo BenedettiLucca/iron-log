@@ -1,18 +1,19 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
+import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [routinesList, setRoutinesList] = useState<any[]>([]);
   const [lastSession, setLastSession] = useState<any>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const [refreshing, setRefreshing] = useState(false);
 
   // Função para buscar dados
   const fetchData = async () => {
@@ -25,11 +26,19 @@ export default function HomeScreen() {
       const sResult = await db.select().from(sessions).orderBy(desc(sessions.startTime)).limit(1);
       if (sResult.length > 0) {
           setLastSession(sResult[0]);
+      } else {
+          setLastSession(null);
       }
     } catch (e) {
       console.error(e);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, []);
 
   // Recarrega sempre que a tela ganha foco
   useFocusEffect(
@@ -102,9 +111,10 @@ export default function HomeScreen() {
                 </View>
             </Card>
         ) : (
-            <Card>
-                <Text className="text-subtext italic text-center py-2">Nenhum treino registrado.</Text>
-            </Card>
+            <InlineEmptyState
+                icon="💪"
+                title="Nenhum treino registrado ainda"
+            />
         )}
       </View>
 
@@ -115,7 +125,18 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      <ScrollView className="flex-1" contentContainerStyle={{ gap: 12 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ gap: 12 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#E07A5F"
+            colors={['#E07A5F']}
+          />
+        }
+      >
         {routinesList && routinesList.length > 0 ? (
           routinesList.map((routine) => (
             <Card
@@ -142,14 +163,13 @@ export default function HomeScreen() {
             </Card>
           ))
         ) : (
-          <View className="items-center mt-10 px-4">
-            <Text className="text-subtext mb-6 text-center">Nenhuma rotina encontrada.</Text>
-            <Button 
-              title="Gerar Rotinas de Exemplo"
-              onPress={seedDatabase}
-              variant="secondary"
-            />
-          </View>
+          <EmptyState
+            icon="🏋️"
+            title="Nenhuma rotina encontrada"
+            description="Comece criando sua primeira rotina de treino ou gere exemplos para começar rapidamente."
+            actionLabel="Gerar Rotinas de Exemplo"
+            onAction={seedDatabase}
+          />
         )}
       </ScrollView>
 

@@ -31,11 +31,17 @@ export default function DrawerLayout() {
             drawerLabel: 'Bio & Corpo' 
           }} 
         />
-        <Drawer.Screen 
-          name="bio/evolution" 
-          options={{ 
-            drawerItemStyle: { display: 'none' } 
-          }} 
+        <Drawer.Screen
+          name="bio/evolution"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
+          name="bio/goals"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
         />
         <Drawer.Screen 
           name="routines/index" 

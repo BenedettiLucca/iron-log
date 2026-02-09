@@ -76,3 +76,34 @@ export const userSettings = sqliteTable('user_settings', {
   height: real('height'),
   sex: text('sex'), // 'M' | 'F' | 'O'
 });
+
+// TABELA: Configurações de Notificações (Single Row)
+export const notificationSettings = sqliteTable('notification_settings', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  checkinDay: integer('checkin_day').notNull().default(1), // 1-31
+  checkinHour: integer('checkin_hour').notNull().default(9), // 0-23
+  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+  lastNotificationDate: integer('last_notification_date'), // Epoch timestamp
+});
+
+// TABELA: Metas de Medidas Corporais
+export const measurementGoals = sqliteTable('measurement_goals', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  type: text('type').notNull(), // 'weight', 'waist', 'armRight', 'thighRight', 'chest', 'calf'
+  targetValue: real('target_value').notNull(),
+  startDate: integer('start_date').notNull(), // Epoch
+  targetDate: integer('target_date').notNull(), // Epoch
+  achieved: integer('achieved', { mode: 'boolean' }).notNull().default(false),
+  achievedDate: integer('achieved_date'), // Epoch
+});
+
+// TABELA: Recordes Pessoais (PRs)
+export const personalRecords = sqliteTable('personal_records', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  exerciseId: integer('exercise_id').notNull().references(() => exercises.id),
+  sessionId: integer('session_id').references(() => sessions.id),
+  recordType: text('record_type').notNull(), // 'weight', 'reps', 'volume', 'duration'
+  value: real('value').notNull(),
+  date: integer('date').notNull(), // Epoch
+  setDetails: text('set_details'), // JSON string with set details
+});
