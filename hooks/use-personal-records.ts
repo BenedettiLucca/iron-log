@@ -1,8 +1,19 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/db/client';
 import { sets, sessions, exercises } from '@/db/schema';
-import { eq, desc, and, sql } from 'drizzle-orm';
-import { calculate1RM, calculateVolume } from '@/utils/calculations';
+import { eq, desc } from 'drizzle-orm';
+import { calculateVolume } from '@/utils/calculations';
+
+type SetWithDetails = {
+  id: number;
+  exerciseId: number;
+  exerciseName: string;
+  weightKg: number;
+  reps: number;
+  durationSeconds: number | null;
+  sessionId: number;
+  date: number;
+};
 
 export interface PersonalRecord {
   id: number;
@@ -12,7 +23,7 @@ export interface PersonalRecord {
   value: number;
   date: number;
   sessionId: number;
-  setDetails?: any;
+  setDetails?: SetWithDetails;
 }
 
 /**
@@ -51,8 +62,8 @@ export function usePersonalRecords(exerciseId?: number) {
         : await query;
 
       // Group by exercise and find records
-      const exerciseGroups = new Map<number, any[]>();
-      allSets.forEach((set: any) => {
+      const exerciseGroups = new Map<number, SetWithDetails[]>();
+      allSets.forEach((set) => {
         if (!exerciseGroups.has(set.exerciseId)) {
           exerciseGroups.set(set.exerciseId, []);
         }

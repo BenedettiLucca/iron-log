@@ -3,7 +3,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { Stack } from 'expo-router';
 import { db } from '@/db/client';
 import { bodyMetrics } from '@/db/schema';
-import { desc, and, gte, lte } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 

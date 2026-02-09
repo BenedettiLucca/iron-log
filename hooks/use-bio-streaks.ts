@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/db/client';
 import { bodyMetrics } from '@/db/schema';
-import { desc, gte, lte, and, sql } from 'drizzle-orm';
+import { desc } from 'drizzle-orm';
+
+type BodyMetric = typeof bodyMetrics.$inferSelect;
 
 export interface StreakData {
   currentDailyStreak: number;
@@ -99,7 +101,7 @@ export function useBioStreaks() {
 /**
  * Calculate daily streaks (consecutive days with entries)
  */
-function calculateDailyStreaks(metrics: any[]) {
+function calculateDailyStreaks(metrics: BodyMetric[]) {
   let currentStreak = 0;
   let longestStreak = 0;
   let tempStreak = 0;
@@ -174,7 +176,7 @@ function calculateDailyStreaks(metrics: any[]) {
 /**
  * Calculate monthly streaks (consecutive months with at least one check-in)
  */
-function calculateMonthlyStreaks(metrics: any[]) {
+function calculateMonthlyStreaks(metrics: BodyMetric[]) {
   let currentStreak = 0;
 
   // Group by month

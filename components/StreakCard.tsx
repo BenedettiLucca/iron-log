@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Card } from './Card';
-import { Flame } from 'lucide-react-native';
 
 interface StreakCardProps {
   currentStreak: number;

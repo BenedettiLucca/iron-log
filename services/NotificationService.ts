@@ -1,6 +1,5 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { Platform } from 'react-native';
 import { db } from '@/db';
 import { notificationSettings } from '@/db/schema';
 import { eq } from 'drizzle-orm';
