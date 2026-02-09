@@ -7,6 +7,8 @@ import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
+import { EmptyState } from '../../components/EmptyState';
+import { InlineEmptyState } from '../../components/EmptyState';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -111,9 +113,10 @@ export default function HomeScreen() {
                 </View>
             </Card>
         ) : (
-            <Card>
-                <Text className="text-subtext italic text-center py-2">Nenhum treino registrado.</Text>
-            </Card>
+            <InlineEmptyState
+                icon="💪"
+                title="Nenhum treino registrado ainda"
+            />
         )}
       </View>
 
@@ -162,14 +165,13 @@ export default function HomeScreen() {
             </Card>
           ))
         ) : (
-          <View className="items-center mt-10 px-4">
-            <Text className="text-subtext mb-6 text-center">Nenhuma rotina encontrada.</Text>
-            <Button 
-              title="Gerar Rotinas de Exemplo"
-              onPress={seedDatabase}
-              variant="secondary"
-            />
-          </View>
+          <EmptyState
+            icon="🏋️"
+            title="Nenhuma rotina encontrada"
+            description="Comece criando sua primeira rotina de treino ou gere exemplos para começar rapidamente."
+            actionLabel="Gerar Rotinas de Exemplo"
+            onAction={seedDatabase}
+          />
         )}
       </ScrollView>
 
