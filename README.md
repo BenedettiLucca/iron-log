@@ -4,7 +4,7 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento físico "local-first". Projetado para quem leva o treino a sério, ele une o registro rápido de cargas com o acompanhamento de evolução corporal.
 
-**Versão Atual:** v3.0 (Polished Edition)
+**Versão Atual:** v3.1 (Elevated Edition)
 
 ---
 
@@ -27,6 +27,10 @@ O **Iron Log** é uma plataforma completa de monitoramento físico "local-first"
 *   **Bio-Tracking Completo:** Peso, Medidas e Fotos.
 *   **Visualização de Evolução:** Gráficos de Média Móvel (7 dias) e Galeria de Fotos organizada por data.
 *   **Sincronização:** O peso do treino alimenta a Bio e vice-versa.
+*   **Streaks:** Acompanhe sua consistência com contagem de dias consecutivos.
+*   **Metas:** Defina objetivos para peso e medidas com datas-alvo.
+*   **Análise Avançada:** Taxa de variação de peso, médias e tendências.
+*   **Lembretes Mensais:** Notificações automáticas para check-in mensal (configurável).
 
 ### 💾 Portabilidade de Dados
 *   **Backup Local:** Exporte seu banco de dados completo (`.db`) para guardar ou transferir.
@@ -96,6 +100,9 @@ Para garantir precisão total, o Iron Log usa JSON para importação. Peça para
 *   **UI:** NativeWind v4 (Tailwind), React Native Reanimated (Animações).
 *   **Charts:** React Native Gifted Charts.
 *   **Media:** Expo Image Picker, Expo File System.
+*   **Notifications:** Expo Notifications (Lembretes de check-in).
+*   **Haptics:** Expo Haptics (Feedback tátil).
+*   **Date Picker:** @react-native-community/datetimepicker.
 
 ---
 

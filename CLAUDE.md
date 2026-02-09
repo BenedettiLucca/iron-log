@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v3.0 (Polished Edition)
+**Current Version:** v3.1 (Elevated Edition)
 
 ## Tech Stack
 
@@ -16,6 +16,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **UI:** NativeWind v4 (Tailwind for React Native), React Native Reanimated (Animations)
 - **Media:** Expo Image Picker, Expo File System
 - **Charts:** react-native-gifted-charts for bio tracking visualization
+- **Notifications:** expo-notifications for monthly check-in reminders
+- **Haptics:** expo-haptics for tactile feedback
+- **Date Picker:** @react-native-community/datetimepicker for date selection
 
 ## Common Commands
 
@@ -48,11 +51,13 @@ The app uses two distinct navigation contexts:
 
 1. **Drawer Layout** (`app/(drawer)/`) - Main app navigation
    - `index.tsx` - Dashboard/Home
-   - `bio/index.tsx` - Bio metrics entry (daily weight)
-   - `bio/evolution.tsx` - Visualization of progress (charts, photos)
+   - `bio/index.tsx` - Bio metrics entry (daily weight) + Goals/Evolution buttons
+   - `bio/evolution.tsx` - Visualization of progress (charts, photos, analytics)
+   - `bio/goals.tsx` - Goal setting for measurements (hidden from drawer)
    - `routines/index.tsx` - Routine list and management
    - `routines/editor.tsx` - Create/edit routines
    - `history/index.tsx` - Calendar view of past sessions
+   - `settings.tsx` - App settings, backup, and notification preferences
 
 2. **Session Flow** (`app/session/`) - Isolated stack for active workouts
    - `[routineId].tsx` - Exercise selection with progress bar and session stats
@@ -62,7 +67,7 @@ The app uses two distinct navigation contexts:
 
 ### Database Schema (src/db/schema.ts)
 
-The app uses 8 main tables:
+The app uses 11 main tables:
 
 - **routines** - Workout templates (e.g., "Workout A", "Workout B")
 - **exercises** - Exercise library
@@ -71,6 +76,9 @@ The app uses 8 main tables:
 - **sets** - Individual sets recorded during sessions
 - **body_metrics** - Body weight, measurements, photos
 - **user_settings** - User preferences (single row table)
+- **notification_settings** - Monthly check-in notification preferences (day, hour, enabled)
+- **measurement_goals** - User goals for body metrics with target dates
+- **personal_records** - Personal records tracking (weight, reps, volume PRs)
 
 ### Key Implementation Details
 
@@ -84,11 +92,14 @@ The app uses 8 main tables:
 **Design System Components** (`components/`):
 - **Button** - Animated pressable button with variants (primary, secondary, danger, ghost, success) and tactile feedback.
 - **Card** - Standardized `rounded-2xl` container with consistent shadows and borders.
-- **Input** - Styled text input with optional label and error state.
+- **Input** - Styled text input with focus animations, success state, and haptic feedback.
+- **DatePicker** - Native date picker component with theme support for iOS and Android.
+- **EmptyState** - Consistent empty state component with icons, titles, descriptions, and CTAs.
 - **ProgressBar** - Visual progress indicator with animated fill.
 - **SetCard** - Swipeable card for saved sets with entry animations and color-coded RIR.
 - **RestTimer** - Bottom sheet rest timer with quick actions.
 - **Stopwatch** - Enhanced timer with pause/resume capability.
+- **Dialog** - Confirmation dialog for destructive actions.
 
 **Color Scheme** (`hooks/use-color-scheme.ts`):
 - Dark mode: `#1D1917` (background)
@@ -100,6 +111,17 @@ The app uses 8 main tables:
 **Typography** (`constants/typography.ts`):
 - Standardized type scale: xs (10px), sm (12px), base (14px), lg (16px), xl (18px), 2xl (20px), 3xl (24px), 4xl (30px)
 - Used consistently across all components
+
+**Custom Hooks** (`hooks/`):
+- **use-haptics.ts** - Unified haptic feedback (light, medium, heavy, success, warning, error, selection)
+- **use-notifications.ts** - Notification settings state and actions
+- **use-bio-streaks.ts** - Streak calculation for daily and monthly check-ins
+- **use-personal-records.ts** - PR detection and tracking
+- **use-volume-tracking.ts** - Volume load analysis over time
+
+**Services** (`services/`):
+- **NotificationService.ts** - Monthly check-in notification scheduling with permission handling
+- **DatabaseBackupService.ts** - Database export/import and Google Drive backup
 
 ### Configuration Files
 
@@ -135,7 +157,33 @@ The app supports importing workout routines via JSON. Structure:
 - **strength** - Weight/reps based exercises (requires explicit save)
 - **duration** - Time-based exercises (e.g., plank) with explicit save button (no auto-save)
 
-**Recent Updates (v3.0)**
+**Recent Updates**
+
+**v3.1 (Elevated Edition) - Notification & Analytics Features:**
+
+**Monthly Check-in Notifications:**
+- **Service:** `services/NotificationService.ts` handles notification scheduling.
+- **Features:** Configurable monthly check-in reminders (day/hour), deep linking to bio screen.
+- **Dependencies:** `expo-notifications`, `expo-device`, `expo-haptics`.
+- **Settings:** Customizable day (1-31) and hour (0-23) in settings screen.
+
+**Bio Tracking Enhancements:**
+- **Streak Tracking:** Daily and longest streak calculations for consistency metrics.
+- **Goal Setting:** Set goals for weight and measurements with target dates using native DatePicker.
+- **Analytics Dashboard:** Integrated into evolution screen with weight change rate, trends, and statistics.
+
+**Workout Analytics:**
+- **Personal Records (PRs):** Tracking for weight, reps, and volume PRs.
+- **1RM Calculator:** Epley and Brzycki formulas for estimating one-rep max.
+- **Volume Load Tracking:** Volume trends and analysis over time.
+
+**UX Improvements:**
+- **Pull-to-Refresh:** Added to all list screens (Home, Routines, Bio, History).
+- **Haptic Feedback:** Unified tactile feedback throughout the app.
+- **Enhanced Input:** Focus animations, success states, and character counters.
+- **DatePicker:** Themed native date picker for iOS and Android.
+
+**v3.0 (Polished Edition):**
 
 **Database Portability:**
 - **Service:** `services/DatabaseBackupService.ts` handles all file operations and API calls.

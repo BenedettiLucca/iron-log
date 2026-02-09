@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.0 (Polished Edition).
+*   **Current State:** v3.1 (Elevated Edition).
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -30,6 +30,8 @@ This file provides context and instructions for the Gemini AI agent working on t
     *   `client.ts`: DB connection and migration runner.
 *   **`drizzle/`**: SQL Migration files.
 *   **`components/`**: Reusable polished UI components.
+*   **`hooks/`**: Custom React hooks (notifications, haptics, bio streaks, PRs, volume).
+*   **`services/`**: Business logic services (NotificationService, DatabaseBackupService).
 *   **`assets/`**: Images and static resources.
 
 ### Data Model (Drizzle)
@@ -38,7 +40,10 @@ The app relies on a strictly typed SQLite schema. Key tables include:
 *   `exercises`: Definition of exercises.
 *   `sessions`: Records of completed workouts.
 *   `sets`: Individual performance records (weight, reps, RPE).
-*   `body_metrics`: Bio-tracking data (weight, photos).
+*   `body_metrics`: Bio-tracking data (weight, photos, measurements).
+*   `notification_settings`: Monthly check-in notification preferences.
+*   `measurement_goals`: User goals for body metrics.
+*   `personal_records`: PR tracking (weight, reps, volume).
 
 ## 4. Development Workflow & Commands
 
@@ -66,7 +71,10 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
     *   `Button` instead of `TouchableOpacity` + `Text`.
     *   `Card` instead of `View` with borders/shadows.
     *   `Input` instead of `TextInput`.
+    *   `DatePicker` instead of raw DateTimePicker.
+    *   `EmptyState` for empty data states.
 *   **Motion:** Use `Animated` from `react-native-reanimated` for all animations. Prefer `FadeInDown` for lists.
+*   **Haptics:** Use `useHaptics()` hook for tactile feedback on all interactions.
 
 ### Session Flow Logic
 *   The "Session Flow" (`app/session/`) is complex. It involves:
