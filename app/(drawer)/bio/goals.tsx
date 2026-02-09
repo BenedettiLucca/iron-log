@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
+import { DatePicker } from '@/components/DatePicker';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
@@ -27,7 +28,7 @@ export default function GoalsScreen() {
   const [newGoal, setNewGoal] = useState({
     type: 'weight' as MeasurementType,
     targetValue: '',
-    targetDate: '',
+    targetDate: null as Date | null,
   });
   const [dialog, setDialog] = useState({
     visible: false,
@@ -51,7 +52,11 @@ export default function GoalsScreen() {
 
   const addGoal = async () => {
     try {
-      const targetDate = new Date(newGoal.targetDate).getTime();
+      if (!newGoal.targetDate) {
+        return;
+      }
+
+      const targetDate = newGoal.targetDate.getTime();
       const startDate = Date.now();
 
       await db.insert(measurementGoals).values({
@@ -63,7 +68,7 @@ export default function GoalsScreen() {
       });
 
       setModalVisible(false);
-      setNewGoal({ type: 'weight', targetValue: '', targetDate: '' });
+      setNewGoal({ type: 'weight', targetValue: '', targetDate: null });
       loadGoals();
     } catch (error) {
       console.error('Error adding goal:', error);
@@ -128,28 +133,13 @@ export default function GoalsScreen() {
                 )}
               </View>
 
-              {/* Progress bar placeholder - would need real calculation */}
-              <View className="h-2 bg-background rounded-full overflow-hidden">
-                <View
-                  className="h-full bg-primary rounded-full"
-                  style={{ width: `${Math.random() * 100}%` }}
-                />
-              </View>
-
               <View className="flex-row gap-2 mt-3">
-                <Button
-                  title="Editar"
-                  onPress={() => {}}
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1"
-                />
                 <Button
                   title="Excluir"
                   onPress={() => deleteGoal(goal.id)}
                   variant="danger"
                   size="sm"
-                  className="flex-1"
+                  fullWidth
                 />
               </View>
             </Card>
@@ -199,11 +189,12 @@ export default function GoalsScreen() {
               placeholder="00.0"
             />
 
-            <Input
+            <DatePicker
               label="Data Alvo"
               value={newGoal.targetDate}
-              onChangeText={(text) => setNewGoal({ ...newGoal, targetDate: text })}
-              placeholder="AAAA-MM-DD"
+              onChange={(date) => setNewGoal({ ...newGoal, targetDate: date })}
+              placeholder="Selecione a data"
+              minimumDate={new Date()}
             />
 
             <Button

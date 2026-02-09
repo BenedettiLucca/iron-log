@@ -150,14 +150,23 @@ export default function BioScreen() {
             </View>
         </Card>
 
-        {/* Botão Evolução */}
-        <Button 
-            title="VER EVOLUÇÃO COMPLETA"
-            onPress={() => router.push('/bio/evolution')}
-            variant="ghost"
-            fullWidth
-            icon={<Text className="text-primary text-lg mr-2">📈</Text>}
-        />
+        {/* Botões de Ação Rápida */}
+        <View className="flex-row gap-3 mb-4">
+            <Button
+                title="METAS"
+                onPress={() => router.push('/bio/goals')}
+                variant="secondary"
+                className="flex-1"
+                icon={<Text className="text-lg mr-1">🎯</Text>}
+            />
+            <Button
+                title="EVOLUÇÃO"
+                onPress={() => router.push('/bio/evolution')}
+                variant="secondary"
+                className="flex-1"
+                icon={<Text className="text-lg mr-1">📈</Text>}
+            />
+        </View>
 
         {/* Botão de Check-in Mensal */}
         <TouchableOpacity 

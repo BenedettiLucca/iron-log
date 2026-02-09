@@ -8,7 +8,6 @@ export function useNotifications() {
     enabled: true,
   });
   const [loading, setLoading] = useState(true);
-  const [permissionGranted, setPermissionGranted] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -47,7 +46,6 @@ export function useNotifications() {
   return {
     settings,
     loading,
-    permissionGranted,
     updateSettings,
     toggleEnabled,
     sendTestNotification,

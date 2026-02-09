@@ -7,12 +7,20 @@ import { asc } from 'drizzle-orm';
 import { LineChart } from 'react-native-gifted-charts';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
+import { EmptyState } from '../../../components/EmptyState';
 
 export default function EvolutionScreen() {
   const [weightData, setWeightData] = useState<any[]>([]);
   const [measuresData, setMeasuresData] = useState<any>({});
   const [photos, setPhotos] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos'>('weight');
+  const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
+  const [analytics, setAnalytics] = useState({
+    weightChangeRate: 0,
+    averageWeight: 0,
+    totalEntries: 0,
+    firstEntryDate: null as Date | null,
+    lastEntryDate: null as Date | null,
+  });
 
   useEffect(() => {
     loadData();
@@ -22,7 +30,7 @@ export default function EvolutionScreen() {
     try {
       // Carregar em ordem ASCENDENTE para calcular média móvel corretamente
       const data = await db.select().from(bodyMetrics).orderBy(asc(bodyMetrics.date));
-      
+
       // 1. Processar Peso (Média Móvel 7 Dias)
       const weights = data.filter(m => m.weight && m.weight > 0);
       const maData = weights.map((point, index, arr) => {
@@ -30,14 +38,14 @@ export default function EvolutionScreen() {
           const windowStart = Math.max(0, index - 6);
           const window = arr.slice(windowStart, index + 1);
           const avg = window.reduce((sum, item) => sum + item.weight!, 0) / window.length;
-          
+
           return {
               value: parseFloat(avg.toFixed(1)),
               label: new Date(point.date).getDate().toString(),
               dataPointText: parseFloat(avg.toFixed(1)).toString()
           };
       });
-      
+
       // Pegar apenas os últimos 20 pontos para o gráfico não ficar poluido
       setWeightData(maData.slice(-20));
 
@@ -59,6 +67,27 @@ export default function EvolutionScreen() {
         .filter(m => m.type === 'monthly' && (m.photoFront || m.photoBack || m.photoSide))
         .reverse(); // Descendente
       setPhotos(photoEntries);
+
+      // 4. Calculate Analytics
+      if (weights.length > 0) {
+        const totalWeight = weights.reduce((sum, m) => sum + (m.weight || 0), 0);
+        const averageWeight = totalWeight / weights.length;
+
+        const firstWeight = weights[0].weight;
+        const lastWeight = weights[weights.length - 1].weight;
+        const firstDate = new Date(weights[0].date);
+        const lastDate = new Date(weights[weights.length - 1].date);
+        const weeksDiff = Math.max((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24 * 7), 1);
+        const weightChangeRate = ((lastWeight - firstWeight) / weeksDiff);
+
+        setAnalytics({
+          weightChangeRate,
+          averageWeight,
+          totalEntries: data.length,
+          firstEntryDate: firstDate,
+          lastEntryDate: lastDate,
+        });
+      }
 
     } catch (e) {
       console.error(e);
@@ -99,12 +128,12 @@ export default function EvolutionScreen() {
       <Stack.Screen options={{ title: 'Evolução' }} />
       
       {/* Tabs */}
-      <View className="flex-row p-4 gap-2">
-          {['weight', 'measures', 'photos'].map(tab => (
-              <View key={tab} className="flex-1">
+      <View className="flex-row p-4 gap-2 flex-wrap">
+          {(['weight', 'measures', 'photos', 'analytics'] as const).map(tab => (
+              <View key={tab} className="flex-1 min-w-[70px]">
                 <Button
-                    title={tab === 'weight' ? 'PESO' : tab === 'measures' ? 'MEDIDAS' : 'FOTOS'}
-                    onPress={() => setActiveTab(tab as any)}
+                    title={tab === 'weight' ? 'PESO' : tab === 'measures' ? 'MEDIDAS' : tab === 'photos' ? 'FOTOS' : 'ANÁLISE'}
+                    onPress={() => setActiveTab(tab)}
                     variant={activeTab === tab ? 'primary' : 'ghost'}
                     size="sm"
                 />
@@ -146,7 +175,7 @@ export default function EvolutionScreen() {
                             </Text>
                             <View className="h-[1px] flex-1 bg-border" />
                           </View>
-                          
+
                           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-4 pl-2">
                               {entry.photoFront && (
                                   <View>
@@ -169,6 +198,108 @@ export default function EvolutionScreen() {
                           </ScrollView>
                       </View>
                   ))}
+              </View>
+          )}
+
+          {activeTab === 'analytics' && (
+              <View className="gap-4">
+                  {weightData.length === 0 ? (
+                    <EmptyState
+                      icon="📊"
+                      title="Sem dados suficientes"
+                      description="Registre suas métricas para ver análises e tendências."
+                    />
+                  ) : (
+                    <>
+                      {/* Weight Change Rate */}
+                      <Card>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-2">Variação de Peso</Text>
+                        <View className="flex-row items-end gap-2">
+                          <Text className={`text-4xl font-black ${analytics.weightChangeRate >= 0 ? 'text-success' : 'text-danger'}`}>
+                            {analytics.weightChangeRate >= 0 ? '+' : ''}
+                            {analytics.weightChangeRate.toFixed(2)}
+                          </Text>
+                          <Text className="text-subtext text-sm mb-1">kg/semana</Text>
+                        </View>
+                      </Card>
+
+                      {/* Average Weight */}
+                      <Card>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-2">Peso Médio</Text>
+                        <View className="flex-row items-end gap-2">
+                          <Text className="text-4xl font-black text-text">
+                            {analytics.averageWeight.toFixed(1)}
+                          </Text>
+                          <Text className="text-subtext text-sm mb-1">kg</Text>
+                        </View>
+                      </Card>
+
+                      {/* Statistics Grid */}
+                      <View className="flex-row gap-3">
+                        <Card className="flex-1">
+                          <Text className="text-subtext text-[10px] font-bold uppercase mb-1">Total de Registros</Text>
+                          <Text className="text-2xl font-black text-text">{analytics.totalEntries}</Text>
+                        </Card>
+
+                        <Card className="flex-1">
+                          <Text className="text-subtext text-[10px] font-bold uppercase mb-1">Período</Text>
+                          <Text className="text-2xl font-black text-text">
+                            {analytics.firstEntryDate && analytics.lastEntryDate
+                              ? Math.ceil(
+                                  (analytics.lastEntryDate.getTime() - analytics.firstEntryDate.getTime()) /
+                                    (1000 * 60 * 60 * 24 * 30)
+                                )
+                              : 0}
+                          </Text>
+                          <Text className="text-subtext text-[10px]">meses</Text>
+                        </Card>
+                      </View>
+
+                      {/* Trend Analysis */}
+                      <Card>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-3">Tendência</Text>
+                        <View className="flex-row items-center gap-3">
+                          <View
+                            className={`w-16 h-16 rounded-full items-center justify-center ${
+                              analytics.weightChangeRate > 0.1
+                                ? 'bg-success/20'
+                                : analytics.weightChangeRate < -0.1
+                                ? 'bg-danger/20'
+                                : 'bg-secondary/20'
+                            }`}
+                          >
+                            <Text className="text-3xl">
+                              {analytics.weightChangeRate > 0.1 ? '📈' : analytics.weightChangeRate < -0.1 ? '📉' : '➡️'}
+                            </Text>
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-text font-bold text-sm mb-1">
+                              {analytics.weightChangeRate > 0.1
+                                ? 'Ganhando peso'
+                                : analytics.weightChangeRate < -0.1
+                                ? 'Perdendo peso'
+                                : 'Estável'}
+                            </Text>
+                            <Text className="text-subtext text-xs">
+                              {analytics.weightChangeRate > 0.1
+                                ? 'Você está ganhando peso consistentemente'
+                                : analytics.weightChangeRate < -0.1
+                                ? 'Você está perdendo peso consistentemente'
+                                : 'Seu peso está estável'}
+                            </Text>
+                          </View>
+                        </View>
+                      </Card>
+
+                      {/* Info Card */}
+                      <Card className="bg-secondary/10 border-secondary/20">
+                        <Text className="text-secondary text-xs font-bold uppercase mb-2">💡 Dica</Text>
+                        <Text className="text-subtext text-xs leading-5">
+                          Para mudanças de peso saudáveis, tente manter uma variação entre -0.5 a +0.5 kg por semana.
+                        </Text>
+                      </Card>
+                    </>
+                  )}
               </View>
           )}
       </ScrollView>
