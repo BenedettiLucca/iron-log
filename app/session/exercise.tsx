@@ -7,6 +7,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -73,13 +74,15 @@ export default function ExerciseScreen() {
 
   // Efeito Active Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | undefined;
     if (isActiveSetRunning) {
       interval = setInterval(() => {
         setActiveSetTime(prev => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActiveSetRunning]);
 
   // Efeito Rest Timer
@@ -651,3 +654,23 @@ export default function ExerciseScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  timerButton: {
+    paddingVertical: 20,
+    paddingHorizontal: 60,
+    borderRadius: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  timerButtonStart: {
+    backgroundColor: '#81B29A',
+  },
+  timerButtonStop: {
+    backgroundColor: '#EF6464',
+  },
+});
