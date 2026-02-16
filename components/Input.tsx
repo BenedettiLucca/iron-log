@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TextInput, View, Text, TextInputProps } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
 
@@ -61,7 +61,6 @@ export function Input({
             {
               borderColor,
               borderWidth: 2,
-              transition: 'border-color 0.2s ease',
             },
             style,
           ]}

@@ -1,4 +1,4 @@
-import React, { View, Text, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Modal } from 'react-native';
 
 interface DialogProps {
   visible: boolean;

@@ -42,10 +42,6 @@ export default function SummaryScreen() {
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  useEffect(() => {
-    generateMarkdown();
-  }, [generateMarkdown]);
-
   const generateMarkdown = useCallback(async () => {
     try {
       // 1. Buscar Sessão
@@ -161,6 +157,10 @@ export default function SummaryScreen() {
     }
   }, [sessionId]);
 
+  useEffect(() => {
+    generateMarkdown();
+  }, [generateMarkdown]);
+
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(report);
     setCopied(true);
@@ -183,13 +183,13 @@ export default function SummaryScreen() {
     router.replace('/');
   };
 
-  const getMotivationalMessage = () => {
+  const getMotivationalMessage = useCallback(() => {
     const srpe = sessionData?.sRpe || 7;
     if (srpe <= 4) return '💪 Ótimo treino leve!';
     if (srpe <= 6) return '🔥 Treino consistente!';
     if (srpe <= 8) return '⚡ Trabalho duro!';
     return '🏆 Esforço hercúleo!';
-  };
+  }, [sessionData]);
 
   return (
     <View className="flex-1 bg-background">

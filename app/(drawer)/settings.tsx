@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Switch } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Updates from 'expo-updates';

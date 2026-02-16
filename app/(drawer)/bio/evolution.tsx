@@ -51,7 +51,7 @@ export default function EvolutionScreen() {
 
       // 2. Processar Medidas
       const measures = data.filter(m => m.type === 'monthly');
-      const processMeasure = (key: string) => measures.map(m => ({
+      const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures.map(m => ({
           value: m[key] || 0,
           label: new Date(m.date).toLocaleDateString('pt-BR', { month: 'short' })
       })).slice(-6); // Últimos 6 meses
@@ -78,7 +78,9 @@ export default function EvolutionScreen() {
         const firstDate = new Date(weights[0].date);
         const lastDate = new Date(weights[weights.length - 1].date);
         const weeksDiff = Math.max((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24 * 7), 1);
-        const weightChangeRate = ((lastWeight - firstWeight) / weeksDiff);
+        const weightChangeRate = firstWeight !== null && lastWeight !== null
+          ? ((lastWeight - firstWeight) / weeksDiff)
+          : 0;
 
         setAnalytics({
           weightChangeRate,

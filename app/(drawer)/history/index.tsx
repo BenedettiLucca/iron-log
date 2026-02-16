@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, useColorScheme, RefreshControl, ScrollView } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
@@ -38,10 +38,6 @@ export default function HistoryScreen() {
     border: isDark ? '#605050' : '#E0E0E0',
   };
 
-  useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
-
   const loadSessions = useCallback(async () => {
     try {
       const result = await db.select().from(sessions).orderBy(desc(sessions.startTime));
@@ -60,6 +56,10 @@ export default function HistoryScreen() {
       console.error(e);
     }
   }, [colors.primary]);
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -128,7 +128,6 @@ export default function HistoryScreen() {
                 textDayFontSize: 14,
                 textMonthFontSize: 18,
                 textDayHeaderFontSize: 10,
-                
                 // Custom spacing
                 'stylesheet.calendar.header': {
                     week: {
@@ -141,7 +140,7 @@ export default function HistoryScreen() {
                         paddingTop: 10
                     }
                 }
-            }}
+            } as any}
             />
         </View>
       </View>

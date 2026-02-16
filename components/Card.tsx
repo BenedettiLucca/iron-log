@@ -1,9 +1,10 @@
-import React, { View, TouchableOpacity, ViewStyle } from 'react-native';
+import type { ReactNode } from 'react';
+import { View, TouchableOpacity, ViewStyle } from 'react-native';
 
 export type CardVariant = 'default' | 'bordered' | 'elevated' | 'flat';
 
 interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: CardVariant;
   pressable?: boolean;
   onPress?: () => void;

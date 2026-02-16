@@ -19,7 +19,7 @@ import { sets, exercises, sessions, routineExercises } from '../../src/db/schema
 import { eq, and, desc } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
-import { SetCard } from '../../components/SetCard';
+import SetCard from '../../components/SetCard';
 import { RestTimer } from '../../components/RestTimer';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
@@ -27,6 +27,7 @@ import Slider from '@react-native-community/slider';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { parseTargetSets } from '../../src/utils/exercise';
+import { formatTimer } from '../../src/utils/timer';
 
 export default function ExerciseScreen() {
   const router = useRouter();
@@ -64,8 +65,6 @@ export default function ExerciseScreen() {
     const targetSets = parseTargetSets(exercise.target);
     const doneSets = allSessionSets?.filter(s => s.exerciseId === exercise.id).length || 0;
 
-    const isComplete = targetSets !== null ? doneSets >= targetSets : doneSets > 0;
-
     if (targetSets !== null) {
       return doneSets >= targetSets ? count + 1 : count;
     }
@@ -86,7 +85,7 @@ export default function ExerciseScreen() {
 
   // Undo state
   const [lastSavedSet, setLastSavedSet] = useState<any>(null);
-  const undoTimeoutRef = useRef<NodeJS.Timeout>();
+  const undoTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
@@ -99,7 +98,7 @@ export default function ExerciseScreen() {
 
   // Efeito Active Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isActiveSetRunning) {
       interval = setInterval(() => {
         setActiveSetTime(prev => prev + 1);
@@ -112,7 +111,7 @@ export default function ExerciseScreen() {
 
   // Efeito Rest Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (timerStatus === 'running' && timerTarget) {
       const tick = () => {
         const now = Date.now();
@@ -127,7 +126,9 @@ export default function ExerciseScreen() {
       tick();
       interval = setInterval(tick, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [timerStatus, timerTarget]);
 
   const loadData = useCallback(async () => {
@@ -244,7 +245,7 @@ export default function ExerciseScreen() {
     };
   }, [sessionId, exerciseId, currentName, routineId, target, notes, routineRest, startTime]);
 
-  const toggleActiveSet = () => {
+  const toggleActiveSet = useCallback(() => {
     if (isActiveSetRunning) {
       setIsActiveSetRunning(false);
       // Don't auto-save - wait for explicit save button
@@ -253,9 +254,9 @@ export default function ExerciseScreen() {
       setActiveSetTime(0);
       setIsActiveSetRunning(true);
     }
-  };
+  }, [isActiveSetRunning]);
 
-  const handleSaveSet = async (overrideDuration?: number) => {
+  const handleSaveSet = useCallback(async (overrideDuration?: number) => {
     if (isSaving) return;
 
     const isDuration = exerciseType === 'duration';
@@ -302,7 +303,7 @@ export default function ExerciseScreen() {
       }
       undoTimeoutRef.current = setTimeout(() => {
         setLastSavedSet(null);
-      }, 10000);
+      }, 10000) as unknown as NodeJS.Timeout;
 
       await loadData();
       setReps('');
@@ -320,9 +321,9 @@ export default function ExerciseScreen() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData]);
 
-  const handleUndo = async () => {
+  const handleUndo = useCallback(async () => {
     if (!lastSavedSet) return;
 
     try {
@@ -334,9 +335,9 @@ export default function ExerciseScreen() {
       console.error(e);
       setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
     }
-  };
+  }, [lastSavedSet, loadData]);
 
-  const handleDeleteSet = async (setId: number) => {
+  const handleDeleteSet = useCallback(async (setId: number) => {
     try {
       await db.delete(sets).where(eq(sets.id, setId));
       await loadData();
@@ -345,9 +346,9 @@ export default function ExerciseScreen() {
       console.error(e);
       setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
     }
-  };
+  }, [loadData]);
 
-  const goToNextOrFinish = () => {
+  const goToNextOrFinish = useCallback(() => {
     if (nextExercise) {
       router.replace({
         pathname: '/session/exercise',
@@ -370,36 +371,31 @@ export default function ExerciseScreen() {
         params: { sessionId, startTime: startTime.toString() }
       });
     }
-  };
+  }, [nextExercise, sessionId, routineId, startTime, router]);
 
-  const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
 
-  const addTime = (sec: number) => {
+  const addTime = useCallback((sec: number) => {
     if (timerStatus === 'running' && timerTarget) {
       setTimerTarget(timerTarget + sec * 1000);
     } else {
       setTimerSeconds((prev) => (prev || 0) + sec);
     }
-  };
+  }, [timerStatus, timerTarget]);
 
-  const getRirColor = (val: number) => {
+  const getRirColor = useCallback((val: number) => {
     if (val <= 1) return '#EF6464';
     if (val <= 3) return '#81B29A';
     return '#3D5A80';
-  };
+  }, []);
 
-  const calculateTarget = () => {
+  const calculateTarget = useCallback(() => {
     if (!target) return null;
     const match = target.match(/(\d+)x(\d+)/);
     if (match) {
       return { sets: Number(match[1]), reps: match[2] };
     }
     return null;
-  };
+  }, [target]);
 
   const targetInfo = calculateTarget();
   const currentSetNumber = (sessionSets?.length || 0) + 1;

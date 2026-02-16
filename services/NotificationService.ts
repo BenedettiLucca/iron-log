@@ -10,6 +10,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -192,7 +194,6 @@ class NotificationService {
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: targetDate,
-          repeats: false, // We'll reschedule after each notification
         },
       });
 
@@ -235,8 +236,8 @@ class NotificationService {
           sound: true,
         },
         trigger: {
-          type: Notifications.SchedulableTriggerInputTypes.TIMESTAMP,
-          seconds: 1,
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(Date.now() + 1000),
         },
       });
     } catch (error) {
@@ -244,17 +245,6 @@ class NotificationService {
     }
   }
 
-  /**
-   * Get all scheduled notifications (for debugging)
-   */
-  async getScheduledNotifications(): Promise<Notifications.NotificationRequest[]> {
-    try {
-      return await Notifications.getAllScheduledNotificationsAsync();
-    } catch (error) {
-      console.error('Error getting scheduled notifications:', error);
-      return [];
-    }
-  }
 }
 
 export const notificationService = new NotificationService();

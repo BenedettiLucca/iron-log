@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
@@ -32,12 +32,6 @@ export default function RoutineEditorScreen() {
   const [newName, setNewName] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
-  useEffect(() => {
-    if (isEditing) {
-      loadRoutineData();
-    }
-  }, [id, isEditing, loadRoutineData]);
-
   const loadRoutineData = useCallback(async () => {
     try {
       const routineData = await db.select().from(routines).where(eq(routines.id, Number(id)));
@@ -70,6 +64,12 @@ export default function RoutineEditorScreen() {
       setToast({ visible: true, message: 'Falha ao carregar rotina.', type: 'error' });
     }
   }, [id]);
+
+  useEffect(() => {
+    if (isEditing) {
+      loadRoutineData();
+    }
+  }, [id, isEditing, loadRoutineData]);
 
   const handleSave = async () => {
     if (!name.trim()) {

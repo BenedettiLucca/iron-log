@@ -14,7 +14,8 @@ import { eq } from 'drizzle-orm';
 import { sessions } from '../src/db/schema';
 
 // Configure Reanimated to reduce strict warnings for animations during render
-import { configureReanimatedLogger } from 'react-native-reanimated/logs';
+import { configureReanimatedLogger } from 'react-native-reanimated';
+
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
 });

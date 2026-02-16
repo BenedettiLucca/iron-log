@@ -1,5 +1,6 @@
-import React, { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { formatTimer } from '@/src/utils/timer';
 
 interface RestTimerProps {
   visible: boolean;
@@ -35,12 +36,6 @@ export function RestTimer({
     }
   }, [visible, slideAnim]);
 
-  const formatTime = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
-
   if (!visible) return null;
 
   return (
@@ -64,7 +59,7 @@ export function RestTimer({
           <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">Descanso</Text>
 
           <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-success' : 'text-primary'}`}>
-            {formatTime(seconds)}
+            {formatTimer(seconds)}
           </Text>
 
           <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-secondary'}`}>

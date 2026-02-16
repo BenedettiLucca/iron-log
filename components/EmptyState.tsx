@@ -1,6 +1,5 @@
-import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, type RelativePathString } from 'expo-router';
 import { Card } from './Card';
 
 interface EmptyStateProps {
@@ -8,7 +7,7 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   actionLabel?: string;
-  actionRoute?: string;
+  actionRoute?: RelativePathString;
   onAction?: () => void;
 }
 
