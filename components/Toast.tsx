@@ -1,4 +1,4 @@
-import React, { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface ToastProps {

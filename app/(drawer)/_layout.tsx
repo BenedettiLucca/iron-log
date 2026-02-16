@@ -14,9 +14,7 @@ export default function DrawerLayout() {
         drawerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
         drawerActiveTintColor: '#E07A5F',
         drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#000',
-        sceneContainerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
-        safeAreaInsets: { top: false, bottom: false, left: false, right: false },
-      }}>
+      } as any }>
         <Drawer.Screen 
           name="index" 
           options={{ 

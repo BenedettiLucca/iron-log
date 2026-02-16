@@ -6,7 +6,8 @@ import {
   ScrollView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets } from '../../src/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -115,17 +116,17 @@ export default function FinishSessionScreen() {
     loadData();
   }, [sessionId]);
 
-  const adjustWeight = (delta: number) => {
+  const adjustWeight = useCallback((delta: number) => {
     const current = parseFloat(weight) || 0;
     const newValue = Math.max(0, current + delta);
     setWeight(newValue.toString());
-  };
+  }, [weight]);
 
-  const insertTemplate = (template: NoteTemplate) => {
+  const insertTemplate = useCallback((template: NoteTemplate) => {
     const currentText = notes.trim();
     const newText = currentText ? `${currentText}\n${template.text}` : template.text;
     setNotes(newText);
-  };
+  }, [notes]);
 
   const handleFinish = () => {
     if (isFinishing) return;
@@ -161,6 +162,9 @@ export default function FinishSessionScreen() {
         });
       }
 
+      // 3. Clear incomplete session marker
+      await AsyncStorage.removeItem('incomplete_session');
+
       // Navegar para o resumo
       router.replace({
         pathname: '/session/summary',
@@ -174,13 +178,13 @@ export default function FinishSessionScreen() {
     }
   };
 
-  const getWeightDiff = () => {
+  const getWeightDiff = useCallback(() => {
     if (!previousWeight || !weight) return null;
     const current = parseFloat(weight);
     const diff = current - previousWeight;
     if (Math.abs(diff) < 0.1) return null;
     return diff;
-  };
+  }, [previousWeight, weight]);
 
   const weightDiff = getWeightDiff();
 

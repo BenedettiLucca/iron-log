@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';

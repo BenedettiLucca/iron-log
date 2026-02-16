@@ -8,24 +8,31 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  AppState,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
-import { SetCard } from '../../components/SetCard';
+import SetCard from '../../components/SetCard';
 import { RestTimer } from '../../components/RestTimer';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import Slider from '@react-native-community/slider';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { parseTargetSets } from '../../src/utils/exercise';
+import { formatTimer } from '../../src/utils/timer';
 
 export default function ExerciseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   const routineId = params.routineId ? Number(params.routineId) : null;
   const sessionId = Number(params.sessionId);
@@ -46,6 +53,24 @@ export default function ExerciseScreen() {
   const [nextExercise, setNextExercise] = useState<any>(null);
   const [allExercises, setAllExercises] = useState<any[]>([]);
 
+  // Track completed exercises by target sets
+  const { data: allSessionSets } = useLiveQuery(
+    db.select({ exerciseId: sets.exerciseId })
+      .from(sets)
+      .where(eq(sets.sessionId, sessionId))
+  );
+
+  // Count completed exercises (based on target sets met)
+  const completedExercisesCount = allExercises.reduce((count, exercise) => {
+    const targetSets = parseTargetSets(exercise.target);
+    const doneSets = allSessionSets?.filter(s => s.exerciseId === exercise.id).length || 0;
+
+    if (targetSets !== null) {
+      return doneSets >= targetSets ? count + 1 : count;
+    }
+    return doneSets > 0 ? count + 1 : count;
+  }, 0);
+
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
 
@@ -60,7 +85,7 @@ export default function ExerciseScreen() {
 
   // Undo state
   const [lastSavedSet, setLastSavedSet] = useState<any>(null);
-  const undoTimeoutRef = useRef<NodeJS.Timeout>();
+  const undoTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
@@ -68,13 +93,12 @@ export default function ExerciseScreen() {
   // Toast state
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
-  // Get current exercise index
-  const currentExerciseIndex = allExercises.findIndex(e => e.id === exerciseId);
+  // Total exercises for progress bar
   const totalExercises = allExercises.length;
 
   // Efeito Active Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (isActiveSetRunning) {
       interval = setInterval(() => {
         setActiveSetTime(prev => prev + 1);
@@ -87,7 +111,7 @@ export default function ExerciseScreen() {
 
   // Efeito Rest Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (timerStatus === 'running' && timerTarget) {
       const tick = () => {
         const now = Date.now();
@@ -102,7 +126,9 @@ export default function ExerciseScreen() {
       tick();
       interval = setInterval(tick, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [timerStatus, timerTarget]);
 
   const loadData = useCallback(async () => {
@@ -195,7 +221,31 @@ export default function ExerciseScreen() {
     };
   }, []);
 
-  const toggleActiveSet = () => {
+  // Save session state when app goes to background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background') {
+        // Save current session context for recovery
+        const sessionContext = {
+          sessionId,
+          exerciseId,
+          exerciseName: currentName,
+          routineId,
+          target,
+          notes,
+          restSeconds: routineRest,
+          startTime,
+        };
+        AsyncStorage.setItem('incomplete_session', JSON.stringify(sessionContext));
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [sessionId, exerciseId, currentName, routineId, target, notes, routineRest, startTime]);
+
+  const toggleActiveSet = useCallback(() => {
     if (isActiveSetRunning) {
       setIsActiveSetRunning(false);
       // Don't auto-save - wait for explicit save button
@@ -204,9 +254,9 @@ export default function ExerciseScreen() {
       setActiveSetTime(0);
       setIsActiveSetRunning(true);
     }
-  };
+  }, [isActiveSetRunning]);
 
-  const handleSaveSet = async (overrideDuration?: number) => {
+  const handleSaveSet = useCallback(async (overrideDuration?: number) => {
     if (isSaving) return;
 
     const isDuration = exerciseType === 'duration';
@@ -253,7 +303,7 @@ export default function ExerciseScreen() {
       }
       undoTimeoutRef.current = setTimeout(() => {
         setLastSavedSet(null);
-      }, 10000);
+      }, 10000) as unknown as NodeJS.Timeout;
 
       await loadData();
       setReps('');
@@ -271,9 +321,9 @@ export default function ExerciseScreen() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData]);
 
-  const handleUndo = async () => {
+  const handleUndo = useCallback(async () => {
     if (!lastSavedSet) return;
 
     try {
@@ -285,9 +335,9 @@ export default function ExerciseScreen() {
       console.error(e);
       setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
     }
-  };
+  }, [lastSavedSet, loadData]);
 
-  const handleDeleteSet = async (setId: number) => {
+  const handleDeleteSet = useCallback(async (setId: number) => {
     try {
       await db.delete(sets).where(eq(sets.id, setId));
       await loadData();
@@ -296,9 +346,9 @@ export default function ExerciseScreen() {
       console.error(e);
       setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
     }
-  };
+  }, [loadData]);
 
-  const goToNextOrFinish = () => {
+  const goToNextOrFinish = useCallback(() => {
     if (nextExercise) {
       router.replace({
         pathname: '/session/exercise',
@@ -314,41 +364,38 @@ export default function ExerciseScreen() {
         }
       });
     } else {
+      // Clear incomplete session when navigating to finish
+      AsyncStorage.removeItem('incomplete_session');
       router.replace({
         pathname: '/session/finish',
         params: { sessionId, startTime: startTime.toString() }
       });
     }
-  };
+  }, [nextExercise, sessionId, routineId, startTime, router]);
 
-  const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
 
-  const addTime = (sec: number) => {
+  const addTime = useCallback((sec: number) => {
     if (timerStatus === 'running' && timerTarget) {
       setTimerTarget(timerTarget + sec * 1000);
     } else {
       setTimerSeconds((prev) => (prev || 0) + sec);
     }
-  };
+  }, [timerStatus, timerTarget]);
 
-  const getRirColor = (val: number) => {
+  const getRirColor = useCallback((val: number) => {
     if (val <= 1) return '#EF6464';
     if (val <= 3) return '#81B29A';
     return '#3D5A80';
-  };
+  }, []);
 
-  const calculateTarget = () => {
+  const calculateTarget = useCallback(() => {
     if (!target) return null;
     const match = target.match(/(\d+)x(\d+)/);
     if (match) {
       return { sets: Number(match[1]), reps: match[2] };
     }
     return null;
-  };
+  }, [target]);
 
   const targetInfo = calculateTarget();
   const currentSetNumber = (sessionSets?.length || 0) + 1;
@@ -361,13 +408,13 @@ export default function ExerciseScreen() {
     >
       <View className="flex-1 bg-background">
         {/* Header */}
-        <View className="bg-card border-b border-border">
+        <View className="bg-card border-b border-border" style={{ paddingTop: insets.top }}>
             <View className="p-4">
               {/* Progress Bar */}
               {totalExercises > 0 && (
                 <View className="mb-4">
                   <ProgressBar
-                    current={currentExerciseIndex + 1}
+                    current={completedExercisesCount}
                     total={totalExercises}
                     variant="compact"
                     showLabel={true}

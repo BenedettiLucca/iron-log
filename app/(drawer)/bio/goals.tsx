@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { measurementGoals } from '../../../src/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -82,7 +82,7 @@ export default function GoalsScreen() {
       message: 'Tem certeza que deseja excluir esta meta?',
       onConfirm: async () => {
         try {
-          await db.delete(measurementGoals).where((row) => row.id === id);
+          await db.delete(measurementGoals).where(eq(measurementGoals.id, id));
           loadGoals();
         } catch (error) {
           console.error('Error deleting goal:', error);
@@ -120,7 +120,7 @@ export default function GoalsScreen() {
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1">
                   <Text className="text-text font-bold text-lg mb-1">
-                    {MEASUREMENT_LABELS[goal.type]}
+                    {MEASUREMENT_LABELS[goal.type as MeasurementType]}
                   </Text>
                   <Text className="text-subtext text-xs">
                     Meta: {goal.targetValue} • {getDaysRemaining(goal.targetDate)} dias restantes

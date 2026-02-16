@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { db } from '../../src/db/client';
 import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';

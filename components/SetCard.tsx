@@ -1,4 +1,5 @@
-import React, { View, Text, TouchableOpacity } from 'react-native';
+import { memo } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
@@ -16,7 +17,7 @@ interface SetCardProps {
   onPress?: () => void;
 }
 
-export function SetCard({
+function SetCard({
   setNumber,
   weight,
   reps,
@@ -65,14 +66,14 @@ export function SetCard({
   };
 
   const getRirColorClass = (rir: number) => {
-    if (rir <= 1) return 'text-danger bg-danger/10 border-danger/20'; 
-    if (rir <= 3) return 'text-success bg-success/10 border-success/20'; 
-    return 'text-secondary bg-secondary/10 border-secondary/20'; 
+    if (rir <= 1) return 'text-danger bg-danger/10 border-danger/20';
+    if (rir <= 3) return 'text-success bg-success/10 border-success/20';
+    return 'text-secondary bg-secondary/10 border-secondary/20';
   };
 
   const content = (
-    <Animated.View 
-      entering={FadeInDown.delay(index * 50).springify()} 
+    <Animated.View
+      entering={FadeInDown.delay(index * 50).springify()}
       className="mb-3"
     >
       <TouchableOpacity
@@ -99,9 +100,9 @@ export function SetCard({
             {weight > 0 ? weight : '-'}
           </Text>
           <Text className="text-subtext text-xs font-bold uppercase mr-2">kg</Text>
-          
+
           <Text className="text-subtext/50 text-lg font-light">×</Text>
-          
+
           <Text className="text-text text-2xl font-black tracking-tight ml-2">
              {duration !== undefined ? duration : (reps || 0)}
           </Text>
@@ -129,7 +130,7 @@ export function SetCard({
         ref={(ref) => { swipeableRef = ref; }}
         renderRightActions={renderRightActions}
         rightThreshold={40}
-        containerStyle={{ overflow: 'visible' }} 
+        containerStyle={{ overflow: 'visible' }}
       >
         {content}
       </Swipeable>
@@ -138,3 +139,5 @@ export function SetCard({
 
   return content;
 }
+
+export default memo(SetCard);

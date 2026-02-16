@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
@@ -14,7 +14,7 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   style?: ViewStyle;
   textStyle?: TextStyle;
   className?: string;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, useColorScheme, RefreshControl, ScrollView } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
@@ -38,10 +38,6 @@ export default function HistoryScreen() {
     border: isDark ? '#605050' : '#E0E0E0',
   };
 
-  useEffect(() => {
-    loadSessions();
-  }, [loadSessions]);
-
   const loadSessions = useCallback(async () => {
     try {
       const result = await db.select().from(sessions).orderBy(desc(sessions.startTime));
@@ -60,6 +56,10 @@ export default function HistoryScreen() {
       console.error(e);
     }
   }, [colors.primary]);
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -80,18 +80,16 @@ export default function HistoryScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{ title: 'Histórico' }} />
 
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        tintColor="#E07A5F"
+        colors={['#E07A5F']}
+      >
       <ScrollView
         className="flex-1"
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#E07A5F"
-            colors={['#E07A5F']}
-          />
-        }
+        scrollEnabled={false}
       >
-
       <View className="p-4 pb-0">
         <View className="rounded-2xl overflow-hidden border border-border shadow-sm bg-card">
             <Calendar
@@ -128,7 +126,6 @@ export default function HistoryScreen() {
                 textDayFontSize: 14,
                 textMonthFontSize: 18,
                 textDayHeaderFontSize: 10,
-                
                 // Custom spacing
                 'stylesheet.calendar.header': {
                     week: {
@@ -141,7 +138,7 @@ export default function HistoryScreen() {
                         paddingTop: 10
                     }
                 }
-            }}
+            } as any}
             />
         </View>
       </View>
@@ -155,6 +152,8 @@ export default function HistoryScreen() {
           data={daySessions}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
+          style={{ maxHeight: 400 }}
+          scrollEnabled={true}
           ListEmptyComponent={
             <View className="flex-1 justify-center items-center mt-10 opacity-50">
                 <Text className="text-4xl mb-2">📅</Text>
@@ -183,6 +182,7 @@ export default function HistoryScreen() {
         />
       </View>
       </ScrollView>
+      </RefreshControl>
     </View>
   );
 }

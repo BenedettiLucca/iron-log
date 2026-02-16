@@ -1,4 +1,4 @@
-import React, { View, Text, Animated } from 'react-native';
+import { View, Text, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 
 interface ProgressBarProps {
