@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets } from '../../src/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -160,6 +161,9 @@ export default function FinishSessionScreen() {
           weight: Number(weight)
         });
       }
+
+      // 3. Clear incomplete session marker
+      await AsyncStorage.removeItem('incomplete_session');
 
       // Navegar para o resumo
       router.replace({

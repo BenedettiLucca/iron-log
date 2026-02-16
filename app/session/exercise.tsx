@@ -8,9 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  AppState,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
@@ -22,10 +24,14 @@ import { RestTimer } from '../../components/RestTimer';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import Slider from '@react-native-community/slider';
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { parseTargetSets } from '../../src/utils/exercise';
 
 export default function ExerciseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   const routineId = params.routineId ? Number(params.routineId) : null;
   const sessionId = Number(params.sessionId);
@@ -45,6 +51,26 @@ export default function ExerciseScreen() {
   const [sessionSets, setSessionSets] = useState<any[]>([]);
   const [nextExercise, setNextExercise] = useState<any>(null);
   const [allExercises, setAllExercises] = useState<any[]>([]);
+
+  // Track completed exercises by target sets
+  const { data: allSessionSets } = useLiveQuery(
+    db.select({ exerciseId: sets.exerciseId })
+      .from(sets)
+      .where(eq(sets.sessionId, sessionId))
+  );
+
+  // Count completed exercises (based on target sets met)
+  const completedExercisesCount = allExercises.reduce((count, exercise) => {
+    const targetSets = parseTargetSets(exercise.target);
+    const doneSets = allSessionSets?.filter(s => s.exerciseId === exercise.id).length || 0;
+
+    const isComplete = targetSets !== null ? doneSets >= targetSets : doneSets > 0;
+
+    if (targetSets !== null) {
+      return doneSets >= targetSets ? count + 1 : count;
+    }
+    return doneSets > 0 ? count + 1 : count;
+  }, 0);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<any[]>([]);
@@ -68,8 +94,7 @@ export default function ExerciseScreen() {
   // Toast state
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
-  // Get current exercise index
-  const currentExerciseIndex = allExercises.findIndex(e => e.id === exerciseId);
+  // Total exercises for progress bar
   const totalExercises = allExercises.length;
 
   // Efeito Active Timer
@@ -195,6 +220,30 @@ export default function ExerciseScreen() {
     };
   }, []);
 
+  // Save session state when app goes to background
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'background') {
+        // Save current session context for recovery
+        const sessionContext = {
+          sessionId,
+          exerciseId,
+          exerciseName: currentName,
+          routineId,
+          target,
+          notes,
+          restSeconds: routineRest,
+          startTime,
+        };
+        AsyncStorage.setItem('incomplete_session', JSON.stringify(sessionContext));
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [sessionId, exerciseId, currentName, routineId, target, notes, routineRest, startTime]);
+
   const toggleActiveSet = () => {
     if (isActiveSetRunning) {
       setIsActiveSetRunning(false);
@@ -314,6 +363,8 @@ export default function ExerciseScreen() {
         }
       });
     } else {
+      // Clear incomplete session when navigating to finish
+      AsyncStorage.removeItem('incomplete_session');
       router.replace({
         pathname: '/session/finish',
         params: { sessionId, startTime: startTime.toString() }
@@ -361,13 +412,13 @@ export default function ExerciseScreen() {
     >
       <View className="flex-1 bg-background">
         {/* Header */}
-        <View className="bg-card border-b border-border">
+        <View className="bg-card border-b border-border" style={{ paddingTop: insets.top }}>
             <View className="p-4">
               {/* Progress Bar */}
               {totalExercises > 0 && (
                 <View className="mb-4">
                   <ProgressBar
-                    current={currentExerciseIndex + 1}
+                    current={completedExercisesCount}
                     total={totalExercises}
                     variant="compact"
                     showLabel={true}

@@ -1,5 +1,5 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
@@ -9,6 +9,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
+import { parseTargetSets } from '../../src/utils/exercise';
 
 export default function SessionScreen() {
   const { routineId, routineName } = useLocalSearchParams();
@@ -20,6 +21,15 @@ export default function SessionScreen() {
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<any>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Force refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey(prev => prev + 1);
+      return () => {};
+    }, [])
+  );
 
   // Proteção contra saída acidental
   useEffect(() => {
@@ -113,26 +123,27 @@ export default function SessionScreen() {
         <Text className="text-subtext uppercase text-[10px] font-black tracking-widest mb-1">Treino Ativo</Text>
         <Text className="text-text text-3xl font-black mb-4 tracking-tight">{routineName}</Text>
 
-        <SessionProgress sessionId={sessionId} routineExs={routineExs} />
+        <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
       </View>
 
-      <FlatList 
+      <FlatList
+        key={`list-${refreshKey}`}
         data={routineExs}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, gap: 12 }}
         renderItem={({ item, index }) => (
-          <ExerciseCard 
-            exercise={item} 
-            sessionId={sessionId} 
+          <ExerciseCard
+            exercise={item}
+            sessionId={sessionId}
             index={index}
             onPress={() => router.push({
               pathname: '/session/exercise',
-              params: { 
-                  sessionId, 
+              params: {
+                  sessionId,
                   routineId: rIdStr,
-                  exerciseId: item.id, 
+                  exerciseId: item.id,
                   exerciseName: item.name,
-                  target: item.target, 
+                  target: item.target,
                   notes: item.notes,
                   restSeconds: item.restSeconds?.toString(),
                   startTime: startTime.toString()
@@ -183,7 +194,13 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   );
 
   const doneSets = setsData?.[0]?.count || 0;
+  const targetSets = parseTargetSets(exercise.target);
+
+  // Exercise is "active" if any sets are done
   const isActive = doneSets > 0;
+
+  // Exercise is "complete" only if target sets are met (or if no target, any sets count as complete)
+  const isComplete = targetSets !== null ? doneSets >= targetSets : doneSets > 0;
 
   return (
     <Animated.View entering={FadeInLeft.delay(index * 100).springify()}>
@@ -191,8 +208,8 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
         onPress={onPress}
         activeOpacity={0.7}
         className={`p-5 rounded-2xl border flex-row justify-between items-center transition-all ${
-          isActive 
-            ? 'bg-card border-primary shadow-md' 
+          isActive
+            ? 'bg-card border-primary shadow-md'
             : 'bg-card border-border shadow-sm'
         }`}
       >
@@ -205,6 +222,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
               <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
                 <Text className="text-success text-[10px] font-bold uppercase tracking-wide">
                   {doneSets} {doneSets === 1 ? 'série' : 'séries'}
+                  {targetSets && ` de ${targetSets}`}
                 </Text>
               </View>
             )}
@@ -226,11 +244,11 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
           )}
 
           <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
-            {doneSets > 0 ? 'Em andamento...' : 'Toque para iniciar'}
+            {isComplete ? 'Concluído ✓' : isActive ? 'Em andamento...' : 'Toque para iniciar'}
           </Text>
         </View>
 
-        {doneSets > 0 && (
+        {isComplete && (
           <View className="ml-4">
               <View className="w-6 h-6 bg-success rounded-full border-[3px] border-white shadow-sm items-center justify-center">
                 <Text className="text-white text-[8px] font-bold">✓</Text>
@@ -243,15 +261,33 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
 }
 
 function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
-  const { data: completedData } = useLiveQuery(
-    db.select({ exerciseId: sets.exerciseId })
+  // Fetch all sets for the session - selecting all columns for better live query support
+  const { data: allSets } = useLiveQuery(
+    db.select()
       .from(sets)
       .where(eq(sets.sessionId, sessionId))
-      .orderBy(sets.exerciseId)
+      .orderBy(sets.id)
   );
 
-  const completedExerciseIds = new Set(completedData?.map(s => s.exerciseId) || []);
-  const completedCount = completedExerciseIds.size;
+  // Count sets per exercise
+  const setsPerExercise = new Map<number, number>();
+  allSets?.forEach(set => {
+    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
+    setsPerExercise.set(set.exerciseId, currentCount + 1);
+  });
+
+  // Count exercises that have met their target sets
+  const completedCount = routineExs.reduce((count, exercise) => {
+    const targetSets = parseTargetSets(exercise.target);
+    const doneSets = setsPerExercise.get(exercise.id) || 0;
+
+    // Exercise is complete if target is met, or if no target and at least one set done
+    if (targetSets !== null) {
+      return doneSets >= targetSets ? count + 1 : count;
+    }
+    return doneSets > 0 ? count + 1 : count;
+  }, 0);
+
   const totalCount = routineExs.length;
 
   if (totalCount === 0) return null;

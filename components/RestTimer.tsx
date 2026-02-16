@@ -45,12 +45,8 @@ export function RestTimer({
 
   return (
     <>
-      {/* Backdrop */}
-      <TouchableOpacity
-        activeOpacity={1}
-        className="absolute top-0 left-0 right-0 bottom-0 bg-black/40"
-        onPress={onClose}
-      />
+      {/* Backdrop - no longer pressable */}
+      <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/40" />
 
       {/* Bottom Sheet */}
       <Animated.View
