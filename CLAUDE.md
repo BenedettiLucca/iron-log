@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v3.1 (Elevated Edition)
+**Current Version:** v3.1.1 (Optimized Edition)
 
 ## Tech Stack
 
@@ -158,6 +158,26 @@ The app supports importing workout routines via JSON. Structure:
 - **duration** - Time-based exercises (e.g., plank) with explicit save button (no auto-save)
 
 **Recent Updates**
+
+**v3.1.1 (Optimized Edition) - Internal Improvements:**
+
+**Codebase Cleanup:**
+- Removed unused React imports from 15+ component files
+- Fixed incorrect imports across the codebase
+- Deleted 6 unused files (~900 lines of dead code)
+- Removed unused dependency @expo/vector-icons (~50-100KB bundle reduction)
+
+**Performance Optimizations:**
+- Added React.memo to SetCard component
+- Added useCallback hooks to exercise.tsx, finish.tsx, summary.tsx, RestTimer.tsx
+- Created shared timer utility to eliminate code duplication
+- Improved scroll performance by fixing VirtualizedList nesting
+
+**TypeScript & Quality:**
+- Fixed all TypeScript errors in application code
+- Fixed React hooks dependency order issues
+- Updated notification handler to use modern API
+- Improved type safety with proper null checks and assertions
 
 **v3.1 (Elevated Edition) - Notification & Analytics Features:**
 

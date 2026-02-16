@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.1 (Elevated Edition).
+*   **Current State:** v3.1.1 (Optimized Edition).
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack

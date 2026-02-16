@@ -13,7 +13,7 @@ export default function AboutScreen() {
             style={{ width: 120, height: 120, borderRadius: 24 }}
         />
         <Text className="text-text text-4xl font-black mt-6 tracking-tight">Iron Log</Text>
-        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">v3.0 • Polished Edition</Text>
+        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">v3.1.1 • Optimized Edition</Text>
       </View>
 
       <Card>
