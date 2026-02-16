@@ -46,15 +46,15 @@ export default function EvolutionScreen() {
           };
       });
 
-      // Pegar apenas os últimos 20 pontos para o gráfico não ficar poluido
-      setWeightData(maData.slice(-20));
+      // Pegar até 30 pontos para o gráfico não ficar poluído (aprox 30 dias)
+      setWeightData(maData.slice(-30));
 
       // 2. Processar Medidas
       const measures = data.filter(m => m.type === 'monthly');
       const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures.map(m => ({
           value: m[key] || 0,
           label: new Date(m.date).toLocaleDateString('pt-BR', { month: 'short' })
-      })).slice(-6); // Últimos 6 meses
+      })).slice(-12); // Últimos 12 meses
 
       setMeasuresData({
           waist: processMeasure('waist'),

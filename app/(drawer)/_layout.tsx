@@ -38,7 +38,8 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="bio/goals"
           options={{
-            drawerItemStyle: { display: 'none' }
+            title: 'Metas & Objetivos',
+            drawerLabel: 'Minhas Metas'
           }}
         />
         <Drawer.Screen 

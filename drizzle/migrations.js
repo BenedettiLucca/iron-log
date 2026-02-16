@@ -12,6 +12,9 @@ import m0007 from './0007_high_frog_thor.sql';
 import m0008 from './0008_loose_the_watchers.sql';
 import m0009 from './0009_dapper_vampiro.sql';
 import m0010 from './0010_mute_archangel.sql';
+import m0011 from './0011_wooden_inhumans.sql';
+import m0012 from './0012_smiling_gertrude_yorkes.sql';
+import m0013 from './0013_polite_norrin_radd.sql';
 
   export default {
     journal,
@@ -26,7 +29,10 @@ m0006,
 m0007,
 m0008,
 m0009,
-m0010
+m0010,
+m0011,
+m0012,
+m0013
     }
   }
   

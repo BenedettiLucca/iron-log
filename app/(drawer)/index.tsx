@@ -7,11 +7,13 @@ import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
 import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [routinesList, setRoutinesList] = useState<any[]>([]);
   const [lastSession, setLastSession] = useState<any>(null);
+  const [incompleteSession, setIncompleteSession] = useState<any>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [refreshing, setRefreshing] = useState(false);
 
@@ -28,6 +30,14 @@ export default function HomeScreen() {
           setLastSession(sResult[0]);
       } else {
           setLastSession(null);
+      }
+
+      // 3. Check for incomplete session
+      const sessionJson = await AsyncStorage.getItem('incomplete_session');
+      if (sessionJson) {
+        setIncompleteSession(JSON.parse(sessionJson));
+      } else {
+        setIncompleteSession(null);
       }
     } catch (e) {
       console.error(e);
@@ -83,9 +93,50 @@ export default function HomeScreen() {
     }
   };
 
+  const handleResumeSession = () => {
+    if (!incompleteSession) return;
+    
+    router.push({
+      pathname: '/session/exercise',
+      params: {
+        sessionId: incompleteSession.sessionId,
+        routineId: incompleteSession.routineId?.toString(),
+        exerciseId: incompleteSession.exerciseId,
+        exerciseName: incompleteSession.exerciseName,
+        target: incompleteSession.target,
+        notes: incompleteSession.notes,
+      }
+    });
+  };
+
   return (
     <View className="flex-1 bg-background px-4 pb-4">
-      <View className="mb-8 mt-4">
+      {/* Incomplete Session Banner */}
+      {incompleteSession && (
+        <View className="mt-4">
+          <TouchableOpacity 
+            onPress={handleResumeSession}
+            activeOpacity={0.8}
+          >
+            <Card className="bg-primary/5 border-2 border-primary/20">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1">
+                  <Text className="text-primary font-bold text-sm uppercase tracking-wider mb-1">Treino em Andamento</Text>
+                  <Text className="text-text text-lg font-bold">{incompleteSession.routineName}</Text>
+                  <Text className="text-subtext text-xs mt-0.5">
+                    {incompleteSession.exerciseName} • Toque para continuar
+                  </Text>
+                </View>
+                <View className="bg-primary px-3 py-2 rounded-lg">
+                  <Text className="text-white font-bold text-sm uppercase">Continuar</Text>
+                </View>
+              </View>
+            </Card>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <View className={`mt-4 ${incompleteSession ? 'mb-4' : 'mb-8'}`}>
         <View className="flex-row justify-between items-center mb-2 px-1">
             <Text className="text-subtext text-xs font-bold uppercase tracking-widest">Última Sessão</Text>
             <TouchableOpacity onPress={() => router.push('/history')}>

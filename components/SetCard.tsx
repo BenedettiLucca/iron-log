@@ -11,6 +11,8 @@ interface SetCardProps {
   duration?: number;
   rir?: number | null;
   isPR?: boolean;
+  isWarmup?: boolean;
+  isEdited?: boolean;
   index?: number;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -24,6 +26,8 @@ function SetCard({
   duration,
   rir,
   isPR = false,
+  isWarmup = false,
+  isEdited = false,
   index = 0,
   onEdit,
   onDelete,
@@ -66,9 +70,9 @@ function SetCard({
   };
 
   const getRirColorClass = (rir: number) => {
-    if (rir <= 1) return 'text-danger bg-danger/10 border-danger/20';
-    if (rir <= 3) return 'text-success bg-success/10 border-success/20';
-    return 'text-secondary bg-secondary/10 border-secondary/20';
+    if (rir <= 1) return 'text-danger bg-danger/20 border-danger/30';
+    if (rir <= 3) return 'text-success bg-success/20 border-success/30';
+    return 'text-secondary bg-secondary/20 border-secondary/30';
   };
 
   const content = (
@@ -80,7 +84,7 @@ function SetCard({
         onPress={onPress}
         activeOpacity={0.7}
         className={`p-4 rounded-2xl border flex-row items-center min-h-[64px] shadow-sm ${
-          isPR ? 'bg-accent/10 border-accent' : 'bg-card border-border'
+          isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
       >
         <View className="mr-4 items-center justify-center w-8">
@@ -89,6 +93,16 @@ function SetCard({
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
               <Text className="text-text text-[8px] font-bold">PR</Text>
+            </View>
+          )}
+          {isWarmup && (
+            <View className="bg-warning/80 px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 shadow-sm">
+              <Text className="text-white text-[8px] font-bold uppercase">🔥</Text>
+            </View>
+          )}
+          {isEdited && (
+            <View className="bg-secondary/80 px-1.5 py-0.5 rounded mt-1 absolute -bottom-1 -right-2 shadow-sm">
+              <Text className="text-white text-[10px]">✏️</Text>
             </View>
           )}
         </View>

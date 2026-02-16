@@ -28,6 +28,7 @@ export default function Layout() {
   // Session recovery state
   const [recoverySession, setRecoverySession] = useState<any>(null);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   // Initialize notifications after migrations complete
   useEffect(() => {
@@ -42,6 +43,17 @@ export default function Layout() {
   useEffect(() => {
     const checkIncompleteSession = async () => {
       try {
+        // Check if user opted out of recovery dialogs
+        const skipRecovery = await AsyncStorage.getItem('skip_session_recovery');
+        if (skipRecovery === 'true') {
+          // Still clear the incomplete session marker but don't show dialog
+          const sessionJson = await AsyncStorage.getItem('incomplete_session');
+          if (sessionJson) {
+            await AsyncStorage.removeItem('incomplete_session');
+          }
+          return;
+        }
+
         const sessionJson = await AsyncStorage.getItem('incomplete_session');
         if (!sessionJson) return;
 
@@ -122,8 +134,17 @@ export default function Layout() {
 
   const handleDismissDialog = async () => {
     setShowRecoveryDialog(false);
+    
+    // Save "don't show again" preference if checked
+    if (dontShowAgain) {
+      await AsyncStorage.setItem('skip_session_recovery', 'true');
+    }
+    
     // Clear the marker but keep session in DB
     await AsyncStorage.removeItem('incomplete_session');
+    
+    // Reset checkbox state
+    setDontShowAgain(false);
   };
 
   if (error) {
@@ -183,9 +204,22 @@ export default function Layout() {
             onPress={(e) => e.stopPropagation()}
           >
             <Text className="text-text text-xl font-bold mb-3">Retomar Treino?</Text>
-            <Text className="text-subtext text-base mb-6 leading-6">
+            <Text className="text-subtext text-base mb-4 leading-6">
               Você tem um treino em andamento. Deseja continuar ou salvar?
             </Text>
+
+            {/* Don't Show Again Checkbox */}
+            <TouchableOpacity
+              className="flex-row items-center mb-4 py-2"
+              onPress={() => setDontShowAgain(!dontShowAgain)}
+            >
+              <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${
+                dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'
+              }`}>
+                {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
+              </View>
+              <Text className="text-subtext text-sm">Não perguntar novamente</Text>
+            </TouchableOpacity>
 
             <View className="flex-col gap-3">
               <TouchableOpacity

@@ -1,6 +1,6 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
 import { eq, and, count } from 'drizzle-orm';
@@ -8,6 +8,7 @@ import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
+import { Toast } from '../../components/Toast';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
 
@@ -22,6 +23,8 @@ export default function SessionScreen() {
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<any>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [exitToast, setExitToast] = useState({ visible: false, message: '' });
+  const lastBackPressTime = useRef<number>(0);
 
   // Force refresh when screen comes into focus
   useFocusEffect(
@@ -31,15 +34,33 @@ export default function SessionScreen() {
     }, [])
   );
 
-  // Proteção contra saída acidental
+  // Smart exit protection with toast + double-press
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
+      
       e.preventDefault();
-      setPendingNavigation(e.data.action);
-      setShowExitDialog(true);
+      
+      const now = Date.now();
+      const timeSinceLastPress = now - lastBackPressTime.current;
+      
+      if (timeSinceLastPress < 2000) {
+        // Second press within 2 seconds - show confirmation dialog
+        setPendingNavigation(e.data.action);
+        setShowExitDialog(true);
+        setExitToast({ visible: false, message: '' });
+      } else {
+        // First press - show toast
+        lastBackPressTime.current = now;
+        setExitToast({ visible: true, message: 'Pressione novamente para sair' });
+        
+        // Hide toast after 2 seconds
+        setTimeout(() => {
+          setExitToast({ visible: false, message: '' });
+        }, 2000);
+      }
     });
 
     return unsubscribe;
@@ -181,6 +202,13 @@ export default function SessionScreen() {
         type="destructive"
         onConfirm={confirmFinish}
         onCancel={() => setShowFinishDialog(false)}
+      />
+
+      <Toast
+        visible={exitToast.visible}
+        message={exitToast.message}
+        type="info"
+        onHide={() => setExitToast({ visible: false, message: '' })}
       />
     </View>
   );

@@ -6,6 +6,7 @@ export const routines = sqliteTable('routines', {
   name: text('name').notNull().unique(),
   description: text('description'),
   folder: text('folder').default('Geral'),
+  isTemplate: integer('is_template', { mode: 'boolean' }).notNull().default(false),
 });
 
 // TABELA: Definição de Exercícios (Biblioteca)
@@ -50,6 +51,8 @@ export const sets = sqliteTable('sets', {
   reps: integer('reps').notNull(),
   durationSeconds: integer('duration_seconds'),
   rir: integer('rir'),
+  isWarmup: integer('is_warmup', { mode: 'boolean' }).notNull().default(false),
+  isEdited: integer('is_edited', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at').default(Date.now()),
 });
 
@@ -67,6 +70,7 @@ export const bodyMetrics = sqliteTable('body_metrics', {
   photoFront: text('photo_front'),
   photoBack: text('photo_back'),
   photoSide: text('photo_side'),
+  photoNotes: text('photo_notes'), // Notes on specific photos
 });
 
 // TABELA: Configurações do Usuário (Single Row)

@@ -20,6 +20,7 @@ import { eq, and, desc } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
+import { SetEditor } from '../../components/SetEditor';
 import { RestTimer } from '../../components/RestTimer';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
@@ -28,11 +29,13 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { formatTimer } from '../../src/utils/timer';
+import { useHaptics } from '../../hooks/use-haptics';
 
 export default function ExerciseScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
+  const { trigger } = useHaptics();
 
   const routineId = params.routineId ? Number(params.routineId) : null;
   const sessionId = Number(params.sessionId);
@@ -52,6 +55,7 @@ export default function ExerciseScreen() {
   const [sessionSets, setSessionSets] = useState<any[]>([]);
   const [nextExercise, setNextExercise] = useState<any>(null);
   const [allExercises, setAllExercises] = useState<any[]>([]);
+  const [isWarmupMode, setIsWarmupMode] = useState(false);
 
   // Track completed exercises by target sets
   const { data: allSessionSets } = useLiveQuery(
@@ -92,6 +96,13 @@ export default function ExerciseScreen() {
 
   // Toast state
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+
+  // Set Editor state
+  const [editingSet, setEditingSet] = useState<any>(null);
+  const [showSetEditor, setShowSetEditor] = useState(false);
+
+  // RIR Explainer modal state
+  const [showRirExplainer, setShowRirExplainer] = useState(false);
 
   // Total exercises for progress bar
   const totalExercises = allExercises.length;
@@ -292,6 +303,7 @@ export default function ExerciseScreen() {
         reps: isDuration ? 0 : finalReps,
         durationSeconds: isDuration ? finalDuration : null,
         rir: isDuration ? null : Number(rir),
+        isWarmup: isWarmupMode,
       }).returning();
 
       // Store for undo
@@ -321,7 +333,7 @@ export default function ExerciseScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode]);
 
   const handleUndo = useCallback(async () => {
     if (!lastSavedSet) return;
@@ -347,6 +359,43 @@ export default function ExerciseScreen() {
       setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
     }
   }, [loadData]);
+
+  const handleEditSet = useCallback(async (setId: number) => {
+    try {
+      const setData = await db.select().from(sets).where(eq(sets.id, setId));
+      if (setData.length > 0) {
+        setEditingSet(setData[0]);
+        setShowSetEditor(true);
+      }
+    } catch (e) {
+      console.error(e);
+      setToast({ visible: true, message: 'Falha ao carregar série', type: 'error' });
+    }
+  }, []);
+
+  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number) => {
+    if (!editingSet) return;
+    
+    try {
+      await db.update(sets)
+        .set({
+          weightKg: weight,
+          reps: reps || editingSet.reps,
+          durationSeconds: duration || editingSet.durationSeconds,
+          rir: rir || editingSet.rir,
+          isEdited: true,
+        })
+        .where(eq(sets.id, editingSet.id));
+      
+      await loadData();
+      setShowSetEditor(false);
+      setEditingSet(null);
+      setToast({ visible: true, message: 'Série editada com sucesso', type: 'success' });
+    } catch (e) {
+      console.error(e);
+      setToast({ visible: true, message: 'Falha ao editar série', type: 'error' });
+    }
+  }, [editingSet, loadData]);
 
   const goToNextOrFinish = useCallback(() => {
     if (nextExercise) {
@@ -484,21 +533,24 @@ export default function ExerciseScreen() {
             <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3 mt-4">
               Séries Registradas ({sessionSets?.length || 0})
             </Text>
-            <FlatList
-              data={sessionSets}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item, index }) => (
-                <SetCard
-                  key={item.id}
-                  index={index}
-                  setNumber={item.setNumber}
-                  weight={item.weightKg}
-                  reps={item.reps || undefined}
-                  duration={item.durationSeconds || undefined}
-                  rir={item.rir}
-                  onDelete={() => handleDeleteSet(item.id)}
-                />
-              )}
+              <FlatList
+               data={sessionSets}
+               keyExtractor={(item) => item.id.toString()}
+               renderItem={({ item, index }) => (
+                 <SetCard
+                   key={item.id}
+                   index={index}
+                   setNumber={item.setNumber}
+                   weight={item.weightKg}
+                   reps={item.reps || undefined}
+                   duration={item.durationSeconds || undefined}
+                   rir={item.rir}
+                   isWarmup={item.isWarmup || false}
+                   isEdited={item.isEdited || false}
+                   onEdit={() => handleEditSet(item.id)}
+                   onDelete={() => handleDeleteSet(item.id)}
+                 />
+               )}
               ListEmptyComponent={
                 <View className="py-8">
                   <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
@@ -509,6 +561,24 @@ export default function ExerciseScreen() {
 
           {/* Input Area */}
           <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
+            {/* Warm-Up Mode Toggle */}
+            <View className="flex-row items-center justify-between mb-4 py-2 bg-background rounded-lg px-4">
+              <View className="flex-row items-center gap-2">
+                <Text className="text-2xl">🔥</Text>
+                <View>
+                  <Text className="text-text font-bold text-sm">Modo Aquecimento</Text>
+                  <Text className="text-subtext text-xs">Registre seus aquecimentos separadamente</Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => setIsWarmupMode(!isWarmupMode)}
+                className={`w-14 h-8 rounded-full p-1 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
+              >
+                <View
+                  className={`w-6 h-6 rounded-full bg-white shadow-md transition-all ${isWarmupMode ? 'translate-x-6' : 'translate-x-0'}`}
+                />
+              </TouchableOpacity>
+            </View>
           {exerciseType === 'duration' ? (
             <View className="items-center mb-6">
               <Text className="text-text font-mono text-6xl font-bold mb-4">
@@ -558,9 +628,9 @@ export default function ExerciseScreen() {
             <>
               <View className="flex-row gap-3 mb-4">
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">Carga (kg)</Text>
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">Carga (kg)</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
+                    className="bg-background text-text text-center text-2xl font-bold p-3 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={weight}
                     onChangeText={setWeight}
@@ -570,9 +640,9 @@ export default function ExerciseScreen() {
                 </View>
 
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-[10px]">REPS</Text>
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">REPS</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-3xl font-bold p-4 rounded-xl border border-border"
+                    className="bg-background text-text text-center text-2xl font-bold p-3 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={reps}
                     onChangeText={setReps}
@@ -585,10 +655,10 @@ export default function ExerciseScreen() {
               <View className="mb-4">
                 <View className="flex-row justify-between items-center mb-2 px-1">
                   <TouchableOpacity
-                    onPress={() => setToast({ visible: true, message: 'Repetições na Reserva (0 = Falha)', type: 'info' })}
+                    onPress={() => setShowRirExplainer(true)}
                     className="flex-row items-center gap-1"
                   >
-                    <Text className="text-subtext font-bold uppercase text-[10px]">Reserva (RIR)</Text>
+                    <Text className="text-subtext font-bold uppercase text-xs">Reserva (RIR)</Text>
                     <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">
                       <Text className="text-subtext text-[8px] font-bold">?</Text>
                     </View>
@@ -609,7 +679,10 @@ export default function ExerciseScreen() {
                   maximumValue={5}
                   step={1}
                   value={rir}
-                  onValueChange={setRir}
+                  onValueChange={(value) => {
+                    setRir(value);
+                    trigger('light');
+                  }}
                   minimumTrackTintColor="#E07A5F"
                   maximumTrackTintColor="#D1D5DB"
                   thumbTintColor="#E07A5F"
@@ -697,6 +770,88 @@ export default function ExerciseScreen() {
           type={toast.type}
           onHide={() => setToast({ ...toast, visible: false })}
         />
+
+        <SetEditor
+          visible={showSetEditor}
+          setNumber={editingSet?.setNumber || 0}
+          initialWeight={editingSet?.weightKg || 0}
+          initialReps={editingSet?.reps}
+          initialDuration={editingSet?.durationSeconds}
+          initialRir={editingSet?.rir}
+          isDuration={exerciseType === 'duration'}
+          onSave={handleSaveEditedSet}
+          onCancel={() => {
+            setShowSetEditor(false);
+            setEditingSet(null);
+          }}
+        />
+
+        {/* RIR Explainer Modal */}
+        <Modal visible={showRirExplainer} animationType="fade" transparent onRequestClose={() => setShowRirExplainer(false)}>
+          <TouchableOpacity
+            activeOpacity={1}
+            className="flex-1 justify-center items-center bg-black/40 p-6"
+            onPress={() => setShowRirExplainer(false)}
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              className="bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl border border-border"
+              onPress={(e) => e.stopPropagation()}
+            >
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-text text-xl font-bold">O que é RIR?</Text>
+                <TouchableOpacity onPress={() => setShowRirExplainer(false)}>
+                  <Text className="text-subtext text-2xl font-bold">✕</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View className="space-y-4">
+                <View className="flex-row items-start gap-3">
+                  <View className="bg-danger/10 p-2 rounded-lg">
+                    <Text className="text-2xl">0-1</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text font-bold text-base mb-1">Forte / Pesado</Text>
+                    <Text className="text-subtext text-sm">Próximo da falha muscular</Text>
+                  </View>
+                </View>
+
+                <View className="flex-row items-start gap-3">
+                  <View className="bg-success/10 p-2 rounded-lg">
+                    <Text className="text-2xl">2-3</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text font-bold text-base mb-1">Moderado</Text>
+                    <Text className="text-subtext text-sm">Esforço controlado, bom para hipertrofia</Text>
+                  </View>
+                </View>
+
+                <View className="flex-row items-start gap-3">
+                  <View className="bg-secondary/10 p-2 rounded-lg">
+                    <Text className="text-2xl">4-5</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text font-bold text-base mb-1">Leve</Text>
+                    <Text className="text-subtext text-sm">Aquecimento ou técnica</Text>
+                  </View>
+                </View>
+
+                <View className="bg-background p-3 rounded-lg border border-border mt-4">
+                  <Text className="text-subtext text-xs leading-5">
+                    <Text className="font-bold text-text">RIR</Text> = Repetições na Reserva. Quanto maior o número, mais fácil foi a série. <Text className="font-bold text-text">RIR 0</Text> significa que você não conseguiria fazer mais uma repetição.
+                  </Text>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => setShowRirExplainer(false)}
+                className="mt-6 bg-primary p-3 rounded-xl items-center"
+              >
+                <Text className="text-white font-bold text-base uppercase">Entendi!</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
       </View>
     </KeyboardAvoidingView>
   );

@@ -267,13 +267,26 @@ export default function SummaryScreen() {
             fullWidth
           />
 
-          <Button
-            title="🏠 Voltar ao Início"
-            onPress={goHome}
-            variant="ghost"
-            size="md"
-            fullWidth
-          />
+          {/* Post-Workout Actions */}
+          <Card className="bg-card/50 border-dashed border-2 mt-4">
+            <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">E Agora?</Text>
+            <View className="flex-row gap-2">
+              <Button
+                title="Novo Treino"
+                onPress={() => router.push('/routines')}
+                variant="success"
+                size="md"
+                style={{ flex: 1 }}
+              />
+              <Button
+                title="Voltar"
+                onPress={goHome}
+                variant="ghost"
+                size="md"
+                style={{ flex: 1 }}
+              />
+            </View>
+          </Card>
         </View>
       </ScrollView>
 
