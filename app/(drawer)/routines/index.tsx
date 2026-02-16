@@ -10,6 +10,7 @@ import { Dialog } from '../../../components/Dialog';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { RoutinePreview } from '../../../components/RoutinePreview';
+import { SkeletonList } from '../../../components/Skeleton';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function RoutinesListScreen() {
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
   const [refreshing, setRefreshing] = useState(false);
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -28,10 +30,13 @@ export default function RoutinesListScreen() {
 
   const fetchRoutines = async () => {
       try {
+          setIsLoading(true);
           const data = await db.select().from(routines);
           setAllRoutines(data);
       } catch (e) {
           console.error(e);
+      } finally {
+          setIsLoading(false);
       }
   };
 
@@ -203,7 +208,7 @@ export default function RoutinesListScreen() {
       </View>
 
       <FlatList
-        data={filteredRoutines}
+        data={isLoading ? [] : filteredRoutines}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
         refreshControl={
@@ -215,6 +220,7 @@ export default function RoutinesListScreen() {
           />
         }
         ListHeaderComponent={
+            isLoading ? null : (
             <Card className="mb-6 bg-card/50">
                 <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>
                 <Text className="text-subtext text-xs leading-5">
@@ -224,11 +230,16 @@ export default function RoutinesListScreen() {
                     </Text>
                 </Text>
             </Card>
+            )
         }
         ListEmptyComponent={
-          <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
+          isLoading ? (
+            <SkeletonList count={4} />
+          ) : (
+            <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
+          )
         }
-        renderItem={({ item }) => (
+        renderItem={({ item }) => isLoading ? null : (
           <Card className="overflow-hidden">
             <TouchableOpacity 
               onPress={() => setPreviewRoutine({ id: item.id, name: item.name })}

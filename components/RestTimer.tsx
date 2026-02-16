@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, PanResponder } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { formatTimer } from '@/src/utils/timer';
 
@@ -23,6 +23,33 @@ export function RestTimer({
 }: RestTimerProps) {
   const slideAnim = useRef(new Animated.Value(1)).current;
 
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (evt, gestureState) => {
+        // Only respond to vertical downward swipes
+        // Track pan position visually
+        if (gestureState.dy > 0) {
+          // Visual feedback during drag
+        }
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        // If dragged down more than 100px, dismiss the modal
+        if (gestureState.dy > 100) {
+          onClose();
+        } else {
+          // Animate back to position
+          Animated.spring(slideAnim, {
+            toValue: 0,
+            useNativeDriver: true,
+            tension: 65,
+            friction: 11,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
   useEffect(() => {
     if (visible) {
       Animated.spring(slideAnim, {
@@ -38,20 +65,27 @@ export function RestTimer({
 
   if (!visible) return null;
 
+  const slideOffset = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 500]
+  });
+
   return (
     <>
-      {/* Backdrop - no longer pressable */}
-      <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/40" />
+      {/* Backdrop - tap to close */}
+      <TouchableOpacity
+        activeOpacity={1}
+        className="absolute top-0 left-0 right-0 bottom-0 bg-black/40"
+        onPress={onClose}
+      />
 
-      {/* Bottom Sheet */}
+      {/* Bottom Sheet with swipe-to-dismiss */}
       <Animated.View
         className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl pt-3 pb-8 px-6 shadow-xl"
         style={{
-          transform: [{ translateY: slideAnim.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 500]
-          }) }],
+          transform: [{ translateY: slideOffset }],
         }}
+        {...panResponder.panHandlers}
       >
         <View className="w-10 h-1 bg-border rounded-full self-center mb-5" />
 
@@ -101,3 +135,4 @@ export function RestTimer({
     </>
   );
 }
+
