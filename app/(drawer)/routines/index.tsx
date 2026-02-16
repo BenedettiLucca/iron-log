@@ -194,6 +194,13 @@ export default function RoutinesListScreen() {
     <View className="flex-1 bg-background">
       <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
+          <Button
+            title="💾 Templates"
+            onPress={() => router.push('/routines/templates')}
+            size="sm"
+            variant="secondary"
+            style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
+          />
           {folders.map(folder => (
             <Button
               key={folder}

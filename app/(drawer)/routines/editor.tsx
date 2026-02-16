@@ -27,10 +27,10 @@ export default function RoutineEditorScreen() {
   const [description, setDescription] = useState('');
   const [selectedExercises, setSelectedExercises] = useState<SelectedExercise[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
-  
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const [showTemplateOptions, setShowTemplateOptions] = useState(false);
 
   const loadRoutineData = useCallback(async () => {
     try {
@@ -130,6 +130,20 @@ export default function RoutineEditorScreen() {
       } catch {
           setToast({ visible: true, message: 'Falha ao renomear.', type: 'error' });
       }
+  };
+
+  const handleSaveAsTemplate = async () => {
+    try {
+      await db.update(routines)
+        .set({ isTemplate: true })
+        .where(eq(routines.id, Number(id)));
+
+      setToast({ visible: true, message: 'Rotina salva como template!', type: 'success' });
+      router.back();
+    } catch (e) {
+      console.error(e);
+      setToast({ visible: true, message: 'Falha ao salvar template.', type: 'error' });
+    }
   };
 
   const removeExercise = (indexToRemove: number) => {
@@ -232,10 +246,34 @@ export default function RoutineEditorScreen() {
         <View className="h-24" />
       </ScrollView>
 
+      {/* Save Options Menu */}
+      {showTemplateOptions && (
+        <View className="absolute bottom-20 left-4 right-4 z-10">
+          <Card className="border-2 border-primary shadow-xl">
+            <TouchableOpacity
+              onPress={handleSave}
+              onPressOut={() => setShowTemplateOptions(false)}
+              className="p-4"
+            >
+              <Text className="text-text font-bold text-base">Salvar</Text>
+              <Text className="text-subtext text-xs">Salvar rotina normalmente</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleSaveAsTemplate}
+              onPressOut={() => setShowTemplateOptions(false)}
+              className="p-4 border-t border-border"
+            >
+              <Text className="text-primary font-bold text-base">💾 Salvar como Template</Text>
+              <Text className="text-subtext text-xs">Disponível na biblioteca de templates</Text>
+            </TouchableOpacity>
+          </Card>
+        </View>
+      )}
+
       <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg">
         <Button 
-          title="SALVAR ROTINA"
-          onPress={handleSave}
+          title="SALVAR"
+          onPress={() => setShowTemplateOptions(true)}
           variant="success"
           fullWidth
         />

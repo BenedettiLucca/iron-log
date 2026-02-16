@@ -8,12 +8,19 @@ import { LineChart } from 'react-native-gifted-charts';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
+import { PhotoComparison } from '../../../components/PhotoComparison';
 
 export default function EvolutionScreen() {
   const [weightData, setWeightData] = useState<any[]>([]);
   const [measuresData, setMeasuresData] = useState<any>({});
   const [photos, setPhotos] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
+  const [comparison, setComparison] = useState({
+    visible: false,
+    beforeUri: null as string | null,
+    afterUri: null as string | null,
+    label: '',
+  });
   const [analytics, setAnalytics] = useState({
     weightChangeRate: 0,
     averageWeight: 0,
@@ -159,16 +166,38 @@ export default function EvolutionScreen() {
               </>
           )}
 
-          {activeTab === 'photos' && (
-              <View>
-                  {photos.length === 0 && (
-                    <View className="items-center mt-10">
-                        <Text className="text-4xl mb-4">📷</Text>
-                        <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
-                        <Text className="text-subtext/60 text-xs text-center mt-2">Faça um Check-in mensal para adicionar fotos.</Text>
-                    </View>
-                  )}
-                  {photos.map((entry) => (
+                   {activeTab === 'photos' && (
+               <View className="gap-4">
+                   <View className="flex-row justify-between items-center mb-4">
+                       <Text className="text-subtext text-xs font-bold uppercase tracking-widest">FOTOS RECENTES</Text>
+                       {photos.length >= 2 && (
+                           <Button
+                               title="Comparar"
+                               onPress={() => {
+                                   const latest = photos[0];
+                                   const previous = photos[1];
+                                   if (latest && previous) {
+                                       setComparison({
+                                           visible: true,
+                                           beforeUri: previous.photoFront || previous.photoBack || previous.photoSide,
+                                           afterUri: latest.photoFront || latest.photoBack || latest.photoSide,
+                                           label: 'Últimos Check-ins',
+                                       });
+                                   }
+                               }}
+                               variant="secondary"
+                               size="sm"
+                           />
+                       )}
+                   </View>
+                   {photos.length === 0 && (
+                     <View className="items-center mt-10">
+                         <Text className="text-4xl mb-4">📷</Text>
+                         <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
+                         <Text className="text-subtext/60 text-xs text-center mt-2">Faça um check-in mensal para adicionar fotos de evolução.</Text>
+                     </View>
+                   )}
+                   {photos.map((entry) => (
                       <View key={entry.id} className="mb-8">
                           <View className="flex-row items-center gap-2 mb-4">
                             <View className="h-[1px] flex-1 bg-border" />
@@ -300,11 +329,20 @@ export default function EvolutionScreen() {
                           Para mudanças de peso saudáveis, tente manter uma variação entre -0.5 a +0.5 kg por semana.
                         </Text>
                       </Card>
-                    </>
-                  )}
-              </View>
-          )}
-      </ScrollView>
-    </View>
+                     </>
+                   )}
+               </View>
+           )}
+       </ScrollView>
+
+       {/* Photo Comparison Modal */}
+       <PhotoComparison
+           visible={comparison.visible}
+           beforeUri={comparison.beforeUri}
+           afterUri={comparison.afterUri}
+           label={comparison.label}
+           onClose={() => setComparison({ visible: false, beforeUri: null, afterUri: null, label: '' })}
+       />
+     </View>
   );
 }
