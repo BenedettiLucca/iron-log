@@ -172,11 +172,10 @@ export default function HomeScreen() {
               key={routine.id}
               pressable
               onPress={() => router.push({
-                pathname: '/session/[routineId]',
-                params: { 
-                    routineId: routine.id, 
+                pathname: '/routine/[routineId]',
+                params: {
+                    routineId: routine.id,
                     routineName: routine.name,
-                    _ts: Date.now() 
                 }
               })}
             >
