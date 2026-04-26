@@ -184,6 +184,9 @@ export default function Layout() {
         {/* O Drawer é a tela principal */}
         <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
 
+        {/* Pré-visualização de Rotina */}
+        <Stack.Screen name="routine/[routineId]" options={{ title: 'Rotina' }} />
+
         {/* Fluxo de Sessão (Stack Pura) */}
         <Stack.Screen name="session/[routineId]" options={{ title: 'Treino Ativo' }} />
         <Stack.Screen name="session/exercise" options={{ title: 'Exercício', headerShown: false }} />
