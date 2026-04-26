@@ -3,8 +3,8 @@ import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
-import { sessions } from '../../../src/db/schema';
-import { desc } from 'drizzle-orm';
+import { sessions, sets } from '../../../src/db/schema';
+import { desc, isNull, eq, and } from 'drizzle-orm';
 import { Card } from '../../../components/Card';
 import { SkeletonList } from '../../../components/Skeleton';
 import { logger } from '@/services/logger';
@@ -21,12 +21,17 @@ LocaleConfig.locales['br'] = {
 };
 LocaleConfig.defaultLocale = 'br';
 
+interface SessionWithExercises extends Session {
+  exerciseNames: string[];
+  totalSets: number;
+}
+
 export default function HistoryScreen() {
   const router = useRouter();
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [markedDates, setMarkedDates] = useState<Record<string, { marked: boolean; dotColor: string }>>({});
   const [selectedDate, setSelectedDate] = useState('');
-  const [daySessions, setDaySessions] = useState<Session[]>([]);
+  const [daySessions, setDaySessions] = useState<SessionWithExercises[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,28 +67,50 @@ export default function HistoryScreen() {
     setRefreshing(false);
   }, [loadSessions]);
 
-  const handleDayPress = (day: any) => {
+  const handleDayPress = useCallback(async (day: any) => {
     setSelectedDate(day.dateString);
     const filtered = allSessions.filter(s => {
       const sDate = new Date(s.startTime).toISOString().split('T')[0];
       return sDate === day.dateString;
     });
-    setDaySessions(filtered);
-  };
+
+    // Load exercise info for each session
+    const enriched: SessionWithExercises[] = [];
+    for (const session of filtered) {
+      try {
+        const sessionSets = await db
+          .select({ exerciseName: sets.exerciseName })
+          .from(sets)
+          .where(and(eq(sets.sessionId, session.id), isNull(sets.deletedAt)));
+
+        const exerciseNames = Array.from(new Set(sessionSets.map(s => s.exerciseName).filter(Boolean)));
+        enriched.push({
+          ...session,
+          exerciseNames,
+          totalSets: sessionSets.length,
+        });
+      } catch (e) {
+        logger.error('Failed to load session exercises', e);
+        enriched.push({ ...session, exerciseNames: [], totalSets: 0 });
+      }
+    }
+
+    setDaySessions(enriched);
+  }, [allSessions]);
 
   const calendarTheme = {
-    backgroundColor: Colors.lightCard,
-    calendarBackground: Colors.lightCard,
-    textSectionTitleColor: Colors.lightSubtext,
+    backgroundColor: Colors.darkCard,
+    calendarBackground: Colors.darkCard,
+    textSectionTitleColor: Colors.darkSubtext,
     selectedDayBackgroundColor: Colors.primary,
     selectedDayTextColor: Colors.white,
-    todayTextColor: Colors.secondary,
-    dayTextColor: Colors.lightText,
-    textDisabledColor: Colors.gray300,
+    todayTextColor: Colors.primary,
+    dayTextColor: Colors.darkText,
+    textDisabledColor: Colors.darkSubtext,
     dotColor: Colors.primary,
     selectedDotColor: Colors.white,
     arrowColor: Colors.primary,
-    monthTextColor: Colors.lightText,
+    monthTextColor: Colors.darkText,
     indicatorColor: Colors.primary,
     textDayFontWeight: '600' as const,
     textMonthFontWeight: '900' as const,
@@ -98,7 +125,7 @@ export default function HistoryScreen() {
         justifyContent: 'space-between' as const,
         paddingHorizontal: 10,
         borderTopWidth: 1,
-        borderTopColor: Colors.lightBorder,
+        borderTopColor: Colors.darkBorder,
         paddingTop: 10,
       }
     }
@@ -173,14 +200,26 @@ export default function HistoryScreen() {
               accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
               accessibilityRole="button"
             >
-              <View className="flex-row justify-between items-center">
-                <View>
+              <View className="flex-row justify-between items-start">
+                <View className="flex-1">
                   <Text className="text-text font-black text-lg mb-1 tracking-tight">{item.routineName}</Text>
-                  <Text className="text-subtext text-xs font-bold uppercase tracking-wider">
-                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes} min
+                  <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">
+                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes} min • {item.totalSets} séries
                   </Text>
+                  {item.exerciseNames.length > 0 && (
+                    <View className="flex-row flex-wrap gap-1">
+                      {item.exerciseNames.slice(0, 3).map((name, idx) => (
+                        <View key={idx} className="bg-primary/10 px-2 py-0.5 rounded-md">
+                          <Text className="text-primary text-xs font-semibold">{name}</Text>
+                        </View>
+                      ))}
+                      {item.exerciseNames.length > 3 && (
+                        <Text className="text-subtext text-xs font-semibold">+{item.exerciseNames.length - 3}</Text>
+                      )}
+                    </View>
+                  )}
                 </View>
-                <View className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20">
+                <View className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 ml-2">
                   <Text className="text-primary font-black text-xs uppercase tracking-wider">Ver</Text>
                 </View>
               </View>

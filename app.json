@@ -2,7 +2,7 @@
   "expo": {
     "name": "Iron Log",
     "slug": "iron-log",
-    "version": "3.1.1",
+    "version": "3.1.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ironlog",
@@ -44,7 +44,7 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     }
   }
 }

@@ -57,6 +57,18 @@ export default function DrawerLayout() {
             drawerItemStyle: { display: 'none' } 
           }} 
         />
+        <Drawer.Screen
+          name="routines/templates"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
+          name="bio/analytics"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
         <Drawer.Screen 
           name="history/index" 
           options={{ 

@@ -13,7 +13,7 @@ export default function AboutScreen() {
             style={{ width: 120, height: 120, borderRadius: 24 }}
         />
         <Text className="text-text text-4xl font-black mt-6 tracking-tight">Iron Log</Text>
-        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">v3.1.1 • Optimized Edition</Text>
+        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">v3.1.2 • Polished Edition</Text>
       </View>
 
       <Card>
@@ -24,11 +24,12 @@ export default function AboutScreen() {
 
         <Text className="text-text font-bold text-lg mb-2">Recursos</Text>
         <Text className="text-subtext leading-6">
-            • Interface Tátil & Fluida
+            • Registro Rápido de Séries & Cargas
             • Timer Pro com Background Mode
-            • Bio-Tracking Completo
-            • Importação Inteligente (IA)
-            • Design System &quot;Warm & Earthy&quot;
+            • Bio-Tracking Completo (Peso, Medidas, Fotos)
+            • Analytics de Performance (Strength Score, PRs, 1RM)
+            • Exportação CSV & Backup SQLite
+            • Design System &quot;Warm & Earthy&quot; com Tema Escuro
         </Text>
       </Card>
 
