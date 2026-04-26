@@ -84,8 +84,9 @@ export default function ExerciseScreen() {
   const [timerStatus, setTimerStatus] = useState<'idle' | 'running' | 'finished'>('idle');
 
   // Active Set Timer
+  const [activeSetStart, setActiveSetStart] = useState<number | null>(null);
   const [activeSetTime, setActiveSetTime] = useState(0);
-  const [isActiveSetRunning, setIsActiveSetRunning] = useState(false);
+  const isActiveSetRunning = activeSetStart !== null;
 
   // Undo state
   const [lastSavedSet, setLastSavedSet] = useState<any>(null);
@@ -107,18 +108,21 @@ export default function ExerciseScreen() {
   // Total exercises for progress bar
   const totalExercises = allExercises.length;
 
-  // Efeito Active Timer
+  // Efeito Active Timer (delta-based for accuracy)
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
-    if (isActiveSetRunning) {
-      interval = setInterval(() => {
-        setActiveSetTime(prev => prev + 1);
-      }, 1000);
+    if (activeSetStart !== null) {
+      const tick = () => {
+        const elapsed = Math.floor((Date.now() - activeSetStart) / 1000);
+        setActiveSetTime(elapsed);
+      };
+      tick();
+      interval = setInterval(tick, 1000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActiveSetRunning]);
+  }, [activeSetStart]);
 
   // Efeito Rest Timer
   useEffect(() => {
@@ -257,15 +261,15 @@ export default function ExerciseScreen() {
   }, [sessionId, exerciseId, currentName, routineId, target, notes, routineRest, startTime]);
 
   const toggleActiveSet = useCallback(() => {
-    if (isActiveSetRunning) {
-      setIsActiveSetRunning(false);
-      // Don't auto-save - wait for explicit save button
-      setActiveSetTime(prev => prev);
+    if (activeSetStart !== null) {
+      // Stop — keep current time frozen
+      setActiveSetStart(null);
     } else {
+      // Start fresh
       setActiveSetTime(0);
-      setIsActiveSetRunning(true);
+      setActiveSetStart(Date.now());
     }
-  }, [isActiveSetRunning]);
+  }, [activeSetStart]);
 
   const handleSaveSet = useCallback(async (overrideDuration?: number) => {
     if (isSaving) return;

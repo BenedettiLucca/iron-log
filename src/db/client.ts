@@ -4,4 +4,13 @@ import * as schema from "./schema";
 
 const expoDb = openDatabaseSync("ironlog.db");
 
+// Configure SQLite for safety and performance
+try {
+  expoDb.execSync("PRAGMA journal_mode = WAL;");
+  expoDb.execSync("PRAGMA foreign_keys = ON;");
+  expoDb.execSync("PRAGMA busy_timeout = 5000;");
+} catch (e) {
+  console.warn("[IronLog] Failed to set PRAGMA:", e);
+}
+
 export const db = drizzle(expoDb, { schema });
