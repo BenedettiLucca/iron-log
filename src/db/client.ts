@@ -1,3 +1,4 @@
+import { logger } from '@/services/logger';
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import { openDatabaseSync } from "expo-sqlite";
 import * as schema from "./schema";
@@ -10,7 +11,7 @@ try {
   expoDb.execSync("PRAGMA foreign_keys = ON;");
   expoDb.execSync("PRAGMA busy_timeout = 5000;");
 } catch (e) {
-  console.warn("[IronLog] Failed to set PRAGMA:", e);
+  logger.error("Failed to set PRAGMA", e);
 }
 
 export const db = drizzle(expoDb, { schema });

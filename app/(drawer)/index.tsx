@@ -1,60 +1,37 @@
 import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { db } from '../../src/db/client';
-import { routines, exercises, routineExercises, sessions } from '../../src/db/schema';
+import { exercises, routineExercises } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { desc } from 'drizzle-orm';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
 import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { useRoutines } from '@/hooks/use-routines';
+import { useSessions } from '@/hooks/use-sessions';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [routinesList, setRoutinesList] = useState<any[]>([]);
-  const [lastSession, setLastSession] = useState<any>(null);
-  const [incompleteSession, setIncompleteSession] = useState<any>(null);
+  const { allRoutines: routinesList, fetchRoutines } = useRoutines();
+  const { lastSession, incompleteSession, fetchHomeData } = useSessions();
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [refreshing, setRefreshing] = useState(false);
 
-  // Função para buscar dados
-  const fetchData = async () => {
-    try {
-      // 1. Buscando Rotinas
-      const rResult = await db.select().from(routines);
-      setRoutinesList(rResult);
-
-      // 2. Buscando Última Sessão
-      const sResult = await db.select().from(sessions).orderBy(desc(sessions.startTime)).limit(1);
-      if (sResult.length > 0) {
-          setLastSession(sResult[0]);
-      } else {
-          setLastSession(null);
-      }
-
-      // 3. Check for incomplete session
-      const sessionJson = await AsyncStorage.getItem('incomplete_session');
-      if (sessionJson) {
-        setIncompleteSession(JSON.parse(sessionJson));
-      } else {
-        setIncompleteSession(null);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const fetchData = useCallback(async () => {
+    await Promise.all([fetchRoutines(), fetchHomeData()]);
+  }, [fetchRoutines, fetchHomeData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);
-  }, []);
+  }, [fetchData]);
 
-  // Recarrega sempre que a tela ganha foco
   useFocusEffect(
     useCallback(() => {
       fetchData();
-    }, [])
+    }, [fetchData])
   );
 
   const seedDatabase = async () => {
@@ -67,6 +44,7 @@ export default function HomeScreen() {
         { name: 'Desenvolvimento Militar', defaultRestSeconds: 90 },
       ]).returning();
 
+      const { routines } = await import('../../src/db/schema');
       const routineA = await db.insert(routines).values({ 
         name: 'Treino A (Push/Legs)', 
         description: 'Foco em Empurrar e Pernas' 
@@ -88,7 +66,7 @@ export default function HomeScreen() {
       fetchData();
       setToast({ visible: true, message: 'Banco de dados populado!', type: 'success' });
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
     }
   };
@@ -183,8 +161,8 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#E07A5F"
-            colors={['#E07A5F']}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
           />
         }
       >

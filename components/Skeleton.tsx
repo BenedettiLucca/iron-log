@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import Animated, { useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import { Colors } from '@/constants/colors';
 
 interface SkeletonProps {
   width?: string | number;
@@ -71,6 +72,6 @@ export function SkeletonList({ count = 3, className = '' }: SkeletonListProps) {
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: '#D1D5DB',
+    backgroundColor: Colors.gray300,
   },
 });

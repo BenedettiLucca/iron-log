@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Image, Modal, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
+import { Colors } from '@/constants/colors';
 
 interface PhotoComparisonProps {
   visible: boolean;
@@ -88,9 +89,9 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               step={0.01}
               value={sliderValue}
               onValueChange={setSliderValue}
-              minimumTrackTintColor="#E07A5F"
-              maximumTrackTintColor="#D1D5DB"
-              thumbTintColor="#E07A5F"
+              minimumTrackTintColor={Colors.primary}
+              maximumTrackTintColor={Colors.gray300}
+              thumbTintColor={Colors.primary}
             />
             <View className="flex-row justify-between px-2 mt-1">
               <Text className="text-subtext text-[10px]">Antes</Text>

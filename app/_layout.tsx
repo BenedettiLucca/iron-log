@@ -15,6 +15,10 @@ import { sessions } from '../src/db/schema';
 
 // Configure Reanimated to reduce strict warnings for animations during render
 import { configureReanimatedLogger } from 'react-native-reanimated';
+import { logger } from '@/services/logger';
+import { SessionContext } from '@/src/types';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import { Colors } from '@/constants/colors';
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
@@ -26,7 +30,7 @@ export default function Layout() {
   const router = useRouter();
 
   // Session recovery state
-  const [recoverySession, setRecoverySession] = useState<any>(null);
+  const [recoverySession, setRecoverySession] = useState<SessionContext | null>(null);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
@@ -34,7 +38,7 @@ export default function Layout() {
   useEffect(() => {
     if (success) {
       notificationService.initialize().catch((err) => {
-        console.error('Failed to initialize notifications:', err);
+        logger.error('Operation failed', 'Failed to initialize notifications:', err);
       });
     }
   }, [success]);
@@ -60,7 +64,7 @@ export default function Layout() {
         const sessionContext = JSON.parse(sessionJson);
 
         // Verify session still exists and hasn't been finished
-        const sessionData = await db.select().from(sessions).where(eq(sessions.id, sessionContext.sessionId));
+        const sessionData = await db.select().from(sessions).where(and(eq(sessions.id, sessionContext.sessionId), isNull(sessions.deletedAt)));
 
         if (sessionData.length === 0 || sessionData[0].endTime !== null) {
           // Session no longer exists or already finished, clear the marker
@@ -72,7 +76,7 @@ export default function Layout() {
         setRecoverySession(sessionContext);
         setShowRecoveryDialog(true);
       } catch (e) {
-        console.error('Error checking incomplete session:', e);
+        logger.error('Operation failed', 'Error checking incomplete session:', e);
       }
     };
 
@@ -89,7 +93,7 @@ export default function Layout() {
         if (url) {
           // Navigate to the URL when notification is tapped
           // The router will handle the navigation
-          console.log('Notification tapped, navigating to:', url);
+          logger.debug('Notification tapped, navigating to:', url);
         }
       }
     );
@@ -159,20 +163,21 @@ export default function Layout() {
   if (!success) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color="#E07A5F" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text className="text-text mt-4">Preparando Iron Log...</Text>
       </View>
     );
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }}>
+    <ErrorBoundary>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
+          headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
+          contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
           animation: 'default',
         }}
       >
@@ -247,5 +252,6 @@ export default function Layout() {
         </TouchableOpacity>
       </Modal>
     </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

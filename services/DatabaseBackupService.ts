@@ -2,6 +2,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import { Alert, Platform } from 'react-native';
+import { logger } from '@/services/logger';
 
 const DB_NAME = 'ironlog.db';
 const DB_DIR = FileSystem.documentDirectory + 'SQLite/';
@@ -38,7 +39,7 @@ async function createPreImportSnapshot(): Promise<string | null> {
 
     return snapshotPath;
   } catch (e) {
-    console.warn('[IronLog] Failed to create pre-import snapshot:', e);
+    logger.warn('[IronLog] Failed to create pre-import snapshot:', e);
     return null;
   }
 }
@@ -74,7 +75,7 @@ export const DatabaseBackupService = {
         throw new Error('Compartilhamento não disponível neste dispositivo.');
       }
     } catch (error: any) {
-      console.error('Erro ao exportar:', error);
+      logger.error('Operation failed', 'Erro ao exportar:', error);
       throw error;
     }
   },
@@ -102,7 +103,7 @@ export const DatabaseBackupService = {
       // 3.5 Create safety snapshot of current database
       const snapshotPath = await createPreImportSnapshot();
       if (snapshotPath) {
-        console.log('[IronLog] Pre-import snapshot created:', snapshotPath);
+        logger.debug('[IronLog] Pre-import snapshot created:', snapshotPath);
       }
 
       // 4. Ensure SQLite dir exists
@@ -120,7 +121,7 @@ export const DatabaseBackupService = {
 
       return true;
     } catch (error: any) {
-      console.error('Erro ao importar:', error);
+      logger.error('Operation failed', 'Erro ao importar:', error);
       throw error;
     }
   },
@@ -165,12 +166,12 @@ export const DatabaseBackupService = {
       });
 
       if (!metadataResponse.ok) {
-        console.warn('Falha ao renomear arquivo no Drive');
+        logger.warn('Falha ao renomear arquivo no Drive');
       }
 
       return fileData;
     } catch (error) {
-      console.error('Drive Upload Error:', error);
+      logger.error('Operation failed', 'Drive Upload Error:', error);
       throw error;
     }
   }

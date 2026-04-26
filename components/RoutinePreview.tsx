@@ -5,6 +5,7 @@ import { Button } from './Button';
 import { db } from '../src/db/client';
 import { routineExercises, exercises } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
+import { logger } from '@/services/logger';
 
 interface RoutinePreviewProps {
   visible: boolean;
@@ -49,7 +50,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
 
       setExerciseList(result as unknown as ExercisePreview[]);
     } catch (error) {
-      console.error('Error loading exercises:', error);
+      logger.error('Operation failed', 'Error loading exercises:', error);
     } finally {
       setLoading(false);
     }

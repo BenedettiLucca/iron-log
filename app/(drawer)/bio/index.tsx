@@ -12,10 +12,14 @@ import { Button } from '../../../components/Button';
 import { Input } from '../../../components/Input';
 import { Card } from '../../../components/Card';
 import { Dialog } from '../../../components/Dialog';
+import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { useBodyMetrics } from '@/hooks/use-body-metrics';
+import { weightInputSchema, monthlyCheckinSchema } from '@/src/validators/forms';
 
 export default function BioScreen() {
   const router = useRouter();
-  const [metrics, setMetrics] = useState<any[]>([]);
+  const { metrics, fetchMetrics, saveDailyWeight: hookSaveWeight } = useBodyMetrics();
   const [todayWeight, setTodayWeight] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -30,38 +34,28 @@ export default function BioScreen() {
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {}, field: '' as 'front' | 'back' | 'side' | null });
 
   useEffect(() => {
-    loadMetrics();
-  }, []);
-
-  const loadMetrics = async () => {
-    try {
-      const data = await db.select().from(bodyMetrics).orderBy(desc(bodyMetrics.date));
-      setMetrics(data || []);
-    } catch (e) {
-      console.error("Erro ao carregar métricas:", e);
-      setMetrics([]);
-    }
-  };
+    fetchMetrics();
+  }, [fetchMetrics]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadMetrics();
+    await fetchMetrics();
     setRefreshing(false);
-  }, []);
+  }, [fetchMetrics]);
 
   const saveDailyWeight = async () => {
     if (!todayWeight) return;
-    try {
-        await db.insert(bodyMetrics).values({
-            date: Date.now(),
-            type: 'daily',
-            weight: Number(todayWeight)
-        });
-        setTodayWeight('');
-        loadMetrics();
-        setToast({ visible: true, message: 'Peso registrado!', type: 'success' });
-    } catch {
-        setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
+    const validation = weightInputSchema.safeParse({ weight: todayWeight });
+    if (!validation.success) {
+      setToast({ visible: true, message: validation.error.errors[0]?.message || 'Peso inválido', type: 'error' });
+      return;
+    }
+    const success = await hookSaveWeight(validation.data.weight);
+    if (success) {
+      setTodayWeight('');
+      setToast({ visible: true, message: 'Peso registrado!', type: 'success' });
+    } else {
+      setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
     }
   };
 
@@ -77,13 +71,12 @@ export default function BioScreen() {
               mediaTypes: ['images'],
               quality: 1,
               allowsEditing: true,
-              aspect: [3, 4], // 3:4 aspect ratio
+              aspect: [3, 4],
           });
 
               if (!result.canceled && result.assets && result.assets.length > 0) {
                   const uri = result.assets[0].uri;
 
-              // Crop the image to square 3:4 aspect
               const manipResult = await ImageManipulator.manipulateAsync(
                   uri,
                   [
@@ -122,7 +115,6 @@ export default function BioScreen() {
 
   const saveMonthlyCheckin = async () => {
       try {
-          // Find existing monthly entry from same month or create new one
           const now = new Date();
           const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
           const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 0, -1).getTime();
@@ -136,17 +128,24 @@ export default function BioScreen() {
               ? existingMonthly[0].id
               : null;
 
+          // Validate monthly data with Zod
+          const monthlyValidation = monthlyCheckinSchema.safeParse(monthlyData);
+          if (!monthlyValidation.success) {
+              logger.warn('Monthly checkin validation failed:', monthlyValidation.error.flatten().fieldErrors);
+          }
+          const validatedMeasures = monthlyValidation.success ? monthlyValidation.data : {};
+          
           const entryData = {
               date: existingMonthly.length > 0 && existingMonthly[0].date >= startOfMonth && existingMonthly[0].date < endOfMonth
                   ? existingMonthly[0].date
                   : Date.now(),
               type: 'monthly' as const,
               weight: Number(todayWeight) || (existingMonthly.length > 0 ? existingMonthly[0].weight : 0),
-              waist: Number(monthlyData.waist) || (existingMonthly.length > 0 ? existingMonthly[0].waist : 0),
-              armRight: Number(monthlyData.armRight) || (existingMonthly.length > 0 ? existingMonthly[0].armRight : 0),
-              thighRight: Number(monthlyData.thighRight) || (existingMonthly.length > 0 ? existingMonthly[0].thighRight : 0),
-              chest: Number(monthlyData.chest) || (existingMonthly.length > 0 ? existingMonthly[0].chest : 0),
-              calf: Number(monthlyData.calf) || (existingMonthly.length > 0 ? existingMonthly[0].calf : 0),
+              waist: validatedMeasures.waist || (existingMonthly.length > 0 ? existingMonthly[0].waist : 0),
+              armRight: validatedMeasures.armRight || (existingMonthly.length > 0 ? existingMonthly[0].armRight : 0),
+              thighRight: validatedMeasures.thighRight || (existingMonthly.length > 0 ? existingMonthly[0].thighRight : 0),
+              chest: validatedMeasures.chest || (existingMonthly.length > 0 ? existingMonthly[0].chest : 0),
+              calf: validatedMeasures.calf || (existingMonthly.length > 0 ? existingMonthly[0].calf : 0),
               photoFront: photos.front || (existingMonthly.length > 0 ? existingMonthly[0].photoFront : null),
               photoBack: photos.back || (existingMonthly.length > 0 ? existingMonthly[0].photoBack : null),
               photoSide: photos.side || (existingMonthly.length > 0 ? existingMonthly[0].photoSide : null),
@@ -163,10 +162,10 @@ export default function BioScreen() {
           setPhotos({ front: null, back: null, side: null });
           setPhotoNotes({ front: '', back: '', side: '' });
           setMonthlyData({ waist: '', armRight: '', thighRight: '', chest: '', calf: '' });
-          loadMetrics();
+          fetchMetrics();
           setToast({ visible: true, message: 'Check-in mensal realizado!', type: 'success' });
       } catch (e) {
-          console.error(e);
+          logger.error('Operation failed', e);
           setToast({ visible: true, message: 'Falha ao salvar check-in.', type: 'error' });
       }
   };
@@ -181,8 +180,8 @@ export default function BioScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#E07A5F"
-            colors={['#E07A5F']}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
           />
         }
       >
@@ -225,6 +224,13 @@ export default function BioScreen() {
                 variant="secondary"
                 className="flex-1"
                 icon={<Text className="text-lg mr-1">📈</Text>}
+            />
+            <Button
+                title="ANALYTICS"
+                onPress={() => router.push('/bio/analytics')}
+                variant="secondary"
+                className="flex-1"
+                icon={<Text className="text-lg mr-1">📊</Text>}
             />
         </View>
 

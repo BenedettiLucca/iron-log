@@ -5,11 +5,13 @@ import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
+import { CsvExportService } from '../../services/CsvExportService';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
+import { Colors } from '@/constants/colors';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -86,6 +88,18 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleCsvExport = async () => {
+    setLoading(true);
+    try {
+      await CsvExportService.exportAllAndShare();
+      setToast({ visible: true, message: 'Dados exportados em CSV!', type: 'success' });
+    } catch (e: any) {
+      setToast({ visible: true, message: e.message || 'Falha ao exportar CSV.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const initiateGoogleAuth = () => {
     if (!process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID) {
       setDialog({
@@ -121,7 +135,7 @@ export default function SettingsScreen() {
             value={notificationSettings.enabled}
             onValueChange={toggleEnabled}
             disabled={notificationsLoading}
-            trackColor={{ false: '#3e3e3e', true: '#E07A5F' }}
+            trackColor={{ false: Colors.darkButton, true: Colors.primary }}
             thumbColor="#fff"
           />
         </View>
@@ -191,6 +205,21 @@ export default function SettingsScreen() {
             />
           </View>
         )}
+      </Card>
+
+      <Card>
+        <Text className="text-text font-bold text-lg mb-2">Exportar como CSV</Text>
+        <Text className="text-subtext text-sm mb-6 leading-5">
+          Exporte seus dados em formato CSV para análise em planilhas (Excel, Google Sheets).
+          Inclui histórico completo de treinos e métricas corporais.
+        </Text>
+        <Button
+          title="EXPORTAR CSV"
+          onPress={handleCsvExport}
+          variant="secondary"
+          loading={loading}
+          fullWidth
+        />
       </Card>
 
       <Toast

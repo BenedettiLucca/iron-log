@@ -13,6 +13,10 @@ import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Toast } from '../../components/Toast';
+import { logger } from '@/services/logger';
+import { Session } from '@/src/types';
+import { safeParseParams, summaryParamsSchema } from '@/src/validators/routes';
+import { CsvExportService } from '../../services/CsvExportService';
 
 interface ExerciseSummary {
   name: string;
@@ -30,9 +34,11 @@ interface SessionStats {
 
 export default function SummaryScreen() {
   const router = useRouter();
-  const { sessionId } = useLocalSearchParams();
+  const rawParams = useLocalSearchParams();
+  const validated = safeParseParams(summaryParamsSchema, rawParams, 'SummaryScreen');
+  const sessionId = validated?.sessionId ?? 0;
   const [report, setReport] = useState('Gerando relatório...');
-  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionData, setSessionData] = useState<Session | null>(null);
   const [stats, setStats] = useState<SessionStats>({
     totalSets: 0,
     totalVolume: 0,
@@ -51,7 +57,7 @@ export default function SummaryScreen() {
       setSessionData(session);
 
       // 2. Buscar Sets
-      const setsData = await db.select().from(sets).where(eq(sets.sessionId, Number(sessionId)));
+      const setsData = await db.select().from(sets).where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
 
       // 3. Buscar Targets da Rotina (Se houver routineId)
       const targetsMap = new Map<number, string>();
@@ -152,7 +158,7 @@ export default function SummaryScreen() {
       setReport(md);
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setReport('Erro ao gerar relatório.');
     }
   }, [sessionId]);
@@ -175,7 +181,24 @@ export default function SummaryScreen() {
         title: `Treino ${sessionData?.routineName || 'Iron Log'}`,
       });
     } catch (error) {
-      console.error(error);
+      logger.error('Operation failed', error);
+    }
+  };
+
+  const handleExportSessionCsv = async () => {
+    try {
+      const csv = await CsvExportService.exportSessionCsv(sessionId);
+      if (csv && (await import('expo-sharing')).Sharing.isAvailableAsync()) {
+        const fs = await import('expo-file-system/legacy');
+        const path = fs.cacheDirectory + `ironlog_session_${sessionId}.csv`;
+        await fs.writeAsStringAsync(path, csv);
+        await (await import('expo-sharing')).Sharing.shareAsync(path, {
+          dialogTitle: 'Exportar Sessão CSV',
+          mimeType: 'text/csv',
+        });
+      }
+    } catch (e) {
+      logger.error('Failed to export session CSV', e);
     }
   };
 
@@ -263,6 +286,14 @@ export default function SummaryScreen() {
             title="📤 Compartilhar"
             onPress={nativeShare}
             variant="secondary"
+            size="lg"
+            fullWidth
+          />
+
+          <Button
+            title="📊 Exportar CSV"
+            onPress={handleExportSessionCsv}
+            variant="ghost"
             size="lg"
             fullWidth
           />

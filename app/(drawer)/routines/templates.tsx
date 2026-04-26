@@ -8,6 +8,7 @@ import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
 import { Dialog } from '../../../components/Dialog';
 import { Toast } from '../../../components/Toast';
+import { logger } from '@/services/logger';
 
 export default function TemplateLibraryScreen() {
   const router = useRouter();
@@ -49,13 +50,13 @@ export default function TemplateLibraryScreen() {
             exercises: exercisesList,
           });
         } catch (e) {
-          console.error('Error loading exercises for template:', e);
+          logger.error('Operation failed', 'Error loading exercises for template:', e);
         }
       }
 
       setTemplates(templatesWithExercises);
     } catch (e) {
-      console.error('Error loading templates:', e);
+      logger.error('Operation failed', 'Error loading templates:', e);
     }
   };
 
@@ -88,7 +89,7 @@ export default function TemplateLibraryScreen() {
       setToast({ visible: true, message: `Rotina "${template.name}" carregada com ${template.exercises.length} exercícios!`, type: 'success' });
       router.back();
     } catch (e) {
-      console.error('Error loading from template:', e);
+      logger.error('Operation failed', 'Error loading from template:', e);
       setToast({ visible: true, message: 'Falha ao carregar template.', type: 'error' });
     }
   };
@@ -104,7 +105,7 @@ export default function TemplateLibraryScreen() {
           await loadTemplates();
           setToast({ visible: true, message: 'Template removido.', type: 'success' });
         } catch (e) {
-          console.error(e);
+          logger.error('Operation failed', e);
           setToast({ visible: true, message: 'Falha ao excluir template.', type: 'error' });
         }
       },

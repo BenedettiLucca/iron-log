@@ -3,6 +3,7 @@ import * as Device from 'expo-device';
 import { db } from '../src/db/client';
 import { notificationSettings } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
+import { logger } from '@/services/logger';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -32,7 +33,7 @@ class NotificationService {
     }
 
     if (!Device.isDevice) {
-      console.log('Notifications: Not a physical device, skipping');
+      logger.debug('Notifications: Not a physical device, skipping');
       return false;
     }
 
@@ -45,7 +46,7 @@ class NotificationService {
     }
 
     if (finalStatus !== 'granted') {
-      console.log('Notifications: Permission not granted');
+      logger.debug('Notifications: Permission not granted');
       return false;
     }
 
@@ -66,7 +67,7 @@ class NotificationService {
   private setupResponseListener() {
     Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
-      console.log('Notification tapped:', data);
+      logger.debug('Notification tapped:', data);
 
       // Handle deep linking based on notification type
       if (data.type === 'monthly_checkin') {
@@ -101,7 +102,7 @@ class NotificationService {
         enabled: settings[0].enabled,
       };
     } catch (error) {
-      console.error('Error getting notification settings:', error);
+      logger.error('Operation failed', 'Error getting notification settings:', error);
       return {
         checkinDay: 1,
         checkinHour: 9,
@@ -136,7 +137,7 @@ class NotificationService {
       // Reschedule with new settings
       await this.scheduleMonthlyCheckin();
     } catch (error) {
-      console.error('Error updating notification settings:', error);
+      logger.error('Operation failed', 'Error updating notification settings:', error);
     }
   }
 
@@ -196,9 +197,9 @@ class NotificationService {
         },
       });
 
-      console.log('Monthly check-in scheduled for:', targetDate.toISOString());
+      logger.debug('Monthly check-in scheduled for:', targetDate.toISOString());
     } catch (error) {
-      console.error('Error scheduling monthly check-in:', error);
+      logger.error('Operation failed', 'Error scheduling monthly check-in:', error);
     }
   }
 
@@ -216,7 +217,7 @@ class NotificationService {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch (error) {
-      console.error('Error canceling notifications:', error);
+      logger.error('Operation failed', 'Error canceling notifications:', error);
     }
   }
 
@@ -240,7 +241,7 @@ class NotificationService {
         },
       });
     } catch (error) {
-      console.error('Error sending test notification:', error);
+      logger.error('Operation failed', 'Error sending test notification:', error);
     }
   }
 

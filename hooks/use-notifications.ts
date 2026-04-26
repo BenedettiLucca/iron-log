@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { notificationService, NotificationConfig } from '@/services/NotificationService';
+import { logger } from '@/services/logger';
 
 export function useNotifications() {
   const [settings, setSettings] = useState<NotificationConfig>({
@@ -19,7 +20,7 @@ export function useNotifications() {
       const config = await notificationService.getSettings();
       setSettings(config);
     } catch (error) {
-      console.error('Error loading notification settings:', error);
+      logger.error('Operation failed', 'Error loading notification settings:', error);
     } finally {
       setLoading(false);
     }
@@ -30,7 +31,7 @@ export function useNotifications() {
       await notificationService.updateSettings(config);
       setSettings((prev) => ({ ...prev, ...config }));
     } catch (error) {
-      console.error('Error updating notification settings:', error);
+      logger.error('Operation failed', 'Error updating notification settings:', error);
       throw error;
     }
   };

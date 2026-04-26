@@ -11,17 +11,23 @@ import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
+import { logger } from '@/services/logger';
+import { RoutineExercise } from '@/src/types';
+import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 
 export default function SessionScreen() {
-  const { routineId, routineName } = useLocalSearchParams();
+  const rawParams = useLocalSearchParams();
+  const validated = safeParseParams(sessionParamsSchema, rawParams, 'SessionScreen');
+  const routineId = validated?.routineId ?? '';
+  const routineName = validated?.routineName ?? '';
   const router = useRouter();
   const navigation = useNavigation();
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
-  const [routineExs, setRoutineExs] = useState<any[]>([]);
+  const [routineExs, setRoutineExs] = useState<RoutineExercise[]>([]);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<any>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [exitToast, setExitToast] = useState({ visible: false, message: '' });
   const lastBackPressTime = useRef<number>(0);
@@ -85,7 +91,7 @@ export default function SessionScreen() {
           
           setRoutineExs(data);
       } catch (e) {
-          console.error(e);
+          logger.error('Operation failed', e);
       }
   }, [rIdStr]);
 
@@ -103,7 +109,7 @@ export default function SessionScreen() {
         }).returning();
         setSessionId(result[0].id);
       } catch (e) {
-        console.error(e);
+        logger.error('Operation failed', e);
         router.back();
       }
     };
@@ -218,7 +224,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
-      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id)))
+      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt)))
   );
 
   const doneSets = setsData?.[0]?.count || 0;
@@ -293,7 +299,7 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
   const { data: allSets } = useLiveQuery(
     db.select()
       .from(sets)
-      .where(eq(sets.sessionId, sessionId))
+      .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
       .orderBy(sets.id)
   );
 

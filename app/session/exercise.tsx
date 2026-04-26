@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc} from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
@@ -30,6 +30,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { formatTimer } from '../../src/utils/timer';
 import { useHaptics } from '../../hooks/use-haptics';
+import { logger } from '@/services/logger';
+import { Set, Exercise } from '@/src/types';
+import { Colors } from '@/constants/colors';
+import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
+import { setInputSchema } from '@/src/validators/forms';
 
 export default function ExerciseScreen() {
   const router = useRouter();
@@ -37,14 +42,17 @@ export default function ExerciseScreen() {
   const insets = useSafeAreaInsets();
   const { trigger } = useHaptics();
 
-  const routineId = params.routineId ? Number(params.routineId) : null;
-  const sessionId = Number(params.sessionId);
-  const exerciseId = Number(params.exerciseId);
-  const exerciseName = params.exerciseName as string;
-  const target = params.target as string;
-  const notes = params.notes as string;
-  const routineRest = params.restSeconds ? Number(params.restSeconds) : null;
-  const startTime = params.startTime ? Number(params.startTime) : Date.now();
+  // Validate route params with Zod to prevent NaN
+  // (Validation runs after hooks — early return is handled by useEffect)
+  const validated = safeParseParams(exerciseParamsSchema, params, 'ExerciseScreen');
+  const routineId = validated?.routineId ?? null;
+  const sessionId = validated?.sessionId ?? 0;
+  const exerciseId = validated?.exerciseId ?? 0;
+  const exerciseName = validated?.exerciseName ?? '';
+  const target = validated?.target ?? '';
+  const notes = validated?.notes ?? '';
+  const routineRest = validated?.restSeconds ?? null;
+  const startTime = validated?.startTime ?? Date.now();
 
   const [exerciseType, setExerciseType] = useState('strength');
   const [currentName, setCurrentName] = useState(exerciseName);
@@ -52,16 +60,16 @@ export default function ExerciseScreen() {
   const [reps, setReps] = useState('');
   const [duration, setDuration] = useState('');
   const [rir, setRir] = useState(2);
-  const [sessionSets, setSessionSets] = useState<any[]>([]);
-  const [nextExercise, setNextExercise] = useState<any>(null);
-  const [allExercises, setAllExercises] = useState<any[]>([]);
+  const [sessionSets, setSessionSets] = useState<Set[]>([]);
+  const [nextExercise, setNextExercise] = useState<Exercise | null>(null);
+  const [allExercises, setAllExercises] = useState<Set[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
 
   // Track completed exercises by target sets
   const { data: allSessionSets } = useLiveQuery(
     db.select({ exerciseId: sets.exerciseId })
       .from(sets)
-      .where(eq(sets.sessionId, sessionId))
+      .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
   );
 
   // Count completed exercises (based on target sets met)
@@ -76,7 +84,7 @@ export default function ExerciseScreen() {
   }, 0);
 
   const [historyVisible, setHistoryVisible] = useState(false);
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState<Set[]>([]);
 
   // Rest Timer
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
@@ -89,7 +97,7 @@ export default function ExerciseScreen() {
   const isActiveSetRunning = activeSetStart !== null;
 
   // Undo state
-  const [lastSavedSet, setLastSavedSet] = useState<any>(null);
+  const [lastSavedSet, setLastSavedSet] = useState<Exercise | null>(null);
   const undoTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Loading state
@@ -99,7 +107,7 @@ export default function ExerciseScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Set Editor state
-  const [editingSet, setEditingSet] = useState<any>(null);
+  const [editingSet, setEditingSet] = useState<Exercise | null>(null);
   const [showSetEditor, setShowSetEditor] = useState(false);
 
   // RIR Explainer modal state
@@ -158,14 +166,14 @@ export default function ExerciseScreen() {
 
       const data = await db.select()
         .from(sets)
-        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId)))
+        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
         .orderBy(sets.setNumber);
       setSessionSets(data);
 
       if (data.length === 0) {
         const lastSet = await db.select({ weight: sets.weightKg })
           .from(sets)
-          .where(eq(sets.exerciseId, exerciseId))
+          .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
           .orderBy(desc(sets.createdAt))
           .limit(1);
 
@@ -196,7 +204,7 @@ export default function ExerciseScreen() {
         }
       }
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
     }
   }, [sessionId, exerciseId, routineId]);
 
@@ -212,13 +220,13 @@ export default function ExerciseScreen() {
       })
         .from(sets)
         .innerJoin(sessions, eq(sets.sessionId, sessions.id))
-        .where(eq(sets.exerciseId, exerciseId))
+        .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt), isNull(sessions.deletedAt)))
         .limit(20);
 
       history.sort((a, b) => b.date - a.date);
       setHistoryData(history);
     } catch (e) {
-      console.error("Erro SQL Histórico:", e);
+      logger.error('Operation failed', "Erro SQL Histórico:", e);
     }
   }, [exerciseId]);
 
@@ -279,7 +287,20 @@ export default function ExerciseScreen() {
     const finalDuration = overrideDuration !== undefined ? overrideDuration : (duration ? Number(duration) : 0);
     const finalReps = reps ? Number(reps) : 0;
 
-    // Validation
+    // Validate with Zod
+    const setValidation = setInputSchema.safeParse({
+      weightKg: Number(weight) || 0,
+      reps: isDuration ? 0 : finalReps,
+      durationSeconds: isDuration ? finalDuration : null,
+      rir: isDuration ? null : Number(rir),
+      isWarmup: isWarmupMode,
+    });
+    if (!setValidation.success) {
+      const msg = setValidation.error.errors[0]?.message || 'Dados inválidos';
+      setToast({ visible: true, message: msg, type: 'error' });
+      return;
+    }
+    // Extra business logic validation
     if (isDuration && finalDuration <= 0) {
       setToast({ visible: true, message: 'Digite o tempo da série (em segundos)', type: 'error' });
       return;
@@ -303,7 +324,7 @@ export default function ExerciseScreen() {
         exerciseId,
         exerciseName: currentName,
         setNumber: nextSetNumber,
-        weightKg: Number(weight) || 0,
+        weightKg: setValidation.data.weightKg,
         reps: isDuration ? 0 : finalReps,
         durationSeconds: isDuration ? finalDuration : null,
         rir: isDuration ? null : Number(rir),
@@ -332,7 +353,7 @@ export default function ExerciseScreen() {
       }
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao salvar série', type: 'error' });
     } finally {
       setIsSaving(false);
@@ -343,36 +364,36 @@ export default function ExerciseScreen() {
     if (!lastSavedSet) return;
 
     try {
-      await db.delete(sets).where(eq(sets.id, lastSavedSet.id));
+      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id));
       setLastSavedSet(null);
       await loadData();
       setToast({ visible: true, message: 'A última série foi removida', type: 'success' });
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
     }
   }, [lastSavedSet, loadData]);
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
-      await db.delete(sets).where(eq(sets.id, setId));
+      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
       await loadData();
       setToast({ visible: true, message: 'Série excluída', type: 'success' });
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
     }
   }, [loadData]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {
-      const setData = await db.select().from(sets).where(eq(sets.id, setId));
+      const setData = await db.select().from(sets).where(and(eq(sets.id, setId), isNull(sets.deletedAt)));
       if (setData.length > 0) {
         setEditingSet(setData[0]);
         setShowSetEditor(true);
       }
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao carregar série', type: 'error' });
     }
   }, []);
@@ -396,7 +417,7 @@ export default function ExerciseScreen() {
       setEditingSet(null);
       setToast({ visible: true, message: 'Série editada com sucesso', type: 'success' });
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao editar série', type: 'error' });
     }
   }, [editingSet, loadData]);
@@ -436,9 +457,9 @@ export default function ExerciseScreen() {
   }, [timerStatus, timerTarget]);
 
   const getRirColor = useCallback((val: number) => {
-    if (val <= 1) return '#EF6464';
-    if (val <= 3) return '#81B29A';
-    return '#3D5A80';
+    if (val <= 1) return Colors.red400;
+    if (val <= 3) return Colors.success;
+    return Colors.secondary;
   }, []);
 
   const calculateTarget = useCallback(() => {
@@ -598,7 +619,7 @@ export default function ExerciseScreen() {
                     value={weight}
                     onChangeText={setWeight}
                     placeholder="0"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={Colors.darkSubtext}
                   />
                 </View>
               )}
@@ -639,7 +660,7 @@ export default function ExerciseScreen() {
                     value={weight}
                     onChangeText={setWeight}
                     placeholder="0"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={Colors.darkSubtext}
                   />
                 </View>
 
@@ -651,7 +672,7 @@ export default function ExerciseScreen() {
                     value={reps}
                     onChangeText={setReps}
                     placeholder="0"
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor={Colors.darkSubtext}
                   />
                 </View>
               </View>
@@ -687,9 +708,9 @@ export default function ExerciseScreen() {
                     setRir(value);
                     trigger('light');
                   }}
-                  minimumTrackTintColor="#E07A5F"
-                  maximumTrackTintColor="#D1D5DB"
-                  thumbTintColor="#E07A5F"
+                  minimumTrackTintColor={Colors.primary}
+                  maximumTrackTintColor={Colors.gray300}
+                  thumbTintColor={Colors.primary}
                 />
                 <View className="flex-row justify-between px-1">
                   <Text className="text-gray-400 text-[8px]">MÁXIMO</Text>
@@ -874,9 +895,9 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   timerButtonStart: {
-    backgroundColor: '#81B29A',
+    backgroundColor: Colors.success,
   },
   timerButtonStop: {
-    backgroundColor: '#EF6464',
+    backgroundColor: Colors.red400,
   },
 });

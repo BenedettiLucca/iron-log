@@ -54,7 +54,7 @@ export const sets = sqliteTable('sets', {
   rir: integer('rir'),
   isWarmup: integer('is_warmup', { mode: 'boolean' }).notNull().default(false),
   isEdited: integer('is_edited', { mode: 'boolean' }).notNull().default(false),
-  createdAt: integer('created_at').default(Date.now()),
+  createdAt: integer('created_at').$defaultFn(() => Date.now()),
   deletedAt: integer('deleted_at'), // Epoch, null = active
 });
 
@@ -122,3 +122,7 @@ export const setsSessionIdx = index("sets_session_id_idx").on(sets.sessionId);
 export const setsExerciseIdx = index("sets_exercise_id_idx").on(sets.exerciseId);
 export const bodyMetricsDateIdx = index("body_metrics_date_idx").on(bodyMetrics.date);
 export const personalRecordsExerciseIdx = index("pr_exercise_type_idx").on(personalRecords.exerciseId, personalRecords.recordType);
+export const routineExercisesRoutineIdx = index("re_routine_id_idx").on(routineExercises.routineId);
+export const routineExercisesExerciseIdx = index("re_exercise_id_idx").on(routineExercises.exerciseId);
+export const sessionsRoutineIdx = index("sessions_routine_id_idx").on(sessions.routineId);
+

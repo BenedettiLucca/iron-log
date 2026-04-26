@@ -1,20 +1,21 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '../../hooks/use-color-scheme';
+import { Colors } from '@/constants/colors';
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
       <Drawer screenOptions={{
-        headerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#E07A5F' },
+        headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
-        drawerStyle: { backgroundColor: colorScheme === 'dark' ? '#1D1917' : '#F4F1DE' },
-        drawerActiveTintColor: '#E07A5F',
+        drawerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
+        drawerActiveTintColor: Colors.primary,
         drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#000',
-      } as any }>
+      } }>
         <Drawer.Screen 
           name="index" 
           options={{ 

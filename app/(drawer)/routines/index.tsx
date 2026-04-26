@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../../src/db/client';
-import { routines, routineExercises, exercises } from '../../../src/db/schema';
+import { exercises, routines as routinesTable, routineExercises } from '../../../src/db/schema';
 import { eq, like } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Toast } from '../../../components/Toast';
@@ -11,45 +11,32 @@ import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { RoutinePreview } from '../../../components/RoutinePreview';
 import { SkeletonList } from '../../../components/Skeleton';
+import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { useRoutines } from '@/hooks/use-routines';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
-  const [allRoutines, setAllRoutines] = useState<any[]>([]);
+  const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
   const [refreshing, setRefreshing] = useState(false);
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       fetchRoutines();
-    }, [])
+    }, [fetchRoutines])
   );
-
-  const fetchRoutines = async () => {
-      try {
-          setIsLoading(true);
-          const data = await db.select().from(routines);
-          setAllRoutines(data);
-      } catch (e) {
-          console.error(e);
-      } finally {
-          setIsLoading(false);
-      }
-  };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchRoutines();
     setRefreshing(false);
-  }, []);
+  }, [fetchRoutines]);
 
-  const folders = ['Todos', ...Array.from(new Set(allRoutines?.map(r => r.folder || 'Geral') || []))];
-  const filteredRoutines = selectedFolder === 'Todos' 
-    ? allRoutines 
-    : allRoutines?.filter(r => (r.folder || 'Geral') === selectedFolder);
+  const filteredRoutines = getFilteredRoutines(selectedFolder);
 
   const handleDelete = (id: number, name: string) => {
     setDialog({
@@ -57,11 +44,8 @@ export default function RoutinesListScreen() {
       title: 'Excluir Rotina',
       message: `Tem certeza que deseja apagar "${name}"? O histórico de treinos passados será mantido.`,
       onConfirm: async () => {
-        try {
-          await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
-          await db.delete(routines).where(eq(routines.id, id));
-          fetchRoutines();
-        } catch {
+        const success = await deleteRoutine(id);
+        if (!success) {
           setToast({ visible: true, message: 'Não foi possível excluir.', type: 'error' });
         }
       }
@@ -69,45 +53,11 @@ export default function RoutinesListScreen() {
   };
 
   const handleDuplicate = async (id: number, name: string) => {
-    try {
-      // Get routine details
-      const routineData = await db.select().from(routines).where(eq(routines.id, id));
-      if (routineData.length === 0) return;
-
-      const sourceRoutine = routineData[0];
-      
-      // Get exercises from source routine
-      const exercisesData = await db.select()
-        .from(routineExercises)
-        .where(eq(routineExercises.routineId, id))
-        .orderBy(routineExercises.orderIndex);
-
-      // Create new routine with "(Cópia)" suffix
-      const newRoutineName = `${name} (Cópia)`;
-      const newRoutine = await db.insert(routines).values({
-        name: newRoutineName,
-        description: sourceRoutine.description,
-        folder: sourceRoutine.folder,
-      }).returning();
-
-      const newRoutineId = newRoutine[0].id;
-
-      // Copy exercises to new routine
-      for (const ex of exercisesData) {
-        await db.insert(routineExercises).values({
-          routineId: newRoutineId,
-          exerciseId: ex.exerciseId,
-          orderIndex: ex.orderIndex,
-          target: ex.target,
-          notes: ex.notes,
-          restSeconds: ex.restSeconds,
-        });
-      }
-
-      fetchRoutines();
-      setToast({ visible: true, message: `Rotina "${newRoutineName}" criada com sucesso!`, type: 'success' });
-    } catch (e) {
-      console.error(e);
+    const newName = `${name} (Cópia)`;
+    const success = await duplicateRoutine(id, newName);
+    if (success) {
+      setToast({ visible: true, message: `Rotina "${newName}" criada com sucesso!`, type: 'success' });
+    } else {
       setToast({ visible: true, message: 'Falha ao duplicar rotina.', type: 'error' });
     }
   };
@@ -132,20 +82,17 @@ export default function RoutinesListScreen() {
           return setToast({ visible: true, message: 'O JSON deve ter "name" e uma lista de "exercises".', type: 'error' });
       }
 
-      // Verifica duplicidade
-      const existingRoutine = await db.select().from(routines).where(eq(routines.name, data.name));
+      const existingRoutine = await db.select().from(routinesTable).where(eq(routinesTable.name, data.name));
       if (existingRoutine.length > 0) {
         return setToast({ visible: true, message: `Já existe uma rotina com o nome "${data.name}".`, type: 'error' });
       }
 
-      // 2. Criar Rotina
-      const routineRes = await db.insert(routines).values({
+      const routineRes = await db.insert(routinesTable).values({
           name: data.name,
           description: data.description || ''
       }).returning();
       const routineId = routineRes[0].id;
 
-      // 3. Processar Exercícios
       let order = 1;
       for (const item of data.exercises) {
         if (!item.name) continue;
@@ -153,7 +100,6 @@ export default function RoutinesListScreen() {
         const exName = item.name.trim();
         const type = item.type === 'duration' ? 'duration' : 'strength';
 
-        // Buscar se já existe
         const existing = await db.select().from(exercises).where(like(exercises.name, exName));
         let exerciseId;
 
@@ -164,7 +110,7 @@ export default function RoutinesListScreen() {
                 const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
                 exerciseId = newEx[0].id;
             } catch (err) {
-                console.error("Erro ao criar exercício:", exName, err);
+                logger.error('Operation failed', "Erro ao criar exercício:", exName, err);
                 continue;
             }
         }
@@ -185,7 +131,7 @@ export default function RoutinesListScreen() {
       setToast({ visible: true, message: `Rotina "${data.name}" importada com ${order-1} exercícios!`, type: 'success' });
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao importar do clipboard.', type: 'error' });
     }
   };
@@ -222,8 +168,8 @@ export default function RoutinesListScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#E07A5F"
-            colors={['#E07A5F']}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
           />
         }
         ListHeaderComponent={

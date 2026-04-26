@@ -9,11 +9,14 @@ import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
 import { PhotoComparison } from '../../../components/PhotoComparison';
+import { logger } from '@/services/logger';
+import { BodyMetric } from '@/src/types';
+import { Colors } from '@/constants/colors';
 
 export default function EvolutionScreen() {
-  const [weightData, setWeightData] = useState<any[]>([]);
-  const [measuresData, setMeasuresData] = useState<any>({});
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [weightData, setWeightData] = useState<BodyMetric[]>([]);
+  const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
+  const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
   const [comparison, setComparison] = useState({
     visible: false,
@@ -99,7 +102,7 @@ export default function EvolutionScreen() {
       }
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
     }
   };
 
@@ -118,7 +121,7 @@ export default function EvolutionScreen() {
                 color={color} 
                 thickness={3}
                 dataPointsColor={color}
-                textColor="#cdd6f4"
+                textColor={Colors.blue300}
                 hideRules
                 yAxisColor="transparent"
                 xAxisColor="transparent"
@@ -154,15 +157,15 @@ export default function EvolutionScreen() {
           {activeTab === 'weight' && (
               <>
                 <Text className="text-subtext text-xs mb-4 text-center font-medium">Média Móvel (7 Dias)</Text>
-                {renderChart(weightData, 'Evolução de Peso', '#E07A5F')}
+                {renderChart(weightData, 'Evolução de Peso', Colors.primary)}
               </>
           )}
 
           {activeTab === 'measures' && (
               <>
-                {renderChart(measuresData.waist, 'Cintura (cm)', '#81B29A')}
-                {renderChart(measuresData.arm, 'Braço (cm)', '#3D5A80')}
-                {renderChart(measuresData.chest, 'Tórax (cm)', '#F2CC8F')}
+                {renderChart(measuresData.waist, 'Cintura (cm)', Colors.success)}
+                {renderChart(measuresData.arm, 'Braço (cm)', Colors.secondary)}
+                {renderChart(measuresData.chest, 'Tórax (cm)', Colors.accent)}
               </>
           )}
 

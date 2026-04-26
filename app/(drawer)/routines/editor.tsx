@@ -9,6 +9,8 @@ import { Toast } from '../../../components/Toast';
 import { Input } from '../../../components/Input';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
+import { logger } from '@/services/logger';
+import { routineNameSchema } from '@/src/validators/forms';
 
 type SelectedExercise = {
   id: number;
@@ -72,8 +74,9 @@ export default function RoutineEditorScreen() {
   }, [id, isEditing, loadRoutineData]);
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      setToast({ visible: true, message: 'Nome é obrigatório', type: 'error' });
+    const nameValidation = routineNameSchema.safeParse({ name, description });
+    if (!nameValidation.success) {
+      setToast({ visible: true, message: nameValidation.error.errors[0]?.message || 'Nome inválido', type: 'error' });
       return;
     }
     if (selectedExercises.length === 0) {
@@ -108,7 +111,7 @@ export default function RoutineEditorScreen() {
 
       router.back();
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao salvar.', type: 'error' });
     }
   };
@@ -141,7 +144,7 @@ export default function RoutineEditorScreen() {
       setToast({ visible: true, message: 'Rotina salva como template!', type: 'success' });
       router.back();
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao salvar template.', type: 'error' });
     }
   };
