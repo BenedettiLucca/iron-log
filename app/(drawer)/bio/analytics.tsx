@@ -38,7 +38,7 @@ export default function AnalyticsScreen() {
 
   if (loading && !data) {
     return (
-      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 24 }}>
         <Stack.Screen options={{ title: 'Analytics' }} />
         <SkeletonCard>
           <View className="items-center py-4" />
@@ -71,7 +71,7 @@ export default function AnalyticsScreen() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 16, gap: 16 }}
+      contentContainerStyle={{ padding: 16, gap: 24 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
       }
@@ -117,7 +117,7 @@ export default function AnalyticsScreen() {
       </Card>
 
       {/* Consistency Stats */}
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-3 mt-2">
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.sessionsThisWeek}</Text>
           <Text className="text-subtext text-xs font-bold uppercase mt-1">Esta Semana</Text>
@@ -133,7 +133,7 @@ export default function AnalyticsScreen() {
       </View>
 
       {/* Streak + Frequency */}
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-3 mt-2">
         <Card className="flex-1">
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">🔥 Streak Atual</Text>
           <Text className="text-text text-3xl font-black">{consistency.currentStreak}</Text>

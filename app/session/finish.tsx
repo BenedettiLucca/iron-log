@@ -225,7 +225,7 @@ export default function FinishSessionScreen() {
                   ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
                   : sessionStats.totalVolume}
               </Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">kg Volume</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Volume (kg)</Text>
             </View>
           </View>
         </View>
@@ -363,7 +363,7 @@ export default function FinishSessionScreen() {
         </View>
 
         <Button
-          title={isFinishing ? 'FINALIZANDO...' : 'GERAR RELATÓRIO'}
+          title={isFinishing ? 'FINALIZANDO...' : 'FINALIZAR TREINO'}
           onPress={handleFinish}
           variant="success"
           size="lg"

@@ -237,7 +237,7 @@ export default function SummaryScreen() {
                 ? `${(stats.totalVolume / 1000).toFixed(1)}k`
                 : stats.totalVolume}
             </Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">kg Volume</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Volume (kg)</Text>
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
@@ -263,13 +263,13 @@ export default function SummaryScreen() {
         )}
 
         {/* Markdown Report */}
-        <Card className="mb-5 max-h-[300px]">
+        <Card className="mb-5">
           <Text className="text-text text-sm font-semibold mb-3">📄 Relatório Completo</Text>
-          <ScrollView className="max-h-[240px]">
-            <Text className="text-text text-xs leading-5 font-mono select-text">
+          <View className="bg-background rounded-xl p-3 border border-border">
+            <Text className="text-text text-xs leading-5 font-mono select-text" numberOfLines={20}>
               {report}
             </Text>
-          </ScrollView>
+          </View>
         </Card>
 
         {/* Action Buttons */}
@@ -300,7 +300,7 @@ export default function SummaryScreen() {
 
           {/* Post-Workout Actions */}
           <Card className="bg-card/50 border-dashed border-2 mt-4">
-            <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">E Agora?</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">Próximos Passos</Text>
             <View className="flex-row gap-2">
               <Button
                 title="Novo Treino"

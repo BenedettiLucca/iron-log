@@ -25,26 +25,26 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
       <View className="mb-6">
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
-            <Text className="text-text text-sm font-bold uppercase">Peso Atual</Text>
-            <Text className="text-4xl font-black">{currentWeight}kg</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">Peso Atual</Text>
+            <Text className="text-2xl font-black text-text">{currentWeight}kg</Text>
           </View>
           <View className="flex-1">
-            <Text className="text-subtext text-sm font-bold uppercase">Média (7 dias)</Text>
-            <Text className="text-4xl font-bold">{avgWeight.toFixed(1)}kg</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">Média (7 dias)</Text>
+            <Text className="text-2xl font-bold text-text">{avgWeight.toFixed(1)}kg</Text>
           </View>
         </View>
 
         {/* Trend */}
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
-            <Text className="text-subtext text-sm font-bold uppercase">Tendência</Text>
-            <Text className={`text-4xl font-bold ${trendColor}`}>
+            <Text className="text-subtext text-xs font-bold uppercase">Tendência</Text>
+            <Text className={`text-2xl font-bold ${trendColor}`}>
               {trend}
             </Text>
           </View>
           <View className="flex-1">
-            <Text className="text-subtext text-sm font-bold uppercase">Mínimo/Máximo</Text>
-            <Text className="text-4xl font-black">{minWeight}kg</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">Mínimo/Máximo</Text>
+            <Text className="text-2xl font-black text-text">{minWeight}kg</Text>
           </View>
         </View>
       </View>
@@ -57,20 +57,20 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text className="text-text text-sm font-bold uppercase">Carga</Text>
-                <Text className="text-4xl font-black">{bestSet.weight}kg</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">Carga</Text>
+                <Text className="text-2xl font-black text-text">{bestSet.weight}kg</Text>
                 <Text className="text-subtext text-xs font-bold uppercase">x {bestSet.reps} reps</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-subtext text-sm font-bold uppercase">Data</Text>
-                <Text className="text-4xl font-black text-sm">{bestSet.date ? new Date(bestSet.date).toLocaleDateString() : '-'}</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">Data</Text>
+                <Text className="text-2xl font-black text-text">{bestSet.date ? new Date(bestSet.date).toLocaleDateString() : '-'}</Text>
               </View>
             </View>
 
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
-                <Text className="text-subtext text-sm font-bold uppercase">Volume</Text>
-                <Text className="text-4xl font-black text-text">{(bestSet.weight * bestSet.reps).toFixed(0)}kg</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">Volume</Text>
+                <Text className="text-2xl font-black text-text">{(bestSet.weight * bestSet.reps).toFixed(0)}kg</Text>
               </View>
             </View>
           </View>
@@ -85,13 +85,13 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text className="text-text text-sm font-bold uppercase">Meta</Text>
-                <Text className="text-4xl font-black">{goalWeight}kg</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">Meta</Text>
+                <Text className="text-2xl font-black text-text">{goalWeight}kg</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-subtext text-sm font-bold uppercase">Prazo Meta</Text>
-                <Text className="text-4xl font-black text-text">
-                  {Math.ceil((new Date(goalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)).toString()} dias restantes
+                <Text className="text-subtext text-xs font-bold uppercase">Prazo Meta</Text>
+                <Text className="text-2xl font-black text-text">
+                  {Math.ceil((new Date(goalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)).toString()}d
                 </Text>
               </View>
             </View>

@@ -7,7 +7,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   AppState,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -626,10 +625,15 @@ export default function ExerciseScreen() {
 
               <TouchableOpacity
                 onPress={toggleActiveSet}
-                style={[
-                  styles.timerButton,
-                  isActiveSetRunning ? styles.timerButtonStop : styles.timerButtonStart
-                ]}
+                className="rounded-2xl items-center py-5 px-16 shadow-lg"
+                style={{
+                  backgroundColor: isActiveSetRunning ? Colors.red400 : Colors.success,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 8,
+                }}
               >
                 <Text className="text-white font-bold text-xl uppercase tracking-widest">
                   {isActiveSetRunning ? 'PARAR' : 'INICIAR SÉRIE'}
@@ -882,22 +886,3 @@ export default function ExerciseScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  timerButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 60,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  timerButtonStart: {
-    backgroundColor: Colors.success,
-  },
-  timerButtonStop: {
-    backgroundColor: Colors.red400,
-  },
-});
