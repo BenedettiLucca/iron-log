@@ -1,77 +1,164 @@
 # Iron Log 🏋️‍♂️
 
-> **Log de Treino de Atrito Zero, Bio-Tracking & Exportação Markdown**
+> **Log de Treino de Atrito Zero, Bio-Tracking, Analytics & Exportação**
 
-O **Iron Log** é uma plataforma completa de monitoramento físico "local-first". Projetado para quem leva o treino a sério, ele une o registro rápido de cargas com o acompanhamento de evolução corporal.
+O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão Atual:** v3.1 (Elevated Edition)
+**Versão:** 3.1.1 · **Expo SDK:** 54 · **Testes:** 134 passando
 
 ---
 
-## 📱 Funcionalidades Principais
-
-### ✨ Nova Interface (v3.0)
-*   **Design System "Warm & Earthy":** Estética refinada com cartões arredondados, tipografia hierárquica e paleta de cores acolhedora.
-*   **Feedback Tátil:** Botões e interações com animações de escala para uma sensação física e responsiva.
-*   **Motion Design:** Animações de entrada escalonadas e transições suaves.
+## 📱 Funcionalidades
 
 ### 💪 Treino & Performance
-*   **Gestão de Sessão:** Cronômetro persistente e controle de duração real.
-*   **Stopwatch Ativo:** Para exercícios de Tempo (ex: Prancha), um cronômetro gigante substitui o input manual.
-*   **Timer Pro:** Cronômetro de descanso inteligente que funciona em segundo plano.
-*   **Fluxo Contínuo:** Botão "Próximo Exercício" elimina a necessidade de voltar ao menu.
-*   **Planejamento:** Metas (`target`) e Notas Técnicas (`notes`) visíveis durante a execução.
-*   **Histórico Instantâneo:** Consulte cargas anteriores sem sair da tela de exercício.
+- **Gestão de Sessão** — Cronômetro persistente, controle de duração real, fluxo contínuo entre exercícios
+- **Stopwatch Ativo** — Cronômetro dedicado para exercícios de tempo (Prancha, Dead Hang)
+- **Timer Pro** — Timer de descanso inteligente que funciona em segundo plano
+- **Histórico Instantâneo** — Consulte cargas anteriores sem sair da tela de exercício
+- **Warmup Progression** — Cálculo automático de séries de aquecimento (40/60/80%)
 
 ### 🧬 Bio & Evolução
-*   **Bio-Tracking Completo:** Peso, Medidas e Fotos.
-*   **Visualização de Evolução:** Gráficos de Média Móvel (7 dias) e Galeria de Fotos organizada por data.
-*   **Sincronização:** O peso do treino alimenta a Bio e vice-versa.
-*   **Streaks:** Acompanhe sua consistência com contagem de dias consecutivos.
-*   **Metas:** Defina objetivos para peso e medidas com datas-alvo.
-*   **Análise Avançada:** Taxa de variação de peso, médias e tendências.
-*   **Lembretes Mensais:** Notificações automáticas para check-in mensal (configurável).
+- **Bio-Tracking Completo** — Peso, medidas corporais e fotos comparativas
+- **Gráficos de Evolução** — Média móvel (7 dias), galeria de fotos por data
+- **Metas** — Objetivos para peso e medidas com data-alvo
+- **Lembretes Mensais** — Notificações configuráveis para check-in
 
-### 💾 Portabilidade de Dados
-*   **Backup Local:** Exporte seu banco de dados completo (`.db`) para guardar ou transferir.
-*   **Importação:** Restaure backups anteriores facilmente.
-*   **Backup em Nuvem (Google Drive):** Sincronize seus dados com sua conta Google (Requer configuração).
+### 📊 Analytics (novo!)
+- **Strength Score (0-100)** — Score composto de Volume + Intensidade + Consistência
+- **Níveis:** Novato → Iniciante → Intermediário → Avançado → Elite
+- **Consistência** — Streak de semanas, frequência semanal/mensal, total de sessões
+- **Volume Trends** — Gráfico de volume semanal (últimas 12 semanas)
+- **Top Exercícios** — Progressão de carga nos exercícios que mais evoluíram
+- **1RM Estimado** — Fórmula Epley para os 10 exercícios mais pesados
+- **Recordes Pessoais** — Tracking automático de PRs por exercício
 
-### 🎨 Experiência de Uso
-*   **Tema Dinâmico:** Adaptação automática ao modo Claro/Escuro do sistema.
-*   **Importação Inteligente (JSON):** Copie treinos estruturados e o app cria a rotina automaticamente.
+### 📤 Exportação de Dados (novo!)
+- **CSV Export** — Export completo de treinos e métricas corporais
+- **CSV por Sessão** — Export individual pelo Resumo de cada treino
+- **Share Nativo** — Compartilhamento via sistema (WhatsApp, Email, etc.)
+- **Backup Local** — Export/import do banco SQLite completo (.db)
+- **Backup em Nuvem** — Google Drive (opcional)
 
----
+### 🛡️ Validação & Robustez
+- **Zod Schemas** — Validação de route params e form inputs em todas as telas
+- **Error Boundary** — Fallback visual para crashes inesperados
+- **Type Safety** — Zero `as any` ou `useState<any>` no codebase
+- **DB Hardening** — WAL mode, foreign keys, indexes, soft deletes
 
-## ⚙️ Configuração (Opcional)
-
-Para habilitar o backup no Google Drive:
-
-1.  Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/).
-2.  Habilite a **Google Drive API**.
-3.  Crie credenciais OAuth 2.0 (Web Client ou Android/iOS conforme o uso).
-4.  Crie um arquivo `.env` na raiz do projeto:
-    ```env
-    EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id-aqui.apps.googleusercontent.com
-    ```
-
-### 📦 Build de Produção (APK)
-Para que o Google Login funcione no APK gerado:
-
-1.  **Variáveis de Ambiente:** As variáveis `EXPO_PUBLIC_` são embutidas no app durante o build. Certifique-se de que o arquivo `.env` existe no ambiente onde o build será gerado.
-2.  **Assinatura (SHA-1):** No Google Cloud Console, você deve adicionar o **SHA-1 da sua Keystore de Produção**.
-    *   O SHA-1 de desenvolvimento (Expo Go/Dev Client) é diferente do SHA-1 de produção.
-    *   Se usar **EAS Build**, o EAS gerencia isso para você. Use `eas credentials` para ver o hash correto.
+### 🎨 UX
+- **Design System "Warm & Earthy"** — Cartões arredondados, tipografia hierárquica
+- **Tema Dinâmico** — Adaptação automática claro/escuro
+- **Skeleton Loading** — Placeholders animados durante carregamento
+- **Haptics** — Feedback tátil em interações
+- **Importação JSON** — Copie treinos estruturados e o app cria a rotina
 
 ---
 
-## 📋 Guia de Importação (JSON)
+## 🛠 Tech Stack
 
-Para garantir precisão total, o Iron Log usa JSON para importação. Peça para sua IA gerar neste formato:
+| Camada | Tecnologia |
+|--------|-----------|
+| **Core** | React Native (Expo SDK 54) + TypeScript |
+| **ORM** | Drizzle ORM + SQLite (expo-sqlite) |
+| **UI** | NativeWind v4 (Tailwind), Reanimated |
+| **Charts** | React Native Gifted Charts |
+| **Validação** | Zod |
+| **Testes** | Jest + ts-jest |
+| **Lint** | ESLint (expo config) |
+
+---
+
+## 🚀 Como Rodar
+
+```bash
+# Instalar dependências
+npm install
+
+# Gerar migrações do banco
+npx drizzle-kit generate
+
+# Rodar testes
+npx jest
+
+# Lint
+npx expo lint
+
+# Desenvolvimento
+npx expo start
+```
+
+### Build de Produção (Android)
+
+```bash
+cd android && ./gradlew assembleRelease
+```
+
+Para Google Login funcionar no APK, configure `EXPO_PUBLIC_GOOGLE_CLIENT_ID` no `.env` e adicione o SHA-1 da keystore no Google Cloud Console.
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+iron-log/
+├── app/
+│   ├── (drawer)/           # Menu lateral
+│   │   ├── index.tsx       # Home
+│   │   ├── bio/            # Bio-Tracking + Analytics
+│   │   │   ├── index.tsx   # Peso e medidas
+│   │   │   ├── evolution.tsx # Gráficos
+│   │   │   ├── goals.tsx   # Metas
+│   │   │   └── analytics.tsx # Strength Score, Volume, PRs
+│   │   ├── routines/       # CRUD de rotinas + editor + templates
+│   │   ├── history/        # Calendário + histórico de sessões
+│   │   ├── settings.tsx    # Config, backup, export CSV
+│   │   └── about.tsx       # Sobre o app
+│   └── session/            # Fluxo de treino (Stack isolada)
+│       ├── [routineId].tsx # Seleção de exercícios
+│       ├── exercise.tsx    # Execução do exercício
+│       ├── finish.tsx      # Finalizar treino (sRPE, peso, notas)
+│       └── summary.tsx     # Resumo + export CSV individual
+├── components/             # 17 componentes de UI reutilizáveis
+│   ├── Button, Card, Input, Dialog, Toast
+│   ├── Skeleton, EmptyState, ProgressBar
+│   ├── RestTimer, Stopwatch, SetCard, SetEditor
+│   ├── RoutinePreview, StrengthCurve, PhotoComparison
+│   ├── DatePicker, ErrorBoundary
+├── hooks/                  # Hooks de domínio
+│   ├── use-routines.ts     # CRUD de rotinas
+│   ├── use-sessions.ts     # Histórico de sessões
+│   ├── use-session-exercise.ts # Lógica de séries
+│   ├── use-body-metrics.ts # Métricas corporais
+│   └── index.ts            # Barrel exports
+├── services/               # Serviços de negócio
+│   ├── AnalyticsService.ts # Strength Score, Volume Trends, 1RM, PRs
+│   ├── CsvExportService.ts # Export CSV com share nativo
+│   ├── DatabaseBackupService.ts # Backup/restore SQLite
+│   ├── NotificationService.ts   # Lembretes
+│   ├── logger.ts           # Logging estruturado
+│   └── index.ts            # Barrel exports
+├── src/
+│   ├── db/                 # Drizzle ORM
+│   │   ├── client.ts       # SQLite com WAL, FK, busy_timeout
+│   │   └── schema.ts       # Tabelas + indexes + constraints
+│   ├── types/              # TypeScript interfaces
+│   ├── utils/              # Funções puras (exercise, timer, warmup, calculations)
+│   └── validators/         # Zod schemas (routes + forms)
+├── __tests__/              # 9 suites, 134 testes
+│   ├── utils/              # exercise, timer, warmup, calculations
+│   ├── services/           # analytics, csv-export
+│   └── validators/         # routes, forms
+├── constants/              # Cores e tipografia
+└── drizzle/                # Migrações SQL
+```
+
+---
+
+## 📋 Importação de Rotinas (JSON)
 
 ```json
 {
-  "name": "Treino A - Peito",
+  "name": "Upper A - Push Focus",
   "description": "Foco em carga",
   "exercises": [
     {
@@ -93,56 +180,18 @@ Para garantir precisão total, o Iron Log usa JSON para importação. Peça para
 
 ---
 
-## 🛠 Tech Stack
+## ⚙️ Configuração Opcional
 
-*   **Core:** React Native (Expo SDK 54) + TypeScript.
-*   **Data:** SQLite (Local) + Drizzle ORM.
-*   **UI:** NativeWind v4 (Tailwind), React Native Reanimated (Animações).
-*   **Charts:** React Native Gifted Charts.
-*   **Media:** Expo Image Picker, Expo File System.
-*   **Notifications:** Expo Notifications (Lembretes de check-in).
-*   **Haptics:** Expo Haptics (Feedback tátil).
-*   **Date Picker:** @react-native-community/datetimepicker.
+### Google Drive Backup
 
----
-
-## 🚀 Como Rodar
-
-1.  **Instale as dependências:**
-    ```bash
-    npm install
-    ```
-
-2.  **Gere as tabelas do banco:**
-    ```bash
-    npx drizzle-kit generate
-    ```
-
-3.  **Execute (Dev):**
-    ```bash
-    npx expo start
-    ```
-
-4.  **Compile (Android Release):**
-    ```bash
-    cd android && ./gradlew assembleRelease
-    ```
+1. Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/)
+2. Habilite a **Google Drive API**
+3. Crie credenciais OAuth 2.0
+4. Adicione ao `.env`:
+   ```env
+   EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
+   ```
 
 ---
 
-## 📂 Estrutura do Projeto
-
-```
-iron-log/
-├── app/
-│   ├── (drawer)/         # Menu Lateral (Home, Bio, Histórico, Rotinas)
-│   └── session/          # Fluxo de Treino (Stack Isolada)
-├── components/           # Componentes de UI Reutilizáveis (Button, Card, Input)
-├── src/db/
-│   ├── schema.ts         # Tabelas (Inclui body_metrics)
-└── drizzle/              # Migrações SQL
-```
-
----
-
-*Desenvolvido como Projeto MVP para Portfolio de Engenharia de Software.*
+*Desenvolvido como projeto MVP para portfolio de engenharia de software.*
