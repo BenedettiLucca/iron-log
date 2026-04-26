@@ -6,6 +6,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
+import { AlexandriaExportService } from '../../services/AlexandriaExportService';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
@@ -95,6 +96,18 @@ export default function SettingsScreen() {
       setToast({ visible: true, message: 'Dados exportados em CSV!', type: 'success' });
     } catch (e: any) {
       setToast({ visible: true, message: e.message || 'Falha ao exportar CSV.', type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAlexandriaExport = async () => {
+    setLoading(true);
+    try {
+      await AlexandriaExportService.exportAndShare();
+      setToast({ visible: true, message: 'Dados exportados para Alexandria!', type: 'success' });
+    } catch (e: any) {
+      setToast({ visible: true, message: e.message || 'Falha ao exportar para Alexandria.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -205,6 +218,21 @@ export default function SettingsScreen() {
             />
           </View>
         )}
+      </Card>
+
+      <Card>
+        <Text className="text-text font-bold text-lg mb-2">Exportar para Alexandria</Text>
+        <Text className="text-subtext text-sm mb-6 leading-5">
+          Exporte seus dados em JSON estruturado para o servidor de contexto pessoal Alexandria.
+          Inclui treinos, métricas corporais, recordes pessoais e metas.
+        </Text>
+        <Button
+          title="EXPORTAR ALEXANDRIA JSON"
+          onPress={handleAlexandriaExport}
+          variant="primary"
+          loading={loading}
+          fullWidth
+        />
       </Card>
 
       <Card>

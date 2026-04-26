@@ -147,7 +147,7 @@ export default function SessionScreen() {
       }} />
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
-        <Text className="text-subtext uppercase text-[10px] font-black tracking-widest mb-1">Treino Ativo</Text>
+        <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">Treino Ativo</Text>
         <Text className="text-text text-3xl font-black mb-4 tracking-tight">{routineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
@@ -254,7 +254,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
             </Text>
             {isActive && (
               <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
-                <Text className="text-success text-[10px] font-bold uppercase tracking-wide">
+                <Text className="text-success text-xs font-bold uppercase tracking-wide">
                   {doneSets} {doneSets === 1 ? 'série' : 'séries'}
                   {targetSets && ` de ${targetSets}`}
                 </Text>
@@ -265,7 +265,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
           {(exercise.target || exercise.notes) && (
               <View className="mt-2 flex-row flex-wrap gap-2">
                   {exercise.target && (
-                      <Text className="text-primary text-[10px] bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
+                      <Text className="text-primary text-xs bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
                           Meta: {exercise.target}
                       </Text>
                   )}
@@ -285,7 +285,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
         {isComplete && (
           <View className="ml-4">
               <View className="w-6 h-6 bg-success rounded-full border-[3px] border-white shadow-sm items-center justify-center">
-                <Text className="text-white text-[8px] font-bold">✓</Text>
+                <Text className="text-white text-2xs font-bold">✓</Text>
               </View>
           </View>
         )}

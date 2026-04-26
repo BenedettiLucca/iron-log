@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, Image, Modal, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
@@ -14,8 +14,15 @@ interface PhotoComparisonProps {
 
 export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }: PhotoComparisonProps) {
   const [sliderValue, setSliderValue] = useState(0.5);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const onLayout = useCallback((event: any) => {
+    setContainerWidth(event.nativeEvent.layout.width);
+  }, []);
 
   if (!beforeUri || !afterUri) return null;
+
+  const clipWidth = sliderValue * containerWidth;
 
   return (
     <Modal
@@ -37,34 +44,46 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-text text-xl font-bold uppercase tracking-widest">Comparação: {label}</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} accessibilityLabel="Fechar comparação" accessibilityRole="button">
               <Text className="text-subtext text-2xl">✕</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Comparison View */}
-          <View className="relative overflow-hidden rounded-xl bg-background mb-4" style={{ height: 300 }}>
-            {/* Before Image */}
+          {/* Comparison View — clip-based before/after */}
+          <View className="relative overflow-hidden rounded-xl bg-background mb-4" style={{ height: 300 }} onLayout={onLayout}>
+            {/* Before Image (full background) */}
             <Image
               source={{ uri: beforeUri }}
-              className="absolute top-0 bottom-0"
-              style={{ left: 0, width: '100%', opacity: 1 - sliderValue }}
+              className="absolute top-0 left-0 bottom-0"
+              style={{ width: containerWidth || '100%', height: 300 }}
               resizeMode="contain"
             />
 
-            {/* After Image */}
-            <Image
-              source={{ uri: afterUri }}
-              className="absolute top-0 bottom-0"
-              style={{ left: `${sliderValue * 100}%`, width: '100%', opacity: sliderValue }}
-              resizeMode="contain"
-            />
+            {/* After Image (clipped by slider) */}
+            <View
+              className="absolute top-0 left-0 bottom-0 overflow-hidden"
+              style={{ width: clipWidth, height: 300 }}
+            >
+              <Image
+                source={{ uri: afterUri }}
+                style={{ width: containerWidth || '100%', height: 300 }}
+                resizeMode="contain"
+              />
+            </View>
 
             {/* Divider Line */}
             <View
-              className="absolute top-0 bottom-0 w-1 bg-white/80"
-              style={{ left: `${sliderValue * 100}%` }}
+              className="absolute top-0 bottom-0 w-0.5 bg-white/90"
+              style={{ left: clipWidth - 1 }}
             />
+
+            {/* Handle knob */}
+            <View
+              className="absolute top-1/2 w-8 h-8 bg-white rounded-full shadow-lg justify-center items-center"
+              style={{ left: clipWidth - 16, marginTop: -16 }}
+            >
+              <Text className="text-text text-xs font-bold">⟨⟩</Text>
+            </View>
 
             {/* Labels */}
             <View className="absolute top-2 left-0 right-0 flex-row justify-between px-2">
@@ -94,8 +113,8 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               thumbTintColor={Colors.primary}
             />
             <View className="flex-row justify-between px-2 mt-1">
-              <Text className="text-subtext text-[10px]">Antes</Text>
-              <Text className="text-subtext text-[10px]">Depois</Text>
+              <Text className="text-subtext text-xs">Antes</Text>
+              <Text className="text-subtext text-xs">Depois</Text>
             </View>
           </View>
 

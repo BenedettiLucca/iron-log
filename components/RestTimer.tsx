@@ -22,23 +22,28 @@ export function RestTimer({
   nextExerciseName,
 }: RestTimerProps) {
   const slideAnim = useRef(new Animated.Value(1)).current;
+  const panOffset = useRef(0);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        panOffset.current = 0;
+      },
       onPanResponderMove: (evt, gestureState) => {
-        // Only respond to vertical downward swipes
-        // Track pan position visually
         if (gestureState.dy > 0) {
-          // Visual feedback during drag
+          panOffset.current = gestureState.dy;
+          slideAnim.setValue(gestureState.dy / 500);
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        // If dragged down more than 100px, dismiss the modal
         if (gestureState.dy > 100) {
-          onClose();
+          Animated.timing(slideAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }).start(() => onClose());
         } else {
-          // Animate back to position
           Animated.spring(slideAnim, {
             toValue: 0,
             useNativeDriver: true,
@@ -105,6 +110,8 @@ export function RestTimer({
             <TouchableOpacity
               className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(30)}
+              accessibilityLabel="Adicionar 30 segundos"
+              accessibilityRole="button"
             >
               <Text className="text-text font-bold text-base">+30s</Text>
             </TouchableOpacity>
@@ -112,6 +119,8 @@ export function RestTimer({
             <TouchableOpacity
               className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(-10)}
+              accessibilityLabel="Diminuir 10 segundos"
+              accessibilityRole="button"
             >
               <Text className="text-text font-bold text-base">-10s</Text>
             </TouchableOpacity>
@@ -119,6 +128,8 @@ export function RestTimer({
             <TouchableOpacity
               className="flex-1 bg-primary p-4 rounded-xl items-center min-h-[52px] justify-center"
               onPress={onSkip}
+              accessibilityLabel="Pular descanso"
+              accessibilityRole="button"
             >
               <Text className="text-white font-bold text-base">Pular</Text>
             </TouchableOpacity>
@@ -135,4 +146,3 @@ export function RestTimer({
     </>
   );
 }
-

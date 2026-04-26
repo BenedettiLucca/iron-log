@@ -5,7 +5,18 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
-      colors: {
+      fontSize: {
+        '2xs': ['10px', { lineHeight: '1.4', letterSpacing: '0.02em' }],
+        'xs': ['12px', { lineHeight: '1.4', letterSpacing: '0.04em' }],
+        'sm': ['14px', { lineHeight: '1.5' }],
+        'base': ['16px', { lineHeight: '1.5' }],
+        'lg': ['18px', { lineHeight: '1.4' }],
+        'xl': ['20px', { lineHeight: '1.3' }],
+        '2xl': ['24px', { lineHeight: '1.2' }],
+        '3xl': ['30px', { lineHeight: '1.2', fontWeight: '700' }],
+        '4xl': ['36px', { lineHeight: '1.1', fontWeight: '800' }],
+      },
+      colors:{
         background: 'rgb(var(--background) / <alpha-value>)',
         card: 'rgb(var(--card) / <alpha-value>)',
         text: 'rgb(var(--text) / <alpha-value>)',

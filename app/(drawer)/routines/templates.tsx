@@ -142,18 +142,18 @@ export default function TemplateLibraryScreen() {
 
       {/* Exercise Summary */}
       <View className="border-t border-border pt-2 mt-2">
-        <Text className="text-subtext text-[10px] font-bold uppercase mb-1">Exercícios:</Text>
+        <Text className="text-subtext text-xs font-bold uppercase mb-1">Exercícios:</Text>
         <View className="flex-row flex-wrap gap-1">
           {item.exercises.slice(0, 4).map((ex: any, idx: number) => (
             <View key={ex.id} className="bg-background border border-border rounded px-2 py-1">
               <Text className="text-text text-xs font-medium">{ex.name}</Text>
               {ex.target && (
-                <Text className="text-primary text-[10px]">• {ex.target}</Text>
+                <Text className="text-primary text-xs">• {ex.target}</Text>
               )}
             </View>
           ))}
           {item.exercises.length > 4 && (
-            <Text className="text-subtext text-[10px] italic">+{item.exercises.length - 4} mais...</Text>
+            <Text className="text-subtext text-xs italic">+{item.exercises.length - 4} mais...</Text>
           )}
         </View>
       </View>

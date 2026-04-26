@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v3.1.1 (Optimized Edition)
+**Current Version:** v3.1.1
 
 ## Tech Stack
 
@@ -100,6 +100,7 @@ The app uses 11 main tables:
 - **RestTimer** - Bottom sheet rest timer with quick actions.
 - **Stopwatch** - Enhanced timer with pause/resume capability.
 - **Dialog** - Confirmation dialog for destructive actions.
+- **ErrorBoundary** - React error boundary with visual fallback + dev stack trace.
 
 **Color Scheme** (`hooks/use-color-scheme.ts`):
 - Dark mode: `#1D1917` (background)
@@ -112,20 +113,41 @@ The app uses 11 main tables:
 - Standardized type scale: xs (10px), sm (12px), base (14px), lg (16px), xl (18px), 2xl (20px), 3xl (24px), 4xl (30px)
 - Used consistently across all components
 
-**Custom Hooks** (`hooks/`):
+**Domain Hooks** (`hooks/`):
+- **use-routines.ts** - CRUD de rotinas (fetch, delete, duplicate, filter)
+- **use-sessions.ts** - Histórico de sessões e home data
+- **use-session-exercise.ts** - Lógica de séries na tela de exercício (load, add, update, delete)
+- **use-body-metrics.ts** - Métricas corporais (peso, medidas, histórico)
 - **use-haptics.ts** - Unified haptic feedback (light, medium, heavy, success, warning, error, selection)
 - **use-notifications.ts** - Notification settings state and actions
-- **use-bio-streaks.ts** - Streak calculation for daily and monthly check-ins
-- **use-personal-records.ts** - PR detection and tracking
-- **use-volume-tracking.ts** - Volume load analysis over time
+
+All hooks export barrel via `hooks/index.ts`.
 
 **Services** (`services/`):
-- **NotificationService.ts** - Monthly check-in notification scheduling with permission handling
+- **AnalyticsService.ts** - Strength Score (0-100), Consistency metrics, Volume Trends, 1RM Epley, PR tracking
+- **CsvExportService.ts** - Export sessions/body metrics/exercises as CSV with native share
+- **AlexandriaExportService.ts** - Structured JSON export for Alexandria MCP server integration
 - **DatabaseBackupService.ts** - Database export/import and Google Drive backup
+- **NotificationService.ts** - Monthly check-in notification scheduling with permission handling
+- **logger.ts** - Structured logging replacing console.log
+
+All services export barrel via `services/index.ts`.
+
+**Validation** (`src/validators/`):
+- **routes.ts** - Zod schemas for route params (exerciseParams, sessionParams, summaryParams, etc.) + `safeParseParams()` helper
+- **forms.ts** - Zod schemas for form inputs (weight, sets, goals, RPE) + `validateField()` helper
+- All screens validate inputs before submission; invalid params fall back to safe defaults.
+
+**Testing** (`__tests__/`):
+- 9 test suites, 134 tests passing
+- Utils: exercise, timer, warmup, calculations
+- Services: analytics (Epley formula, scoring logic), csv-export (escapeCsvField, formatDateBR)
+- Validators: routes (15 tests), forms (32 tests)
+- Run: `npx jest`
 
 ### Configuration Files
 
-- **app.json** - Expo configuration (version 3.0.0)
+- **app.json** - Expo configuration (version 3.1.1)
 - **drizzle.config.ts** - Drizzle ORM configuration
 - **babel.config.js** - Babel with NativeWind and Reanimated plugin
 - **tailwind.config.js** - NativeWind v4 configuration with custom color variables

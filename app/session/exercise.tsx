@@ -7,7 +7,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   AppState,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -498,7 +497,7 @@ export default function ExerciseScreen() {
 
               <View className="flex-row justify-between items-center mb-4">
                 <View className="flex-1">
-                  <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
+                  <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
                   <Stopwatch startTime={startTime} />
                 </View>
                 <TouchableOpacity
@@ -626,10 +625,15 @@ export default function ExerciseScreen() {
 
               <TouchableOpacity
                 onPress={toggleActiveSet}
-                style={[
-                  styles.timerButton,
-                  isActiveSetRunning ? styles.timerButtonStop : styles.timerButtonStart
-                ]}
+                className="rounded-2xl items-center py-5 px-16 shadow-lg"
+                style={{
+                  backgroundColor: isActiveSetRunning ? Colors.red400 : Colors.success,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 8,
+                  elevation: 8,
+                }}
               >
                 <Text className="text-white font-bold text-xl uppercase tracking-widest">
                   {isActiveSetRunning ? 'PARAR' : 'INICIAR SÉRIE'}
@@ -685,7 +689,7 @@ export default function ExerciseScreen() {
                   >
                     <Text className="text-subtext font-bold uppercase text-xs">Reserva (RIR)</Text>
                     <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">
-                      <Text className="text-subtext text-[8px] font-bold">?</Text>
+                      <Text className="text-subtext text-2xs font-bold">?</Text>
                     </View>
                   </TouchableOpacity>
                   <View
@@ -713,8 +717,8 @@ export default function ExerciseScreen() {
                   thumbTintColor={Colors.primary}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-gray-400 text-[8px]">MÁXIMO</Text>
-                  <Text className="text-gray-400 text-[8px]">LEVE</Text>
+                  <Text className="text-gray-400 text-2xs">MÁXIMO</Text>
+                  <Text className="text-gray-400 text-2xs">LEVE</Text>
                 </View>
               </View>
 
@@ -882,22 +886,3 @@ export default function ExerciseScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  timerButton: {
-    paddingVertical: 20,
-    paddingHorizontal: 60,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  timerButtonStart: {
-    backgroundColor: Colors.success,
-  },
-  timerButtonStop: {
-    backgroundColor: Colors.red400,
-  },
-});

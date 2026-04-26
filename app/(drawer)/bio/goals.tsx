@@ -142,7 +142,7 @@ export default function GoalsScreen() {
                 </View>
                 {goal.achieved && (
                   <View className="bg-success/10 px-2 py-1 rounded-lg">
-                    <Text className="text-success text-[10px] font-bold uppercase">Alcançada!</Text>
+                    <Text className="text-success text-xs font-bold uppercase">Alcançada!</Text>
                   </View>
                 )}
               </View>

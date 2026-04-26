@@ -96,3 +96,10 @@ Thumbs.db
 
 # Hermes Agent
 .hermes/
+
+# Android signing credentials
+android/gradle.properties
+
+# AI agent context files
+CLAUDE.md
+GEMINI.md

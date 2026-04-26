@@ -61,7 +61,7 @@ export function Stopwatch({ startTime, paused = false, onTogglePause, editable =
         {content}
         {isPaused && (
           <View className="bg-warning/20 px-2 py-0.5 rounded">
-            <Text className="text-warning text-[10px] font-bold">PAUSADO</Text>
+            <Text className="text-warning text-xs font-bold">PAUSADO</Text>
           </View>
         )}
       </TouchableOpacity>
