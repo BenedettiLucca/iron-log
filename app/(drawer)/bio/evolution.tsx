@@ -8,12 +8,22 @@ import { LineChart } from 'react-native-gifted-charts';
 import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
+import { PhotoComparison } from '../../../components/PhotoComparison';
+import { logger } from '@/services/logger';
+import { BodyMetric } from '@/src/types';
+import { Colors } from '@/constants/colors';
 
 export default function EvolutionScreen() {
-  const [weightData, setWeightData] = useState<any[]>([]);
-  const [measuresData, setMeasuresData] = useState<any>({});
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [weightData, setWeightData] = useState<BodyMetric[]>([]);
+  const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
+  const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
+  const [comparison, setComparison] = useState({
+    visible: false,
+    beforeUri: null as string | null,
+    afterUri: null as string | null,
+    label: '',
+  });
   const [analytics, setAnalytics] = useState({
     weightChangeRate: 0,
     averageWeight: 0,
@@ -46,15 +56,15 @@ export default function EvolutionScreen() {
           };
       });
 
-      // Pegar apenas os últimos 20 pontos para o gráfico não ficar poluido
-      setWeightData(maData.slice(-20));
+      // Pegar até 30 pontos para o gráfico não ficar poluído (aprox 30 dias)
+      setWeightData(maData.slice(-30));
 
       // 2. Processar Medidas
       const measures = data.filter(m => m.type === 'monthly');
       const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures.map(m => ({
           value: m[key] || 0,
           label: new Date(m.date).toLocaleDateString('pt-BR', { month: 'short' })
-      })).slice(-6); // Últimos 6 meses
+      })).slice(-12); // Últimos 12 meses
 
       setMeasuresData({
           waist: processMeasure('waist'),
@@ -92,7 +102,7 @@ export default function EvolutionScreen() {
       }
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
     }
   };
 
@@ -111,7 +121,7 @@ export default function EvolutionScreen() {
                 color={color} 
                 thickness={3}
                 dataPointsColor={color}
-                textColor="#cdd6f4"
+                textColor={Colors.blue300}
                 hideRules
                 yAxisColor="transparent"
                 xAxisColor="transparent"
@@ -147,28 +157,50 @@ export default function EvolutionScreen() {
           {activeTab === 'weight' && (
               <>
                 <Text className="text-subtext text-xs mb-4 text-center font-medium">Média Móvel (7 Dias)</Text>
-                {renderChart(weightData, 'Evolução de Peso', '#E07A5F')}
+                {renderChart(weightData, 'Evolução de Peso', Colors.primary)}
               </>
           )}
 
           {activeTab === 'measures' && (
               <>
-                {renderChart(measuresData.waist, 'Cintura (cm)', '#81B29A')}
-                {renderChart(measuresData.arm, 'Braço (cm)', '#3D5A80')}
-                {renderChart(measuresData.chest, 'Tórax (cm)', '#F2CC8F')}
+                {renderChart(measuresData.waist, 'Cintura (cm)', Colors.success)}
+                {renderChart(measuresData.arm, 'Braço (cm)', Colors.secondary)}
+                {renderChart(measuresData.chest, 'Tórax (cm)', Colors.accent)}
               </>
           )}
 
-          {activeTab === 'photos' && (
-              <View>
-                  {photos.length === 0 && (
-                    <View className="items-center mt-10">
-                        <Text className="text-4xl mb-4">📷</Text>
-                        <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
-                        <Text className="text-subtext/60 text-xs text-center mt-2">Faça um Check-in mensal para adicionar fotos.</Text>
-                    </View>
-                  )}
-                  {photos.map((entry) => (
+                   {activeTab === 'photos' && (
+               <View className="gap-4">
+                   <View className="flex-row justify-between items-center mb-4">
+                       <Text className="text-subtext text-xs font-bold uppercase tracking-widest">FOTOS RECENTES</Text>
+                       {photos.length >= 2 && (
+                           <Button
+                               title="Comparar"
+                               onPress={() => {
+                                   const latest = photos[0];
+                                   const previous = photos[1];
+                                   if (latest && previous) {
+                                       setComparison({
+                                           visible: true,
+                                           beforeUri: previous.photoFront || previous.photoBack || previous.photoSide,
+                                           afterUri: latest.photoFront || latest.photoBack || latest.photoSide,
+                                           label: 'Últimos Check-ins',
+                                       });
+                                   }
+                               }}
+                               variant="secondary"
+                               size="sm"
+                           />
+                       )}
+                   </View>
+                   {photos.length === 0 && (
+                     <View className="items-center mt-10">
+                         <Text className="text-4xl mb-4">📷</Text>
+                         <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
+                         <Text className="text-subtext/60 text-xs text-center mt-2">Faça um check-in mensal para adicionar fotos de evolução.</Text>
+                     </View>
+                   )}
+                   {photos.map((entry) => (
                       <View key={entry.id} className="mb-8">
                           <View className="flex-row items-center gap-2 mb-4">
                             <View className="h-[1px] flex-1 bg-border" />
@@ -300,11 +332,20 @@ export default function EvolutionScreen() {
                           Para mudanças de peso saudáveis, tente manter uma variação entre -0.5 a +0.5 kg por semana.
                         </Text>
                       </Card>
-                    </>
-                  )}
-              </View>
-          )}
-      </ScrollView>
-    </View>
+                     </>
+                   )}
+               </View>
+           )}
+       </ScrollView>
+
+       {/* Photo Comparison Modal */}
+       <PhotoComparison
+           visible={comparison.visible}
+           beforeUri={comparison.beforeUri}
+           afterUri={comparison.afterUri}
+           label={comparison.label}
+           onClose={() => setComparison({ visible: false, beforeUri: null, afterUri: null, label: '' })}
+       />
+     </View>
   );
 }

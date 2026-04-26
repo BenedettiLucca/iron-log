@@ -1,48 +1,42 @@
 import { useState, useCallback } from 'react';
-import { View, Text, FlatList, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../../src/db/client';
-import { routines, routineExercises, exercises } from '../../../src/db/schema';
+import { exercises, routines as routinesTable, routineExercises } from '../../../src/db/schema';
 import { eq, like } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Toast } from '../../../components/Toast';
 import { Dialog } from '../../../components/Dialog';
 import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
+import { RoutinePreview } from '../../../components/RoutinePreview';
+import { SkeletonList } from '../../../components/Skeleton';
+import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { useRoutines } from '@/hooks/use-routines';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
-  const [allRoutines, setAllRoutines] = useState<any[]>([]);
+  const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
   const [refreshing, setRefreshing] = useState(false);
+  const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       fetchRoutines();
-    }, [])
+    }, [fetchRoutines])
   );
-
-  const fetchRoutines = async () => {
-      try {
-          const data = await db.select().from(routines);
-          setAllRoutines(data);
-      } catch (e) {
-          console.error(e);
-      }
-  };
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchRoutines();
     setRefreshing(false);
-  }, []);
+  }, [fetchRoutines]);
 
-  const folders = ['Todos', ...Array.from(new Set(allRoutines?.map(r => r.folder || 'Geral') || []))];
-  const filteredRoutines = selectedFolder === 'Todos' 
-    ? allRoutines 
-    : allRoutines?.filter(r => (r.folder || 'Geral') === selectedFolder);
+  const filteredRoutines = getFilteredRoutines(selectedFolder);
 
   const handleDelete = (id: number, name: string) => {
     setDialog({
@@ -50,15 +44,26 @@ export default function RoutinesListScreen() {
       title: 'Excluir Rotina',
       message: `Tem certeza que deseja apagar "${name}"? O histórico de treinos passados será mantido.`,
       onConfirm: async () => {
-        try {
-          await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
-          await db.delete(routines).where(eq(routines.id, id));
-          fetchRoutines();
-        } catch {
+        const success = await deleteRoutine(id);
+        if (!success) {
           setToast({ visible: true, message: 'Não foi possível excluir.', type: 'error' });
         }
       }
     });
+  };
+
+  const handleDuplicate = async (id: number, name: string) => {
+    const newName = `${name} (Cópia)`;
+    const success = await duplicateRoutine(id, newName);
+    if (success) {
+      setToast({ visible: true, message: `Rotina "${newName}" criada com sucesso!`, type: 'success' });
+    } else {
+      setToast({ visible: true, message: 'Falha ao duplicar rotina.', type: 'error' });
+    }
+  };
+
+  const handleQuickStart = (routineId: number) => {
+    router.push(`/session/${routineId}`);
   };
 
   const handleImportFromClipboard = async () => {
@@ -77,20 +82,17 @@ export default function RoutinesListScreen() {
           return setToast({ visible: true, message: 'O JSON deve ter "name" e uma lista de "exercises".', type: 'error' });
       }
 
-      // Verifica duplicidade
-      const existingRoutine = await db.select().from(routines).where(eq(routines.name, data.name));
+      const existingRoutine = await db.select().from(routinesTable).where(eq(routinesTable.name, data.name));
       if (existingRoutine.length > 0) {
         return setToast({ visible: true, message: `Já existe uma rotina com o nome "${data.name}".`, type: 'error' });
       }
 
-      // 2. Criar Rotina
-      const routineRes = await db.insert(routines).values({
+      const routineRes = await db.insert(routinesTable).values({
           name: data.name,
           description: data.description || ''
       }).returning();
       const routineId = routineRes[0].id;
 
-      // 3. Processar Exercícios
       let order = 1;
       for (const item of data.exercises) {
         if (!item.name) continue;
@@ -98,7 +100,6 @@ export default function RoutinesListScreen() {
         const exName = item.name.trim();
         const type = item.type === 'duration' ? 'duration' : 'strength';
 
-        // Buscar se já existe
         const existing = await db.select().from(exercises).where(like(exercises.name, exName));
         let exerciseId;
 
@@ -109,7 +110,7 @@ export default function RoutinesListScreen() {
                 const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
                 exerciseId = newEx[0].id;
             } catch (err) {
-                console.error("Erro ao criar exercício:", exName, err);
+                logger.error('Operation failed', "Erro ao criar exercício:", exName, err);
                 continue;
             }
         }
@@ -130,7 +131,7 @@ export default function RoutinesListScreen() {
       setToast({ visible: true, message: `Rotina "${data.name}" importada com ${order-1} exercícios!`, type: 'success' });
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setToast({ visible: true, message: 'Falha ao importar do clipboard.', type: 'error' });
     }
   };
@@ -139,6 +140,13 @@ export default function RoutinesListScreen() {
     <View className="flex-1 bg-background">
       <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
+          <Button
+            title="💾 Templates"
+            onPress={() => router.push('/routines/templates')}
+            size="sm"
+            variant="secondary"
+            style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
+          />
           {folders.map(folder => (
             <Button
               key={folder}
@@ -153,18 +161,19 @@ export default function RoutinesListScreen() {
       </View>
 
       <FlatList
-        data={filteredRoutines}
+        data={isLoading ? [] : filteredRoutines}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#E07A5F"
-            colors={['#E07A5F']}
+            tintColor={Colors.primary}
+            colors={[Colors.primary]}
           />
         }
         ListHeaderComponent={
+            isLoading ? null : (
             <Card className="mb-6 bg-card/50">
                 <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>
                 <Text className="text-subtext text-xs leading-5">
@@ -174,38 +183,67 @@ export default function RoutinesListScreen() {
                     </Text>
                 </Text>
             </Card>
+            )
         }
         ListEmptyComponent={
-          <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
+          isLoading ? (
+            <SkeletonList count={4} />
+          ) : (
+            <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
+          )
         }
-        renderItem={({ item }) => (
-          <Card>
-            <View className="flex-row justify-between items-center">
+        renderItem={({ item }) => isLoading ? null : (
+          <Card className="overflow-hidden">
+            <TouchableOpacity 
+              onPress={() => setPreviewRoutine({ id: item.id, name: item.name })}
+              className="p-4 -m-4"
+            >
+              <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1 mr-4">
-                <View className="flex-row items-center gap-2 mb-1">
+                  <View className="flex-row items-center gap-2 mb-1">
                     <Text className="text-text text-lg font-bold">{item.name}</Text>
                     {item.folder && item.folder !== 'Geral' && (
-                    <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
-                        {item.folder}
-                    </Text>
+                      <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
+                          {item.folder}
+                      </Text>
                     )}
+                  </View>
+                  <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
                 </View>
-                <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
-                </View>
-                <View className="flex-row gap-2">
-                <Button 
-                    title="Editar"
-                    onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
-                    variant="ghost"
-                    size="sm"
-                />
-                <Button 
-                    title="Excluir"
-                    onPress={() => handleDelete(item.id, item.name)}
-                    variant="danger"
-                    size="sm"
-                />
-                </View>
+                <TouchableOpacity 
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleQuickStart(item.id);
+                  }}
+                  className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
+                >
+                  <Text className="text-success text-xs font-bold uppercase">Iniciar</Text>
+                  <Text className="text-success text-sm">▶</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+            <View className="flex-row gap-2 border-t border-border pt-3 mt-2">
+              <Button 
+                title="Duplicar"
+                onPress={() => handleDuplicate(item.id, item.name)}
+                variant="ghost"
+                size="sm"
+                style={{ flex: 1 }}
+              />
+              <Button 
+                title="Editar"
+                onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
+                variant="ghost"
+                size="sm"
+                style={{ flex: 1 }}
+              />
+              <Button 
+                title="Excluir"
+                onPress={() => handleDelete(item.id, item.name)}
+                variant="danger"
+                size="sm"
+                style={{ flex: 1 }}
+              />
             </View>
           </Card>
         )}
@@ -247,6 +285,19 @@ export default function RoutinesListScreen() {
           setDialog({ ...dialog, visible: false });
         }}
         onCancel={() => setDialog({ ...dialog, visible: false })}
+      />
+
+      <RoutinePreview
+        visible={!!previewRoutine}
+        routineId={previewRoutine?.id || null}
+        routineName={previewRoutine?.name}
+        onClose={() => setPreviewRoutine(null)}
+        onStart={() => {
+          if (previewRoutine) {
+            handleQuickStart(previewRoutine.id);
+          }
+          setPreviewRoutine(null);
+        }}
       />
     </View>
   );

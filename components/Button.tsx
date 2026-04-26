@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
+import { Colors } from '@/constants/colors';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -136,7 +137,7 @@ export function Button({
       className={`${getVariantClasses()} ${getSizeClasses()} ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? '#3D5A80' : '#FFFFFF'} />
+        <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? Colors.secondary : Colors.white} />
       ) : (
         <>
           {icon && <View className="mr-2">{icon}</View>}

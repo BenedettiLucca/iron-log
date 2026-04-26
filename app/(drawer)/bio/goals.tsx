@@ -10,6 +10,8 @@ import { Input } from '@/components/Input';
 import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
 import { DatePicker } from '@/components/DatePicker';
+import { logger } from '@/services/logger';
+import { goalInputSchema } from '@/src/validators/forms';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
@@ -46,7 +48,7 @@ export default function GoalsScreen() {
       const data = await db.select().from(measurementGoals).orderBy(desc(measurementGoals.targetDate));
       setGoals(data);
     } catch (error) {
-      console.error('Error loading goals:', error);
+      logger.error('Operation failed', 'Error loading goals:', error);
     }
   };
 
@@ -56,12 +58,24 @@ export default function GoalsScreen() {
         return;
       }
 
-      const targetDate = newGoal.targetDate.getTime();
+      // Validate with Zod
+      const validation = goalInputSchema.safeParse({
+        type: newGoal.type,
+        targetValue: newGoal.targetValue,
+        targetDate: newGoal.targetDate,
+      });
+      if (!validation.success) {
+        const msg = validation.error.errors[0]?.message || 'Dados inválidos';
+        logger.warn('Goal validation failed:', msg);
+        return;
+      }
+
+      const targetDate = validation.data.targetDate.getTime();
       const startDate = Date.now();
 
       await db.insert(measurementGoals).values({
-        type: newGoal.type,
-        targetValue: Number(newGoal.targetValue),
+        type: validation.data.type,
+        targetValue: validation.data.targetValue,
         startDate,
         targetDate,
         achieved: false,
@@ -71,7 +85,7 @@ export default function GoalsScreen() {
       setNewGoal({ type: 'weight', targetValue: '', targetDate: null });
       loadGoals();
     } catch (error) {
-      console.error('Error adding goal:', error);
+      logger.error('Operation failed', 'Error adding goal:', error);
     }
   };
 
@@ -85,7 +99,7 @@ export default function GoalsScreen() {
           await db.delete(measurementGoals).where(eq(measurementGoals.id, id));
           loadGoals();
         } catch (error) {
-          console.error('Error deleting goal:', error);
+          logger.error('Operation failed', 'Error deleting goal:', error);
         }
       },
     });

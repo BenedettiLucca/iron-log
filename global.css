@@ -16,7 +16,18 @@
     --accent: 242 204 143;     /* #F2CC8F (Yellow/Cream) */
     
     --success: 129 178 154;    /* #81B29A */
-    --danger: 224 122 95;      /* Primary Red/Orange */
+    --danger: 230 57 70;       /* #E63946 (Crimson - distinct from primary) */
+    
+    /* Neutral Color Scale */
+    --neutral-50: 249 250 251;
+    --neutral-100: 243 244 246;
+    --neutral-200: 229 231 235;
+    --neutral-300: 209 213 219;
+    --neutral-400: 156 163 175;
+    --neutral-500: 107 114 128;
+    --neutral-600: 75 85 99;
+    --neutral-700: 55 65 81;
+    --neutral-800: 31 41 55;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -29,11 +40,22 @@
       --border: 60 50 50;
 
       --primary: 224 122 95;     /* Mantém a identidade */
-      --secondary: 152 193 217;  /* #98C1D9 (Light Blue for contrast) */
+      --secondary: 61 90 128;    /* #3D5A80 (Standardized with light mode) */
       --accent: 242 204 143;
       
       --success: 129 178 154;
-      --danger: 239 100 100;
+      --danger: 230 57 70;       /* #E63946 (Standardized with light mode) */
+      
+      /* Neutral Color Scale (Dark) */
+      --neutral-50: 249 250 251;
+      --neutral-100: 243 244 246;
+      --neutral-200: 229 231 235;
+      --neutral-300: 209 213 219;
+      --neutral-400: 156 163 175;
+      --neutral-500: 107 114 128;
+      --neutral-600: 75 85 99;
+      --neutral-700: 55 65 81;
+      --neutral-800: 31 41 55;
     }
   }
 }

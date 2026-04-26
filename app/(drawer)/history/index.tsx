@@ -6,6 +6,8 @@ import { db } from '../../../src/db/client';
 import { sessions } from '../../../src/db/schema';
 import { desc } from 'drizzle-orm';
 import { Card } from '../../../components/Card';
+import { logger } from '@/services/logger';
+import { Session } from '@/src/types';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
@@ -21,10 +23,10 @@ export default function HistoryScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const [allSessions, setAllSessions] = useState<any[]>([]);
-  const [markedDates, setMarkedDates] = useState<any>({});
+  const [allSessions, setAllSessions] = useState<Session[]>([]);
+  const [markedDates, setMarkedDates] = useState<Record<string, { marked: boolean; dotColor: string }>>({});
   const [selectedDate, setSelectedDate] = useState('');
-  const [daySessions, setDaySessions] = useState<any[]>([]);
+  const [daySessions, setDaySessions] = useState<Session[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   // Theme Colors
@@ -40,7 +42,7 @@ export default function HistoryScreen() {
 
   const loadSessions = useCallback(async () => {
     try {
-      const result = await db.select().from(sessions).orderBy(desc(sessions.startTime));
+      const result = await db.select().from(sessions).where(isNull(sessions.deletedAt)).orderBy(desc(sessions.startTime));
       setAllSessions(result);
 
       const marks: any = {};
@@ -53,7 +55,7 @@ export default function HistoryScreen() {
       });
       setMarkedDates(marks);
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
     }
   }, [colors.primary]);
 
@@ -138,7 +140,7 @@ export default function HistoryScreen() {
                         paddingTop: 10
                     }
                 }
-            } as any}
+            }}
             />
         </View>
       </View>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Platform, Pressable, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { Colors } from '@/constants/colors';
 
 interface DatePickerProps {
   label?: string;
@@ -43,7 +44,7 @@ export function DatePicker({
     });
   };
 
-  const borderColor = value ? '#E07A5F' : '#3D5A80';
+  const borderColor = value ? Colors.primary : Colors.secondary;
 
   return (
     <View className="mb-4">
@@ -89,7 +90,7 @@ export function DatePicker({
                     minimumDate={minimumDate}
                     style={{ width: '100%' }}
                     locale="pt-BR"
-                    textColor="#E07A5F"
+                    textColor={Colors.primary}
                   />
                 </View>
               </View>
@@ -118,7 +119,7 @@ export function DatePicker({
               display="default"
               onChange={handleChange}
               minimumDate={minimumDate}
-              accentColor="#E07A5F"
+              accentColor={Colors.primary}
             />
           )}
         </>

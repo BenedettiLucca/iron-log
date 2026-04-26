@@ -2,10 +2,47 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import { Alert, Platform } from 'react-native';
+import { logger } from '@/services/logger';
 
 const DB_NAME = 'ironlog.db';
 const DB_DIR = FileSystem.documentDirectory + 'SQLite/';
 const DB_PATH = DB_DIR + DB_NAME;
+const SNAPSHOTS_DIR = FileSystem.documentDirectory + 'SQLite/snapshots/';
+const MAX_SNAPSHOTS = 5;
+
+async function createPreImportSnapshot(): Promise<string | null> {
+  try {
+    const fileInfo = await FileSystem.getInfoAsync(DB_PATH);
+    if (!fileInfo.exists) return null;
+
+    const dirInfo = await FileSystem.getInfoAsync(SNAPSHOTS_DIR);
+    if (!dirInfo.exists) {
+      await FileSystem.makeDirectoryAsync(SNAPSHOTS_DIR, { intermediates: true });
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const snapshotPath = `${SNAPSHOTS_DIR}ironlog_pre_import_${timestamp}.db`;
+    await FileSystem.copyAsync({ from: DB_PATH, to: snapshotPath });
+
+    // Cleanup old snapshots
+    const files = await FileSystem.readDirectoryAsync(SNAPSHOTS_DIR);
+    const snapshots = files
+      .filter(f => f.startsWith('ironlog_pre_import_'))
+      .sort();
+    
+    while (snapshots.length > MAX_SNAPSHOTS) {
+      const oldest = snapshots.shift();
+      if (oldest) {
+        await FileSystem.deleteAsync(`${SNAPSHOTS_DIR}${oldest}`, { idempotent: true });
+      }
+    }
+
+    return snapshotPath;
+  } catch (e) {
+    logger.warn('[IronLog] Failed to create pre-import snapshot:', e);
+    return null;
+  }
+}
 
 export const DatabaseBackupService = {
   async exportDb() {
@@ -38,7 +75,7 @@ export const DatabaseBackupService = {
         throw new Error('Compartilhamento não disponível neste dispositivo.');
       }
     } catch (error: any) {
-      console.error('Erro ao exportar:', error);
+      logger.error('Operation failed', 'Erro ao exportar:', error);
       throw error;
     }
   },
@@ -62,7 +99,12 @@ export const DatabaseBackupService = {
       }
 
       // 3. Confirm with user (handled in UI usually, but we can double check here or just proceed)
-      // We will proceed assuming UI handled confirmation.
+
+      // 3.5 Create safety snapshot of current database
+      const snapshotPath = await createPreImportSnapshot();
+      if (snapshotPath) {
+        logger.debug('[IronLog] Pre-import snapshot created:', snapshotPath);
+      }
 
       // 4. Ensure SQLite dir exists
       const dirInfo = await FileSystem.getInfoAsync(DB_DIR);
@@ -71,9 +113,7 @@ export const DatabaseBackupService = {
       }
 
       // 5. Replace DB file
-      // Delete existing
       await FileSystem.deleteAsync(DB_PATH, { idempotent: true });
-      // Copy new
       await FileSystem.copyAsync({
         from: sourceUri,
         to: DB_PATH,
@@ -81,7 +121,7 @@ export const DatabaseBackupService = {
 
       return true;
     } catch (error: any) {
-      console.error('Erro ao importar:', error);
+      logger.error('Operation failed', 'Erro ao importar:', error);
       throw error;
     }
   },
@@ -93,8 +133,6 @@ export const DatabaseBackupService = {
 
       const fileName = `ironlog_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
 
-      // 1. Upload File Content (Simple Upload)
-      // Note: For large files, resumable is better, but DB is small.
       const uploadUrl = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=media';
       
       const uploadResponse = await FileSystem.uploadAsync(uploadUrl, DB_PATH, {
@@ -112,12 +150,10 @@ export const DatabaseBackupService = {
       const fileData = JSON.parse(uploadResponse.body);
       const fileId = fileData.id;
 
-      // 2. Update Metadata (Rename)
       const metadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId}`;
       const metadata = {
         name: fileName,
         description: 'Backup automático do Iron Log',
-        // parents: ['appDataFolder'] // Optional: Use if we want strictly app-specific folder
       };
 
       const metadataResponse = await fetch(metadataUrl, {
@@ -130,12 +166,12 @@ export const DatabaseBackupService = {
       });
 
       if (!metadataResponse.ok) {
-        console.warn('Falha ao renomear arquivo no Drive');
+        logger.warn('Falha ao renomear arquivo no Drive');
       }
 
       return fileData;
     } catch (error) {
-      console.error('Drive Upload Error:', error);
+      logger.error('Operation failed', 'Drive Upload Error:', error);
       throw error;
     }
   }

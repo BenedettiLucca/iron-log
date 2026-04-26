@@ -9,12 +9,16 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
-import { sessions, bodyMetrics, sets } from '../../src/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { sessions, bodyMetrics, sets, personalRecords } from '../../src/db/schema';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Dialog } from '../../components/Dialog';
+import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
+import { rpeSchema } from '@/src/validators/forms';
 
 interface NoteTemplate {
   label: string;
@@ -44,7 +48,10 @@ const SRPE_DESCRIPTIONS: Record<number, string> = {
 
 export default function FinishSessionScreen() {
   const router = useRouter();
-  const { sessionId, startTime } = useLocalSearchParams();
+  const rawParams = useLocalSearchParams();
+  const validated = safeParseParams(finishParamsSchema, rawParams, 'FinishScreen');
+  const sessionId = validated?.sessionId ?? 0;
+  const startTime = validated?.startTime ?? Date.now();
 
   const [weight, setWeight] = useState('');
   const [previousWeight, setPreviousWeight] = useState<number | null>(null);
@@ -86,7 +93,7 @@ export default function FinishSessionScreen() {
         // Get all sets for this session
         const sessionSets = await db.select()
           .from(sets)
-          .where(eq(sets.sessionId, sessionIdNum));
+          .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
 
         // Calculate total volume (weight × reps for strength exercises)
         let totalVolume = 0;
@@ -101,16 +108,22 @@ export default function FinishSessionScreen() {
         // Count unique exercises
         const uniqueExercises = new Set(sessionSets.map(s => s.exerciseId)).size;
 
+        // Count PRs from this session
+        const prs = await db.select({ count: sql<number>`count(*)` })
+          .from(personalRecords)
+          .where(eq(personalRecords.sessionId, sessionId));
+        const prCount = prs[0]?.count ?? 0;
+
         setSessionStats({
           totalSets,
           totalVolume,
           totalExercises: uniqueExercises,
           completedExercises: uniqueExercises,
-          prCount: 0, // TODO: Calculate PR count by comparing with previous sessions
+          prCount,
         });
 
       } catch (e) {
-        console.error("Erro ao carregar dados:", e);
+        logger.error('Operation failed', "Erro ao carregar dados:", e);
       }
     };
     loadData();
@@ -148,7 +161,7 @@ export default function FinishSessionScreen() {
           endTime: endTimestamp,
           durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
           bodyWeight: weight ? Number(weight) : null,
-          sRpe: sRpe,
+          sRpe: (() => { const r = rpeSchema.safeParse(sRpe); return r.success ? r.data : 7; })(),
           notes: notes
         })
         .where(eq(sessions.id, Number(sessionId)));
@@ -172,7 +185,7 @@ export default function FinishSessionScreen() {
       });
 
     } catch (e) {
-      console.error(e);
+      logger.error('Operation failed', e);
       setShowConfirmDialog(false);
       setIsFinishing(false);
     }
@@ -241,7 +254,7 @@ export default function FinishSessionScreen() {
               className="flex-1 bg-card text-text text-[32px] font-bold py-4 px-5 rounded-xl border border-border text-center"
               keyboardType="numeric"
               placeholder="82.5"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.darkSubtext}
               value={weight}
               onChangeText={setWeight}
               textAlign="center"
@@ -286,9 +299,9 @@ export default function FinishSessionScreen() {
             step={1}
             value={sRpe}
             onValueChange={setSRpe}
-            minimumTrackTintColor="#E07A5F"
-            maximumTrackTintColor="#D1D5DB"
-            thumbTintColor="#E07A5F"
+            minimumTrackTintColor={Colors.primary}
+            maximumTrackTintColor={Colors.gray300}
+            thumbTintColor={Colors.primary}
           />
 
           <View className="flex-row justify-between px-1 mt-1">
@@ -338,7 +351,7 @@ export default function FinishSessionScreen() {
             className="bg-card text-text text-base p-4 rounded-xl border border-border min-h-[120px]"
             multiline
             placeholder="Como você se sentiu? Dores, ajustes de carga, energia..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={Colors.darkSubtext}
             value={notes}
             onChangeText={setNotes}
             textAlignVertical="top"

@@ -1,6 +1,6 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
 import { eq, and, count } from 'drizzle-orm';
@@ -8,20 +8,29 @@ import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
+import { Toast } from '../../components/Toast';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
+import { logger } from '@/services/logger';
+import { RoutineExercise } from '@/src/types';
+import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 
 export default function SessionScreen() {
-  const { routineId, routineName } = useLocalSearchParams();
+  const rawParams = useLocalSearchParams();
+  const validated = safeParseParams(sessionParamsSchema, rawParams, 'SessionScreen');
+  const routineId = validated?.routineId ?? '';
+  const routineName = validated?.routineName ?? '';
   const router = useRouter();
   const navigation = useNavigation();
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
-  const [routineExs, setRoutineExs] = useState<any[]>([]);
+  const [routineExs, setRoutineExs] = useState<RoutineExercise[]>([]);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<any>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [exitToast, setExitToast] = useState({ visible: false, message: '' });
+  const lastBackPressTime = useRef<number>(0);
 
   // Force refresh when screen comes into focus
   useFocusEffect(
@@ -31,15 +40,33 @@ export default function SessionScreen() {
     }, [])
   );
 
-  // Proteção contra saída acidental
+  // Smart exit protection with toast + double-press
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
+      
       e.preventDefault();
-      setPendingNavigation(e.data.action);
-      setShowExitDialog(true);
+      
+      const now = Date.now();
+      const timeSinceLastPress = now - lastBackPressTime.current;
+      
+      if (timeSinceLastPress < 2000) {
+        // Second press within 2 seconds - show confirmation dialog
+        setPendingNavigation(e.data.action);
+        setShowExitDialog(true);
+        setExitToast({ visible: false, message: '' });
+      } else {
+        // First press - show toast
+        lastBackPressTime.current = now;
+        setExitToast({ visible: true, message: 'Pressione novamente para sair' });
+        
+        // Hide toast after 2 seconds
+        setTimeout(() => {
+          setExitToast({ visible: false, message: '' });
+        }, 2000);
+      }
     });
 
     return unsubscribe;
@@ -64,7 +91,7 @@ export default function SessionScreen() {
           
           setRoutineExs(data);
       } catch (e) {
-          console.error(e);
+          logger.error('Operation failed', e);
       }
   }, [rIdStr]);
 
@@ -82,7 +109,7 @@ export default function SessionScreen() {
         }).returning();
         setSessionId(result[0].id);
       } catch (e) {
-        console.error(e);
+        logger.error('Operation failed', e);
         router.back();
       }
     };
@@ -182,6 +209,13 @@ export default function SessionScreen() {
         onConfirm={confirmFinish}
         onCancel={() => setShowFinishDialog(false)}
       />
+
+      <Toast
+        visible={exitToast.visible}
+        message={exitToast.message}
+        type="info"
+        onHide={() => setExitToast({ visible: false, message: '' })}
+      />
     </View>
   );
 }
@@ -190,7 +224,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
-      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id)))
+      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt)))
   );
 
   const doneSets = setsData?.[0]?.count || 0;
@@ -265,7 +299,7 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
   const { data: allSets } = useLiveQuery(
     db.select()
       .from(sets)
-      .where(eq(sets.sessionId, sessionId))
+      .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
       .orderBy(sets.id)
   );
 
