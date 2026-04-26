@@ -220,19 +220,19 @@ export default function SummaryScreen() {
         {/* Header */}
         <View className="items-center mb-6 pt-5">
           <Text className="text-6xl">🎉</Text>
-          <Text className="text-text text-[28px] font-bold mt-2">Treino Concluído!</Text>
+          <Text className="text-text text-3xl font-bold mt-2">Treino Concluído!</Text>
           <Text className="text-primary text-base font-semibold mt-1">{getMotivationalMessage()}</Text>
         </View>
 
         {/* Stats Dashboard */}
         <View className="flex-row flex-wrap gap-3 mb-5">
           <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-[32px] font-bold">{stats.totalSets}</Text>
+            <Text className="text-text text-4xl font-bold">{stats.totalSets}</Text>
             <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-[32px] font-bold">
+            <Text className="text-text text-4xl font-bold">
               {stats.totalVolume >= 1000
                 ? `${(stats.totalVolume / 1000).toFixed(1)}k`
                 : stats.totalVolume}
@@ -241,12 +241,12 @@ export default function SummaryScreen() {
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-[32px] font-bold">{sessionData?.sRpe || '-'}</Text>
+            <Text className="text-text text-4xl font-bold">{sessionData?.sRpe || '-'}</Text>
             <Text className="text-subtext text-xs font-semibold mt-1 uppercase">sRPE</Text>
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-[32px] font-bold">{sessionData?.durationMinutes || 0}</Text>
+            <Text className="text-text text-4xl font-bold">{sessionData?.durationMinutes || 0}</Text>
             <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Minutos</Text>
           </Card>
         </View>
@@ -255,7 +255,7 @@ export default function SummaryScreen() {
         {stats.bestSet && (
           <Card className="items-center p-4 mb-5 bg-accent/10 border-accent">
             <Text className="text-subtext text-xs font-bold uppercase mb-2">🏆 Melhor Série</Text>
-            <Text className="text-text text-[24px] font-bold">
+            <Text className="text-text text-2xl font-bold">
               {stats.bestSet.weight}kg × {stats.bestSet.reps} reps
             </Text>
             <Text className="text-primary text-sm font-medium mt-1">{stats.bestSet.exercise}</Text>

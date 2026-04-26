@@ -212,15 +212,15 @@ export default function FinishSessionScreen() {
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Estatísticas da Sessão</Text>
           <View className="flex-row justify-around">
             <View className="items-center">
-              <Text className="text-text text-[28px] font-bold">{sessionStats.totalSets}</Text>
+              <Text className="text-text text-3xl font-bold">{sessionStats.totalSets}</Text>
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
             </View>
             <View className="items-center">
-              <Text className="text-text text-[28px] font-bold">{sessionStats.totalExercises}</Text>
+              <Text className="text-text text-3xl font-bold">{sessionStats.totalExercises}</Text>
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Exercícios</Text>
             </View>
             <View className="items-center">
-              <Text className="text-text text-[28px] font-bold">
+              <Text className="text-text text-3xl font-bold">
                 {sessionStats.totalVolume >= 1000
                   ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
                   : sessionStats.totalVolume}
@@ -251,7 +251,7 @@ export default function FinishSessionScreen() {
 
           <View className="flex-row items-center gap-3">
             <TextInput
-              className="flex-1 bg-card text-text text-[32px] font-bold py-4 px-5 rounded-xl border border-border text-center"
+              className="flex-1 bg-card text-text text-4xl font-bold py-4 px-5 rounded-xl border border-border text-center"
               keyboardType="numeric"
               placeholder="82.5"
               placeholderTextColor={Colors.darkSubtext}
@@ -264,12 +264,16 @@ export default function FinishSessionScreen() {
               <TouchableOpacity
                 className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(-0.5)}
+                accessibilityLabel="Diminuir peso 0.5kg"
+                accessibilityRole="button"
               >
                 <Text className="text-text text-sm font-semibold">-0.5</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(0.5)}
+                accessibilityLabel="Aumentar peso 0.5kg"
+                accessibilityRole="button"
               >
                 <Text className="text-text text-sm font-semibold">+0.5</Text>
               </TouchableOpacity>
@@ -305,8 +309,8 @@ export default function FinishSessionScreen() {
           />
 
           <View className="flex-row justify-between px-1 mt-1">
-            <Text className="text-subtext text-[10px]">REGENERATIVO</Text>
-            <Text className="text-subtext text-[10px]">MÁXIMO</Text>
+            <Text className="text-subtext text-xs">REGENERATIVO</Text>
+            <Text className="text-subtext text-xs">MÁXIMO</Text>
           </View>
 
           <View className="bg-background mt-4 p-4 rounded-xl border border-border">

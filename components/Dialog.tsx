@@ -27,6 +27,8 @@ export function Dialog({
       transparent
       animationType="fade"
       onRequestClose={onCancel}
+      accessibilityViewIsModal
+      accessibilityLabel={`${title}. ${message}`}
     >
       <TouchableOpacity
         activeOpacity={1}
@@ -47,6 +49,8 @@ export function Dialog({
                 type === 'destructive' ? 'bg-danger' : 'bg-primary'
               }`}
               onPress={onConfirm}
+              accessibilityLabel={confirmText}
+              accessibilityRole="button"
             >
               <Text className="text-white font-semibold text-base">{confirmText}</Text>
             </TouchableOpacity>
@@ -54,6 +58,8 @@ export function Dialog({
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-background border border-border"
               onPress={onCancel}
+              accessibilityLabel={cancelText}
+              accessibilityRole="button"
             >
               <Text className="text-text font-semibold text-base">{cancelText}</Text>
             </TouchableOpacity>

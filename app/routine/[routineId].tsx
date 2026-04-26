@@ -218,19 +218,19 @@ export default function RoutinePreviewScreen() {
       <View className="flex-row gap-3">
         <Card className="flex-1 items-center py-3">
           <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-0.5">Exercícios</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Exercícios</Text>
         </Card>
         <Card className="flex-1 items-center py-3">
           <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-0.5">Treinos</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Treinos</Text>
         </Card>
         <Card className="flex-1 items-center py-3">
           <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-0.5">Min</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Min</Text>
         </Card>
         <Card className="flex-1 items-center py-3">
           <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-0.5">PRs</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">PRs</Text>
         </Card>
       </View>
 
@@ -278,15 +278,15 @@ export default function RoutinePreviewScreen() {
                       <Text className="text-text font-bold text-base">{ex.name}</Text>
                       <View className="flex-row items-center gap-2 mt-0.5 flex-wrap">
                         {ex.target && (
-                          <Text className="text-primary text-[10px] bg-primary/5 px-2 py-0.5 rounded border border-primary/10 font-bold uppercase">
+                          <Text className="text-primary text-xs bg-primary/5 px-2 py-0.5 rounded border border-primary/10 font-bold uppercase">
                             {ex.target}
                           </Text>
                         )}
                         {ex.restSeconds ? (
-                          <Text className="text-subtext text-[10px]">⏱ {formatRest(ex.restSeconds)}</Text>
+                          <Text className="text-subtext text-xs">⏱ {formatRest(ex.restSeconds)}</Text>
                         ) : null}
                         {ex.type === 'duration' && (
-                          <Text className="text-secondary text-[10px]">⏱ Duração</Text>
+                          <Text className="text-secondary text-xs">⏱ Duração</Text>
                         )}
                       </View>
                     </View>
@@ -295,7 +295,7 @@ export default function RoutinePreviewScreen() {
                     {ex.lastWeight !== null ? (
                       <View className="items-end ml-2">
                         <Text className="text-text font-bold text-sm">{ex.lastWeight}kg</Text>
-                        <Text className="text-subtext text-[10px]">{ex.lastReps} reps</Text>
+                        <Text className="text-subtext text-xs">{ex.lastReps} reps</Text>
                       </View>
                     ) : (
                       <Text className="text-subtext/50 text-xs ml-2">Novo</Text>
@@ -307,16 +307,16 @@ export default function RoutinePreviewScreen() {
                     <View className="flex-row gap-2 mt-2 flex-wrap">
                       {ex.prWeight !== null && (
                         <View className="bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                          <Text className="text-amber-600 text-[10px] font-bold">🏆 PR: {ex.prWeight}kg</Text>
+                          <Text className="text-amber-600 text-xs font-bold">🏆 PR: {ex.prWeight}kg</Text>
                         </View>
                       )}
                       {ex.estimated1RM !== null && (
                         <View className="bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
-                          <Text className="text-purple-500 text-[10px] font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
+                          <Text className="text-purple-500 text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
                         </View>
                       )}
                       <View className="bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
-                        <Text className="text-blue-500 text-[10px] font-bold">{ex.sessionCount}x treinado</Text>
+                        <Text className="text-blue-500 text-xs font-bold">{ex.sessionCount}x treinado</Text>
                       </View>
                     </View>
                   )}
@@ -329,7 +329,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: Weight Evolution Chart */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 1 && (
                     <View className="mt-3 pt-3 border-t border-border">
-                      <Text className="text-subtext text-[10px] font-bold uppercase tracking-wider mb-2">Evolução de Carga</Text>
+                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">Evolução de Carga</Text>
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
                         {(() => {
                           const maxW = Math.max(...ex.weightHistory.map(w => w.weight));
@@ -340,12 +340,12 @@ export default function RoutinePreviewScreen() {
                             const isLast = i === ex.weightHistory.length - 1;
                             return (
                               <View key={i} className="flex-1 items-center gap-0.5">
-                                <Text className="text-subtext text-[8px]">{point.weight}</Text>
+                                <Text className="text-subtext text-2xs">{point.weight}</Text>
                                 <View
                                   className={`w-full rounded-sm ${isLast ? 'bg-primary' : 'bg-primary/30'}`}
                                   style={{ height }}
                                 />
-                                <Text className="text-subtext text-[7px]" numberOfLines={1}>{point.date}</Text>
+                                <Text className="text-subtext text-2xs" numberOfLines={1}>{point.date}</Text>
                               </View>
                             );
                           });
@@ -357,11 +357,11 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: History Table */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 0 && (
                     <View className="mt-2 pt-2 border-t border-border">
-                      <Text className="text-subtext text-[10px] font-bold uppercase tracking-wider mb-1">Histórico Recente</Text>
+                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-1">Histórico Recente</Text>
                       {ex.weightHistory.slice(-5).reverse().map((h, i) => (
                         <View key={i} className="flex-row justify-between py-0.5">
-                          <Text className="text-subtext text-[10px]">{h.date}</Text>
-                          <Text className="text-text text-[10px] font-bold">{h.weight}kg</Text>
+                          <Text className="text-subtext text-xs">{h.date}</Text>
+                          <Text className="text-text text-xs font-bold">{h.weight}kg</Text>
                         </View>
                       ))}
                     </View>

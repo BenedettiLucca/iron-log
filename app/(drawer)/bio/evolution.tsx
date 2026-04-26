@@ -214,19 +214,19 @@ export default function EvolutionScreen() {
                               {entry.photoFront && (
                                   <View>
                                       <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">FRENTE</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">FRENTE</Text>
                                   </View>
                               )}
                               {entry.photoBack && (
                                   <View>
                                       <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">COSTAS</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">COSTAS</Text>
                                   </View>
                               )}
                               {entry.photoSide && (
                                   <View>
                                       <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-[10px] mt-2 font-bold uppercase">PERFIL</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">PERFIL</Text>
                                   </View>
                               )}
                           </ScrollView>
@@ -271,12 +271,12 @@ export default function EvolutionScreen() {
                       {/* Statistics Grid */}
                       <View className="flex-row gap-3">
                         <Card className="flex-1">
-                          <Text className="text-subtext text-[10px] font-bold uppercase mb-1">Total de Registros</Text>
+                          <Text className="text-subtext text-xs font-bold uppercase mb-1">Total de Registros</Text>
                           <Text className="text-2xl font-black text-text">{analytics.totalEntries}</Text>
                         </Card>
 
                         <Card className="flex-1">
-                          <Text className="text-subtext text-[10px] font-bold uppercase mb-1">Período</Text>
+                          <Text className="text-subtext text-xs font-bold uppercase mb-1">Período</Text>
                           <Text className="text-2xl font-black text-text">
                             {analytics.firstEntryDate && analytics.lastEntryDate
                               ? Math.ceil(
@@ -285,7 +285,7 @@ export default function EvolutionScreen() {
                                 )
                               : 0}
                           </Text>
-                          <Text className="text-subtext text-[10px]">meses</Text>
+                          <Text className="text-subtext text-xs">meses</Text>
                         </Card>
                       </View>
 

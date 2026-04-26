@@ -120,15 +120,15 @@ export default function AnalyticsScreen() {
       <View className="flex-row gap-3">
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.sessionsThisWeek}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-1">Esta Semana</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">Esta Semana</Text>
         </Card>
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.sessionsThisMonth}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-1">Este Mês</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">Este Mês</Text>
         </Card>
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.totalSessions}</Text>
-          <Text className="text-subtext text-[10px] font-bold uppercase mt-1">Total</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">Total</Text>
         </Card>
       </View>
 
@@ -163,14 +163,14 @@ export default function AnalyticsScreen() {
               const barWidth = (week.totalVolume / maxVolume) * 100;
               return (
                 <View key={week.week} className="flex-row items-center gap-2">
-                  <Text className="text-subtext text-[9px] font-mono w-12">{week.week.slice(-2)}w</Text>
+                  <Text className="text-subtext text-2xs font-mono w-12">{week.week.slice(-2)}w</Text>
                   <View className="flex-1 h-4 bg-border/30 rounded overflow-hidden">
                     <View
                       className="h-full bg-primary/70 rounded"
                       style={{ width: `${Math.max(barWidth, 2)}%` }}
                     />
                   </View>
-                  <Text className="text-subtext text-[9px] font-mono w-14 text-right">
+                  <Text className="text-subtext text-2xs font-mono w-14 text-right">
                     {week.totalVolume >= 1000 ? `${(week.totalVolume / 1000).toFixed(1)}k` : week.totalVolume}kg
                   </Text>
                 </View>

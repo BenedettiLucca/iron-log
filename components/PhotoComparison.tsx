@@ -94,8 +94,8 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               thumbTintColor={Colors.primary}
             />
             <View className="flex-row justify-between px-2 mt-1">
-              <Text className="text-subtext text-[10px]">Antes</Text>
-              <Text className="text-subtext text-[10px]">Depois</Text>
+              <Text className="text-subtext text-xs">Antes</Text>
+              <Text className="text-subtext text-xs">Depois</Text>
             </View>
           </View>
 

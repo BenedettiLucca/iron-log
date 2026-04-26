@@ -49,6 +49,8 @@ function SetCard({
               swipeableRef?.close();
               onEdit();
             }}
+            accessibilityLabel="Editar série"
+            accessibilityRole="button"
           >
             <Text className="text-white text-xs font-bold uppercase">Editar</Text>
           </TouchableOpacity>
@@ -61,6 +63,8 @@ function SetCard({
               swipeableRef?.close();
               onDelete();
             }}
+            accessibilityLabel="Excluir série"
+            accessibilityRole="button"
           >
             <Text className="text-white text-xs font-bold uppercase">Excluir</Text>
           </TouchableOpacity>
@@ -83,6 +87,8 @@ function SetCard({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.7}
+        accessibilityLabel={`Série ${setNumber}, ${weight > 0 ? weight + 'kg' : 'sem carga'} ${duration !== undefined ? duration + 's' : (reps || 0) + ' reps'} ${rir !== null && rir !== undefined ? 'RIR ' + rir : ''} ${isPR ? 'Recorde pessoal' : ''} ${isWarmup ? 'Aquecimento' : ''}`}
+        accessibilityRole="button"
         className={`p-4 rounded-2xl border flex-row items-center min-h-[64px] shadow-sm ${
           isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
@@ -92,17 +98,17 @@ function SetCard({
           <Text className="text-text font-black text-xl leading-5">{setNumber}</Text>
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
-              <Text className="text-text text-[8px] font-bold">PR</Text>
+              <Text className="text-text text-2xs font-bold">PR</Text>
             </View>
           )}
           {isWarmup && (
             <View className="bg-warning/80 px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 shadow-sm">
-              <Text className="text-white text-[8px] font-bold uppercase">🔥</Text>
+              <Text className="text-white text-2xs font-bold uppercase">🔥</Text>
             </View>
           )}
           {isEdited && (
             <View className="bg-secondary/80 px-1.5 py-0.5 rounded mt-1 absolute -bottom-1 -right-2 shadow-sm">
-              <Text className="text-white text-[10px]">✏️</Text>
+              <Text className="text-white text-xs">✏️</Text>
             </View>
           )}
         </View>
@@ -128,7 +134,7 @@ function SetCard({
         <View className="ml-3">
           {rir !== null && rir !== undefined && (
             <View className={`px-2.5 py-1 rounded-lg border ${getRirColorClass(rir)}`}>
-              <Text className={`text-[10px] font-bold uppercase ${getRirColorClass(rir).split(' ')[0]}`}>
+              <Text className={`text-xs font-bold uppercase ${getRirColorClass(rir).split(' ')[0]}`}>
                 RIR {rir}
               </Text>
             </View>

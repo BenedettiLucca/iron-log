@@ -178,7 +178,7 @@ export default function RoutinesListScreen() {
                 <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>
                 <Text className="text-subtext text-xs leading-5">
                     Peça para a IA gerar um JSON neste formato:{"\n"}
-                    <Text className="font-mono text-[10px] text-text">
+                    <Text className="font-mono text-xs text-text">
                         {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}
                     </Text>
                 </Text>
@@ -203,7 +203,7 @@ export default function RoutinesListScreen() {
                   <View className="flex-row items-center gap-2 mb-1">
                     <Text className="text-text text-lg font-bold">{item.name}</Text>
                     {item.folder && item.folder !== 'Geral' && (
-                      <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
+                      <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
                           {item.folder}
                       </Text>
                     )}
@@ -215,6 +215,8 @@ export default function RoutinesListScreen() {
                     e.stopPropagation();
                     handleQuickStart(item.id);
                   }}
+                  accessibilityLabel="Iniciar rotina"
+                  accessibilityRole="button"
                   className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >
                   <Text className="text-success text-xs font-bold uppercase">Iniciar</Text>

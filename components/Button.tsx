@@ -19,6 +19,7 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   className?: string;
+  accessibilityLabel?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -35,6 +36,7 @@ export function Button({
   style,
   textStyle,
   className = '',
+  accessibilityLabel,
 }: ButtonProps) {
   const scale = useSharedValue(1);
   const { trigger } = useHaptics();
@@ -128,6 +130,9 @@ export function Button({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled || loading}
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={[
         animatedStyle,
         { opacity: disabled ? 0.6 : 1 },

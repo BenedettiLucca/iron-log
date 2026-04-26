@@ -11,6 +11,8 @@ interface CardProps {
   style?: ViewStyle;
   contentPadding?: boolean;
   className?: string;
+  accessibilityLabel?: string;
+  accessibilityRole?: 'button' | 'link';
 }
 
 export function Card({
@@ -21,6 +23,8 @@ export function Card({
   style,
   contentPadding = true,
   className = '',
+  accessibilityLabel,
+  accessibilityRole,
 }: CardProps) {
   const getVariantClasses = () => {
     switch (variant) {
@@ -42,7 +46,14 @@ export function Card({
 
   if (pressable && onPress) {
     return (
-      <TouchableOpacity onPress={onPress} className={cardClasses} activeOpacity={0.7} style={style}>
+      <TouchableOpacity
+        onPress={onPress}
+        className={cardClasses}
+        activeOpacity={0.7}
+        style={style}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityRole={accessibilityRole || 'button'}
+      >
         {children}
       </TouchableOpacity>
     );

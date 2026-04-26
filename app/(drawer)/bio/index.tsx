@@ -263,7 +263,7 @@ export default function BioScreen() {
                                         ) : (
                                             <View className="items-center">
                                                 <Text className="text-2xl mb-1">📷</Text>
-                                                <Text className="text-subtext text-[10px] uppercase font-bold">{side}</Text>
+                                                <Text className="text-subtext text-xs uppercase font-bold">{side}</Text>
                                             </View>
                                         )}
                                     </TouchableOpacity>
@@ -299,7 +299,7 @@ export default function BioScreen() {
                                     <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
                                     <View className="w-full h-full justify-center items-center">
-                                        <Text className="text-[8px] text-subtext uppercase font-bold">VAZIO</Text>
+                                        <Text className="text-2xs text-subtext uppercase font-bold">VAZIO</Text>
                                     </View>
                                 )}
                             </View>
@@ -324,7 +324,7 @@ export default function BioScreen() {
                         
                         <View className="flex-row items-center gap-2">
                             {item.type === 'monthly' && (
-                                <Text className="text-[10px] bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">CHECK-IN</Text>
+                                <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">CHECK-IN</Text>
                             )}
                             <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
                         </View>
@@ -384,7 +384,7 @@ export default function BioScreen() {
                                 ) : (
                                     <View className="items-center">
                                         <Text className="text-2xl mb-1">📷</Text>
-                                        <Text className="text-subtext text-[10px] uppercase font-bold">{side}</Text>
+                                        <Text className="text-subtext text-xs uppercase font-bold">{side}</Text>
                                     </View>
                                 )}
                             </TouchableOpacity>

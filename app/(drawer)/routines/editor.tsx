@@ -454,7 +454,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     <View className="flex-1">
                         <Text className="text-text font-bold text-lg">{item.name}</Text>
                         {item.type === 'duration' && (
-                            <Text className="text-[10px] bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">Tempo</Text>
+                            <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">Tempo</Text>
                         )}
                     </View>
                     
