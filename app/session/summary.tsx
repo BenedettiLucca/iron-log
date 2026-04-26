@@ -57,7 +57,7 @@ export default function SummaryScreen() {
       setSessionData(session);
 
       // 2. Buscar Sets
-      const setsData = await db.select().from(sets).where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
+      const setsData = await db.select().from(sets).where(eq(sets.sessionId, Number(sessionId)));
 
       // 3. Buscar Targets da Rotina (Se houver routineId)
       const targetsMap = new Map<number, string>();

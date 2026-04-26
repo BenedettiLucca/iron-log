@@ -128,14 +128,14 @@ export default function HomeScreen() {
                 onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: lastSession.id } })}
             >
                 <View className="flex-row justify-between items-center">
-                    <View>
-                        <Text className="text-text font-black text-xl mb-1">{lastSession.routineName}</Text>
+                    <View className="flex-1 mr-3">
+                        <Text className="text-text font-black text-xl mb-1" numberOfLines={2}>{lastSession.routineName}</Text>
                         <Text className="text-subtext text-xs font-medium">
                             {new Date(lastSession.startTime).toLocaleDateString()} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
                         </Text>
                     </View>
-                    <View className="bg-primary/10 p-2 rounded-full">
-                        <Text className="text-primary text-xl">→</Text>
+                    <View className="bg-primary/10 w-10 h-10 rounded-full justify-center items-center flex-shrink-0">
+                        <Text className="text-primary text-xl">{'>'}</Text>
                     </View>
                 </View>
             </Card>

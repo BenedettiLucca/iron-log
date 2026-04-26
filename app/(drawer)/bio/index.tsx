@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
@@ -226,7 +226,7 @@ export default function BioScreen() {
                 icon={<Text className="text-lg mr-1">📈</Text>}
             />
             <Button
-                title="ANALYTICS"
+                title="DADOS"
                 onPress={() => router.push('/bio/analytics')}
                 variant="secondary"
                 className="flex-1"
@@ -234,56 +234,57 @@ export default function BioScreen() {
             />
         </View>
 
-        {/* Botão de Check-in Mensal */}
-        <TouchableOpacity 
-            onPress={() => setModalVisible(true)}
-            activeOpacity={0.8}
-            className="bg-secondary rounded-2xl p-5 shadow-md flex-row justify-between items-center"
-        >
-                  <View>
-                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">FOTOS</Text>
-                    <View className="flex-row justify-between">
-                        {(['front', 'back', 'side'] as const).map(side => {
-                            return (
-                                <View key={side} className="w-[31%]">
-                                    <TouchableOpacity 
-                                        onPress={() => pickImage(side)}
-                                        className="w-full aspect-[3/4] bg-card border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70 relative"
-                                    >
-                                        {photos[side] ? (
-                                            <>
-                                                <Image source={{ uri: photos[side] }} className="w-full h-full" />
-                                                <TouchableOpacity
-                                                    onPress={() => deletePhoto(side)}
-                                                    className="absolute top-2 right-2 bg-danger/90 p-2 rounded-full shadow-lg"
-                                                >
-                                                    <Text className="text-white text-sm font-bold">✕</Text>
-                                                </TouchableOpacity>
-                                            </>
-                                        ) : (
-                                            <View className="items-center">
-                                                <Text className="text-2xl mb-1">📷</Text>
-                                                <Text className="text-subtext text-xs uppercase font-bold">{side}</Text>
-                                            </View>
-                                        )}
-                                    </TouchableOpacity>
-                                    <Input
-                                        className="mt-2"
-                                        placeholder="Notas (opcional)"
-                                        value={photoNotes[side]}
-                                        onChangeText={t => setPhotoNotes(prev => ({ ...prev, [side]: t }))}
-                                        showCharacterCount={true}
-                                        maxLength={100}
-                                    />
-                                </View>
-                            );
-                        })}
-                    </View>
-                  </View>
-            <View className="bg-white/20 w-10 h-10 rounded-full justify-center items-center">
-                <Text className="text-white text-2xl font-bold">+</Text>
+        {/* Check-in Mensal */}
+        <Card>
+            <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-primary font-bold text-xs uppercase tracking-widest">CHECK-IN MENSAL</Text>
+                <TouchableOpacity 
+                    onPress={() => setModalVisible(true)}
+                    className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
+                >
+                    <Text className="text-white font-bold text-xs uppercase">Abrir</Text>
+                </TouchableOpacity>
             </View>
-        </TouchableOpacity>
+
+            <View className="flex-row justify-between">
+                {(['front', 'back', 'side'] as const).map(side => {
+                    const label = side === 'front' ? 'FRENTE' : side === 'back' ? 'COSTAS' : 'LATERAL';
+                    return (
+                        <View key={side} className="w-[31%]">
+                            <TouchableOpacity 
+                                onPress={() => pickImage(side)}
+                                className="w-full aspect-[3/4] bg-background border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70 relative"
+                            >
+                                {photos[side] ? (
+                                    <>
+                                        <Image source={{ uri: photos[side] }} className="w-full h-full" />
+                                        <TouchableOpacity
+                                            onPress={() => deletePhoto(side)}
+                                            className="absolute top-2 right-2 bg-danger/90 w-6 h-6 rounded-full justify-center items-center shadow-lg"
+                                        >
+                                            <Text className="text-white text-xs font-bold">✕</Text>
+                                        </TouchableOpacity>
+                                    </>
+                                ) : (
+                                    <View className="items-center">
+                                        <Text className="text-2xl mb-1">📷</Text>
+                                        <Text className="text-subtext text-xs uppercase font-bold">{label}</Text>
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                            <TextInput
+                                className="mt-2 bg-card rounded-lg px-2 py-1.5 text-xs text-text border border-border"
+                                placeholder="Notas..."
+                                placeholderTextColor={Colors.darkSubtext}
+                                value={photoNotes[side]}
+                                onChangeText={t => setPhotoNotes(prev => ({ ...prev, [side]: t }))}
+                                maxLength={60}
+                            />
+                        </View>
+                    );
+                })}
+            </View>
+        </Card>
 
         {/* Galeria Recente (Último Monthly) */}
         {metrics.find(m => m.type === 'monthly') && (

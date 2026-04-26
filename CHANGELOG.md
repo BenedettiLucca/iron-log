@@ -2,6 +2,26 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.1.2] - 2026-04-27
+
+### Added
+- **History Screen Enhancement** — Cards now show exercise names and set counts per session
+- **UI Polish** — Improved layout on home screen last-session card, routine detail stats grid, bio photo section
+
+### Changed
+- Calendar theme on History screen switched to dark mode (matches app theme)
+- "Analytics" button relabeled to "Dados" to prevent text wrapping
+- Photo notes input switched from `Input` component to plain `TextInput`
+
+### Fixed
+- **Missing imports** — Added `isNull` and `and` to history screen query (prevents crash on history load)
+- **Summary screen sets/volume** — Fixed missing `and`/`isNull` imports causing 0 sets/0 volume display
+- **Summary screen query** — Simplified sets query to avoid `isNull` incompatibility with migrated DB columns
+- **Drawer navigation** — Hidden internal routes (bio/analytics, routines/templates) from drawer menu
+- **Routine detail layout** — Stats reorganized to 2×2 grid, exercise card headers with `numberOfLines=2`
+- **Bio screen** — Restructured photo section layout, added Portuguese labels (Frente/Costas/Lateral)
+
+---
 ## [3.1.1] - 2026-04-26
 
 ### Added

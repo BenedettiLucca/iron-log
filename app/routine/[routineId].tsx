@@ -216,22 +216,26 @@ export default function RoutinePreviewScreen() {
 
       {/* Quick Stats Row */}
       <View className="flex-row gap-3">
-        <Card className="flex-1 items-center py-3">
-          <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Exercícios</Text>
-        </Card>
-        <Card className="flex-1 items-center py-3">
-          <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Treinos</Text>
-        </Card>
-        <Card className="flex-1 items-center py-3">
-          <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Min</Text>
-        </Card>
-        <Card className="flex-1 items-center py-3">
-          <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-0.5">PRs</Text>
-        </Card>
+        <View className="flex-1 gap-3">
+          <Card className="items-center py-3">
+            <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Exercícios</Text>
+          </Card>
+          <Card className="items-center py-3">
+            <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Min</Text>
+          </Card>
+        </View>
+        <View className="flex-1 gap-3">
+          <Card className="items-center py-3">
+            <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Treinos</Text>
+          </Card>
+          <Card className="items-center py-3">
+            <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">PRs</Text>
+          </Card>
+        </View>
       </View>
 
       {/* Last Session */}
@@ -269,13 +273,13 @@ export default function RoutinePreviewScreen() {
               >
                 <Card className={expandedExercise === ex.id ? 'border-primary/40' : ''}>
                   {/* Header Row */}
-                  <View className="flex-row items-center">
-                    <View className="w-8 h-8 rounded-full bg-primary/10 justify-center items-center mr-3">
+                  <View className="flex-row items-start">
+                    <View className="w-8 h-8 rounded-full bg-primary/10 justify-center items-center mr-3 mt-0.5">
                       <Text className="text-primary font-bold text-sm">{index + 1}</Text>
                     </View>
 
-                    <View className="flex-1">
-                      <Text className="text-text font-bold text-base">{ex.name}</Text>
+                    <View className="flex-1 mr-2">
+                      <Text className="text-text font-bold text-base" numberOfLines={2}>{ex.name}</Text>
                       <View className="flex-row items-center gap-2 mt-0.5 flex-wrap">
                         {ex.target && (
                           <Text className="text-primary text-xs bg-primary/5 px-2 py-0.5 rounded border border-primary/10 font-bold uppercase">
@@ -293,12 +297,14 @@ export default function RoutinePreviewScreen() {
 
                     {/* Last Performance */}
                     {ex.lastWeight !== null ? (
-                      <View className="items-end ml-2">
+                      <View className="items-end min-w-[50px]">
                         <Text className="text-text font-bold text-sm">{ex.lastWeight}kg</Text>
                         <Text className="text-subtext text-xs">{ex.lastReps} reps</Text>
                       </View>
                     ) : (
-                      <Text className="text-subtext/50 text-xs ml-2">Novo</Text>
+                      <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center">
+                        <Text className="text-subtext/70 text-xs font-bold">Novo</Text>
+                      </View>
                     )}
                   </View>
 
