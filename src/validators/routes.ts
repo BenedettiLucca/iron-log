@@ -53,6 +53,15 @@ export const routineEditorParamsSchema = z.object({
 
 export type RoutineEditorParams = z.infer<typeof routineEditorParamsSchema>;
 
+
+// Routine preview screen params
+export const routinePreviewParamsSchema = z.object({
+  routineId: numericParam,
+  routineName: z.string().optional().default(''),
+});
+
+export type RoutinePreviewParams = z.infer<typeof routinePreviewParamsSchema>;
+
 /**
  * Safe parse helper — returns parsed data or null with error log
  */

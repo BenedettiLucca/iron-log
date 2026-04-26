@@ -89,11 +89,17 @@ npx expo start
 
 ### Build de Produção (Android)
 
+Como o diretório `android/` está no `.gitignore` (não versionamos código nativo), use o workflow do Expo:
+
 ```bash
-cd android && ./gradlew assembleRelease
+# Gerar código nativo localmente (para debug)
+npx expo prebuild --platform android
+
+# Build via EAS (recomendado)
+npx eas build --platform android --profile production
 ```
 
-Para Google Login funcionar no APK, configure `EXPO_PUBLIC_GOOGLE_CLIENT_ID` no `.env` e adicione o SHA-1 da keystore no Google Cloud Console.
+Para Google Drive Backup funcionar no release, configure `EXPO_PUBLIC_GOOGLE_CLIENT_ID` no `.env` e adicione o SHA-1 da keystore no Google Cloud Console.
 
 ---
 

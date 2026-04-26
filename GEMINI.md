@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.1.1 (Optimized Edition).
+*   **Current State:** v3.1.1.
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -28,22 +28,26 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **`src/db/`**: Database layer.
     *   `schema.ts`: **Source of Truth** for the data model.
     *   `client.ts`: DB connection and migration runner.
+*   **`src/validators/`**: Zod schemas for route params (`routes.ts`) and form inputs (`forms.ts`).
+*   **`src/utils/`**: Pure utility functions (exercise, timer, warmup, calculations). Export via `src/utils/index.ts`.
 *   **`drizzle/`**: SQL Migration files.
 *   **`components/`**: Reusable polished UI components.
-*   **`hooks/`**: Custom React hooks (notifications, haptics, bio streaks, PRs, volume).
-*   **`services/`**: Business logic services (NotificationService, DatabaseBackupService).
+*   **`hooks/`**: Domain hooks (routines, sessions, session-exercise, body-metrics) + utility hooks (haptics, notifications, color-scheme). All export via `hooks/index.ts`.
+*   **`services/`**: Business logic services (AnalyticsService, CsvExportService, AlexandriaExportService, DatabaseBackupService, NotificationService, logger). All export via `services/index.ts`.
 *   **`assets/`**: Images and static resources.
 
 ### Data Model (Drizzle)
 The app relies on a strictly typed SQLite schema. Key tables include:
 *   `routines`: Workout templates.
 *   `exercises`: Definition of exercises.
+*   `routine_exercises`: Join table linking routines to exercises with order/targets.
 *   `sessions`: Records of completed workouts.
 *   `sets`: Individual performance records (weight, reps, RPE).
 *   `body_metrics`: Bio-tracking data (weight, photos, measurements).
 *   `notification_settings`: Monthly check-in notification preferences.
-*   `measurement_goals`: User goals for body metrics.
-*   `personal_records`: PR tracking (weight, reps, volume).
+*   `measurement_goals`: User goals for body metrics with target dates.
+*   `personal_records`: PR tracking (weight, reps, volume, duration).
+*   `user_settings`: App preferences (single-row table).
 
 ## 4. Development Workflow & Commands
 
@@ -60,8 +64,9 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 3.  (Optional) Verify the generated SQL in `drizzle/`.
 *Note: Migrations are automatically applied when the app starts.*
 
-### Linting
+### Linting & Testing
 *   **Lint:** `npm run lint`
+*   **Tests:** `npx jest` (9 suites, 134 tests)
 
 ## 5. Coding Conventions & Guidelines
 
