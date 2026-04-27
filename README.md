@@ -197,7 +197,3 @@ iron-log/
    ```env
    EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
    ```
-
----
-
-*Desenvolvido como projeto MVP para portfolio de engenharia de software.*
