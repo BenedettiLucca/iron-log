@@ -107,3 +107,4 @@ jest.mock('expo-router', () => ({
   useFocusEffect: jest.fn(),
   Stack: { Screen: jest.fn() },
 }));
+
