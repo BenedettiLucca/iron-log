@@ -128,126 +128,143 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 16 }}>
+    <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
       <Stack.Screen options={{ title: 'Configurações' }} />
 
-      <Card>
-        <Text className="text-text font-bold text-lg mb-2">Lembretes de Check-in</Text>
-        <Text className="text-subtext text-sm mb-6 leading-5">
-          Receba lembretes mensais para registrar suas métricas corporais e acompanhar seu progresso.
-        </Text>
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">Lembretes de Check-in</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            Receba lembretes mensais para registrar suas métricas corporais e acompanhar seu progresso.
+          </Text>
 
-        <View className="flex-row items-center justify-between mb-4">
-          <View className="flex-1">
-            <Text className="text-text font-semibold">Ativar Lembretes</Text>
-            <Text className="text-subtext text-xs mt-1">
-              Dia {notificationSettings.checkinDay} às {notificationSettings.checkinHour}:00
-            </Text>
-          </View>
-          <Switch
-            value={notificationSettings.enabled}
-            onValueChange={toggleEnabled}
-            disabled={notificationsLoading}
-            trackColor={{ false: Colors.darkButton, true: Colors.primary }}
-            thumbColor="#fff"
-          />
-        </View>
-
-        {notificationSettings.enabled && (
-          <Button
-            title="TESTAR NOTIFICAÇÃO"
-            onPress={sendTestNotification}
-            variant="ghost"
-            loading={loading}
-            fullWidth
-          />
-        )}
-      </Card>
-
-      <Card>
-        <Text className="text-text font-bold text-lg mb-2">Backup Local</Text>
-        <Text className="text-subtext text-sm mb-6 leading-5">
-          Exporte seus dados para um arquivo seguro ou restaure um backup anterior.
-          Ideal para trocar de aparelho ou manter uma cópia offline.
-        </Text>
-
-        <View className="gap-3">
-          <Button
-            title="EXPORTAR DADOS"
-            onPress={handleExport}
-            variant="secondary"
-            loading={loading}
-            fullWidth
-          />
-          
-          <Button
-            title="IMPORTAR DADOS"
-            onPress={handleImport}
-            variant="danger"
-            loading={loading}
-            fullWidth
-          />
-        </View>
-      </Card>
-
-      <Card>
-        <Text className="text-text font-bold text-lg mb-2">Backup em Nuvem (Google Drive)</Text>
-        <Text className="text-subtext text-sm mb-6 leading-5">
-          Sincronize seus dados com sua conta Google para nunca perder seu progresso.
-        </Text>
-
-        {!accessToken ? (
-          <Button
-            title="CONECTAR GOOGLE DRIVE"
-            onPress={initiateGoogleAuth}
-            variant="primary"
-            fullWidth
-            disabled={!request}
-          />
-        ) : (
-          <View className="gap-3">
-            <View className="bg-success/10 p-3 rounded-xl border border-success/20 mb-2">
-              <Text className="text-success text-center font-bold">✓ Conectado ao Google Drive</Text>
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-1">
+              <Text className="text-text font-semibold text-sm">Ativar Lembretes</Text>
+              <Text className="text-subtext text-xs mt-0.5">
+                Dia {notificationSettings.checkinDay} às {notificationSettings.checkinHour}:00
+              </Text>
             </View>
+            <Switch
+              value={notificationSettings.enabled}
+              onValueChange={toggleEnabled}
+              disabled={notificationsLoading}
+              trackColor={{ false: Colors.darkButton, true: Colors.primary }}
+              thumbColor="#fff"
+            />
+          </View>
+
+          {notificationSettings.enabled && (
             <Button
-              title="FAZER BACKUP AGORA"
-              onPress={handleCloudBackup}
-              variant="success"
+              title="TESTAR NOTIFICAÇÃO"
+              onPress={sendTestNotification}
+              variant="ghost"
+              size="sm"
+              loading={loading}
+              fullWidth
+            />
+          )}
+        </View>
+      </Card>
+
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">Backup Local</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            Exporte seus dados para um arquivo seguro ou restaure um backup anterior.
+            Ideal para trocar de aparelho ou manter uma cópia offline.
+          </Text>
+
+          <View className="gap-2">
+            <Button
+              title="EXPORTAR DADOS"
+              onPress={handleExport}
+              variant="secondary"
+              size="sm"
+              loading={loading}
+              fullWidth
+            />
+            
+            <Button
+              title="IMPORTAR DADOS"
+              onPress={handleImport}
+              variant="danger"
+              size="sm"
               loading={loading}
               fullWidth
             />
           </View>
-        )}
+        </View>
       </Card>
 
-      <Card>
-        <Text className="text-text font-bold text-lg mb-2">Exportar para Alexandria</Text>
-        <Text className="text-subtext text-sm mb-6 leading-5">
-          Exporte seus dados em JSON estruturado para o servidor de contexto pessoal Alexandria.
-          Inclui treinos, métricas corporais, recordes pessoais e metas.
-        </Text>
-        <Button
-          title="EXPORTAR ALEXANDRIA JSON"
-          onPress={handleAlexandriaExport}
-          variant="primary"
-          loading={loading}
-          fullWidth
-        />
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">Backup em Nuvem (Google Drive)</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            Sincronize seus dados com sua conta Google para nunca perder seu progresso.
+          </Text>
+
+          {!accessToken ? (
+            <Button
+              title="CONECTAR GOOGLE DRIVE"
+              onPress={initiateGoogleAuth}
+              variant="primary"
+              size="sm"
+              fullWidth
+              disabled={!request}
+            />
+          ) : (
+            <View className="gap-2">
+              <View className="bg-success/10 p-2.5 rounded-xl border border-success/20">
+                <Text className="text-success text-center font-bold text-sm">✓ Conectado ao Google Drive</Text>
+              </View>
+              <Button
+                title="FAZER BACKUP AGORA"
+                onPress={handleCloudBackup}
+                variant="success"
+                size="sm"
+                loading={loading}
+                fullWidth
+              />
+            </View>
+          )}
+        </View>
       </Card>
 
-      <Card>
-        <Text className="text-text font-bold text-lg mb-2">Exportar como CSV</Text>
-        <Text className="text-subtext text-sm mb-6 leading-5">
-          Exporte seus dados em formato CSV para análise em planilhas (Excel, Google Sheets).
-          Inclui histórico completo de treinos e métricas corporais.
-        </Text>
-        <Button
-          title="EXPORTAR CSV"
-          onPress={handleCsvExport}
-          variant="secondary"
-          loading={loading}
-          fullWidth
-        />
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">Exportar para Alexandria</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            Exporte seus dados em JSON estruturado para o servidor de contexto pessoal Alexandria.
+            Inclui treinos, métricas corporais, recordes pessoais e metas.
+          </Text>
+          <Button
+            title="EXPORTAR ALEXANDRIA JSON"
+            onPress={handleAlexandriaExport}
+            variant="primary"
+            size="sm"
+            loading={loading}
+            fullWidth
+          />
+        </View>
+      </Card>
+
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">Exportar como CSV</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            Exporte seus dados em formato CSV para análise em planilhas (Excel, Google Sheets).
+            Inclui histórico completo de treinos e métricas corporais.
+          </Text>
+          <Button
+            title="EXPORTAR CSV"
+            onPress={handleCsvExport}
+            variant="secondary"
+            size="sm"
+            loading={loading}
+            fullWidth
+          />
+        </View>
       </Card>
 
       <Toast
