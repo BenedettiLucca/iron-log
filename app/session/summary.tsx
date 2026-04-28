@@ -20,7 +20,7 @@ import { CsvExportService } from '../../services/CsvExportService';
 
 interface ExerciseSummary {
   name: string;
-  sets: any[];
+  sets: { setNumber: number; weightKg: number; reps: number; durationSeconds: number | null; rir: number | null }[];
   exId: number;
   target?: string;
 }
@@ -158,7 +158,7 @@ export default function SummaryScreen() {
       setReport(md);
 
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro inesperado', e);
       setReport('Erro ao gerar relatório.');
     }
   }, [sessionId]);
@@ -171,7 +171,8 @@ export default function SummaryScreen() {
     await Clipboard.setStringAsync(report);
     setCopied(true);
     setShowToast(true);
-    setTimeout(() => setCopied(false), 2000);
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
   };
 
   const nativeShare = async () => {
@@ -181,7 +182,7 @@ export default function SummaryScreen() {
         title: `Treino ${sessionData?.routineName || 'Iron Log'}`,
       });
     } catch (error) {
-      logger.error('Operation failed', error);
+      logger.error('Erro inesperado', error);
     }
   };
 

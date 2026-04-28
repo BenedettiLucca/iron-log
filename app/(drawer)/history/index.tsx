@@ -53,7 +53,7 @@ export default function HistoryScreen() {
       });
       setMarkedDates(marks);
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro inesperado', e);
     } finally {
       setIsLoading(false);
     }

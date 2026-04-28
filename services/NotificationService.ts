@@ -23,6 +23,7 @@ export interface NotificationConfig {
 
 class NotificationService {
   private initialized = false;
+  private notificationListener: { remove: () => void } | null = null;
 
   /**
    * Initialize notification system and request permissions
@@ -51,7 +52,7 @@ class NotificationService {
     }
 
     // Set up notification response listener
-    this.setupResponseListener();
+    this.notificationListener = this.setupResponseListener();
 
     this.initialized = true;
 
@@ -65,7 +66,7 @@ class NotificationService {
    * Set up listener for notification taps
    */
   private setupResponseListener() {
-    Notifications.addNotificationResponseReceivedListener((response) => {
+    return Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       logger.debug('Notification tapped:', data);
 
@@ -102,7 +103,7 @@ class NotificationService {
         enabled: settings[0].enabled,
       };
     } catch (error) {
-      logger.error('Operation failed', 'Error getting notification settings:', error);
+      logger.error('Error getting notification settings', error);
       return {
         checkinDay: 1,
         checkinHour: 9,
@@ -137,7 +138,7 @@ class NotificationService {
       // Reschedule with new settings
       await this.scheduleMonthlyCheckin();
     } catch (error) {
-      logger.error('Operation failed', 'Error updating notification settings:', error);
+      logger.error('Error updating notification settings', error);
     }
   }
 
@@ -199,7 +200,7 @@ class NotificationService {
 
       logger.debug('Monthly check-in scheduled for:', targetDate.toISOString());
     } catch (error) {
-      logger.error('Operation failed', 'Error scheduling monthly check-in:', error);
+      logger.error('Error scheduling monthly check-in', error);
     }
   }
 
@@ -217,8 +218,19 @@ class NotificationService {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch (error) {
-      logger.error('Operation failed', 'Error canceling notifications:', error);
+      logger.error('Error canceling notifications', error);
     }
+  }
+
+  /**
+   * Clean up notification listeners
+   */
+  cleanup(): void {
+    if (this.notificationListener) {
+      this.notificationListener.remove();
+      this.notificationListener = null;
+    }
+    this.initialized = false;
   }
 
   /**
@@ -241,7 +253,7 @@ class NotificationService {
         },
       });
     } catch (error) {
-      logger.error('Operation failed', 'Error sending test notification:', error);
+      logger.error('Error sending test notification', error);
     }
   }
 

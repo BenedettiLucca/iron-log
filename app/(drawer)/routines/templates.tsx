@@ -12,7 +12,7 @@ import { logger } from '@/services/logger';
 
 export default function TemplateLibraryScreen() {
   const router = useRouter();
-  const [templates, setTemplates] = useState<any[]>([]);
+  const [templates, setTemplates] = useState<{ id: number; name: string; description: string; exercises: { id: number; name: string; target: string; notes: string; restSeconds: number | null }[] }[]>([]);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
 
@@ -50,13 +50,13 @@ export default function TemplateLibraryScreen() {
             exercises: exercisesList,
           });
         } catch (e) {
-          logger.error('Operation failed', 'Error loading exercises for template:', e);
+          logger.error('Error loading exercises for template', e);
         }
       }
 
       setTemplates(templatesWithExercises);
     } catch (e) {
-      logger.error('Operation failed', 'Error loading templates:', e);
+      logger.error('Error loading templates', e);
     }
   };
 
@@ -70,16 +70,12 @@ export default function TemplateLibraryScreen() {
 
       const newRoutineId = newRoutine[0].id;
 
-      const exercisesData = await db.select()
-        .from(routineExercises)
-        .where(eq(routineExercises.routineId, template.id))
-        .orderBy(routineExercises.orderIndex);
-
-      for (const ex of template.exercises) {
+      for (let i = 0; i < template.exercises.length; i++) {
+        const ex = template.exercises[i];
         await db.insert(routineExercises).values({
           routineId: newRoutineId,
           exerciseId: ex.id,
-          orderIndex: exercisesData.findIndex((e: any) => e.id === ex.id) || 0,
+          orderIndex: i,
           target: typeof ex.target === 'string' ? ex.target : null,
           notes: typeof ex.notes === 'string' ? ex.notes : null,
           restSeconds: typeof ex.restSeconds === 'number' ? ex.restSeconds : null,
@@ -89,7 +85,7 @@ export default function TemplateLibraryScreen() {
       setToast({ visible: true, message: `Rotina "${template.name}" carregada com ${template.exercises.length} exercícios!`, type: 'success' });
       router.back();
     } catch (e) {
-      logger.error('Operation failed', 'Error loading from template:', e);
+      logger.error('Error loading from template', e);
       setToast({ visible: true, message: 'Falha ao carregar template.', type: 'error' });
     }
   };
@@ -105,7 +101,7 @@ export default function TemplateLibraryScreen() {
           await loadTemplates();
           setToast({ visible: true, message: 'Template removido.', type: 'success' });
         } catch (e) {
-          logger.error('Operation failed', e);
+          logger.error('Erro na operação', e);
           setToast({ visible: true, message: 'Falha ao excluir template.', type: 'error' });
         }
       },

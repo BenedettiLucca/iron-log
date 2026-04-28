@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Card } from './Card';
 import { Button } from './Button';
@@ -48,9 +48,9 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
         .where(eq(routineExercises.routineId, routineId))
         .orderBy(routineExercises.orderIndex);
 
-      setExerciseList(result as unknown as ExercisePreview[]);
+      setExerciseList(result);
     } catch (error) {
-      logger.error('Operation failed', 'Error loading exercises:', error);
+      logger.error('Error loading exercises', error);
     } finally {
       setLoading(false);
     }
@@ -62,13 +62,13 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
     }
   }, [visible, routineId, loadExercises]);
 
-  const estimatedDuration = () => {
+  const estimatedDuration = useMemo(() => {
     // Rough estimate: 2 mins per exercise (setup + rest) + actual work time
     const workTimePerExercise = 3; // minutes
     const totalExerciseCount = exerciseList.length;
     if (totalExerciseCount === 0) return 0;
     return Math.max(15, totalExerciseCount * workTimePerExercise);
-  };
+  }, [exerciseList]);
 
   const formatRest = (seconds?: number | null) => {
     if (!seconds) return '';
@@ -102,7 +102,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Exercícios</Text>
             </Card>
             <Card className="flex-1 items-center py-4 bg-primary/5">
-              <Text className="text-primary text-3xl font-bold">~{estimatedDuration()}</Text>
+              <Text className="text-primary text-3xl font-bold">~{estimatedDuration}</Text>
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Minutos</Text>
             </Card>
           </View>

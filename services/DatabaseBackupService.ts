@@ -74,8 +74,8 @@ export const DatabaseBackupService = {
       } else {
         throw new Error('Compartilhamento não disponível neste dispositivo.');
       }
-    } catch (error: any) {
-      logger.error('Operation failed', 'Erro ao exportar:', error);
+    } catch (error) {
+      logger.error('Erro ao exportar backup', error);
       throw error;
     }
   },
@@ -120,8 +120,8 @@ export const DatabaseBackupService = {
       });
 
       return true;
-    } catch (error: any) {
-      logger.error('Operation failed', 'Erro ao importar:', error);
+    } catch (error) {
+      logger.error('Erro ao importar backup', error);
       throw error;
     }
   },
@@ -171,7 +171,7 @@ export const DatabaseBackupService = {
 
       return fileData;
     } catch (error) {
-      logger.error('Operation failed', 'Drive Upload Error:', error);
+      logger.error('Drive upload error', error);
       throw error;
     }
   }

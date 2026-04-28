@@ -124,23 +124,25 @@ export default function FinishSessionScreen() {
         });
 
       } catch (e) {
-        logger.error('Operation failed', "Erro ao carregar dados:", e);
+        logger.error('Erro ao carregar dados do finish', e);
       }
     };
     loadData();
   }, [sessionId]);
 
   const adjustWeight = useCallback((delta: number) => {
-    const current = parseFloat(weight) || 0;
-    const newValue = Math.max(0, current + delta);
-    setWeight(newValue.toString());
-  }, [weight]);
+    setWeight((prev) => {
+      const current = parseFloat(prev) || 0;
+      return Math.max(0, current + delta).toString();
+    });
+  }, []);
 
   const insertTemplate = useCallback((template: NoteTemplate) => {
-    const currentText = notes.trim();
-    const newText = currentText ? `${currentText}\n${template.text}` : template.text;
-    setNotes(newText);
-  }, [notes]);
+    setNotes((prev) => {
+      const currentText = prev.trim();
+      return currentText ? `${currentText}\n${template.text}` : template.text;
+    });
+  }, []);
 
   const handleFinish = () => {
     if (isFinishing) return;
@@ -159,7 +161,7 @@ export default function FinishSessionScreen() {
       await AsyncStorage.removeItem('incomplete_session');
       router.replace('/(drawer)/');
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na finalização', e);
       setIsFinishing(false);
     }
   };
@@ -203,7 +205,7 @@ export default function FinishSessionScreen() {
       });
 
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na finalização', e);
       setShowConfirmDialog(false);
       setIsFinishing(false);
     }

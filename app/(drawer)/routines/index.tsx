@@ -110,7 +110,7 @@ export default function RoutinesListScreen() {
                 const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
                 exerciseId = newEx[0].id;
             } catch (err) {
-                logger.error('Operation failed', "Erro ao criar exercício:", exName, err);
+                logger.error('Erro ao criar exercício', err);
                 continue;
             }
         }
@@ -131,7 +131,7 @@ export default function RoutinesListScreen() {
       setToast({ visible: true, message: `Rotina "${data.name}" importada com ${order-1} exercícios!`, type: 'success' });
 
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao importar do clipboard.', type: 'error' });
     }
   };

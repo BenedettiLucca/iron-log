@@ -39,7 +39,7 @@ export default function Layout() {
   useEffect(() => {
     if (success) {
       notificationService.initialize().catch((err) => {
-        logger.error('Operation failed', 'Failed to initialize notifications:', err);
+        logger.error('Failed to initialize notifications', err);
       });
     }
   }, [success]);
@@ -77,7 +77,7 @@ export default function Layout() {
         setRecoverySession(sessionContext);
         setShowRecoveryDialog(true);
       } catch (e) {
-        logger.error('Operation failed', 'Error checking incomplete session:', e);
+        logger.error('Error checking incomplete session', e);
       }
     };
 
@@ -121,12 +121,12 @@ export default function Layout() {
     });
   };
 
-  const handleSaveWorkout = () => {
+  const handleSaveWorkout = async () => {
     if (!recoverySession) return;
     setShowRecoveryDialog(false);
 
     // Clear the marker since user is choosing to finish
-    AsyncStorage.removeItem('incomplete_session');
+    await AsyncStorage.removeItem('incomplete_session');
 
     router.replace({
       pathname: '/session/finish',

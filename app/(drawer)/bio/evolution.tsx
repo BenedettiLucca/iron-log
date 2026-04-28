@@ -102,7 +102,7 @@ export default function EvolutionScreen() {
       }
 
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro inesperado', e);
     }
   };
 

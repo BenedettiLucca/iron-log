@@ -61,7 +61,7 @@ export default function ExerciseScreen() {
   const [rir, setRir] = useState(2);
   const [sessionSets, setSessionSets] = useState<Set[]>([]);
   const [nextExercise, setNextExercise] = useState<Exercise | null>(null);
-  const [allExercises, setAllExercises] = useState<Set[]>([]);
+  const [allExercises, setAllExercises] = useState<Exercise[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
 
   // Track completed exercises by target sets
@@ -83,7 +83,7 @@ export default function ExerciseScreen() {
   }, 0);
 
   const [historyVisible, setHistoryVisible] = useState(false);
-  const [historyData, setHistoryData] = useState<Set[]>([]);
+  const [historyData, setHistoryData] = useState<{ sessionId: number; date: number; weight: number | null; reps: number | null; duration: number | null; rir: number | null }[]>([]);
 
   // Rest Timer
   const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
@@ -96,8 +96,8 @@ export default function ExerciseScreen() {
   const isActiveSetRunning = activeSetStart !== null;
 
   // Undo state
-  const [lastSavedSet, setLastSavedSet] = useState<Exercise | null>(null);
-  const undoTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const [lastSavedSet, setLastSavedSet] = useState<Set | null>(null);
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
@@ -106,7 +106,7 @@ export default function ExerciseScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Set Editor state
-  const [editingSet, setEditingSet] = useState<Exercise | null>(null);
+  const [editingSet, setEditingSet] = useState<Set | null>(null);
   const [showSetEditor, setShowSetEditor] = useState(false);
 
   // RIR Explainer modal state
@@ -203,7 +203,7 @@ export default function ExerciseScreen() {
         }
       }
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
     }
   }, [sessionId, exerciseId, routineId]);
 
@@ -225,7 +225,7 @@ export default function ExerciseScreen() {
       history.sort((a, b) => b.date - a.date);
       setHistoryData(history);
     } catch (e) {
-      logger.error('Operation failed', "Erro SQL Histórico:", e);
+      logger.error("Erro SQL Histórico", e);
     }
   }, [exerciseId]);
 
@@ -339,7 +339,7 @@ export default function ExerciseScreen() {
       }
       undoTimeoutRef.current = setTimeout(() => {
         setLastSavedSet(null);
-      }, 10000) as unknown as NodeJS.Timeout;
+      }, 10000);
 
       await loadData();
       setReps('');
@@ -352,7 +352,7 @@ export default function ExerciseScreen() {
       }
 
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao salvar série', type: 'error' });
     } finally {
       setIsSaving(false);
@@ -368,7 +368,7 @@ export default function ExerciseScreen() {
       await loadData();
       setToast({ visible: true, message: 'A última série foi removida', type: 'success' });
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
     }
   }, [lastSavedSet, loadData]);
@@ -379,7 +379,7 @@ export default function ExerciseScreen() {
       await loadData();
       setToast({ visible: true, message: 'Série excluída', type: 'success' });
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
     }
   }, [loadData]);
@@ -392,7 +392,7 @@ export default function ExerciseScreen() {
         setShowSetEditor(true);
       }
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao carregar série', type: 'error' });
     }
   }, []);
@@ -416,12 +416,12 @@ export default function ExerciseScreen() {
       setEditingSet(null);
       setToast({ visible: true, message: 'Série editada com sucesso', type: 'success' });
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro na operação', e);
       setToast({ visible: true, message: 'Falha ao editar série', type: 'error' });
     }
   }, [editingSet, loadData]);
 
-  const goToNextOrFinish = useCallback(() => {
+  const goToNextOrFinish = useCallback(async () => {
     if (nextExercise) {
       router.replace({
         pathname: '/session/exercise',
@@ -438,7 +438,7 @@ export default function ExerciseScreen() {
       });
     } else {
       // Clear incomplete session when navigating to finish
-      AsyncStorage.removeItem('incomplete_session');
+      await AsyncStorage.removeItem('incomplete_session');
       router.replace({
         pathname: '/session/finish',
         params: { sessionId, startTime: startTime.toString() }

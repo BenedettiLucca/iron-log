@@ -111,7 +111,7 @@ export default function RoutineEditorScreen() {
 
       router.back();
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro inesperado', e);
       setToast({ visible: true, message: 'Falha ao salvar.', type: 'error' });
     }
   };
@@ -144,7 +144,7 @@ export default function RoutineEditorScreen() {
       setToast({ visible: true, message: 'Rotina salva como template!', type: 'success' });
       router.back();
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Erro inesperado', e);
       setToast({ visible: true, message: 'Falha ao salvar template.', type: 'error' });
     }
   };

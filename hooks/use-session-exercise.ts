@@ -59,9 +59,18 @@ export function useSessionExercise(sessionId: number, exerciseId: number) {
         ))
         .orderBy(desc(sets.createdAt));
 
-      // Only working sets (not warmup), group by session
+      // Only working sets (not warmup), limit to last 5 distinct sessions
       const workingSets = historySets.filter(s => !s.isWarmup);
-      setExerciseHistory(workingSets.map(s => ({
+      const seenSessions = new Set<number>();
+      const limitedSets = workingSets.filter(s => {
+        if (seenSessions.has(s.sessionId)) return true;
+        if (seenSessions.size < 5) {
+          seenSessions.add(s.sessionId);
+          return true;
+        }
+        return false;
+      });
+      setExerciseHistory(limitedSets.map(s => ({
         weight: s.weight,
         reps: s.reps,
         rir: s.rir,
@@ -78,12 +87,13 @@ export function useSessionExercise(sessionId: number, exerciseId: number) {
     durationSeconds?: number | null;
     rir?: number | null;
     isWarmup: boolean;
+    exerciseName?: string | null;
   }): Promise<Set | null> => {
     try {
       const result = await db.insert(sets).values({
         sessionId,
         exerciseId,
-        exerciseName: null, // Will be filled from params
+        exerciseName: setData.exerciseName || null,
         setNumber: setData.setNumber,
         weightKg: setData.weightKg,
         reps: setData.reps,
@@ -128,7 +138,8 @@ export function useSessionExercise(sessionId: number, exerciseId: number) {
   }, [loadSessionSets]);
 
   const getNextSetNumber = useCallback((): number => {
-    return sessionSets.length + 1;
+    if (sessionSets.length === 0) return 1;
+    return Math.max(...sessionSets.map(s => s.setNumber)) + 1;
   }, [sessionSets]);
 
   return {

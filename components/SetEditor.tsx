@@ -50,17 +50,17 @@ export function SetEditor({
     }
 
     if (isDuration) {
-      const durationValue = parseInt(duration);
+      const durationValue = parseInt(duration, 10);
       if (isNaN(durationValue) || durationValue <= 0) {
         return;
       }
       onSave(weightValue, undefined, durationValue, undefined);
     } else {
-      const repsValue = parseInt(reps);
+      const repsValue = parseInt(reps, 10);
       if (isNaN(repsValue) || repsValue <= 0) {
         return;
       }
-      const rirValue = parseInt(rir);
+      const rirValue = parseInt(rir, 10);
       onSave(weightValue, repsValue, undefined, isNaN(rirValue) ? 2 : rirValue);
     }
   };

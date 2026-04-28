@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { notificationService, NotificationConfig } from '@/services/NotificationService';
 import { logger } from '@/services/logger';
 
@@ -9,40 +9,49 @@ export function useNotifications() {
     enabled: true,
   });
   const [loading, setLoading] = useState(true);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     loadSettings();
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
       const config = await notificationService.getSettings();
-      setSettings(config);
+      if (isMountedRef.current) {
+        setSettings(config);
+      }
     } catch (error) {
-      logger.error('Operation failed', 'Error loading notification settings:', error);
+      logger.error('Error loading notification settings', error);
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
 
-  const updateSettings = async (config: Partial<NotificationConfig>) => {
+  const updateSettings = useCallback(async (config: Partial<NotificationConfig>) => {
     try {
       await notificationService.updateSettings(config);
       setSettings((prev) => ({ ...prev, ...config }));
     } catch (error) {
-      logger.error('Operation failed', 'Error updating notification settings:', error);
+      logger.error('Error updating notification settings', error);
       throw error;
     }
-  };
+  }, []);
 
-  const toggleEnabled = async () => {
+  const toggleEnabled = useCallback(async () => {
     await updateSettings({ enabled: !settings.enabled });
-  };
+  }, [settings.enabled, updateSettings]);
 
-  const sendTestNotification = async () => {
+  const sendTestNotification = useCallback(async () => {
     await notificationService.sendTestNotification();
-  };
+  }, []);
 
   return {
     settings,

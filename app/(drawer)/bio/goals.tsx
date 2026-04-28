@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { measurementGoals } from '../../../src/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, InferSelectModel } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -25,7 +25,7 @@ const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
 };
 
 export default function GoalsScreen() {
-  const [goals, setGoals] = useState<any[]>([]);
+  const [goals, setGoals] = useState<InferSelectModel<typeof measurementGoals>[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoal, setNewGoal] = useState({
     type: 'weight' as MeasurementType,
@@ -48,7 +48,7 @@ export default function GoalsScreen() {
       const data = await db.select().from(measurementGoals).orderBy(desc(measurementGoals.targetDate));
       setGoals(data);
     } catch (error) {
-      logger.error('Operation failed', 'Error loading goals:', error);
+      logger.error('Error loading goals', error);
     }
   };
 
@@ -85,7 +85,7 @@ export default function GoalsScreen() {
       setNewGoal({ type: 'weight', targetValue: '', targetDate: null });
       loadGoals();
     } catch (error) {
-      logger.error('Operation failed', 'Error adding goal:', error);
+      logger.error('Error adding goal', error);
     }
   };
 
@@ -99,7 +99,7 @@ export default function GoalsScreen() {
           await db.delete(measurementGoals).where(eq(measurementGoals.id, id));
           loadGoals();
         } catch (error) {
-          logger.error('Operation failed', 'Error deleting goal:', error);
+          logger.error('Error deleting goal', error);
         }
       },
     });

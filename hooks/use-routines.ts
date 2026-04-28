@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { db } from '@/src/db/client';
 import { routines, routineExercises, exercises } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
@@ -95,7 +95,9 @@ export function useRoutines() {
     }
   }, []);
 
-  const folders = ['Todos', ...Array.from(new Set(allRoutines.map(r => r.folder || 'Geral')))];
+  const folders = useMemo(() => {
+    return ['Todos', ...Array.from(new Set(allRoutines.map(r => r.folder || 'Geral')))];
+  }, [allRoutines]);
 
   const getFilteredRoutines = useCallback((selectedFolder: string): Routine[] => {
     if (selectedFolder === 'Todos') return allRoutines;

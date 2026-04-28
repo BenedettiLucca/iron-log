@@ -72,7 +72,7 @@ function getISOWeek(epoch: number): string {
   const dayNum = d.getUTCDay() || 7;
   d.setUTCDate(d.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / MS_PER_DAY) + 1) / 7);
   return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
 }
 
@@ -85,13 +85,21 @@ function getWeekStart(epoch: number): number {
 }
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const MS_PER_WEEK = 7 * MS_PER_DAY;
+const TWELVE_WEEKS_MS = 12 * MS_PER_WEEK;
+
+// ---------------------------------------------------------------------------
 // Main Analytics Computation
 // ---------------------------------------------------------------------------
 
 export const AnalyticsService = {
 
   async getFullAnalytics(): Promise<DashboardAnalytics> {
-    const TWELVE_WEEKS_AGO = Date.now() - 12 * 7 * 24 * 60 * 60 * 1000;
+    const TWELVE_WEEKS_AGO = Date.now() - TWELVE_WEEKS_MS;
 
     const [strengthScore, consistency, volumeTrends, topExercises, totalPRs, estimated1RM] = await Promise.all([
       this.calculateStrengthScore(TWELVE_WEEKS_AGO),
@@ -140,7 +148,7 @@ export const AnalyticsService = {
         .filter(s => !s.isWarmup && s.reps > 0 && s.weightKg > 0)
         .reduce((sum, s) => sum + (s.weightKg * s.reps), 0);
 
-      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (7 * 24 * 60 * 60 * 1000)));
+      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (MS_PER_WEEK)));
       const avgWeeklyVolume = totalVolume / weeksSpan;
 
       // Volume scoring: 0kg=0, 5000kg=20, 15000kg=35, 30000+=40
@@ -200,7 +208,7 @@ export const AnalyticsService = {
       const recentSessions = allActiveSessions.filter(s => s.startTime >= since);
 
       // Weekly frequency (last 12 weeks)
-      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (7 * 24 * 60 * 60 * 1000)));
+      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (MS_PER_WEEK)));
       const weeklyFrequency = Math.round((recentSessions.length / weeksSpan) * 10) / 10;
 
       // Current streak
@@ -213,7 +221,7 @@ export const AnalyticsService = {
 
       while (sessionWeeks.has(checkWeek)) {
         currentStreak++;
-        checkWeek -= 7 * 24 * 60 * 60 * 1000;
+        checkWeek -= MS_PER_WEEK;
       }
 
       // Longest streak
@@ -221,7 +229,7 @@ export const AnalyticsService = {
       let longestStreak = 0;
       let tempStreak = 1;
       for (let i = 1; i < sortedWeeks.length; i++) {
-        if (sortedWeeks[i] - sortedWeeks[i - 1] === 7 * 24 * 60 * 60 * 1000) {
+        if (sortedWeeks[i] - sortedWeeks[i - 1] === MS_PER_WEEK) {
           tempStreak++;
         } else {
           longestStreak = Math.max(longestStreak, tempStreak);
@@ -283,7 +291,7 @@ export const AnalyticsService = {
       // Initialize all weeks in range
       const start = new Date(since);
       for (let i = 0; i <= 12; i++) {
-        const weekDate = new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000);
+        const weekDate = new Date(start.getTime() + i * MS_PER_WEEK);
         const weekKey = getISOWeek(weekDate.getTime());
         if (!weekMap.has(weekKey)) {
           weekMap.set(weekKey, { volume: 0, sets: 0, sessions: new Set() });
@@ -321,7 +329,7 @@ export const AnalyticsService = {
    */
   async calculateTopExerciseProgressions(since: number): Promise<ExerciseProgression[]> {
     try {
-      const PREV_SINCE = since - 12 * 7 * 24 * 60 * 60 * 1000;
+      const PREV_SINCE = since - TWELVE_WEEKS_MS;
 
       // Recent period
       const recentSets = await db.select({
@@ -331,7 +339,7 @@ export const AnalyticsService = {
         createdAt: sets.createdAt,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), gt(sets.createdAt ?? sets.id, since), sql`NOT ${sets.isWarmup}`));
+        .where(and(isNull(sets.deletedAt), gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, since), sql`NOT ${sets.isWarmup}`));
 
       // Previous period
       const prevSets = await db.select({
@@ -341,7 +349,7 @@ export const AnalyticsService = {
         createdAt: sets.createdAt,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), gt(sets.createdAt ?? sets.id, PREV_SINCE), sql`${sets.createdAt} <= ${since}`, sql`NOT ${sets.isWarmup}`));
+        .where(and(isNull(sets.deletedAt), gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, PREV_SINCE), sql`${sets.createdAt} <= ${since}`, sql`NOT ${sets.isWarmup}`));
 
       // Current max weight per exercise
       const currentMax = new Map<number, { name: string; maxWeight: number }>();

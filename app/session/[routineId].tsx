@@ -91,7 +91,7 @@ export default function SessionScreen() {
           
           setRoutineExs(data);
       } catch (e) {
-          logger.error('Operation failed', e);
+          logger.error('Erro inesperado', e);
       }
   }, [rIdStr]);
 
@@ -109,7 +109,7 @@ export default function SessionScreen() {
         }).returning();
         setSessionId(result[0].id);
       } catch (e) {
-        logger.error('Operation failed', e);
+        logger.error('Erro inesperado', e);
         router.back();
       }
     };

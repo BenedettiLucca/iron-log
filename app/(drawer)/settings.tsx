@@ -42,7 +42,7 @@ export default function SettingsScreen() {
     try {
       await DatabaseBackupService.exportDb();
       setToast({ visible: true, message: 'Backup exportado com sucesso!', type: 'success' });
-    } catch (e: any) {
+    } catch (e) {
       setToast({ visible: true, message: e.message || 'Falha ao exportar.', type: 'error' });
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ export default function SettingsScreen() {
               onConfirm: () => Updates.reloadAsync()
             });
           }
-        } catch (e: any) {
+        } catch (e) {
           setToast({ visible: true, message: e.message || 'Falha ao importar.', type: 'error' });
         } finally {
           setLoading(false);
@@ -96,7 +96,7 @@ export default function SettingsScreen() {
     try {
       await CsvExportService.exportAllAndShare();
       setToast({ visible: true, message: 'Dados exportados em CSV!', type: 'success' });
-    } catch (e: any) {
+    } catch (e) {
       setToast({ visible: true, message: e.message || 'Falha ao exportar CSV.', type: 'error' });
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function SettingsScreen() {
     try {
       await AlexandriaExportService.exportAndShare();
       setToast({ visible: true, message: 'Dados exportados para Alexandria!', type: 'success' });
-    } catch (e: any) {
+    } catch (e) {
       setToast({ visible: true, message: e.message || 'Falha ao exportar para Alexandria.', type: 'error' });
     } finally {
       setLoading(false);

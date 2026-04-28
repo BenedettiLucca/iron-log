@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { logger } from '@/services/logger';
 
 /**
  * Route parameter validation schemas
@@ -73,7 +74,7 @@ export function safeParseParams<T>(
   const result = schema.safeParse(params);
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors;
-    console.warn(`[IronLog] Invalid params on ${screenName}:`, errors);
+    logger.warn(`[IronLog] Invalid params on ${screenName}:`, errors);
     return null;
   }
   return result.data;

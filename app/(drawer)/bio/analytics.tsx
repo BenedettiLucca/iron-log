@@ -158,8 +158,9 @@ export default function AnalyticsScreen() {
         <Card>
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">📈 Volume Semanal (Últimas 12 Semanas)</Text>
           <View className="gap-1">
-            {volumeTrends.slice(-12).map((week, idx) => {
+            {(() => {
               const maxVolume = Math.max(...volumeTrends.map(w => w.totalVolume), 1);
+              return volumeTrends.slice(-12).map((week, idx) => {
               const barWidth = (week.totalVolume / maxVolume) * 100;
               return (
                 <View key={week.week} className="flex-row items-center gap-2">
@@ -175,7 +176,8 @@ export default function AnalyticsScreen() {
                   </Text>
                 </View>
               );
-            })}
+            });
+            })()}
           </View>
         </Card>
       )}

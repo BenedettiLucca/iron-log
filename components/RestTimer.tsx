@@ -24,6 +24,9 @@ export function RestTimer({
   const slideAnim = useRef(new Animated.Value(1)).current;
   const panOffset = useRef(0);
 
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -45,7 +48,7 @@ export function RestTimer({
             toValue: 1,
             duration: 200,
             useNativeDriver: true,
-          }).start(() => onClose());
+          }).start(() => onCloseRef.current());
         } else {
           Animated.spring(slideAnim, {
             toValue: 0,

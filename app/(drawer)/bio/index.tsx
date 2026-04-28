@@ -165,7 +165,7 @@ export default function BioScreen() {
           fetchMetrics();
           setToast({ visible: true, message: 'Check-in mensal realizado!', type: 'success' });
       } catch (e) {
-          logger.error('Operation failed', e);
+          logger.error('Erro inesperado', e);
           setToast({ visible: true, message: 'Falha ao salvar check-in.', type: 'error' });
       }
   };

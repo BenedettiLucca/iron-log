@@ -66,7 +66,7 @@ export default function HomeScreen() {
       fetchData();
       setToast({ visible: true, message: 'Banco de dados populado!', type: 'success' });
     } catch (e) {
-      logger.error('Operation failed', e);
+      logger.error('Falha ao popular banco', e);
       setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
     }
   };

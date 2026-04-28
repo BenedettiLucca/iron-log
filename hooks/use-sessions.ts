@@ -50,6 +50,7 @@ export function useSessions() {
 
   const getSessionsByDate = useCallback((dateStr: string): Session[] => {
     return allSessions.filter(s => {
+      if (!s.startTime) return false;
       const sDate = new Date(s.startTime).toISOString().split('T')[0];
       return sDate === dateStr;
     });

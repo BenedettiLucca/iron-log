@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -33,7 +33,7 @@ function SetCard({
   onDelete,
   onPress,
 }: SetCardProps) {
-  let swipeableRef: Swipeable | null = null;
+  const swipeableRef = useRef<Swipeable | null>(null);
   const { trigger } = useHaptics();
 
   const renderRightActions = () => {
@@ -46,7 +46,7 @@ function SetCard({
             className="w-16 h-full justify-center items-center bg-secondary rounded-l-2xl"
             onPress={() => {
               trigger('medium');
-              swipeableRef?.close();
+              swipeableRef.current?.close();
               onEdit();
             }}
             accessibilityLabel="Editar série"
@@ -60,7 +60,7 @@ function SetCard({
             className={`w-16 h-full justify-center items-center bg-danger ${!onEdit ? 'rounded-l-2xl' : ''} rounded-r-2xl`}
             onPress={() => {
               trigger('warning');
-              swipeableRef?.close();
+              swipeableRef.current?.close();
               onDelete();
             }}
             accessibilityLabel="Excluir série"
@@ -147,7 +147,7 @@ function SetCard({
   if (onEdit || onDelete) {
     return (
       <Swipeable
-        ref={(ref) => { swipeableRef = ref; }}
+        ref={(ref) => { swipeableRef.current = ref; }}
         renderRightActions={renderRightActions}
         rightThreshold={40}
         containerStyle={{ overflow: 'visible' }}
