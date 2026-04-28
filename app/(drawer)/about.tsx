@@ -3,17 +3,16 @@ import { Stack } from 'expo-router';
 import { Card } from '../../components/Card';
 import { useI18n } from '../../src/i18n/index';
 
-const features = [
-  t('about.quickLog'),
-  'Timer Pro com Background Mode',
-  t('about.bioTracking'),
-  'Analytics de Performance (Strength Score, PRs, 1RM)',
-  t('about.csvExport'),
-  'Design System "Warm & Earthy" com Tema Escuro',
-];
-
 export default function AboutScreen() {
   const { t } = useI18n();
+  const features = [
+    t('about.quickLog'),
+    'Timer Pro com Background Mode',
+    t('about.bioTracking'),
+    'Analytics de Performance (Strength Score, PRs, 1RM)',
+    t('about.csvExport'),
+    'Design System "Warm & Earthy" com Tema Escuro',
+  ];
   return (
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
       <Stack.Screen options={{ title: t('about.title') }} />

@@ -333,6 +333,7 @@ export default function RoutineEditorScreen() {
 }
 
 function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
+  const { t } = useI18n();
   const [search, setSearch] = useState('');
   const { data: allExercises } = useLiveQuery(db.select().from(exercises));
   const [filtered, setFiltered] = useState<typeof allExercises>([]);

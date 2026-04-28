@@ -16,7 +16,7 @@ const LANGUAGE_KEY = '@ironlog_language';
 interface I18nContextType {
   language: Language;
   setLanguage: (lang: Language) => Promise<void>;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string | number>) => string;
 }
 
 const I18nContext = createContext<I18nContextType>({
@@ -45,12 +45,26 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
 
   useEffect(() => {
     if (initialLanguage) return;
-    AsyncStorage.getItem(LANGUAGE_KEY).then((stored) => {
-      if (stored && ['pt', 'en', 'es', 'zh'].includes(stored)) {
-        setLangState(stored as Language);
-      }
+    
+    // Safety timeout: never block app load for more than 500ms
+    const timeoutId = setTimeout(() => {
       setReady(true);
-    });
+    }, 500);
+    
+    AsyncStorage.getItem(LANGUAGE_KEY)
+      .then((stored) => {
+        clearTimeout(timeoutId);
+        if (stored && ['pt', 'en', 'es', 'zh'].includes(stored)) {
+          setLangState(stored as Language);
+        }
+        setReady(true);
+      })
+      .catch(() => {
+        clearTimeout(timeoutId);
+        setReady(true);
+      });
+      
+    return () => clearTimeout(timeoutId);
   }, [initialLanguage]);
 
   const setLanguage = useCallback(async (lang: Language) => {
@@ -59,12 +73,20 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
   }, []);
 
   const t = useCallback(
-    (key: string): string => {
-      const value = getNestedValue(translations[language], key);
-      if (value !== undefined) return value;
-      // Fallback to PT
-      const fallback = getNestedValue(translations.pt, key);
-      return fallback ?? key;
+    (key: string, vars?: Record<string, string | number>): string => {
+      let value = getNestedValue(translations[language], key);
+      if (value === undefined) {
+        value = getNestedValue(translations.pt, key);
+      }
+      if (value === undefined) return key;
+      
+      if (vars) {
+        Object.entries(vars).forEach(([k, v]) => {
+          value = value!.replace(new RegExp(`{${k}}`, 'g'), String(v));
+        });
+      }
+      
+      return value;
     },
     [language]
   );

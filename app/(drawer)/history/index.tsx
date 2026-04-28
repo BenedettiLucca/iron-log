@@ -15,9 +15,9 @@ import { useI18n } from '../../../src/i18n/index';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
-  monthNames: ['JANEIRO', 'FEVEREIRO', t('history.march'), 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'],
+  monthNames: ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'],
   monthNamesShort: ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'],
-  dayNames: ['Domingo', 'Segunda', t('history.tuesday'), 'Quarta', 'Quinta', 'Sexta', t('history.saturday')],
+  dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
   dayNamesShort: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'],
   today: 'HOJE'
 };

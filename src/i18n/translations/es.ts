@@ -125,6 +125,7 @@ export const es = {
     avgDuration: 'Duración Prom.',
     startWorkout: 'Iniciar Entreno',
     noExercises: 'Ningún ejercicio',
+    addExercisesHint: 'Toca el botón '+' para añadir ejercicios',
     addExercises: 'Agrega ejercicios a esta rutina para comenzar.',
     pr: 'PR',
     estimated1RM: '1RM',

@@ -125,6 +125,7 @@ export const zh = {
     avgDuration: '平均时长',
     startWorkout: '开始训练',
     noExercises: '没有动作',
+    addExercisesHint: '点击 '+' 按钮添加动作',
     addExercises: '添加动作到此训练计划以开始。',
     pr: 'PR',
     estimated1RM: '1RM',

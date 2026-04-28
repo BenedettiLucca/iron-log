@@ -16,17 +16,16 @@ import { useI18n } from '../../../src/i18n/index';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
-const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
-  weight: 'Peso (kg)',
-  waist: 'Cintura (cm)',
-  armRight: t('bioGoals.armRight'),
-  thighRight: 'Coxa Direita (cm)',
-  chest: t('bioGoals.chest'),
-  calf: 'Panturrilha (cm)',
-};
-
 export default function GoalsScreen() {
   const { t } = useI18n();
+  const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
+    weight: 'Peso (kg)',
+    waist: 'Cintura (cm)',
+    armRight: t('bioGoals.armRight'),
+    thighRight: 'Coxa Direita (cm)',
+    chest: t('bioGoals.chest'),
+    calf: 'Panturrilha (cm)',
+  };
   const [goals, setGoals] = useState<InferSelectModel<typeof measurementGoals>[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoal, setNewGoal] = useState({

@@ -236,6 +236,7 @@ export default function SessionScreen() {
 }
 
 function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
+  const { t } = useI18n();
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)

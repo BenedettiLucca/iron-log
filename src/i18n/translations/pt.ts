@@ -139,6 +139,7 @@ export const pt = {
     avgDuration: 'Duração média',
     startWorkout: 'Iniciar Treino',
     noExercises: 'Nenhum exercício',
+    addExercisesHint: 'Toque no botão '+' para adicionar exercícios',
     addExercises: 'Adicione exercícios a esta rotina para começar.',
     pr: 'PR',
     estimated1RM: '1RM',

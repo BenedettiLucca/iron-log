@@ -34,21 +34,20 @@ const NOTE_TEMPLATES: NoteTemplate[] = [
   { label: 'Cardio', emoji: '❤️', text: 'Incluí cardio extra' },
 ];
 
-const SRPE_DESCRIPTIONS: Record<number, string> = {
-  1: t('finish.recovery'),
-  2: 'Muito Leve',
-  3: 'Leve',
-  4: 'Moderado',
-  5: 'Moderado',
-  6: 'Intenso',
-  7: 'Muito Intenso',
-  8: 'Extremo',
-  9: t('finish.maximum'),
-  10: 'Falha',
-};
-
 export default function FinishSessionScreen() {
   const { t } = useI18n();
+  const SRPE_DESCRIPTIONS: Record<number, string> = {
+    1: t('finish.recovery'),
+    2: 'Muito Leve',
+    3: 'Leve',
+    4: 'Moderado',
+    5: 'Moderado',
+    6: 'Intenso',
+    7: 'Muito Intenso',
+    8: 'Extremo',
+    9: t('finish.maximum'),
+    10: 'Falha',
+  };
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(finishParamsSchema, rawParams, 'FinishScreen');
