@@ -82,14 +82,14 @@ function SetCard({
   const content = (
     <Animated.View
       entering={FadeInDown.delay(index * 50).springify()}
-      className="mb-3"
+      className="mb-2"
     >
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.7}
         accessibilityLabel={`Série ${setNumber}, ${weight > 0 ? weight + 'kg' : 'sem carga'} ${duration !== undefined ? duration + 's' : (reps || 0) + ' reps'} ${rir !== null && rir !== undefined ? 'RIR ' + rir : ''} ${isPR ? 'Recorde pessoal' : ''} ${isWarmup ? 'Aquecimento' : ''}`}
         accessibilityRole="button"
-        className={`p-4 rounded-2xl border flex-row items-center min-h-[64px] shadow-sm ${
+        className={`p-3 rounded-2xl border flex-row items-center min-h-[52px] shadow-sm ${
           isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
       >
@@ -107,8 +107,8 @@ function SetCard({
             </View>
           )}
           {isEdited && (
-            <View className="bg-secondary/80 px-1.5 py-0.5 rounded mt-1 absolute -bottom-1 -right-2 shadow-sm">
-              <Text className="text-white text-xs">✏️</Text>
+            <View className="bg-secondary px-1 py-0.5 rounded mt-1">
+              <Text className="text-white text-2xs font-bold">EDIT</Text>
             </View>
           )}
         </View>

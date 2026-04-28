@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect }
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
-import { eq, and, count } from 'drizzle-orm';
+import { and, count, eq, isNull } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';

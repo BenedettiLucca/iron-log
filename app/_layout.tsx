@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { notificationService } from '@/services/NotificationService';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { sessions } from '../src/db/schema';
 
 // Configure Reanimated to reduce strict warnings for animations during render

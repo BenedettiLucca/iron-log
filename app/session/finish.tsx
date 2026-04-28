@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets, personalRecords } from '../../src/db/schema';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';

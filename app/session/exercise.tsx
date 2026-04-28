@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
-import { eq, and, desc} from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
@@ -495,16 +495,16 @@ export default function ExerciseScreen() {
                 </View>
               )}
 
-              <View className="flex-row justify-between items-center mb-4">
-                <View className="flex-1">
-                  <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">Tempo de Treino</Text>
+              <View className="flex-row justify-between items-center mb-2">
+                <View className="flex-row items-baseline gap-2 flex-1">
+                  <Text className="text-subtext text-2xs font-bold uppercase tracking-widest">Tempo</Text>
                   <Stopwatch startTime={startTime} />
                 </View>
                 <TouchableOpacity
                   onPress={() => setHistoryVisible(true)}
-                  className="bg-background px-3 py-2 rounded-lg border border-border"
+                  className="bg-background px-2 py-1 rounded-lg border border-border"
                 >
-                  <Text className="text-subtext text-xs font-bold uppercase">Histórico</Text>
+                  <Text className="text-subtext text-2xs font-bold uppercase">Histórico</Text>
                 </TouchableOpacity>
               </View>
 
@@ -514,15 +514,14 @@ export default function ExerciseScreen() {
                 exiting={FadeOutLeft.duration(300)}
               >
                 <View className="flex-row justify-between items-start">
-                  <View className="flex-1">
-                    <Text className="text-text text-2xl font-bold">{currentName}</Text>
-                    <View className="flex-row items-center gap-2 mt-2">
-                      <Text className="text-primary text-sm font-semibold bg-primary/10 px-2 py-1 rounded-md">
-                        Série {currentSetNumber}
-                        {targetInfo && ` de ${targetInfo.sets}`}
+                  <View className="flex-1 mr-3">
+                    <Text className="text-text text-xl font-bold" numberOfLines={2}>{currentName}</Text>
+                    <View className="flex-row items-center gap-2 mt-1.5">
+                      <Text className="text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded-md">
+                        S{currentSetNumber}{targetInfo ? `/${targetInfo.sets}` : ''}
                       </Text>
                       {routineRest && (
-                        <Text className="text-subtext text-xs bg-background px-2 py-1 rounded-md border border-border">
+                        <Text className="text-subtext text-2xs bg-background px-2 py-0.5 rounded-md border border-border">
                           ⏱ {routineRest}s
                         </Text>
                       )}
@@ -531,9 +530,9 @@ export default function ExerciseScreen() {
                 </View>
 
                 {(target || notes) && (
-                  <View className="mt-3 bg-background p-3 rounded-lg border border-border">
-                    {target && <Text className="text-primary font-semibold text-sm">🎯 Meta: {target}</Text>}
-                    {notes && <Text className="text-subtext text-xs italic mt-1">📝 {notes}</Text>}
+                  <View className="mt-2 bg-background p-2 rounded-lg border border-border">
+                    {target && <Text className="text-primary font-semibold text-xs">🎯 {target}</Text>}
+                    {notes && <Text className="text-subtext text-2xs italic mt-0.5">📝 {notes}</Text>}
                   </View>
                 )}
               </Animated.View>
@@ -542,7 +541,7 @@ export default function ExerciseScreen() {
 
           {/* Undo Button (visible for 10s after save) */}
           {lastSavedSet && (
-            <View className="mx-4 mt-4">
+            <View className="mx-4 mt-2">
               <TouchableOpacity
                 onPress={handleUndo}
                 className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
@@ -554,7 +553,7 @@ export default function ExerciseScreen() {
 
           {/* Saved Sets List */}
           <View className="flex-1 px-4">
-            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3 mt-4">
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2 mt-2">
               Séries Registradas ({sessionSets?.length || 0})
             </Text>
               <FlatList
@@ -584,27 +583,24 @@ export default function ExerciseScreen() {
           </View>
 
           {/* Input Area */}
-          <View className="bg-card p-4 rounded-t-3xl border-t border-border shadow-lg">
+          <View className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg">
             {/* Warm-Up Mode Toggle */}
-            <View className="flex-row items-center justify-between mb-4 py-2 bg-background rounded-lg px-4">
+            <View className="flex-row items-center justify-between mb-3 py-1.5 bg-background rounded-lg px-3">
               <View className="flex-row items-center gap-2">
-                <Text className="text-2xl">🔥</Text>
-                <View>
-                  <Text className="text-text font-bold text-sm">Modo Aquecimento</Text>
-                  <Text className="text-subtext text-xs">Registre seus aquecimentos separadamente</Text>
-                </View>
+                <Text className="text-lg">🔥</Text>
+                <Text className="text-text font-bold text-xs">Aquecimento</Text>
               </View>
               <TouchableOpacity
                 onPress={() => setIsWarmupMode(!isWarmupMode)}
-                className={`w-14 h-8 rounded-full p-1 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
+                className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
               >
                 <View
-                  className={`w-6 h-6 rounded-full bg-white shadow-md transition-all ${isWarmupMode ? 'translate-x-6' : 'translate-x-0'}`}
+                  className={`w-5 h-5 rounded-full bg-white shadow-sm transition-all ${isWarmupMode ? 'translate-x-5' : 'translate-x-0'}`}
                 />
               </TouchableOpacity>
             </View>
           {exerciseType === 'duration' ? (
-            <View className="items-center mb-6">
+            <View className="items-center mb-4">
               <Text className="text-text font-mono text-6xl font-bold mb-4">
                 {formatTimer(activeSetTime)}
               </Text>
@@ -659,7 +655,7 @@ export default function ExerciseScreen() {
                 <View className="flex-1">
                   <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">Carga (kg)</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-2xl font-bold p-3 rounded-xl border border-border"
+                    className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={weight}
                     onChangeText={setWeight}
@@ -671,7 +667,7 @@ export default function ExerciseScreen() {
                 <View className="flex-1">
                   <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">REPS</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-2xl font-bold p-3 rounded-xl border border-border"
+                    className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={reps}
                     onChangeText={setReps}
@@ -681,8 +677,8 @@ export default function ExerciseScreen() {
                 </View>
               </View>
 
-              <View className="mb-4">
-                <View className="flex-row justify-between items-center mb-2 px-1">
+              <View className="mb-3">
+                <View className="flex-row justify-between items-center mb-1 px-1">
                   <TouchableOpacity
                     onPress={() => setShowRirExplainer(true)}
                     className="flex-row items-center gap-1"
@@ -723,10 +719,10 @@ export default function ExerciseScreen() {
               </View>
 
               <Button
-                title={isSaving ? 'SALVANDO...' : 'SALVAR SÉRIE'}
+                title={isSaving ? 'SALVANDO...' : 'SALVAR'}
                 onPress={() => handleSaveSet()}
                 variant="primary"
-                size="lg"
+                size="md"
                 fullWidth
                 disabled={isSaving}
               />
