@@ -38,8 +38,8 @@ export default function AnalyticsScreen() {
 
   if (loading && !data) {
     return (
-      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 24 }}>
-        <Stack.Screen options={{ title: 'Analytics' }} />
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
+        <Stack.Screen options={{ title: 'Dados' }} />
         <SkeletonCard>
           <View className="items-center py-4" />
         </SkeletonCard>
@@ -56,11 +56,11 @@ export default function AnalyticsScreen() {
   if (!data) {
     return (
       <View className="flex-1 bg-background">
-        <Stack.Screen options={{ title: 'Analytics' }} />
+        <Stack.Screen options={{ title: 'Dados' }} />
         <EmptyState
           icon="📊"
           title="Sem dados suficientes"
-          description="Complete alguns treinos para ver suas analytics."
+          description="Complete alguns treinos para ver suas análises."
         />
       </View>
     );
@@ -71,12 +71,12 @@ export default function AnalyticsScreen() {
   return (
     <ScrollView
       className="flex-1 bg-background"
-      contentContainerStyle={{ padding: 16, gap: 24 }}
+      contentContainerStyle={{ padding: 16, gap: 16 }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
       }
     >
-      <Stack.Screen options={{ title: 'Analytics' }} />
+      <Stack.Screen options={{ title: 'Dados' }} />
 
       {/* Strength Score */}
       <Card>
@@ -92,7 +92,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-primary rounded-full" style={{ width: `${(strengthScore.volumeScore / 40) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold w-8 text-right">{strengthScore.volumeScore}/40</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.volumeScore}/40</Text>
             </View>
           </View>
           <View className="flex-row justify-between items-center">
@@ -101,7 +101,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-secondary rounded-full" style={{ width: `${(strengthScore.intensityScore / 30) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold w-8 text-right">{strengthScore.intensityScore}/30</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.intensityScore}/30</Text>
             </View>
           </View>
           <View className="flex-row justify-between items-center">
@@ -110,7 +110,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-success rounded-full" style={{ width: `${(strengthScore.consistencyScore / 30) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold w-8 text-right">{strengthScore.consistencyScore}/30</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.consistencyScore}/30</Text>
             </View>
           </View>
         </View>

@@ -231,22 +231,22 @@ export default function HistoryScreen() {
                     </View>
                   )}
                 </View>
-                <View className="flex-col gap-2 ml-2">
+                <View className="flex-col gap-1.5 ml-2 justify-center">
                   <TouchableOpacity
-                    className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 items-center"
+                    className="bg-primary/10 px-2.5 py-1.5 rounded-lg border border-primary/20 items-center min-w-[52px]"
                     onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
                     accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-primary font-black text-xs uppercase tracking-wider">Ver</Text>
+                    <Text className="text-primary font-black text-2xs uppercase tracking-wider">Ver</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    className="bg-danger/10 px-3 py-1.5 rounded-lg border border-danger/20 items-center"
+                    className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center min-w-[52px]"
                     onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName })}
                     accessibilityLabel={`Excluir treino ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-danger font-black text-xs uppercase tracking-wider">Excluir</Text>
+                    <Text className="text-danger font-black text-2xs uppercase tracking-wider">Excluir</Text>
                   </TouchableOpacity>
                 </View>
               </View>

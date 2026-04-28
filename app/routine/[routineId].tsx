@@ -10,6 +10,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
+import { parseTargetSets } from '../../src/utils/exercise';
 
 interface ExerciseWithStats {
   id: number;
@@ -206,7 +207,19 @@ export default function RoutinePreviewScreen() {
   }
 
   const totalExercises = exercisesData.length;
-  const estimatedDuration = Math.max(15, totalExercises * 3);
+
+  // Estimate workout duration including rest periods between sets
+  const estimatedDuration = Math.round(
+    exercisesData.reduce((total, ex) => {
+      const sets = parseTargetSets(ex.target) || 3;
+      const restSeconds = ex.restSeconds || 90;
+      const setDuration = 30; // ~30s per set
+      const setupTime = 60; // ~1min setup between exercises
+      // Time for this exercise: all sets + rest between sets + setup
+      return total + (sets * setDuration) + ((sets - 1) * restSeconds) + setupTime;
+    }, 0) / 60
+  );
+
   const exercisesWithPRs = exercisesData.filter(e => e.prWeight !== null).length;
 
   return (
