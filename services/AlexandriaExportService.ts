@@ -410,7 +410,7 @@ export const AlexandriaExportService = {
         UTI: 'public.json',
       });
     } else {
-      throw new Error('Compartilhamento não disponível neste dispositivo.');
+      throw new Error('services.sharingUnavailable');
     }
   },
 };

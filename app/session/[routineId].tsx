@@ -183,7 +183,7 @@ export default function SessionScreen() {
       <Dialog
         visible={showExitDialog}
         title="Sair do Treino?"
-        message="Se você sair agora, o treino ficará aberto em segundo plano. Deseja sair?"
+        message={t("session.exitConfirm")}
         confirmText="Sair"
         cancelText="Ficar"
         type="destructive"
@@ -215,7 +215,7 @@ export default function SessionScreen() {
       <Dialog
         visible={showFinishDialog}
         title="Finalizar Treino?"
-        message="Você ainda pode estar com exercícios pendentes. Deseja finalizar mesmo assim?"
+        message={t("session.finishConfirm")}
         confirmText="Finalizar"
         cancelText="Continuar Treino"
         type="destructive"
@@ -290,7 +290,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
           )}
 
           <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
-            {isComplete ? 'Concluído ✓' : isActive ? 'Em andamento...' : 'Toque para iniciar'}
+            {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
           </Text>
         </View>
 

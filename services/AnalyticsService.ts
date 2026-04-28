@@ -17,7 +17,7 @@ export interface StrengthScore {
   volumeScore: number;      // 0-40 (based on weekly volume)
   intensityScore: number;   // 0-30 (based on average weight lifted)
   consistencyScore: number; // 0-30 (based on training frequency)
-  label: string;            // 'Iniciante', 'Intermediário', 'Avançado', 'Elite'
+  labelKey: string;         // translation key for strength level
 }
 
 export interface ConsistencyData {
@@ -132,7 +132,7 @@ export const AnalyticsService = {
       const sessionIds = recentSessions.map(s => s.id);
 
       if (sessionIds.length === 0) {
-        return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, label: 'Sem dados' };
+        return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, labelKey: 'noData' };
       }
 
       // Get all sets for these sessions
@@ -181,17 +181,17 @@ export const AnalyticsService = {
 
       const totalScore = volumeScore + intensityScore + consistencyScore;
 
-      let label: string;
-      if (totalScore >= 80) label = 'Elite';
-      else if (totalScore >= 60) label = 'Avançado';
-      else if (totalScore >= 35) label = 'Intermediário';
-      else if (totalScore >= 15) label = 'Iniciante';
-      else label = 'Novato';
+      let labelKey: string;
+      if (totalScore >= 80) labelKey = 'elite';
+      else if (totalScore >= 60) labelKey = 'advanced';
+      else if (totalScore >= 35) labelKey = 'intermediate';
+      else if (totalScore >= 15) labelKey = 'beginner';
+      else labelKey = 'beginner';
 
-      return { totalScore, volumeScore, intensityScore, consistencyScore, label };
+      return { totalScore, volumeScore, intensityScore, consistencyScore, labelKey };
     } catch (e) {
       logger.error('Failed to calculate strength score', e);
-      return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, label: 'Erro' };
+      return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, labelKey: 'error' };
     }
   },
 

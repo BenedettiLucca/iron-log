@@ -273,8 +273,8 @@ export default function RoutinePreviewScreen() {
         {exercisesData.length === 0 ? (
           <EmptyState
             icon="📋"
-            title="Nenhum exercício"
-            description="Adicione exercícios a esta rotina para começar."
+            title={t("routine.noExercises")}
+            description={t("routine.addExercisesHint")}
           />
         ) : (
           <View className="gap-3">

@@ -60,9 +60,9 @@ export const CsvExportService = {
 
     // Header
     rows.push(toCsvRow([
-      'Data', 'Rotina', 'Duração (min)', 'Peso Corporal (kg)',
-      'sRPE', 'Notas', 'Exercício', 'Série #', 'Peso (kg)',
-      'Reps', 'Duração (s)', 'RIR', 'Warmup'
+      'Date', 'Routine', 'Duration (min)', 'Body Weight (kg)',
+      'sRPE', 'Notes', 'Exercise', 'Set #', 'Weight (kg)',
+      'Reps', 'Duration (s)', 'RIR', 'Warmup'
     ]));
 
     for (const session of allSessions) {
@@ -94,7 +94,7 @@ export const CsvExportService = {
             set.reps,
             set.durationSeconds || '',
             set.rir ?? '',
-            set.isWarmup ? 'Sim' : 'Não',
+            set.isWarmup ? 'Yes' : 'No',
           ]));
         }
       }
@@ -114,8 +114,8 @@ export const CsvExportService = {
     const rows: string[] = [];
 
     rows.push(toCsvRow([
-      'Data', 'Tipo', 'Peso (kg)', 'Cintura (cm)', 'Braço D. (cm)',
-      'Coxa D. (cm)', 'Tórax (cm)', 'Panturrilha (cm)'
+      'Date', 'Type', 'Weight (kg)', 'Waist (cm)', 'R. Arm (cm)',
+      'R. Thigh (cm)', 'Chest (cm)', 'Calf (cm)'
     ]));
 
     for (const m of metrics) {
@@ -141,7 +141,7 @@ export const CsvExportService = {
     const exs = await db.select().from(exercises).orderBy(asc(exercises.name));
 
     const rows: string[] = [];
-    rows.push(toCsvRow(['ID', 'Nome', 'Tipo', 'Descanso Padrão (s)']));
+    rows.push(toCsvRow(['ID', 'Name', 'Type', 'Default Rest (s)']));
 
     for (const ex of exs) {
       rows.push(toCsvRow([ex.id, ex.name, ex.type, ex.defaultRestSeconds || '']));
@@ -204,7 +204,7 @@ export const CsvExportService = {
 
     const rows: string[] = [];
     rows.push(toCsvRow([
-      'Exercício', 'Série #', 'Peso (kg)', 'Reps', 'Duração (s)', 'RIR', 'Warmup'
+      'Exercise', 'Set #', 'Weight (kg)', 'Reps', 'Duration (s)', 'RIR', 'Warmup'
     ]));
 
     for (const set of sessionSets) {
@@ -215,7 +215,7 @@ export const CsvExportService = {
         set.reps,
         set.durationSeconds || '',
         set.rir ?? '',
-        set.isWarmup ? 'Sim' : 'Não',
+        set.isWarmup ? 'Yes' : 'No',
       ]));
     }
 
@@ -223,7 +223,7 @@ export const CsvExportService = {
     const header = [
       `# Iron Log - ${session.routineName || 'Treino'}`,
       `# Data: ${formatDateBR(session.startTime)}`,
-      `# Duração: ${session.durationMinutes || 0} min`,
+      `# Duration: ${session.durationMinutes || 0} min`,
       `# sRPE: ${session.sRpe || '-'}`,
       `# Peso: ${session.bodyWeight || '-'} kg`,
       '',

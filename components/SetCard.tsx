@@ -49,7 +49,7 @@ function SetCard({
               swipeableRef.current?.close();
               onEdit();
             }}
-            accessibilityLabel="Editar série"
+            accessibilityLabel={t("session.editSet")}
             accessibilityRole="button"
           >
             <Text className="text-white text-xs font-bold uppercase">Editar</Text>
@@ -63,7 +63,7 @@ function SetCard({
               swipeableRef.current?.close();
               onDelete();
             }}
-            accessibilityLabel="Excluir série"
+            accessibilityLabel={t("session.deleteSet")}
             accessibilityRole="button"
           >
             <Text className="text-white text-xs font-bold uppercase">Excluir</Text>

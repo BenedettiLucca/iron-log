@@ -17,6 +17,7 @@ import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { safeParseParams, summaryParamsSchema } from '@/src/validators/routes';
 import { CsvExportService } from '../../services/CsvExportService';
+import { useI18n } from '../../src/i18n/index';
 
 interface ExerciseSummary {
   name: string;
@@ -33,11 +34,12 @@ interface SessionStats {
 }
 
 export default function SummaryScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(summaryParamsSchema, rawParams, 'SummaryScreen');
   const sessionId = validated?.sessionId ?? 0;
-  const [report, setReport] = useState('Gerando relatório...');
+  const [report, setReport] = useState(t('summary.generatingReport'));
   const [sessionData, setSessionData] = useState<Session | null>(null);
   const [stats, setStats] = useState<SessionStats>({
     totalSets: 0,
@@ -78,7 +80,7 @@ export default function SummaryScreen() {
       const exercisesMap = new Map<string, ExerciseSummary>();
 
       setsData.forEach(set => {
-        const exName = set.exerciseName || `Exercício ${set.exerciseId}`;
+        const exName = set.exerciseName || `${t('common.exercise')} ${set.exerciseId}`;
         if (!exercisesMap.has(exName)) {
           exercisesMap.set(exName, { sets: [], exId: set.exerciseId, name: exName });
         }
@@ -159,7 +161,7 @@ export default function SummaryScreen() {
 
     } catch (e) {
       logger.error('Erro inesperado', e);
-      setReport('Erro ao gerar relatório.');
+      setReport(t('summary.reportError'));
     }
   }, [sessionId]);
 
@@ -194,7 +196,7 @@ export default function SummaryScreen() {
         const path = fs.cacheDirectory + `ironlog_session_${sessionId}.csv`;
         await fs.writeAsStringAsync(path, csv);
         await (await import('expo-sharing')).Sharing.shareAsync(path, {
-          dialogTitle: 'Exportar Sessão CSV',
+          dialogTitle: t('summary.exportSessionCsv'),
           mimeType: 'text/csv',
         });
       }
@@ -212,7 +214,7 @@ export default function SummaryScreen() {
     if (srpe <= 4) return '💪 Ótimo treino leve!';
     if (srpe <= 6) return '🔥 Treino consistente!';
     if (srpe <= 8) return '⚡ Trabalho duro!';
-    return '🏆 Esforço hercúleo!';
+    return t("summary.herculeanEffort");
   }, [sessionData]);
 
   return (
@@ -221,7 +223,7 @@ export default function SummaryScreen() {
         {/* Header */}
         <View className="items-center mb-6 pt-5">
           <Text className="text-6xl">🎉</Text>
-          <Text className="text-text text-3xl font-bold mt-2">Treino Concluído!</Text>
+          <Text className="text-text text-3xl font-bold mt-2">{t("summary.workoutComplete")}</Text>
           <Text className="text-primary text-base font-semibold mt-1">{getMotivationalMessage()}</Text>
         </View>
 
@@ -229,7 +231,7 @@ export default function SummaryScreen() {
         <View className="flex-row flex-wrap gap-3 mb-5">
           <Card className="flex-1 min-w-[45%] items-center py-5">
             <Text className="text-text text-4xl font-bold">{stats.totalSets}</Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t("common.sets")}</Text>
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
@@ -301,7 +303,7 @@ export default function SummaryScreen() {
 
           {/* Post-Workout Actions */}
           <Card className="bg-card/50 border-dashed border-2 mt-4">
-            <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">Próximos Passos</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">{t("summary.nextSteps")}</Text>
             <View className="flex-row gap-2">
               <Button
                 title="Novo Treino"
@@ -324,7 +326,7 @@ export default function SummaryScreen() {
 
       <Toast
         visible={showToast}
-        message="Relatório copiado!"
+        message={t("summary.reportCopied")}
         type="success"
         onHide={() => setShowToast(false)}
       />

@@ -105,7 +105,15 @@ export const zh = {
     personalRecords: '个人纪录',
     noData: '数据不足',
     noDataDesc: '完成一些训练以查看分析。',
-  },
+  
+    strengthLevel: {
+      advanced: 'gao ji',
+    
+      beginner: 'chu xue zhe',
+      elite: 'jing ying',
+      error: 'cuo wu',
+      intermediate: 'zhong ji',
+      noData: 'wu shu ju',},},
   goals: {
     title: '目标 & 定义',
   },
@@ -226,7 +234,18 @@ export const zh = {
   },
   summary: {
     title: '训练总结',
-  },
+  
+    reportError: 'sheng cheng bao gao shi cuo.',
+    consistentWorkout: 'chi xu xun lian!',
+    exportSessionCsv: 'dao chu xun lian CSV',
+    herculeanEffort: 'ju da nu li!',
+    bestSet: 'zui jia zu',
+    duration: 'shi chang',
+    fullReport: 'wan zheng bao gao',
+    nextSteps: 'xia yi bu',
+    notes: 'bei zhu',
+    weight: 'ti zhong',
+    workoutComplete: 'xun lian wan cheng!',},
   settings: {
     title: '设置',
     checkinReminders: '打卡提醒',
@@ -271,7 +290,11 @@ export const zh = {
     configRequired: 'xu yao pei zhi',
     includesHistory: 'bao han wan zheng de xun lian he shen ti zhi biao li shi.',
     includesWorkouts: 'bao han xun lian, shen ti zhi biao, ge ren ji lu he mu biao.',
-    reminderDescription: 'mei yue jie shou ti xing, ji lu shen ti zhi biao bing gen zong jin zhan.',},
+    reminderDescription: 'mei yue jie shou ti xing, ji lu shen ti zhi biao bing gen zong jin zhan.',
+    alexandriaExportError: 'dao chu dao Alexandria shi bai.',
+    csvExportError: 'CSV dao chu shi bai.',
+    exportError: 'dao chu shi bai.',
+    importError: 'dao ru shi bai.',},
   about: {
     title: '关于 Iron Log',
     version: 'v{version} • Polished Edition',
@@ -371,4 +394,10 @@ export const zh = {
     armRight: 'you shou bi (cm)',
     chest: 'xiong bu (cm)',
     emptyDesc: 'wei shen ti zhi biao she ding mu biao bing zhui zong jin zhan.',},
+
+  services: {
+    dbNotFound: 'wei zhao dao shu ju ku.',
+  
+    invalidBackup: 'bei fen wen jian wu xiao huo wei kong.',
+    sharingUnavailable: 'ci she bei bu zhi chi fen xiang.',},
 };

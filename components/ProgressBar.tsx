@@ -47,7 +47,7 @@ export function ProgressBar({
     <View className="w-full">
       {showLabel && variant !== 'compact' && (
         <Text className="text-text text-xs font-bold uppercase tracking-widest mb-2">
-          {current} de {total} {total === 1 ? 'exercício' : 'exercícios'}
+          {current} de {total} {total === 1 ? t('common.exerciseSingular') : t('common.exercisePlural')}
         </Text>
       )}
       <View className={`bg-border overflow-hidden ${getVariantClasses()}`}>

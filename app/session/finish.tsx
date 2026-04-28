@@ -34,7 +34,7 @@ const NOTE_TEMPLATES: NoteTemplate[] = [
 ];
 
 const SRPE_DESCRIPTIONS: Record<number, string> = {
-  1: 'Recuperação',
+  1: t('finish.recovery'),
   2: 'Muito Leve',
   3: 'Leve',
   4: 'Moderado',
@@ -42,7 +42,7 @@ const SRPE_DESCRIPTIONS: Record<number, string> = {
   6: 'Intenso',
   7: 'Muito Intenso',
   8: 'Extremo',
-  9: 'Máximo',
+  9: t('finish.maximum'),
   10: 'Falha',
 };
 
@@ -338,8 +338,8 @@ export default function FinishSessionScreen() {
               {SRPE_DESCRIPTIONS[sRpe] || 'Moderado'}
             </Text>
             <Text className="text-subtext text-center text-xs mt-1">
-              {sRpe <= 4 ? 'Treino leve, pode treinar novamente amanhã' :
-                sRpe <= 6 ? 'Treino moderado, recuperação normal' :
+              {sRpe <= 4 ? t('finish.lightWorkout') :
+                sRpe <= 6 ? t('finish.moderateWorkout') :
                   sRpe <= 8 ? 'Treino intenso, precisa de descanso' :
                     'Treino extremo, descanse bem'}
             </Text>
@@ -374,7 +374,7 @@ export default function FinishSessionScreen() {
           <TextInput
             className="bg-card text-text text-base p-4 rounded-xl border border-border min-h-[120px]"
             multiline
-            placeholder="Como você se sentiu? Dores, ajustes de carga, energia..."
+            placeholder={t("finish.notesPlaceholder")}
             placeholderTextColor={Colors.darkSubtext}
             value={notes}
             onChangeText={setNotes}
@@ -396,8 +396,8 @@ export default function FinishSessionScreen() {
 
       <Dialog
         visible={showDiscardDialog}
-        title="Descartar Sessão?"
-        message="Esta sessão não possui séries registradas. Deseja descartá-la?"
+        title={t("finish.discardSession")}
+        message={t("finish.discardConfirm")}
         confirmText="Descartar"
         cancelText="Continuar Treino"
         type="destructive"

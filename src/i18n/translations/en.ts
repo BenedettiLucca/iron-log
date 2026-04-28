@@ -105,7 +105,15 @@ export const en = {
     personalRecords: 'Personal Records',
     noData: 'Not enough data',
     noDataDesc: 'Complete some workouts to see your analytics.',
-  },
+  
+    strengthLevel: {
+      advanced: 'Advanced',
+    
+      beginner: 'Beginner',
+      elite: 'Elite',
+      error: 'Error',
+      intermediate: 'Intermediate',
+      noData: 'No data',},},
   goals: {
     title: 'Goals & Objectives',
   },
@@ -226,7 +234,18 @@ export const en = {
   },
   summary: {
     title: 'Workout Summary',
-  },
+  
+    reportError: 'Error generating report.',
+    consistentWorkout: 'Consistent workout!',
+    exportSessionCsv: 'Export Session CSV',
+    herculeanEffort: 'Herculean effort!',
+    bestSet: 'Best Set',
+    duration: 'Duration',
+    fullReport: 'Full Report',
+    nextSteps: 'Next Steps',
+    notes: 'Notes',
+    weight: 'Weight',
+    workoutComplete: 'Workout Complete!',},
   settings: {
     title: 'Settings',
     checkinReminders: 'Check-in Reminders',
@@ -271,7 +290,11 @@ export const en = {
     configRequired: 'Configuration Required',
     includesHistory: 'Includes complete workout and body metrics history.',
     includesWorkouts: 'Includes workouts, body metrics, personal records, and goals.',
-    reminderDescription: 'Receive monthly reminders to track your body metrics and monitor your progress.',},
+    reminderDescription: 'Receive monthly reminders to track your body metrics and monitor your progress.',
+    alexandriaExportError: 'Failed to export to Alexandria.',
+    csvExportError: 'Failed to export CSV.',
+    exportError: 'Failed to export.',
+    importError: 'Failed to import.',},
   about: {
     title: 'About Iron Log',
     version: 'v{version} • Polished Edition',
@@ -371,4 +394,10 @@ export const en = {
     armRight: 'Right Arm (cm)',
     chest: 'Chest (cm)',
     emptyDesc: 'Set goals for your body metrics and track your progress.',},
+
+  services: {
+    dbNotFound: 'Database not found.',
+  
+    invalidBackup: 'Invalid or empty backup file.',
+    sharingUnavailable: 'Sharing is not available on this device.',},
 };

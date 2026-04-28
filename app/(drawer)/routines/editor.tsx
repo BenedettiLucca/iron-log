@@ -177,10 +177,10 @@ export default function RoutineEditorScreen() {
         />
 
         <Input 
-            label="DESCRIÇÃO"
+            label={t("routines.description")}
             value={description}
             onChangeText={setDescription}
-            placeholder="Foco em quadríceps..."
+            placeholder={t("routines.descriptionPlaceholder")}
         />
 
         <View className="flex-row justify-between items-center mt-2">
@@ -424,7 +424,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     
                     <View className="flex-row gap-4 mb-6 justify-center">
                         <Button 
-                            title="FORÇA"
+                            title={t("routines.strength")}
                             onPress={() => setNewType('strength')}
                             variant={newType === 'strength' ? 'primary' : 'ghost'}
                             size="sm"
@@ -438,7 +438,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     </View>
 
                     <Button 
-                        title="CONFIRMAR CRIAÇÃO"
+                        title={t("routines.confirmCreate")}
                         onPress={createNewExercise}
                         variant="success"
                         fullWidth

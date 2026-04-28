@@ -43,7 +43,7 @@ export default function SettingsScreen() {
       await DatabaseBackupService.exportDb();
       setToast({ visible: true, message: t('settings.localExportSuccess'), type: 'success' });
     } catch (e) {
-      setToast({ visible: true, message: e.message || 'Falha ao exportar.', type: 'error' });
+      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.exportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export default function SettingsScreen() {
             });
           }
         } catch (e) {
-          setToast({ visible: true, message: e.message || 'Falha ao importar.', type: 'error' });
+          setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.importError'), type: 'error' });
         } finally {
           setLoading(false);
         }
@@ -85,7 +85,7 @@ export default function SettingsScreen() {
       await DatabaseBackupService.uploadToDrive(accessToken);
       setToast({ visible: true, message: t('settings.cloudBackupSuccess'), type: 'success' });
     } catch {
-      setToast({ visible: true, message: 'Falha no backup em nuvem.', type: 'error' });
+      setToast({ visible: true, message: t('settings.cloudBackupError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function SettingsScreen() {
       await CsvExportService.exportAllAndShare();
       setToast({ visible: true, message: t('settings.csvExportSuccess'), type: 'success' });
     } catch (e) {
-      setToast({ visible: true, message: e.message || 'Falha ao exportar CSV.', type: 'error' });
+      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.csvExportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -109,7 +109,7 @@ export default function SettingsScreen() {
       await AlexandriaExportService.exportAndShare();
       setToast({ visible: true, message: t('settings.alexandriaExportSuccess'), type: 'success' });
     } catch (e) {
-      setToast({ visible: true, message: e.message || 'Falha ao exportar para Alexandria.', type: 'error' });
+      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.alexandriaExportError'), type: 'error' });
     } finally {
       setLoading(false);
     }

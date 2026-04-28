@@ -105,7 +105,15 @@ export const es = {
     personalRecords: 'Récords Personales',
     noData: 'Datos insuficientes',
     noDataDesc: 'Completa algunos entrenamientos para ver tus análisis.',
-  },
+  
+    strengthLevel: {
+      advanced: 'Avanzado',
+    
+      beginner: 'Novato',
+      elite: 'Elite',
+      error: 'Error',
+      intermediate: 'Intermedio',
+      noData: 'Sin datos',},},
   goals: {
     title: 'Metas & Objetivos',
   },
@@ -226,7 +234,18 @@ export const es = {
   },
   summary: {
     title: 'Resumen del Entreno',
-  },
+  
+    reportError: 'Error al generar el informe.',
+    consistentWorkout: 'Entrenamiento consistente!',
+    exportSessionCsv: 'Exportar Sesion CSV',
+    herculeanEffort: 'Esfuerzo herculeo!',
+    bestSet: 'Mejor Serie',
+    duration: 'Duracion',
+    fullReport: 'Informe Completo',
+    nextSteps: 'Proximos Pasos',
+    notes: 'Observaciones',
+    weight: 'Peso',
+    workoutComplete: 'Entrenamiento Completado!',},
   settings: {
     title: 'Configuración',
     checkinReminders: 'Recordatorios de Check-in',
@@ -271,7 +290,11 @@ export const es = {
     configRequired: 'Configuracion Necesaria',
     includesHistory: 'Incluye historial completo de entrenamientos y metricas corporales.',
     includesWorkouts: 'Incluye entrenamientos, metricas corporales, records personales y metas.',
-    reminderDescription: 'Recibe recordatorios mensuales para registrar tus metricas corporales y seguir tu progreso.',},
+    reminderDescription: 'Recibe recordatorios mensuales para registrar tus metricas corporales y seguir tu progreso.',
+    alexandriaExportError: 'Error al exportar a Alexandria.',
+    csvExportError: 'Error al exportar CSV.',
+    exportError: 'Error al exportar.',
+    importError: 'Error al importar.',},
   about: {
     title: 'Acerca de Iron Log',
     version: 'v{version} • Polished Edition',
@@ -371,4 +394,10 @@ export const es = {
     armRight: 'Brazo Derecho (cm)',
     chest: 'Pecho (cm)',
     emptyDesc: 'Define metas para tus metricas corporales y sigue tu progreso.',},
+
+  services: {
+    dbNotFound: 'Base de datos no encontrada.',
+  
+    invalidBackup: 'Archivo de backup invalido o vacio.',
+    sharingUnavailable: 'Compartir no esta disponible en este dispositivo.',},
 };

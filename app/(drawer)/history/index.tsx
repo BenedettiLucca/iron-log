@@ -14,9 +14,9 @@ import { Colors } from '@/constants/colors';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
-  monthNames: ['JANEIRO', 'FEVEREIRO', 'MARÇO', 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'],
+  monthNames: ['JANEIRO', 'FEVEREIRO', t('history.march'), 'ABRIL', 'MAIO', 'JUNHO', 'JULHO', 'AGOSTO', 'SETEMBRO', 'OUTUBRO', 'NOVEMBRO', 'DEZEMBRO'],
   monthNamesShort: ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'],
-  dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
+  dayNames: ['Domingo', 'Segunda', t('history.tuesday'), 'Quarta', 'Quinta', 'Sexta', t('history.saturday')],
   dayNamesShort: ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'],
   today: 'HOJE'
 };
@@ -181,7 +181,7 @@ export default function HistoryScreen() {
 
   const renderEmpty = () => (
     <View className="justify-center items-center mt-10 opacity-50">
-      <Text className="text-4xl mb-2" accessibilityLabel="Ícone de calendário">📅</Text>
+      <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
       <Text className="text-subtext font-bold text-center">Nenhum treino</Text>
       <Text className="text-subtext text-xs text-center">Nenhum registro para esta data.</Text>
     </View>
@@ -189,7 +189,7 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Histórico' }} />
+      <Stack.Screen options={{ title: t('history.title') }} />
 
       {isLoading ? (
         <View className="flex-1 p-4">

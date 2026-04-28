@@ -85,7 +85,7 @@ export default function AnalyticsScreen() {
         <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t("bioAnalytics.strengthScore")}</Text>
         <View className="items-center mb-4">
           <Text className="text-text text-5xl font-black">{strengthScore.totalScore}</Text>
-          <Text className="text-primary text-lg font-bold mt-1">{strengthScore.label}</Text>
+          <Text className="text-primary text-lg font-bold mt-1">{t('analytics.strengthLevel.' + strengthScore.labelKey)}</Text>
         </View>
         <View className="gap-2">
           <View className="flex-row justify-between items-center">

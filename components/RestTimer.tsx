@@ -110,7 +110,7 @@ export function RestTimer({
           </Text>
 
           <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-text'}`}>
-            {status === 'finished' ? '✓ Pronto para próxima série' : '⏱️ Descansando...'}
+            {status === 'finished' ? t('restTimer.readyForNextSet') : t('restTimer.resting')}
           </Text>
 
           {/* Quick Actions */}

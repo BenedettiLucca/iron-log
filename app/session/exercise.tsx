@@ -295,7 +295,7 @@ export default function ExerciseScreen() {
       isWarmup: isWarmupMode,
     });
     if (!setValidation.success) {
-      const msg = setValidation.error.errors[0]?.message || 'Dados inválidos';
+      const msg = setValidation.error.errors[0]?.message || t('common.invalidData');
       setToast({ visible: true, message: msg, type: 'error' });
       return;
     }

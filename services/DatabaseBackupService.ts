@@ -50,7 +50,7 @@ export const DatabaseBackupService = {
       // 1. Check if DB exists
       const fileInfo = await FileSystem.getInfoAsync(DB_PATH);
       if (!fileInfo.exists) {
-        throw new Error('Banco de dados não encontrado.');
+        throw new Error('services.dbNotFound');
       }
 
       // 2. Create a backup file name with timestamp
@@ -72,7 +72,7 @@ export const DatabaseBackupService = {
           mimeType: 'application/x-sqlite3', // Android
         });
       } else {
-        throw new Error('Compartilhamento não disponível neste dispositivo.');
+        throw new Error('services.sharingUnavailable');
       }
     } catch (error) {
       logger.error('Erro ao exportar backup', error);
@@ -95,7 +95,7 @@ export const DatabaseBackupService = {
       // 2. Safety check: size > 0
       const sourceInfo = await FileSystem.getInfoAsync(sourceUri);
       if (!sourceInfo.exists || sourceInfo.size === 0) {
-        throw new Error('Arquivo de backup inválido ou vazio.');
+        throw new Error('services.invalidBackup');
       }
 
       // 3. Confirm with user (handled in UI usually, but we can double check here or just proceed)
@@ -129,7 +129,7 @@ export const DatabaseBackupService = {
   async uploadToDrive(accessToken: string) {
     try {
       const fileInfo = await FileSystem.getInfoAsync(DB_PATH);
-      if (!fileInfo.exists) throw new Error('DB não encontrado');
+      if (!fileInfo.exists) throw new Error('services.dbNotFound');
 
       const fileName = `ironlog_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
 
@@ -153,7 +153,7 @@ export const DatabaseBackupService = {
       const metadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId}`;
       const metadata = {
         name: fileName,
-        description: 'Backup automático do Iron Log',
+        description: 'Iron Log automatic backup',
       };
 
       const metadataResponse = await fetch(metadataUrl, {

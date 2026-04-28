@@ -115,7 +115,15 @@ export const pt = {
     personalRecords: 'Recordes Pessoais',
     noData: 'Sem dados suficientes',
     noDataDesc: 'Complete alguns treinos para ver suas análises.',
-  },
+  
+    strengthLevel: {
+      advanced: 'Avancado',
+    
+      beginner: 'Iniciante',
+      elite: 'Elite',
+      error: 'Erro',
+      intermediate: 'Intermediario',
+      noData: 'Sem dados',},},
 
   // Goals
   goals: {
@@ -252,7 +260,18 @@ export const pt = {
   // Summary
   summary: {
     title: 'Resumo do Treino',
-  },
+  
+    reportError: 'Erro ao gerar relatorio.',
+    consistentWorkout: 'Treino consistente!',
+    exportSessionCsv: 'Exportar Sessao CSV',
+    herculeanEffort: 'Esforco herculeo!',
+    bestSet: 'Melhor Serie',
+    duration: 'Duracao',
+    fullReport: 'Relatorio Completo',
+    nextSteps: 'Proximos Passos',
+    notes: 'Observacoes',
+    weight: 'Peso',
+    workoutComplete: 'Treino Concluido!',},
 
   // Settings
   settings: {
@@ -299,7 +318,11 @@ export const pt = {
     configRequired: 'Configuracao Necessaria',
     includesHistory: 'Inclui historico completo de treinos e metricas corporais.',
     includesWorkouts: 'Inclui treinos, metricas corporais, recordes pessoais e metas.',
-    reminderDescription: 'Receba lembretes mensais para registrar suas metricas corporais e acompanhar seu progresso.',},
+    reminderDescription: 'Receba lembretes mensais para registrar suas metricas corporais e acompanhar seu progresso.',
+    alexandriaExportError: 'Falha ao exportar para Alexandria.',
+    csvExportError: 'Falha ao exportar CSV.',
+    exportError: 'Falha ao exportar.',
+    importError: 'Falha ao importar.',},
 
   // About
   about: {
@@ -403,4 +426,10 @@ export const pt = {
     armRight: 'Braco Direito (cm)',
     chest: 'Torax (cm)',
     emptyDesc: 'Defina metas para suas metricas corporais e acompanhe seu progresso.',},
+
+  services: {
+    dbNotFound: 'Banco de dados nao encontrado.',
+  
+    invalidBackup: 'Arquivo de backup invalido ou vazio.',
+    sharingUnavailable: 'Compartilhamento nao disponivel neste dispositivo.',},
 };

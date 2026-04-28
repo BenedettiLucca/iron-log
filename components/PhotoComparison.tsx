@@ -3,6 +3,7 @@ import { View, Text, Image, Modal, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
 import { Colors } from '@/constants/colors';
+import { useI18n } from '../src/i18n/index';
 
 interface PhotoComparisonProps {
   visible: boolean;
@@ -44,7 +45,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-text text-xl font-bold uppercase tracking-widest">Comparação: {label}</Text>
-            <TouchableOpacity onPress={onClose} accessibilityLabel="Fechar comparação" accessibilityRole="button">
+            <TouchableOpacity onPress={onClose} accessibilityLabel={t("common.closeComparison")} accessibilityRole="button">
               <Text className="text-subtext text-2xl">✕</Text>
             </TouchableOpacity>
           </View>

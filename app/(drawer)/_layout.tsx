@@ -28,7 +28,7 @@ export default function DrawerLayout() {
         <Drawer.Screen 
           name="bio/index" 
           options={{ 
-            title: 'Bio & Evolução', 
+            title: t('drawer.bioEvolution'), 
             drawerLabel: t('drawer.bio') 
           }} 
         />
@@ -80,7 +80,7 @@ export default function DrawerLayout() {
         <Drawer.Screen 
           name="history/index" 
           options={{ 
-            title: 'Histórico', 
+            title: t('drawer.history'), 
             drawerLabel: t('drawer.history') 
           }} 
         />
