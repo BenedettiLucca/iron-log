@@ -27,7 +27,9 @@ export const pt = {
     no: 'Não',
     optional: 'Opcional',
     required: 'Obrigatório',
-  },
+  
+    compare: 'Comparar',
+    invalidData: 'Dados invalidos',},
 
   // Home / Dashboard
   home: {
@@ -39,7 +41,15 @@ export const pt = {
     weeklyVolume: 'Volume Semanal',
     currentStreak: 'Streak Atual',
     bestStreak: 'Melhor Streak',
-  },
+  
+    availableRoutines: 'Rotinas Disponiveis',
+    manage: 'Gerenciar',
+    noRoutines: 'Nenhuma rotina encontrada',
+    populateError: 'Falha ao popular banco.',
+    populateSuccess: 'Banco de dados populado!',
+    viewCalendar: 'Ver Calendario',
+    startRoutine: 'Comece criando sua primeira rotina de treino ou gere exemplos para comecar rapidamente.',
+    tapToContinue: 'Toque para continuar',},
 
   // Bio
   bio: {
@@ -61,7 +71,22 @@ export const pt = {
     thighRight: 'Coxa D.',
     calf: 'Pantur.',
     saveCheckin: 'Salvar Check-in',
-  },
+  
+    empty: 'Vazio',
+    photoPermission: 'Precisamos de acesso as fotos para salvar sua evolucao.',
+    photoRemoved: 'Foto removida.',
+    photoSelectError: 'Falha ao selecionar imagem.',
+    photoSelected: 'Foto selecionada!',
+    photos: 'Fotos',
+    save: 'Salvar',
+    saveCheckinError: 'Falha ao salvar check-in.',
+    saveCheckinSuccess: 'Check-in mensal realizado!',
+    saveWeightError: 'Falha ao salvar peso.',
+    saveWeightSuccess: 'Peso registrado!',
+    deletePhoto: 'Excluir Foto',
+    deletePhotoConfirm: 'Tem certeza que deseja excluir a foto {{field}}?',
+    invalidWeight: 'Peso invalido',
+    armRightAbbr: 'BRACO D.',},
 
   bioNav: {
     goals: 'Metas',
@@ -258,7 +283,23 @@ export const pt = {
     en: 'English',
     es: 'Español',
     zh: '中文',
-  },
+  
+    alexandriaExportSuccess: 'Dados exportados para Alexandria!',
+    cloudBackupError: 'Falha no backup em nuvem.',
+    cloudBackupSuccess: 'Backup salvo no Google Drive!',
+    connectedGoogle: 'Conectado ao Google Drive',
+    csvExportSuccess: 'Dados exportados em CSV!',
+    exportAlexandriaJson: 'Exportar Alexandria JSON',
+    exportCsvBtn: 'Exportar CSV',
+    googleConnected: 'Conectado ao Google Drive!',
+    localExportSuccess: 'Backup exportado com sucesso!',
+    importBackup: 'Importar Backup',
+    importBackupWarning: 'Isso substituira TODOS os dados atuais pelos do backup. Essa acao e irreversivel. Deseja continuar?',
+    backupImported: 'Backup importado. O app sera reiniciado para aplicar as alteracoes.',
+    configRequired: 'Configuracao Necessaria',
+    includesHistory: 'Inclui historico completo de treinos e metricas corporais.',
+    includesWorkouts: 'Inclui treinos, metricas corporais, recordes pessoais e metas.',
+    reminderDescription: 'Receba lembretes mensais para registrar suas metricas corporais e acompanhar seu progresso.',},
 
   // About
   about: {
@@ -276,7 +317,10 @@ export const pt = {
     privacy: 'Privacidade Total',
     privacyText: 'Seus dados são 100% seus. Utilizamos um banco de dados SQLite local. Nenhuma informação sai do seu dispositivo sem sua permissão.',
     developer: 'Desenvolvido por Lucca Benedetti',
-  },
+  
+    bioTracking: 'Bio-Tracking Completo (Peso, Medidas, Fotos)',
+    csvExport: 'Exportacao CSV & Backup SQLite',
+    quickLog: 'Registro Rapido de Series & Cargas',},
 
   // Dialogs
   dialog: {
@@ -295,4 +339,68 @@ export const pt = {
     showGallery: 'Ver galeria completa',
     hideGallery: 'Ocultar galeria',
   },
+
+  bioAnalytics: {
+    avg12Weeks: 'media nas ultimas 12 semanas',
+  
+    bestStreak: 'Melhor Streak',
+    consistency: 'Consistencia',
+    currentStreak: 'Streak Atual',
+    estimated1RM: '1RM Estimado (Epley)',
+    intensity: 'Intensidade',
+    personalRecords: 'Recordes Pessoais',
+    strengthScore: 'Strength Score',
+    thisMonth: 'Este Mes',
+    thisWeek: 'Esta Semana',
+    topExercises: 'Exercicios em Progressao',
+    total: 'Total',
+    volume: 'Volume',
+    weeklyFrequency: 'Frequencia Semanal',
+    weeklyVolumeTitle: 'Volume Semanal (Ultimas 12 Semanas)',
+    weeksConsecutive: 'semanas consecutivas',
+    emptyDesc: 'Complete alguns treinos para ver suas analises.',},
+
+  bioEvolution: {
+    avgWeight: 'Peso Medio',
+  
+    back: 'COSTAS',
+    front: 'FRENTE',
+    insufficientData: 'Dados insuficientes para',
+    kg: 'kg',
+    kgPerWeek: 'kg/semana',
+    months: 'meses',
+    movingAverage: 'Media Movel (7 Dias)',
+    noPhotos: 'Nenhuma foto registrada.',
+    noPhotosDesc: 'Faca um check-in mensal para adicionar fotos de evolucao.',
+    period: 'Periodo',
+    side: 'PERFIL',
+    tip: 'Dica',
+    totalEntries: 'Total de Registros',
+    trend: 'Tendencia',
+    weightChange: 'Variacao de Peso',
+    analysisTab: 'ANALISE',
+    measuresTab: 'MEDIDAS',
+    photosTab: 'FOTOS',
+    weightTab: 'PESO',
+    emptyAnalysis: 'Registre suas metricas para ver analises e tendencias.',
+    gainingWeight: 'Voce esta ganhando peso consistentemente',
+    losingWeight: 'Voce esta perdendo peso consistentemente',
+    stable: 'Estavel',
+    weightStable: 'Seu peso esta estavel',
+    arm: 'Braco (cm)',},
+
+  bioGoals: {
+    achieved: 'Alcancada!',
+  
+    createGoal: 'Criar Meta',
+    delete: 'Excluir',
+    measurementType: 'Tipo de Medida',
+    newGoal: 'Nova Meta',
+    noGoals: 'Nenhuma meta definida',
+    selectDate: 'Selecione a data',
+    deleteGoal: 'Excluir Meta',
+    deleteGoalConfirm: 'Tem certeza que deseja excluir esta meta?',
+    armRight: 'Braco Direito (cm)',
+    chest: 'Torax (cm)',
+    emptyDesc: 'Defina metas para suas metricas corporais e acompanhe seu progresso.',},
 };

@@ -16,8 +16,10 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema, monthlyCheckinSchema } from '@/src/validators/forms';
+import { useI18n } from '../../../src/i18n/index';
 
 export default function BioScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -54,13 +56,13 @@ export default function BioScreen() {
     if (!todayWeight) return;
     const validation = weightInputSchema.safeParse({ weight: todayWeight });
     if (!validation.success) {
-      setToast({ visible: true, message: validation.error.errors[0]?.message || 'Peso inválido', type: 'error' });
+      setToast({ visible: true, message: validation.error.errors[0]?.message || t('bio.invalidWeight'), type: 'error' });
       return;
     }
     const success = await hookSaveWeight(validation.data.weight);
     if (success) {
       setTodayWeight('');
-      setToast({ visible: true, message: 'Peso registrado!', type: 'success' });
+      setToast({ visible: true, message: t('bio.saveWeightSuccess'), type: 'success' });
     } else {
       setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
     }
@@ -70,7 +72,7 @@ export default function BioScreen() {
       try {
           const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
           if (!permission.granted) {
-            setToast({ visible: true, message: 'Precisamos de acesso às fotos para salvar sua evolução.', type: 'error' });
+            setToast({ visible: true, message: t('bio.photoPermission'), type: 'error' });
             return;
           }
 
@@ -98,7 +100,7 @@ export default function BioScreen() {
               await FileSystem.copyAsync({ from: manipResult.uri, to: newPath });
               setPhotos(prev => ({ ...prev, [field]: newPath }));
               
-              setToast({ visible: true, message: 'Foto selecionada!', type: 'success' });
+              setToast({ visible: true, message: t('bio.photoSelected'), type: 'success' });
           }
       } catch {
           setToast({ visible: true, message: 'Falha ao selecionar imagem.', type: 'error' });
@@ -108,8 +110,8 @@ export default function BioScreen() {
   const deletePhoto = (field: 'front' | 'back' | 'side') => {
       setDialog({
           visible: true,
-          title: 'Excluir Foto',
-          message: `Tem certeza que deseja excluir a foto ${field === 'front' ? 'frontal' : field === 'back' ? 'de costas' : 'lateral'}?`,
+          title: t('bio.deletePhoto'),
+          message: t('bio.deletePhotoConfirm'),
           onConfirm: async () => {
               setPhotos(prev => ({ ...prev, [field]: null }));
               setPhotoNotes(prev => ({ ...prev, [field]: '' }));
@@ -170,7 +172,7 @@ export default function BioScreen() {
           setPhotoNotes({ front: '', back: '', side: '' });
           setMonthlyData({ waist: '', armRight: '', thighRight: '', chest: '', calf: '' });
           fetchMetrics();
-          setToast({ visible: true, message: 'Check-in mensal realizado!', type: 'success' });
+          setToast({ visible: true, message: t('bio.saveCheckinSuccess'), type: 'success' });
       } catch (e) {
           logger.error('Erro inesperado', e);
           setToast({ visible: true, message: 'Falha ao salvar check-in.', type: 'error' });
@@ -208,7 +210,7 @@ export default function BioScreen() {
                 </View>
                 <View className="pt-6">
                     <Button 
-                        title="SALVAR" 
+                        title={t("bio.save")} 
                         onPress={saveDailyWeight} 
                         size="sm"
                     />
@@ -223,33 +225,33 @@ export default function BioScreen() {
                 className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
             >
                 <Text className="text-lg mr-1.5">🎯</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">Metas</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.goals")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() => router.push('/bio/evolution')}
                 className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
             >
                 <Text className="text-lg mr-1.5">📈</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">Evolução</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.evolution")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
                 onPress={() => router.push('/bio/analytics')}
                 className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
             >
                 <Text className="text-lg mr-1.5">📊</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">Dados</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.data")}</Text>
             </TouchableOpacity>
         </View>
 
         {/* Check-in Mensal */}
         <Card>
             <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-primary font-bold text-xs uppercase tracking-widest">CHECK-IN MENSAL</Text>
+                <Text className="text-primary font-bold text-xs uppercase tracking-widest">{t("bio.monthlyCheckin")}</Text>
                 <TouchableOpacity 
                     onPress={() => router.push('/bio/checkin')}
                     className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
                 >
-                    <Text className="text-white font-bold text-xs uppercase">Abrir</Text>
+                    <Text className="text-white font-bold text-xs uppercase">{t("bio.open")}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -296,7 +298,7 @@ export default function BioScreen() {
         {/* Galeria Recente (Último Monthly) */}
         {metrics.find(m => m.type === 'monthly') && (
             <Card>
-                <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">FOTOS RECENTES</Text>
+                <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">{t("bio.recentPhotos")}</Text>
                 <View className="flex-row justify-between">
                     {['photoFront', 'photoBack', 'photoSide'].map((p) => {
                         const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
@@ -307,7 +309,7 @@ export default function BioScreen() {
                                     <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
                                     <View className="w-full h-full justify-center items-center">
-                                        <Text className="text-2xs text-subtext uppercase font-bold">VAZIO</Text>
+                                        <Text className="text-2xs text-subtext uppercase font-bold">{t("bio.empty")}</Text>
                                     </View>
                                 )}
                             </View>
@@ -319,7 +321,7 @@ export default function BioScreen() {
 
         {/* Histórico Detalhado */}
         <View>
-            <Text className="text-subtext font-bold uppercase text-xs mb-3 tracking-widest pl-1">HISTÓRICO RECENTE</Text>
+            <Text className="text-subtext font-bold uppercase text-xs mb-3 tracking-widest pl-1">{t("bio.history")}</Text>
             <View className="gap-2">
                 {metrics.slice(0, 10).map((item) => (
                     <View key={item.id} className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
@@ -332,7 +334,7 @@ export default function BioScreen() {
                         
                         <View className="flex-row items-center gap-2">
                             {item.type === 'monthly' && (
-                                <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">CHECK-IN</Text>
+                                <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
                             )}
                             <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
                         </View>
@@ -346,9 +348,9 @@ export default function BioScreen() {
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
           <View className="flex-1 bg-background">
               <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
-                  <Text className="text-text text-xl font-bold uppercase tracking-widest">CHECK-IN</Text>
+                  <Text className="text-text text-xl font-bold uppercase tracking-widest">{t("bio.checkin")}</Text>
                   <Button 
-                    title="FECHAR" 
+                    title={t("common.close")} 
                     onPress={() => setModalVisible(false)} 
                     variant="ghost" 
                     size="sm" 
@@ -357,12 +359,12 @@ export default function BioScreen() {
 
               <ScrollView className="p-5" contentContainerStyle={{ gap: 24 }}>
                   <View>
-                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">MEDIDAS (CM)</Text>
+                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.measurements")}</Text>
                     <View className="flex-row flex-wrap justify-between gap-y-4">
                         {[
                             { label: 'CINTURA', key: 'waist' },
                             { label: 'TÓRAX', key: 'chest' },
-                            { label: 'BRAÇO D.', key: 'armRight' },
+                            { label: t('bio.armRightAbbr'), key: 'armRight' },
                             { label: 'COXA D.', key: 'thighRight' },
                             { label: 'PANTUR.', key: 'calf' }
                         ].map(item => (
@@ -379,7 +381,7 @@ export default function BioScreen() {
                   </View>
 
                   <View>
-                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">FOTOS</Text>
+                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.photos")}</Text>
                     <View className="flex-row justify-between">
                         {(['front', 'back', 'side'] as const).map(side => (
                             <TouchableOpacity 
@@ -401,7 +403,7 @@ export default function BioScreen() {
                   </View>
 
                   <Button 
-                    title="SALVAR CHECK-IN" 
+                    title={t("bio.saveCheckin")} 
                     onPress={saveMonthlyCheckin} 
                     variant="success" 
                     size="lg"

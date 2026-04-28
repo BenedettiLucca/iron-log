@@ -12,19 +12,21 @@ import { EmptyState } from '@/components/EmptyState';
 import { DatePicker } from '@/components/DatePicker';
 import { logger } from '@/services/logger';
 import { goalInputSchema } from '@/src/validators/forms';
+import { useI18n } from '../../../src/i18n/index';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
 const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
   weight: 'Peso (kg)',
   waist: 'Cintura (cm)',
-  armRight: 'Braço Direito (cm)',
+  armRight: t('bioGoals.armRight'),
   thighRight: 'Coxa Direita (cm)',
-  chest: 'Tórax (cm)',
+  chest: t('bioGoals.chest'),
   calf: 'Panturrilha (cm)',
 };
 
 export default function GoalsScreen() {
+  const { t } = useI18n();
   const [goals, setGoals] = useState<InferSelectModel<typeof measurementGoals>[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGoal, setNewGoal] = useState({
@@ -65,7 +67,7 @@ export default function GoalsScreen() {
         targetDate: newGoal.targetDate,
       });
       if (!validation.success) {
-        const msg = validation.error.errors[0]?.message || 'Dados inválidos';
+        const msg = validation.error.errors[0]?.message || t('common.invalidData');
         logger.warn('Goal validation failed:', msg);
         return;
       }
@@ -92,8 +94,8 @@ export default function GoalsScreen() {
   const deleteGoal = async (id: number) => {
     setDialog({
       visible: true,
-      title: 'Excluir Meta',
-      message: 'Tem certeza que deseja excluir esta meta?',
+      title: t('bioGoals.deleteGoal'),
+      message: t('bioGoals.deleteGoalConfirm'),
       onConfirm: async () => {
         try {
           await db.delete(measurementGoals).where(eq(measurementGoals.id, id));
@@ -112,11 +114,11 @@ export default function GoalsScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Metas' }} />
+      <Stack.Screen options={{ title: t('bioNav.goals') }} />
 
       <ScrollView className="flex-1 p-4" contentContainerStyle={{ gap: 16 }}>
         <Button
-          title="Nova Meta"
+          title={t("bioGoals.newGoal")}
           onPress={() => setModalVisible(true)}
           variant="primary"
           fullWidth
@@ -125,8 +127,8 @@ export default function GoalsScreen() {
         {goals.length === 0 ? (
           <EmptyState
             icon="🎯"
-            title="Nenhuma meta definida"
-            description="Defina metas para suas métricas corporais e acompanhe seu progresso."
+            title={t("bioGoals.noGoals")}
+            description={t("bioGoals.emptyDesc")}
           />
         ) : (
           goals.map((goal) => (
@@ -142,14 +144,14 @@ export default function GoalsScreen() {
                 </View>
                 {goal.achieved && (
                   <View className="bg-success/10 px-2 py-1 rounded-lg">
-                    <Text className="text-success text-xs font-bold uppercase">Alcançada!</Text>
+                    <Text className="text-success text-xs font-bold uppercase">{t("bioGoals.achieved")}</Text>
                   </View>
                 )}
               </View>
 
               <View className="flex-row gap-2 mt-3">
                 <Button
-                  title="Excluir"
+                  title={t("bioGoals.delete")}
                   onPress={() => deleteGoal(goal.id)}
                   variant="danger"
                   size="sm"
@@ -165,13 +167,13 @@ export default function GoalsScreen() {
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
         <View className="flex-1 bg-background p-4">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-text text-xl font-bold uppercase">Nova Meta</Text>
-            <Button title="Fechar" onPress={() => setModalVisible(false)} variant="ghost" size="sm" />
+            <Text className="text-text text-xl font-bold uppercase">{t("bioGoals.newGoal")}</Text>
+            <Button title={t("common.close")} onPress={() => setModalVisible(false)} variant="ghost" size="sm" />
           </View>
 
           <ScrollView contentContainerStyle={{ gap: 16 }}>
             <View>
-              <Text className="text-subtext text-xs font-bold uppercase mb-3">Tipo de Medida</Text>
+              <Text className="text-subtext text-xs font-bold uppercase mb-3">{t("bioGoals.measurementType")}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {(Object.keys(MEASUREMENT_LABELS) as MeasurementType[]).map((type) => (
                   <TouchableOpacity
@@ -207,12 +209,12 @@ export default function GoalsScreen() {
               label="Data Alvo"
               value={newGoal.targetDate}
               onChange={(date) => setNewGoal({ ...newGoal, targetDate: date })}
-              placeholder="Selecione a data"
+              placeholder={t("bioGoals.selectDate")}
               minimumDate={new Date()}
             />
 
             <Button
-              title="Criar Meta"
+              title={t("bioGoals.createGoal")}
               onPress={addGoal}
               variant="success"
               size="lg"

@@ -12,8 +12,10 @@ import { PhotoComparison } from '../../../components/PhotoComparison';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 import { Colors } from '@/constants/colors';
+import { useI18n } from '../../../src/i18n/index';
 
 export default function EvolutionScreen() {
+  const { t } = useI18n();
   const [weightData, setWeightData] = useState<BodyMetric[]>([]);
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
@@ -109,7 +111,7 @@ export default function EvolutionScreen() {
   const renderChart = (data: any[], title: string, color: string) => {
       if (!data || data.length < 2) return (
           <Card style={{ marginBottom: 24, height: 160, justifyContent: 'center', alignItems: 'center' }}>
-              <Text className="text-subtext italic">Dados insuficientes para {title}</Text>
+              <Text className="text-subtext italic">{t("bioEvolution.insufficientData")} {title}</Text>
           </Card>
       );
 
@@ -137,14 +139,14 @@ export default function EvolutionScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: 'Evolução' }} />
+      <Stack.Screen options={{ title: t('bioNav.evolution') }} />
       
       {/* Tabs */}
       <View className="flex-row p-4 gap-2 flex-wrap">
           {(['weight', 'measures', 'photos', 'analytics'] as const).map(tab => (
               <View key={tab} className="flex-1 min-w-[70px]">
                 <Button
-                    title={tab === 'weight' ? 'PESO' : tab === 'measures' ? 'MEDIDAS' : tab === 'photos' ? 'FOTOS' : 'ANÁLISE'}
+                    title={tab === 'weight' ? t('bioEvolution.weightTab') : tab === 'measures' ? t('bioEvolution.measuresTab') : tab === 'photos' ? t('bioEvolution.photosTab') : t('bioEvolution.analysisTab')}
                     onPress={() => setActiveTab(tab)}
                     variant={activeTab === tab ? 'primary' : 'ghost'}
                     size="sm"
@@ -156,7 +158,7 @@ export default function EvolutionScreen() {
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
               <>
-                <Text className="text-subtext text-xs mb-4 text-center font-medium">Média Móvel (7 Dias)</Text>
+                <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverage")}</Text>
                 {renderChart(weightData, 'Evolução de Peso', Colors.primary)}
               </>
           )}
@@ -164,18 +166,18 @@ export default function EvolutionScreen() {
           {activeTab === 'measures' && (
               <>
                 {renderChart(measuresData.waist, 'Cintura (cm)', Colors.success)}
-                {renderChart(measuresData.arm, 'Braço (cm)', Colors.secondary)}
-                {renderChart(measuresData.chest, 'Tórax (cm)', Colors.accent)}
+                {renderChart(measuresData.arm, t("bioEvolution.arm"), Colors.secondary)}
+                {renderChart(measuresData.chest, t("bioEvolution.chest"), Colors.accent)}
               </>
           )}
 
                    {activeTab === 'photos' && (
                <View className="gap-4">
                    <View className="flex-row justify-between items-center mb-4">
-                       <Text className="text-subtext text-xs font-bold uppercase tracking-widest">FOTOS RECENTES</Text>
+                       <Text className="text-subtext text-xs font-bold uppercase tracking-widest">{t("bio.recentPhotos")}</Text>
                        {photos.length >= 2 && (
                            <Button
-                               title="Comparar"
+                               title={t("common.compare")}
                                onPress={() => {
                                    const latest = photos[0];
                                    const previous = photos[1];
@@ -196,8 +198,8 @@ export default function EvolutionScreen() {
                    {photos.length === 0 && (
                      <View className="items-center mt-10">
                          <Text className="text-4xl mb-4">📷</Text>
-                         <Text className="text-subtext text-center">Nenhuma foto registrada.</Text>
-                         <Text className="text-subtext/60 text-xs text-center mt-2">Faça um check-in mensal para adicionar fotos de evolução.</Text>
+                         <Text className="text-subtext text-center">{t("bioEvolution.noPhotos")}</Text>
+                         <Text className="text-subtext/60 text-xs text-center mt-2">{t("bioEvolution.noPhotosDesc")}</Text>
                      </View>
                    )}
                    {photos.map((entry) => (
@@ -214,19 +216,19 @@ export default function EvolutionScreen() {
                               {entry.photoFront && (
                                   <View>
                                       <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">FRENTE</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.front")}</Text>
                                   </View>
                               )}
                               {entry.photoBack && (
                                   <View>
                                       <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">COSTAS</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.back")}</Text>
                                   </View>
                               )}
                               {entry.photoSide && (
                                   <View>
                                       <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">PERFIL</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.side")}</Text>
                                   </View>
                               )}
                           </ScrollView>
@@ -240,43 +242,43 @@ export default function EvolutionScreen() {
                   {weightData.length === 0 ? (
                     <EmptyState
                       icon="📊"
-                      title="Sem dados suficientes"
-                      description="Registre suas métricas para ver análises e tendências."
+                      title={t("bioAnalytics.insufficientData")}
+                      description={t("bioEvolution.emptyAnalysis")}
                     />
                   ) : (
                     <>
                       {/* Weight Change Rate */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-2">Variação de Peso</Text>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-2">{t("bioEvolution.weightChange")}</Text>
                         <View className="flex-row items-end gap-2">
                           <Text className={`text-4xl font-black ${analytics.weightChangeRate >= 0 ? 'text-success' : 'text-danger'}`}>
                             {analytics.weightChangeRate >= 0 ? '+' : ''}
                             {analytics.weightChangeRate.toFixed(2)}
                           </Text>
-                          <Text className="text-subtext text-sm mb-1">kg/semana</Text>
+                          <Text className="text-subtext text-sm mb-1">{t("bioEvolution.kgPerWeek")}</Text>
                         </View>
                       </Card>
 
                       {/* Average Weight */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-2">Peso Médio</Text>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-2">{t("bioEvolution.avgWeight")}</Text>
                         <View className="flex-row items-end gap-2">
                           <Text className="text-4xl font-black text-text">
                             {analytics.averageWeight.toFixed(1)}
                           </Text>
-                          <Text className="text-subtext text-sm mb-1">kg</Text>
+                          <Text className="text-subtext text-sm mb-1">{t("bioEvolution.kg")}</Text>
                         </View>
                       </Card>
 
                       {/* Statistics Grid */}
                       <View className="flex-row gap-3">
                         <Card className="flex-1">
-                          <Text className="text-subtext text-xs font-bold uppercase mb-1">Total de Registros</Text>
+                          <Text className="text-subtext text-xs font-bold uppercase mb-1">{t("bioEvolution.totalEntries")}</Text>
                           <Text className="text-2xl font-black text-text">{analytics.totalEntries}</Text>
                         </Card>
 
                         <Card className="flex-1">
-                          <Text className="text-subtext text-xs font-bold uppercase mb-1">Período</Text>
+                          <Text className="text-subtext text-xs font-bold uppercase mb-1">{t("bioEvolution.period")}</Text>
                           <Text className="text-2xl font-black text-text">
                             {analytics.firstEntryDate && analytics.lastEntryDate
                               ? Math.ceil(
@@ -285,13 +287,13 @@ export default function EvolutionScreen() {
                                 )
                               : 0}
                           </Text>
-                          <Text className="text-subtext text-xs">meses</Text>
+                          <Text className="text-subtext text-xs">{t("bioEvolution.months")}</Text>
                         </Card>
                       </View>
 
                       {/* Trend Analysis */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-3">Tendência</Text>
+                        <Text className="text-subtext text-xs font-bold uppercase mb-3">{t("bioEvolution.trend")}</Text>
                         <View className="flex-row items-center gap-3">
                           <View
                             className={`w-16 h-16 rounded-full items-center justify-center ${
@@ -312,14 +314,14 @@ export default function EvolutionScreen() {
                                 ? 'Ganhando peso'
                                 : analytics.weightChangeRate < -0.1
                                 ? 'Perdendo peso'
-                                : 'Estável'}
+                                : t("bioEvolution.stable")}
                             </Text>
                             <Text className="text-subtext text-xs">
                               {analytics.weightChangeRate > 0.1
-                                ? 'Você está ganhando peso consistentemente'
+                                ? t("bioEvolution.gainingWeight")
                                 : analytics.weightChangeRate < -0.1
-                                ? 'Você está perdendo peso consistentemente'
-                                : 'Seu peso está estável'}
+                                ? t("bioEvolution.losingWeight")
+                                : t("bioEvolution.weightStable")}
                             </Text>
                           </View>
                         </View>

@@ -8,8 +8,10 @@ import { SkeletonList, SkeletonCard } from '../../../components/Skeleton';
 import { EmptyState } from '../../../components/EmptyState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
+import { useI18n } from '../../../src/i18n/index';
 
 export default function AnalyticsScreen() {
+  const { t } = useI18n();
   const [data, setData] = useState<DashboardAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -39,7 +41,7 @@ export default function AnalyticsScreen() {
   if (loading && !data) {
     return (
       <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <Stack.Screen options={{ title: 'Dados' }} />
+        <Stack.Screen options={{ title: t('bioNav.data') }} />
         <SkeletonCard>
           <View className="items-center py-4" />
         </SkeletonCard>
@@ -56,11 +58,11 @@ export default function AnalyticsScreen() {
   if (!data) {
     return (
       <View className="flex-1 bg-background">
-        <Stack.Screen options={{ title: 'Dados' }} />
+        <Stack.Screen options={{ title: t('bioNav.data') }} />
         <EmptyState
           icon="📊"
-          title="Sem dados suficientes"
-          description="Complete alguns treinos para ver suas análises."
+          title={t("bioAnalytics.insufficientData")}
+          description={t("bioAnalytics.emptyDesc")}
         />
       </View>
     );
@@ -76,18 +78,18 @@ export default function AnalyticsScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
       }
     >
-      <Stack.Screen options={{ title: 'Dados' }} />
+      <Stack.Screen options={{ title: t('bioNav.data') }} />
 
       {/* Strength Score */}
       <Card>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Strength Score</Text>
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t("bioAnalytics.strengthScore")}</Text>
         <View className="items-center mb-4">
           <Text className="text-text text-5xl font-black">{strengthScore.totalScore}</Text>
           <Text className="text-primary text-lg font-bold mt-1">{strengthScore.label}</Text>
         </View>
         <View className="gap-2">
           <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">Volume</Text>
+            <Text className="text-subtext text-sm">{t("bioAnalytics.volume")}</Text>
             <View className="flex-row items-center gap-2 flex-1 ml-4">
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-primary rounded-full" style={{ width: `${(strengthScore.volumeScore / 40) * 100}%` }} />
@@ -96,7 +98,7 @@ export default function AnalyticsScreen() {
             </View>
           </View>
           <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">Intensidade</Text>
+            <Text className="text-subtext text-sm">{t("bioAnalytics.intensity")}</Text>
             <View className="flex-row items-center gap-2 flex-1 ml-4">
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-secondary rounded-full" style={{ width: `${(strengthScore.intensityScore / 30) * 100}%` }} />
@@ -105,7 +107,7 @@ export default function AnalyticsScreen() {
             </View>
           </View>
           <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">Consistência</Text>
+            <Text className="text-subtext text-sm">{t("bioAnalytics.consistency")}</Text>
             <View className="flex-row items-center gap-2 flex-1 ml-4">
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-success rounded-full" style={{ width: `${(strengthScore.consistencyScore / 30) * 100}%` }} />
@@ -120,15 +122,15 @@ export default function AnalyticsScreen() {
       <View className="flex-row gap-3 mt-2">
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.sessionsThisWeek}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-1">Esta Semana</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">{t("bioAnalytics.thisWeek")}</Text>
         </Card>
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.sessionsThisMonth}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-1">Este Mês</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">{t("bioAnalytics.thisMonth")}</Text>
         </Card>
         <Card className="flex-1 items-center py-4">
           <Text className="text-text text-2xl font-bold">{consistency.totalSessions}</Text>
-          <Text className="text-subtext text-xs font-bold uppercase mt-1">Total</Text>
+          <Text className="text-subtext text-xs font-bold uppercase mt-1">{t("bioAnalytics.total")}</Text>
         </Card>
       </View>
 
@@ -137,20 +139,20 @@ export default function AnalyticsScreen() {
         <Card className="flex-1">
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">🔥 Streak Atual</Text>
           <Text className="text-text text-3xl font-black">{consistency.currentStreak}</Text>
-          <Text className="text-subtext text-xs">semanas consecutivas</Text>
+          <Text className="text-subtext text-xs">{t("bioAnalytics.weeksConsecutive")}</Text>
         </Card>
         <Card className="flex-1">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">⭐ Melhor Streak</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t("bioAnalytics.bestStreak")}</Text>
           <Text className="text-text text-3xl font-black">{consistency.longestStreak}</Text>
-          <Text className="text-subtext text-xs">semanas consecutivas</Text>
+          <Text className="text-subtext text-xs">{t("bioAnalytics.weeksConsecutive")}</Text>
         </Card>
       </View>
 
       {/* Frequency */}
       <Card>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">Frequência Semanal</Text>
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t("bioAnalytics.weeklyFrequency")}</Text>
         <Text className="text-text text-3xl font-black">{consistency.weeklyFrequency}x</Text>
-        <Text className="text-subtext text-xs">média nas últimas 12 semanas</Text>
+        <Text className="text-subtext text-xs">{t("bioAnalytics.avg12Weeks")}</Text>
       </Card>
 
       {/* Volume Trends */}
@@ -222,7 +224,7 @@ export default function AnalyticsScreen() {
       {/* PR Count */}
       <Card className="items-center py-6">
         <Text className="text-text text-4xl font-black">{totalPRs}</Text>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mt-2">Recordes Pessoais</Text>
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mt-2">{t("bioAnalytics.personalRecords")}</Text>
       </Card>
 
       <View className="h-8" />

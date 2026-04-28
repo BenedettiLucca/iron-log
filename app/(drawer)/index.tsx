@@ -10,8 +10,10 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useSessions } from '@/hooks/use-sessions';
+import { useI18n } from '../../src/i18n/index';
 
 export default function HomeScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const { allRoutines: routinesList, fetchRoutines } = useRoutines();
   const { lastSession, incompleteSession, fetchHomeData } = useSessions();
@@ -64,7 +66,7 @@ export default function HomeScreen() {
       ]);
 
       fetchData();
-      setToast({ visible: true, message: 'Banco de dados populado!', type: 'success' });
+      setToast({ visible: true, message: t('home.populateSuccess'), type: 'success' });
     } catch (e) {
       logger.error('Falha ao popular banco', e);
       setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
@@ -99,14 +101,14 @@ export default function HomeScreen() {
             <Card className="bg-primary/5 border-2 border-primary/20">
               <View className="flex-row justify-between items-center">
                 <View className="flex-1">
-                  <Text className="text-primary font-bold text-sm uppercase tracking-wider mb-1">Treino em Andamento</Text>
+                  <Text className="text-primary font-bold text-sm uppercase tracking-wider mb-1">{t("home.activeWorkout")}</Text>
                   <Text className="text-text text-lg font-bold">{incompleteSession.routineName}</Text>
                   <Text className="text-subtext text-xs mt-0.5">
-                    {incompleteSession.exerciseName} • Toque para continuar
+                    {incompleteSession.exerciseName} • {t("home.tapToContinue")}
                   </Text>
                 </View>
                 <View className="bg-primary px-3 py-2 rounded-lg">
-                  <Text className="text-white font-bold text-sm uppercase">Continuar</Text>
+                  <Text className="text-white font-bold text-sm uppercase">{t("home.continue")}</Text>
                 </View>
               </View>
             </Card>
@@ -116,9 +118,9 @@ export default function HomeScreen() {
 
       <View className={`mt-4 ${incompleteSession ? 'mb-4' : 'mb-8'}`}>
         <View className="flex-row justify-between items-center mb-2 px-1">
-            <Text className="text-subtext text-xs font-bold uppercase tracking-widest">Última Sessão</Text>
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest">{t("home.lastSession")}</Text>
             <TouchableOpacity onPress={() => router.push('/history')}>
-                <Text className="text-secondary text-xs font-bold uppercase tracking-wider">Ver Calendário</Text>
+                <Text className="text-secondary text-xs font-bold uppercase tracking-wider">{t("home.viewCalendar")}</Text>
             </TouchableOpacity>
         </View>
         
@@ -142,15 +144,15 @@ export default function HomeScreen() {
         ) : (
             <InlineEmptyState
                 icon="💪"
-                title="Nenhum treino registrado ainda"
+                title={t("home.noWorkouts")}
             />
         )}
       </View>
 
       <View className="flex-row justify-between items-end mb-3 px-1">
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest">Rotinas Disponíveis</Text>
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest">{t("home.availableRoutines")}</Text>
         <TouchableOpacity onPress={() => router.push('/routines')}>
-          <Text className="text-primary font-bold text-xs uppercase tracking-wider">Gerenciar</Text>
+          <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t("home.manage")}</Text>
         </TouchableOpacity>
       </View>
       
@@ -193,8 +195,8 @@ export default function HomeScreen() {
         ) : (
           <EmptyState
             icon="🏋️"
-            title="Nenhuma rotina encontrada"
-            description="Comece criando sua primeira rotina de treino ou gere exemplos para começar rapidamente."
+            title={t("home.noRoutines")}
+            description={t("home.startRoutine")}
             actionLabel="Gerar Rotinas de Exemplo"
             onAction={seedDatabase}
           />
