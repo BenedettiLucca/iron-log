@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { sessions, sets } from '../../../src/db/schema';
 import { desc, isNull, eq, and } from 'drizzle-orm';
 import { Card } from '../../../components/Card';
+import { Dialog } from '../../../components/Dialog';
 import { SkeletonList } from '../../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
@@ -34,6 +35,7 @@ export default function HistoryScreen() {
   const [daySessions, setDaySessions] = useState<SessionWithExercises[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialog, setDeleteDialog] = useState({ visible: false, sessionId: 0, sessionName: '' });
 
   const loadSessions = useCallback(async () => {
     try {
@@ -66,6 +68,21 @@ export default function HistoryScreen() {
     await loadSessions();
     setRefreshing(false);
   }, [loadSessions]);
+
+  const handleDeleteSession = useCallback(async () => {
+    try {
+      await db.update(sessions)
+        .set({ deletedAt: Date.now() })
+        .where(eq(sessions.id, deleteDialog.sessionId));
+      setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' });
+      await loadSessions();
+      // Clear day sessions to force re-filter
+      setDaySessions([]);
+      setSelectedDate('');
+    } catch (e) {
+      logger.error('Failed to delete session', e);
+    }
+  }, [deleteDialog.sessionId, loadSessions]);
 
   const handleDayPress = useCallback(async (day: any) => {
     setSelectedDate(day.dateString);
@@ -194,17 +211,12 @@ export default function HistoryScreen() {
           ListHeaderComponent={renderHeader}
           ListEmptyComponent={renderEmpty}
           renderItem={({ item }) => (
-            <Card
-              pressable
-              onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
-              accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
-              accessibilityRole="button"
-            >
+            <Card>
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
                   <Text className="text-text font-black text-lg mb-1 tracking-tight">{item.routineName}</Text>
                   <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">
-                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes} min • {item.totalSets} séries
+                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} séries
                   </Text>
                   {item.exerciseNames.length > 0 && (
                     <View className="flex-row flex-wrap gap-1">
@@ -219,14 +231,40 @@ export default function HistoryScreen() {
                     </View>
                   )}
                 </View>
-                <View className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 ml-2">
-                  <Text className="text-primary font-black text-xs uppercase tracking-wider">Ver</Text>
+                <View className="flex-col gap-2 ml-2">
+                  <TouchableOpacity
+                    className="bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 items-center"
+                    onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
+                    accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
+                    accessibilityRole="button"
+                  >
+                    <Text className="text-primary font-black text-xs uppercase tracking-wider">Ver</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="bg-danger/10 px-3 py-1.5 rounded-lg border border-danger/20 items-center"
+                    onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName })}
+                    accessibilityLabel={`Excluir treino ${item.routineName}`}
+                    accessibilityRole="button"
+                  >
+                    <Text className="text-danger font-black text-xs uppercase tracking-wider">Excluir</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </Card>
           )}
         />
       )}
+
+      <Dialog
+        visible={deleteDialog.visible}
+        title="Excluir Treino?"
+        message={`Deseja excluir o treino "${deleteDialog.sessionName}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        type="destructive"
+        onConfirm={handleDeleteSession}
+        onCancel={() => setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' })}
+      />
     </View>
   );
 }

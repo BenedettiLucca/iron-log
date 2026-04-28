@@ -187,8 +187,21 @@ export default function SessionScreen() {
         confirmText="Sair"
         cancelText="Ficar"
         type="destructive"
-        onConfirm={() => {
+        onConfirm={async () => {
           setShowExitDialog(false);
+          // If session has no sets, hard-delete it to avoid ghost sessions
+          if (sessionId) {
+            try {
+              const setCount = await db.select({ count: count() })
+                .from(sets)
+                .where(eq(sets.sessionId, sessionId));
+              if (setCount[0]?.count === 0) {
+                await db.delete(sessions).where(eq(sessions.id, sessionId));
+              }
+            } catch (e) {
+              logger.error('Failed to cleanup empty session', e);
+            }
+          }
           if (pendingNavigation) {
             navigation.dispatch(pendingNavigation);
           }

@@ -67,6 +67,7 @@ export default function FinishSessionScreen() {
   });
   const [isFinishing, setIsFinishing] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
@@ -143,7 +144,24 @@ export default function FinishSessionScreen() {
 
   const handleFinish = () => {
     if (isFinishing) return;
+    if (sessionStats.totalSets === 0) {
+      setShowDiscardDialog(true);
+      return;
+    }
     setShowConfirmDialog(true);
+  };
+
+  const confirmDiscard = async () => {
+    setShowDiscardDialog(false);
+    setIsFinishing(true);
+    try {
+      await db.delete(sessions).where(eq(sessions.id, Number(sessionId)));
+      await AsyncStorage.removeItem('incomplete_session');
+      router.replace('/(drawer)/');
+    } catch (e) {
+      logger.error('Operation failed', e);
+      setIsFinishing(false);
+    }
   };
 
   const confirmFinish = async () => {
@@ -373,6 +391,17 @@ export default function FinishSessionScreen() {
         />
 
       </ScrollView>
+
+      <Dialog
+        visible={showDiscardDialog}
+        title="Descartar Sessão?"
+        message="Esta sessão não possui séries registradas. Deseja descartá-la?"
+        confirmText="Descartar"
+        cancelText="Continuar Treino"
+        type="destructive"
+        onConfirm={confirmDiscard}
+        onCancel={() => setShowDiscardDialog(false)}
+      />
 
       <Dialog
         visible={showConfirmDialog}
