@@ -2,6 +2,14 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.1.4] - 2026-04-28
+
+### Fixed
+- **Routine duration estimate** now includes rest periods between sets (not just exercise count)
+- **Analytics screen** title changed from "Analytics" to "Dados" (Portuguese)
+- **Progress bar alignment** in analytics — text no longer wraps to second line
+- **History "Ver" button** truncation fixed with minimum width
+
 ## [3.1.3] - 2026-04-28
 
 ### Added
