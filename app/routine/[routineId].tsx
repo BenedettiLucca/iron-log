@@ -11,6 +11,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
 import { parseTargetSets } from '../../src/utils/exercise';
+import { useI18n } from '../../src/i18n/index';
 
 interface ExerciseWithStats {
   id: number;
@@ -39,6 +40,7 @@ interface RoutineStats {
 }
 
 export default function RoutinePreviewScreen() {
+  const { t } = useI18n();
   const { routineId, routineName } = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
   const [exercisesData, setExercisesData] = useState<ExerciseWithStats[]>([]);

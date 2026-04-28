@@ -14,8 +14,10 @@ import { parseTargetSets } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { RoutineExercise } from '@/src/types';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
+import { useI18n } from '../../src/i18n/index';
 
 export default function SessionScreen() {
+  const { t } = useI18n();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(sessionParamsSchema, rawParams, 'SessionScreen');
   const routineId = validated?.routineId ?? '';

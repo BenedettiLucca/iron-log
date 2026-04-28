@@ -11,6 +11,7 @@ import { SkeletonList } from '../../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
+import { useI18n } from '../../../src/i18n/index';
 
 // Configuração de Locale PT-BR
 LocaleConfig.locales['br'] = {
@@ -28,6 +29,7 @@ interface SessionWithExercises extends Session {
 }
 
 export default function HistoryScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [markedDates, setMarkedDates] = useState<Record<string, { marked: boolean; dotColor: string }>>({});

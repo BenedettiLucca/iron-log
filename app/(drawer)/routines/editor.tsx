@@ -11,6 +11,7 @@ import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
+import { useI18n } from '../../../src/i18n/index';
 
 type SelectedExercise = {
   id: number;
@@ -21,6 +22,7 @@ type SelectedExercise = {
 };
 
 export default function RoutineEditorScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;

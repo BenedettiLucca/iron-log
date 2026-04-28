@@ -34,8 +34,10 @@ import { Set, Exercise } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { setInputSchema } from '@/src/validators/forms';
+import { useI18n } from '../../src/i18n/index';
 
 export default function ExerciseScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();

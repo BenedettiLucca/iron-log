@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
+import { useI18n } from '../src/i18n/index';
 
 interface SetCardProps {
   setNumber: number;
@@ -33,10 +34,12 @@ function SetCard({
   onDelete,
   onPress,
 }: SetCardProps) {
+  const { t } = useI18n();
   const swipeableRef = useRef<Swipeable | null>(null);
   const { trigger } = useHaptics();
 
   const renderRightActions = () => {
+
     if (!onEdit && !onDelete) return null;
 
     return (

@@ -19,6 +19,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
+import { useI18n } from '../../src/i18n/index';
 
 interface NoteTemplate {
   label: string;
@@ -47,6 +48,7 @@ const SRPE_DESCRIPTIONS: Record<number, string> = {
 };
 
 export default function FinishSessionScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(finishParamsSchema, rawParams, 'FinishScreen');

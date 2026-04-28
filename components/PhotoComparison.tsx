@@ -14,6 +14,7 @@ interface PhotoComparisonProps {
 }
 
 export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }: PhotoComparisonProps) {
+  const { t } = useI18n();
   const [sliderValue, setSliderValue] = useState(0.5);
   const [containerWidth, setContainerWidth] = useState(0);
 

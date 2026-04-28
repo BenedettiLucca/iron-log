@@ -1,5 +1,6 @@
 import { View, Text, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { useI18n } from '../src/i18n/index';
 
 interface ProgressBarProps {
   current: number;
@@ -16,6 +17,7 @@ export function ProgressBar({
   showLabel = true,
   animated = true,
 }: ProgressBarProps) {
+  const { t } = useI18n();
   const progressAnim = useRef(new Animated.Value(0)).current;
   const percentage = total > 0 ? Math.min((current / total) * 100, 100) : 0;
 

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, Animated, PanResponder } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { formatTimer } from '@/src/utils/timer';
+import { useI18n } from '../src/i18n/index';
 
 interface RestTimerProps {
   visible: boolean;
@@ -21,6 +22,7 @@ export function RestTimer({
   onAddTime,
   nextExerciseName,
 }: RestTimerProps) {
+  const { t } = useI18n();
   const slideAnim = useRef(new Animated.Value(1)).current;
   const panOffset = useRef(0);
 
