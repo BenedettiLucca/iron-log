@@ -255,4 +255,12 @@ export const es = {
     googleConfig: 'Configuración Necesaria',
     googleConfigDesc: 'Agrega EXPO_PUBLIC_GOOGLE_CLIENT_ID a tu archivo .env para usar Google Drive.',
   },
+
+  checkin: {
+    emptyTitle: 'No se encontró check-in mensual',
+    emptyDesc: 'Completa tu primer check-in mensual para seguir tu progreso.',
+    takePhotos: 'Tomar nuevas fotos',
+    showGallery: 'Ver galería completa',
+    hideGallery: 'Ocultar galería',
+  },
 };

@@ -71,6 +71,12 @@ export default function DrawerLayout() {
             drawerItemStyle: { display: 'none' }
           }}
         />
+        <Drawer.Screen
+          name="bio/checkin"
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
         <Drawer.Screen 
           name="history/index" 
           options={{ 

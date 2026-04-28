@@ -12,7 +12,7 @@ module.exports = {
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?|@expo-google-fonts/|react-navigation|@react-navigation/.*|@unimodules/.*|native-base|react-native-web|@react-native-web|drizzle-orm|drizzle-kit)',
   ],
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
+    '^.+\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
         jsx: 'react',
         esModuleInterop: true,
@@ -20,7 +20,7 @@ module.exports = {
         isolatedModules: true,
       },
     }],
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\.(js|jsx)$': 'babel-jest',
   },
   collectCoverageFrom: [
     'utils/**/*.{js,jsx,ts,tsx}',
