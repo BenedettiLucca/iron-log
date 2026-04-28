@@ -578,7 +578,7 @@ export default function ExerciseScreen() {
                )}
               ListEmptyComponent={
                 <View className="py-8">
-                  <Text className="text-subtext text-center">Nenhuma série registrada ainda.</Text>
+                  <Text className="text-subtext text-center">{t('exerciseSession.noSetsYet')}</Text>
                 </View>
               }
             />
@@ -590,7 +590,7 @@ export default function ExerciseScreen() {
             <View className="flex-row items-center justify-between mb-3 py-1.5 bg-background rounded-lg px-3">
               <View className="flex-row items-center gap-2">
                 <Text className="text-lg">🔥</Text>
-                <Text className="text-text font-bold text-xs">Aquecimento</Text>
+                <Text className="text-text font-bold text-xs">{t('exerciseSession.warmup')}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => setIsWarmupMode(!isWarmupMode)}

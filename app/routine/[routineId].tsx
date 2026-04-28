@@ -234,21 +234,21 @@ export default function RoutinePreviewScreen() {
         <View className="flex-1 gap-3">
           <Card className="items-center py-3">
             <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Exercícios</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.exercises')}</Text>
           </Card>
           <Card className="items-center py-3">
             <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Min</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.min')}</Text>
           </Card>
         </View>
         <View className="flex-1 gap-3">
           <Card className="items-center py-3">
             <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">Treinos</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.workouts')}</Text>
           </Card>
           <Card className="items-center py-3">
             <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">PRs</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.prs')}</Text>
           </Card>
         </View>
       </View>
@@ -256,7 +256,7 @@ export default function RoutinePreviewScreen() {
       {/* Last Session */}
       {stats.lastSessionDate && (
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">Último Treino</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t('routineDetail.lastWorkout')}</Text>
           <View className="flex-row justify-between items-center">
             <View>
               <Text className="text-text text-lg font-bold">{formatDate(stats.lastSessionDate)}</Text>
@@ -270,7 +270,7 @@ export default function RoutinePreviewScreen() {
 
       {/* Exercise List */}
       <View>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Exercícios</Text>
+        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('routineDetail.exercises')}</Text>
 
         {exercisesData.length === 0 ? (
           <EmptyState
@@ -318,7 +318,7 @@ export default function RoutinePreviewScreen() {
                       </View>
                     ) : (
                       <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center">
-                        <Text className="text-subtext/70 text-xs font-bold">Novo</Text>
+                        <Text className="text-subtext/70 text-xs font-bold">{t('routineDetail.new')}</Text>
                       </View>
                     )}
                   </View>
@@ -350,7 +350,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: Weight Evolution Chart */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 1 && (
                     <View className="mt-3 pt-3 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">Evolução de Carga</Text>
+                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">{t('routineDetail.weightEvolution')}</Text>
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
                         {(() => {
                           const maxW = Math.max(...ex.weightHistory.map(w => w.weight));
@@ -378,7 +378,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: History Table */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 0 && (
                     <View className="mt-2 pt-2 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-1">Histórico Recente</Text>
+                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-1">{t('routineDetail.recentHistory')}</Text>
                       {ex.weightHistory.slice(-5).reverse().map((h, i) => (
                         <View key={i} className="flex-row justify-between py-0.5">
                           <Text className="text-subtext text-xs">{h.date}</Text>

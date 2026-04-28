@@ -14,6 +14,7 @@ import { SkeletonList } from '../../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
+import { useI18n } from '../../../src/i18n/index';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function RoutinesListScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
   const [refreshing, setRefreshing] = useState(false);
+  const { t } = useI18n();
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
 
   useFocusEffect(
@@ -41,24 +43,24 @@ export default function RoutinesListScreen() {
   const handleDelete = (id: number, name: string) => {
     setDialog({
       visible: true,
-      title: 'Excluir Rotina',
-      message: `Tem certeza que deseja apagar "${name}"? O histórico de treinos passados será mantido.`,
+      title: t('routines.deleteRoutineTitle'),
+      message: t('routines.deleteRoutineMessage', { name }),
       onConfirm: async () => {
         const success = await deleteRoutine(id);
         if (!success) {
-          setToast({ visible: true, message: 'Não foi possível excluir.', type: 'error' });
+          setToast({ visible: true, message: t('routines.deleteError'), type: 'error' });
         }
       }
     });
   };
 
   const handleDuplicate = async (id: number, name: string) => {
-    const newName = `${name} (Cópia)`;
+    const newName = `${name} (${t('routines.copy')})`;
     const success = await duplicateRoutine(id, newName);
     if (success) {
-      setToast({ visible: true, message: `Rotina "${newName}" criada com sucesso!`, type: 'success' });
+      setToast({ visible: true, message: t('routines.duplicateSuccess', { name: newName }), type: 'success' });
     } else {
-      setToast({ visible: true, message: 'Falha ao duplicar rotina.', type: 'error' });
+      setToast({ visible: true, message: t('routines.duplicateError'), type: 'error' });
     }
   };
 
@@ -254,7 +256,7 @@ export default function RoutinesListScreen() {
       <View className="p-4 border-t border-border flex-row gap-3 bg-card shadow-lg">
         <View className="flex-1">
             <Button 
-            title="Importar"
+            title={t('routines.import')}
             onPress={handleImportFromClipboard}
             variant="secondary"
             fullWidth
@@ -263,7 +265,7 @@ export default function RoutinesListScreen() {
 
         <View className="flex-[2]">
             <Button
-            title="Criar Nova Rotina"
+            title={t('routines.createNewRoutine')}
             onPress={() => router.push('/routines/editor')}
             variant="primary"
             fullWidth

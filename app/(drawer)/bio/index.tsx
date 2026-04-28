@@ -64,7 +64,7 @@ export default function BioScreen() {
       setTodayWeight('');
       setToast({ visible: true, message: t('bio.saveWeightSuccess'), type: 'success' });
     } else {
-      setToast({ visible: true, message: 'Falha ao salvar peso.', type: 'error' });
+      setToast({ visible: true, message: t('bio.saveWeightError'), type: 'error' });
     }
   };
 
@@ -199,7 +199,7 @@ export default function BioScreen() {
             <View className="flex-row items-center gap-4">
                 <View className="flex-1">
                     <Input
-                        label="REGISTRAR PESO (KG)"
+                        label={t('bio.registerWeight')}
                         keyboardType="numeric"
                         value={todayWeight}
                         onChangeText={setTodayWeight}
@@ -257,7 +257,7 @@ export default function BioScreen() {
 
             <View className="flex-row justify-between">
                 {(['front', 'back', 'side'] as const).map(side => {
-                    const label = side === 'front' ? 'FRENTE' : side === 'back' ? 'COSTAS' : 'LATERAL';
+                    const label = side === 'front' ? t('bio.front') : side === 'back' ? t('bio.back') : t('bio.side');
                     return (
                         <View key={side} className="w-[31%]">
                             <TouchableOpacity 
@@ -283,7 +283,7 @@ export default function BioScreen() {
                             </TouchableOpacity>
                             <TextInput
                                 className="mt-2 bg-card rounded-lg px-2 py-1.5 text-xs text-text border border-border"
-                                placeholder="Notas..."
+                                placeholder={t('bio.notesPlaceholder')}
                                 placeholderTextColor={Colors.darkSubtext}
                                 value={photoNotes[side]}
                                 onChangeText={t => setPhotoNotes(prev => ({ ...prev, [side]: t }))}
@@ -362,11 +362,11 @@ export default function BioScreen() {
                     <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.measurements")}</Text>
                     <View className="flex-row flex-wrap justify-between gap-y-4">
                         {[
-                            { label: 'CINTURA', key: 'waist' },
-                            { label: 'TÓRAX', key: 'chest' },
+                            { label: t('bio.waist'), key: 'waist' },
+                            { label: t('bio.chest'), key: 'chest' },
                             { label: t('bio.armRightAbbr'), key: 'armRight' },
-                            { label: 'COXA D.', key: 'thighRight' },
-                            { label: 'PANTUR.', key: 'calf' }
+                            { label: t('bio.thighRight'), key: 'thighRight' },
+                            { label: t('bio.calf'), key: 'calf' }
                         ].map(item => (
                             <View key={item.key} className="w-[48%]">
                                 <Input

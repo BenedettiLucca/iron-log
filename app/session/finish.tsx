@@ -38,15 +38,15 @@ export default function FinishSessionScreen() {
   const { t } = useI18n();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
-    2: 'Muito Leve',
-    3: 'Leve',
-    4: 'Moderado',
-    5: 'Moderado',
-    6: 'Intenso',
-    7: 'Muito Intenso',
-    8: 'Extremo',
+    2: t('finish.sRPEVeryLight'),
+    3: t('finish.sRPELight'),
+    4: t('finish.sRPEModerate'),
+    5: t('finish.sRPEModerate'),
+    6: t('finish.sRPEIntense'),
+    7: t('finish.sRPEVeryIntense'),
+    8: t('finish.sRPEExtreme'),
     9: t('finish.maximum'),
-    10: 'Falha',
+    10: t('finish.sRPEFailure'),
   };
   const router = useRouter();
   const rawParams = useLocalSearchParams();
@@ -225,20 +225,20 @@ export default function FinishSessionScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <Text className="text-text text-3xl font-bold mb-2">Finalizar Treino</Text>
-        <Text className="text-subtext mb-6">Revise seus dados antes de salvar</Text>
+        <Text className="text-text text-3xl font-bold mb-2">{t('finish.title')}</Text>
+        <Text className="text-subtext mb-6">{t('finish.review')}</Text>
 
         {/* Session Statistics Card */}
         <View className="bg-card p-4 rounded-xl border border-border mb-6">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">Estatísticas da Sessão</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('finish.sessionStats')}</Text>
           <View className="flex-row justify-around">
             <View className="items-center">
               <Text className="text-text text-3xl font-bold">{sessionStats.totalSets}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Séries</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('finish.sets')}</Text>
             </View>
             <View className="items-center">
               <Text className="text-text text-3xl font-bold">{sessionStats.totalExercises}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Exercícios</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('routineDetail.exercises')}</Text>
             </View>
             <View className="items-center">
               <Text className="text-text text-3xl font-bold">
@@ -246,7 +246,7 @@ export default function FinishSessionScreen() {
                   ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
                   : sessionStats.totalVolume}
               </Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Volume (kg)</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('finish.volumeKg')}</Text>
             </View>
           </View>
         </View>
@@ -254,7 +254,7 @@ export default function FinishSessionScreen() {
         {/* Session Duration */}
         <View className="bg-card p-4 rounded-xl border border-border mb-6 flex-row items-center justify-between">
           <View>
-            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">Duração</Text>
+            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">{t('finish.duration')}</Text>
             <View className="flex-row items-center gap-2">
               <Stopwatch startTime={Number(startTime)} />
             </View>
@@ -266,7 +266,7 @@ export default function FinishSessionScreen() {
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Peso Corporal (KG)</Text>
             {lastWeightDate && (
-              <Text className="text-subtext text-xs">Último: {lastWeightDate}</Text>
+              <Text className="text-subtext text-xs">{t('finish.last')}:</Text>
             )}
           </View>
 
@@ -330,13 +330,13 @@ export default function FinishSessionScreen() {
           />
 
           <View className="flex-row justify-between px-1 mt-1">
-            <Text className="text-subtext text-xs">REGENERATIVO</Text>
-            <Text className="text-subtext text-xs">MÁXIMO</Text>
+            <Text className="text-subtext text-xs">{t('finish.regenerative')}</Text>
+            <Text className="text-subtext text-xs">{t('finish.maximum')}</Text>
           </View>
 
           <View className="bg-background mt-4 p-4 rounded-xl border border-border">
             <Text className="text-text text-center font-semibold text-lg">
-              {SRPE_DESCRIPTIONS[sRpe] || 'Moderado'}
+              {SRPE_DESCRIPTIONS[sRpe] || t('finish.sRPEModerate')}
             </Text>
             <Text className="text-subtext text-center text-xs mt-1">
               {sRpe <= 4 ? t('finish.lightWorkout') :
@@ -367,7 +367,7 @@ export default function FinishSessionScreen() {
         {/* Notas */}
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Observações</Text>
+            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.observations')}</Text>
             {notes.length > 0 && (
               <Text className="text-subtext text-xs">{notes.length} caracteres</Text>
             )}
@@ -384,7 +384,7 @@ export default function FinishSessionScreen() {
         </View>
 
         <Button
-          title={isFinishing ? 'FINALIZANDO...' : 'FINALIZAR TREINO'}
+          title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
           onPress={handleFinish}
           variant="success"
           size="lg"
@@ -399,8 +399,8 @@ export default function FinishSessionScreen() {
         visible={showDiscardDialog}
         title={t("finish.discardSession")}
         message={t("finish.discardConfirm")}
-        confirmText="Descartar"
-        cancelText="Continuar Treino"
+        confirmText={t('finish.discardButton')}
+        cancelText={t('finish.continueWorkoutButton')}
         type="destructive"
         onConfirm={confirmDiscard}
         onCancel={() => setShowDiscardDialog(false)}
@@ -408,7 +408,7 @@ export default function FinishSessionScreen() {
 
       <Dialog
         visible={showConfirmDialog}
-        title="Finalizar Treino?"
+        title={t('finish.confirmFinishTitle')}
         message={`Confira os dados antes de finalizar:\n\n` +
           `• ${sessionStats.totalSets} séries\n` +
           `• ${sessionStats.totalExercises} exercícios\n` +

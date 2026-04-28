@@ -120,7 +120,7 @@ export default function SettingsScreen() {
       setDialog({
         visible: true,
         title: t('settings.configRequired'),
-        message: 'Adicione EXPO_PUBLIC_GOOGLE_CLIENT_ID ao seu arquivo .env para usar o Google Drive.',
+        message: t('dialog.googleConfigDesc'),
         type: 'default',
         onConfirm: () => setDialog(prev => ({ ...prev, visible: false }))
       });
@@ -172,10 +172,7 @@ export default function SettingsScreen() {
       <Card contentPadding={false}>
         <View className="p-3">
           <Text className="text-text font-bold text-base mb-1.5">{t("settings.localBackup")}</Text>
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            Exporte seus dados para um arquivo seguro ou restaure um backup anterior.
-            Ideal para trocar de aparelho ou manter uma cópia offline.
-          </Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.localBackupDesc')}</Text>
 
           <View className="gap-2">
             <Button
@@ -202,9 +199,7 @@ export default function SettingsScreen() {
       <Card contentPadding={false}>
         <View className="p-3">
           <Text className="text-text font-bold text-base mb-1.5">{t("settings.cloudBackup")}</Text>
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            Sincronize seus dados com sua conta Google para nunca perder seu progresso.
-          </Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.cloudBackupDesc')}</Text>
 
           {!accessToken ? (
             <Button

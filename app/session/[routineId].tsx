@@ -143,13 +143,13 @@ export default function SessionScreen() {
         headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
         headerRight: () => (
           <TouchableOpacity onPress={finishSession} className="bg-danger px-3 py-1.5 rounded-lg shadow-sm">
-            <Text className="text-white font-bold text-xs uppercase tracking-wide">FIM</Text>
+            <Text className="text-white font-bold text-xs uppercase tracking-wide">{t('session.end')}</Text>
           </TouchableOpacity>
         ),
       }} />
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
-        <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">Treino Ativo</Text>
+        <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">{t('session.activeWorkout')}</Text>
         <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{routineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
@@ -281,7 +281,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
               <View className="mt-2 flex-row flex-wrap gap-2">
                   {exercise.target && (
                       <Text className="text-primary text-xs bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
-                          Meta: {exercise.target}
+                          {t('session.goal')}: {exercise.target}
                       </Text>
                   )}
                   {exercise.notes && (

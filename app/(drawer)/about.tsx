@@ -7,11 +7,11 @@ export default function AboutScreen() {
   const { t } = useI18n();
   const features = [
     t('about.quickLog'),
-    'Timer Pro com Background Mode',
+    t('about.feature2'),
     t('about.bioTracking'),
-    'Analytics de Performance (Strength Score, PRs, 1RM)',
+    t('about.feature4'),
     t('about.csvExport'),
-    'Design System "Warm & Earthy" com Tema Escuro',
+    t('about.feature6'),
   ];
   return (
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
@@ -29,9 +29,7 @@ export default function AboutScreen() {
       <Card contentPadding={false}>
         <View className="p-3">
           <Text className="text-text font-bold text-base mb-1.5">{t("about.philosophy")}</Text>
-          <Text className="text-subtext text-sm leading-5 mb-4">
-            Projetado para quem levanta peso de verdade. Sem menus complexos, sem redes sociais, apenas foco total no treino e na progressão.
-          </Text>
+          <Text className="text-subtext text-sm leading-5 mb-4">{t('about.philosophyText')}</Text>
 
           <Text className="text-text font-bold text-base mb-2">{t("about.features")}</Text>
           <View className="gap-1.5">
@@ -48,16 +46,12 @@ export default function AboutScreen() {
       <Card contentPadding={false}>
         <View className="p-3">
           <Text className="text-text font-bold text-base mb-1.5">{t("about.privacy")}</Text>
-          <Text className="text-subtext text-sm leading-5">
-            Seus dados são 100% seus. Utilizamos um banco de dados SQLite local. Nenhuma informação sai do seu dispositivo sem sua permissão.
-          </Text>
+          <Text className="text-subtext text-sm leading-5">{t('about.privacyText')}</Text>
         </View>
       </Card>
 
       <View className="mt-4 items-center">
-        <Text className="text-subtext text-xs uppercase tracking-widest">
-          Desenvolvido por Lucca Benedetti
-        </Text>
+        <Text className="text-subtext text-xs uppercase tracking-widest">{t('about.developer')}</Text>
       </View>
     </ScrollView>
   );

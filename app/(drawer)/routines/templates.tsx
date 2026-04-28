@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../../src/i18n/index';
 import { db } from '../../../src/db/client';
 import { routines, routineExercises } from '../../../src/db/schema';
 import { eq } from 'drizzle-orm';
@@ -159,10 +160,8 @@ export default function TemplateLibraryScreen() {
   return (
     <View className="flex-1 bg-background">
       <View className="px-4 py-4">
-        <Text className="text-text text-2xl font-bold uppercase tracking-wider">Biblioteca de Templates</Text>
-        <Text className="text-subtext text-sm mb-4">
-          Seus templates salvos para criar rotinas rapidamente.
-        </Text>
+        <Text className="text-text text-2xl font-bold uppercase tracking-wider">{t('routines.templateLibrary')}</Text>
+        <Text className="text-subtext text-sm mb-4">{t('routines.templateLibraryDesc')}</Text>
       </View>
 
       <FlatList
@@ -172,9 +171,9 @@ export default function TemplateLibraryScreen() {
         ListEmptyComponent={
           <EmptyState
             icon="💾"
-            title="Nenhum template encontrado"
-            description="Salve rotinas como templates para usar depois."
-            actionLabel="Criar Template"
+            title={t('routines.noTemplates')}
+            description={t('routines.noTemplatesDesc')}
+            actionLabel={t('routines.createTemplate')}
             onAction={() => router.back()}
           />
         }
@@ -185,7 +184,7 @@ export default function TemplateLibraryScreen() {
         onPress={() => router.back()}
         className="absolute top-4 left-4 bg-card p-2 rounded-lg border border-border shadow-md"
       >
-        <Text className="text-text font-bold">← Voltar</Text>
+        <Text className="text-text font-bold">{t('routines.back')}</Text>
       </TouchableOpacity>
 
       <Toast

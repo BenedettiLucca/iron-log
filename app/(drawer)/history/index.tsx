@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { Calendar } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { sessions, sets } from '../../../src/db/schema';
@@ -175,7 +175,7 @@ export default function HistoryScreen() {
 
       <View className="px-4 pt-4">
         <Text className="text-subtext font-black uppercase text-xs mb-3 tracking-widest pl-1">
-          {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : 'Selecione um dia'}
+          {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
         </Text>
       </View>
     </View>
@@ -184,8 +184,8 @@ export default function HistoryScreen() {
   const renderEmpty = () => (
     <View className="justify-center items-center mt-10 opacity-50">
       <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
-      <Text className="text-subtext font-bold text-center">Nenhum treino</Text>
-      <Text className="text-subtext text-xs text-center">Nenhum registro para esta data.</Text>
+      <Text className="text-subtext font-bold text-center">{t('history.noWorkouts')}</Text>
+      <Text className="text-subtext text-xs text-center">{t('history.noWorkoutsDesc')}</Text>
     </View>
   );
 
