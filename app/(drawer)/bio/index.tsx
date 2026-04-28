@@ -25,7 +25,7 @@ export default function BioScreen() {
     if (params.checkin === 'open') {
       setModalVisible(true);
     }
-  }, [params]);
+  }, [params.checkin]);
   const { metrics, fetchMetrics, saveDailyWeight: hookSaveWeight } = useBodyMetrics();
   const [todayWeight, setTodayWeight] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
