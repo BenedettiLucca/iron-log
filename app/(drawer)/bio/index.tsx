@@ -211,27 +211,27 @@ export default function BioScreen() {
 
         {/* Botões de Ação Rápida */}
         <View className="flex-row gap-3 mb-4">
-            <Button
-                title="METAS"
+            <TouchableOpacity
                 onPress={() => router.push('/bio/goals')}
-                variant="secondary"
-                className="flex-1"
-                icon={<Text className="text-lg mr-1">🎯</Text>}
-            />
-            <Button
-                title="EVOLUÇÃO"
+                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
+            >
+                <Text className="text-lg mr-1.5">🎯</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">Metas</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
                 onPress={() => router.push('/bio/evolution')}
-                variant="secondary"
-                className="flex-1"
-                icon={<Text className="text-lg mr-1">📈</Text>}
-            />
-            <Button
-                title="DADOS"
+                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
+            >
+                <Text className="text-lg mr-1.5">📈</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">Evolução</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
                 onPress={() => router.push('/bio/analytics')}
-                variant="secondary"
-                className="flex-1"
-                icon={<Text className="text-lg mr-1">📊</Text>}
-            />
+                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
+            >
+                <Text className="text-lg mr-1.5">📊</Text>
+                <Text className="text-white font-bold text-xs uppercase tracking-wider">Dados</Text>
+            </TouchableOpacity>
         </View>
 
         {/* Check-in Mensal */}

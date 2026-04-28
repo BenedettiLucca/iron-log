@@ -2,6 +2,23 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.1.3] - 2026-04-28
+
+### Added
+- **Delete Sessions** — Soft-delete sessions from history with confirmation dialog
+- **Auto-cleanup** — Empty sessions (no sets) are automatically deleted on exit or discard
+- **Discard on Finish** — Finishing a workout with zero sets prompts to discard instead of saving
+
+### Changed
+- **Bio screen buttons** — METAS/EVOLUÇÃO/DADOS now styled as coral primary buttons (were gray cards)
+- **Settings screen** — Compact layout: smaller cards, buttons, gaps, and bottom padding
+- **About screen** — Proper bullet formatting and compact layout
+
+### Fixed
+- **RestTimer** — Button taps now work (+30s/-10s/Pular), text color visible in dark mode, "Continuar" when finished
+- **Session header** — Reduced text size, compact series tags ("2/3 séries"), no truncation
+- **Ghost sessions** — Prevent empty/error sessions from being logged in DB
+
 ## [3.1.2] - 2026-04-27
 
 ### Added
