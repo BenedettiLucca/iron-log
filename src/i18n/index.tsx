@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { pt } from './translations/pt';
 import { en } from './translations/en';
@@ -29,7 +29,7 @@ export function useI18n() {
   return useContext(I18nContext);
 }
 
-function getNestedValue(obj: any, path: string): string | undefined {
+export function getNestedValue(obj: any, path: string): string | undefined {
   const keys = path.split('.');
   let value = obj;
   for (const key of keys) {
@@ -39,18 +39,19 @@ function getNestedValue(obj: any, path: string): string | undefined {
   return typeof value === 'string' ? value : undefined;
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLangState] = useState<Language>('pt');
-  const [ready, setReady] = useState(false);
+export function I18nProvider({ children, initialLanguage }: { children: ReactNode; initialLanguage?: Language }) {
+  const [language, setLangState] = useState<Language>(initialLanguage ?? 'pt');
+  const [ready, setReady] = useState(!!initialLanguage);
 
   useEffect(() => {
+    if (initialLanguage) return;
     AsyncStorage.getItem(LANGUAGE_KEY).then((stored) => {
       if (stored && ['pt', 'en', 'es', 'zh'].includes(stored)) {
         setLangState(stored as Language);
       }
       setReady(true);
     });
-  }, []);
+  }, [initialLanguage]);
 
   const setLanguage = useCallback(async (lang: Language) => {
     setLangState(lang);
