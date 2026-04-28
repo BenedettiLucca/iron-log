@@ -18,6 +18,7 @@ import { configureReanimatedLogger } from 'react-native-reanimated';
 import { logger } from '@/services/logger';
 import { SessionContext } from '@/src/types';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { I18nProvider } from '../src/i18n/index';
 import { Colors } from '@/constants/colors';
 
 configureReanimatedLogger({
@@ -171,6 +172,7 @@ export default function Layout() {
 
   return (
     <ErrorBoundary>
+    <I18nProvider>
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
       <Stack
         screenOptions={{
@@ -255,6 +257,7 @@ export default function Layout() {
         </TouchableOpacity>
       </Modal>
     </GestureHandlerRootView>
+    </I18nProvider>
     </ErrorBoundary>
   );
 }
