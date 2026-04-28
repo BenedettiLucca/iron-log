@@ -26,7 +26,10 @@ export function RestTimer({
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dy) > 5 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
+      },
       onPanResponderGrant: () => {
         panOffset.current = 0;
       },
@@ -89,6 +92,8 @@ export function RestTimer({
         className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl pt-3 pb-8 px-6 shadow-xl"
         style={{
           transform: [{ translateY: slideOffset }],
+          zIndex: 999,
+          elevation: 999,
         }}
         {...panResponder.panHandlers}
       >
@@ -101,7 +106,7 @@ export function RestTimer({
             {formatTimer(seconds)}
           </Text>
 
-          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-secondary'}`}>
+          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-text'}`}>
             {status === 'finished' ? '✓ Pronto para próxima série' : '⏱️ Descansando...'}
           </Text>
 
@@ -126,12 +131,12 @@ export function RestTimer({
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="flex-1 bg-primary p-4 rounded-xl items-center min-h-[52px] justify-center"
+              className={`flex-1 p-4 rounded-xl items-center min-h-[52px] justify-center ${status === 'finished' ? 'bg-success' : 'bg-primary'}`}
               onPress={onSkip}
-              accessibilityLabel="Pular descanso"
+              accessibilityLabel={status === 'finished' ? 'Continuar treino' : 'Pular descanso'}
               accessibilityRole="button"
             >
-              <Text className="text-white font-bold text-base">Pular</Text>
+              <Text className="text-white font-bold text-base">{status === 'finished' ? 'Continuar' : 'Pular'}</Text>
             </TouchableOpacity>
           </View>
 

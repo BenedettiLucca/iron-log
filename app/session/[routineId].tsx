@@ -148,7 +148,7 @@ export default function SessionScreen() {
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
         <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">Treino Ativo</Text>
-        <Text className="text-text text-3xl font-black mb-4 tracking-tight">{routineName}</Text>
+        <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{routineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
       </View>
@@ -249,14 +249,13 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
       >
         <View className="flex-1">
           <View className="flex-row items-center gap-2 mb-1">
-            <Text className={`text-lg font-black tracking-tight ${isActive ? 'text-text' : 'text-subtext'}`}>
+            <Text className={`flex-1 text-base font-black tracking-tight ${isActive ? 'text-text' : 'text-subtext'}`} numberOfLines={2}>
               {exercise.name}
             </Text>
             {isActive && (
-              <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
-                <Text className="text-success text-xs font-bold uppercase tracking-wide">
-                  {doneSets} {doneSets === 1 ? 'série' : 'séries'}
-                  {targetSets && ` de ${targetSets}`}
+              <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
+                <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
+                  {doneSets}/{targetSets || '?'} séries
                 </Text>
               </View>
             )}
