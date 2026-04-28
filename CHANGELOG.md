@@ -1,3 +1,15 @@
+## [3.3.3] - 2025-04-28
+
+### 🚁 Hotfix
+- Corrigido freeze na inicialização causado por hooks `useI18n()` fora do escopo de componentes
+- Corrigido `t()` sendo chamado em constantes de módulo (antes do `export function`)
+- Corrigido componentes internos sem hook (`ExercisePickerModal`, `ExerciseCard`, `SessionProgress`)
+- Adicionado timeout de segurança (500ms) no `I18nProvider` para nunca bloquear inicialização
+- Adicionado suporte a interpolação em `t()` (ex: `t("about.version", { version: "3.3.3" })`)
+- Corrigida key de tradução `routines.addExercisesHint` em PT/EN/ES/ZH
+
+---
+
 # Changelog
 
 All notable changes to Iron Log are documented here.
