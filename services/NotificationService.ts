@@ -184,10 +184,10 @@ class NotificationService {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: '📊 Check-in Mensal',
-          body: 'Hora de registrar suas métricas e progresso!',
+          body: 'Hora do check-in mensal! Tire fotos de frente, costas e lateral.',
           data: {
             type: 'monthly_checkin',
-            url: '/bio',
+            url: '/bio/checkin',
           },
           sound: true,
           priority: Notifications.AndroidNotificationPriority.HIGH,

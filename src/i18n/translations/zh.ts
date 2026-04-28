@@ -255,4 +255,12 @@ export const zh = {
     googleConfig: '需要配置',
     googleConfigDesc: '在 .env 文件中添加 EXPO_PUBLIC_GOOGLE_CLIENT_ID 以使用 Google Drive。',
   },
+
+  checkin: {
+    emptyTitle: '未找到月度检查',
+    emptyDesc: '完成你的第一次每月检查，以跟踪你的进展。',
+    takePhotos: '拍摄新照片',
+    showGallery: '查看完整相册',
+    hideGallery: '隐藏相册',
+  },
 };

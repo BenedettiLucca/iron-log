@@ -12,7 +12,7 @@ export function useBodyMetrics() {
   const fetchMetrics = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await db.select().from(bodyMetrics).orderBy(desc(bodyMetrics.date));
+      const data = await db.select().from(bodyMetrics).orderBy(desc(bodyMetrics.date)) as BodyMetric[];
       setMetrics(data || []);
     } catch (e) {
       logger.error('Failed to fetch body metrics', e);

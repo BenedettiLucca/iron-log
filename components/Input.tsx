@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextInput, View, Text, TextInputProps, ViewStyle, NativeSyntheticEvent, TextInputFocusEventData } from 'react-native';
+import { TextInput, View, Text, TextInputProps, ViewStyle } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
 import { Colors } from '@/constants/colors';
 
@@ -35,13 +35,13 @@ export function Input({
     ? Colors.green500 // Success green
     : Colors.secondary; // Default border
 
-  const handleFocus = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleFocus = (e: any) => {
     setIsFocused(true);
     trigger('selection');
     textInputProps.onFocus?.(e);
   };
 
-  const handleBlur = (e: NativeSyntheticEvent<TextInputFocusEventData>) => {
+  const handleBlur = (e: any) => {
     setIsFocused(false);
     textInputProps.onBlur?.(e);
   };

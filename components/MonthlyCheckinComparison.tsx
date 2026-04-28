@@ -8,7 +8,7 @@ interface MonthlyCheckinComparisonProps {
   previous: BodyMetric | null;
 }
 
-const POSES: Array<{ key: keyof BodyMetric; label: string }> = [
+const POSES: { key: keyof BodyMetric; label: string }[] = [
   { key: 'photoFront', label: 'FRENTE' },
   { key: 'photoBack', label: 'COSTAS' },
   { key: 'photoSide', label: 'LATERAL' },

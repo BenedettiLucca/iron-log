@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl, TextInput } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
 import { desc, eq } from 'drizzle-orm';
@@ -19,6 +19,13 @@ import { weightInputSchema, monthlyCheckinSchema } from '@/src/validators/forms'
 
 export default function BioScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+
+  useEffect(() => {
+    if (params.checkin === 'open') {
+      setModalVisible(true);
+    }
+  }, [params]);
   const { metrics, fetchMetrics, saveDailyWeight: hookSaveWeight } = useBodyMetrics();
   const [todayWeight, setTodayWeight] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -239,7 +246,7 @@ export default function BioScreen() {
             <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-primary font-bold text-xs uppercase tracking-widest">CHECK-IN MENSAL</Text>
                 <TouchableOpacity 
-                    onPress={() => setModalVisible(true)}
+                    onPress={() => router.push('/bio/checkin')}
                     className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
                 >
                     <Text className="text-white font-bold text-xs uppercase">Abrir</Text>
