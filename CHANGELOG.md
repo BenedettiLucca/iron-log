@@ -1,3 +1,21 @@
+## [3.3.4] - 2025-04-28
+
+### ✅ Corrigido
+- 150+ strings hardcoded em português convertidas para i18n (`t()`)
+- 10 telas agora usam `useI18n()` para tradução completa
+- 184 novas keys de tradução adicionadas (pt/en/es/zh)
+- Pinyin no `zh.ts` convertido para caracteres chineses reais
+- `ProgressBar` agora usa keys de tradução válidas
+- Todos os 281 testes passando
+
+### 🌐 Telas corrigidas
+- Rotinas / Templates / Histórico
+- About / Settings / Bio
+- Routine Detail / Exercise Session / Finish Session
+- Active Workout / Discard Dialog
+
+---
+
 ## [3.3.3] - 2025-04-28
 
 ### 🚁 Hotfix
