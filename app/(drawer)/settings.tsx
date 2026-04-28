@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Switch } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
@@ -12,6 +12,7 @@ import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
+import { useI18n } from '../../src/i18n/index';
 import { Colors } from '@/constants/colors';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -22,6 +23,7 @@ export default function SettingsScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
+  const { language, setLanguage, t } = useI18n();
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'DUMMY_ID_FOR_DEV', // Fallback to avoid crash
@@ -129,7 +131,7 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
-      <Stack.Screen options={{ title: 'Configurações' }} />
+      <Stack.Screen options={{ title: t('settings.title') }} />
 
       <Card contentPadding={false}>
         <View className="p-3">
@@ -246,6 +248,37 @@ export default function SettingsScreen() {
             loading={loading}
             fullWidth
           />
+        </View>
+      </Card>
+
+      {/* Language Selector */}
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">{t('settings.language')}</Text>
+          <Text className="text-subtext text-sm mb-3 leading-5">
+            {t('settings.languageDesc')}
+          </Text>
+          <View className="flex-row gap-2 flex-wrap">
+            {(['pt', 'en', 'es', 'zh'] as const).map((lang) => (
+              <TouchableOpacity
+                key={lang}
+                onPress={() => setLanguage(lang)}
+                className={`px-3 py-2 rounded-lg border ${
+                  language === lang
+                    ? 'bg-primary border-primary'
+                    : 'bg-background border-border'
+                }`}
+              >
+                <Text
+                  className={`text-xs font-bold uppercase ${
+                    language === lang ? 'text-white' : 'text-subtext'
+                  }`}
+                >
+                  {t(`settings.${lang}`)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </Card>
 

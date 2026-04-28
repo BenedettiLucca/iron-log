@@ -2,9 +2,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
 import { useColorScheme } from '../../hooks/use-color-scheme';
 import { Colors } from '@/constants/colors';
+import { useI18n } from '../../src/i18n/index';
 
 export default function DrawerLayout() {
   const colorScheme = useColorScheme();
+  const { t } = useI18n();
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
@@ -20,14 +22,14 @@ export default function DrawerLayout() {
           name="index" 
           options={{ 
             title: 'Iron Log', 
-            drawerLabel: 'Dashboard' 
+            drawerLabel: t('drawer.dashboard') 
           }} 
         />
         <Drawer.Screen 
           name="bio/index" 
           options={{ 
             title: 'Bio & Evolução', 
-            drawerLabel: 'Bio & Corpo' 
+            drawerLabel: t('drawer.bio') 
           }} 
         />
         <Drawer.Screen
@@ -40,14 +42,14 @@ export default function DrawerLayout() {
           name="bio/goals"
           options={{
             title: 'Metas & Objetivos',
-            drawerLabel: 'Minhas Metas'
+            drawerLabel: t('drawer.goals')
           }}
         />
         <Drawer.Screen 
           name="routines/index" 
           options={{ 
             title: 'Minhas Rotinas', 
-            drawerLabel: 'Gerenciar Rotinas' 
+            drawerLabel: t('drawer.routines') 
           }} 
         />
         <Drawer.Screen 
@@ -73,21 +75,21 @@ export default function DrawerLayout() {
           name="history/index" 
           options={{ 
             title: 'Histórico', 
-            drawerLabel: 'Calendário' 
+            drawerLabel: t('drawer.history') 
           }} 
         />
         <Drawer.Screen 
           name="about" 
           options={{ 
             title: 'Sobre', 
-            drawerLabel: 'Sobre o App' 
+            drawerLabel: t('drawer.about') 
           }} 
         />
         <Drawer.Screen 
           name="settings" 
           options={{ 
-            title: 'Dados & Backup', 
-            drawerLabel: 'Backup & Dados' 
+            title: t('settings.title'), 
+            drawerLabel: t('drawer.settings') 
           }} 
         />
       </Drawer>
