@@ -2,6 +2,29 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.2.0] - 2026-04-28
+
+### Added
+- **Multi-language support (i18n)** — Full translation system with React Context + AsyncStorage persistence
+  - Portuguese (default) — complete UI translation
+  - English — complete UI translation
+  - Spanish — complete UI translation
+  - Simplified Chinese (简体中文) — complete UI translation
+- **Language selector** in Settings screen — switch languages at runtime
+- **Translation tests** — 27 tests covering provider initialization, language switching, fallback behavior, and key parity across all 4 languages
+- **Translated documentation** — README available in Portuguese, English, Spanish, and Chinese
+
+### Changed
+- Drawer labels now use translations instead of hardcoded Portuguese
+- Settings drawer label changed from "Backup & Dados" to "Configurações"
+- Test suite expanded from 233 to 260 tests
+
+### Fixed
+- `getNestedValue` exported for testability
+- `I18nProvider` accepts optional `initialLanguage` prop for deterministic testing
+
+---
+
 ## [3.1.4] - 2026-04-28
 
 ### Fixed

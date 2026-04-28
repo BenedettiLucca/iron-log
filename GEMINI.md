@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.1.1.
+*   **Current State:** v3.2.0.
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -16,6 +16,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Navigation:** Expo Router (File-based routing).
 *   **Database:** Local SQLite via `expo-sqlite`, managed by **Drizzle ORM**.
 *   **Styling:** **NativeWind v4** (Tailwind CSS for React Native).
+*   **i18n:** React Context + AsyncStorage persistence — Portuguese (default), English, Spanish, Simplified Chinese.
 *   **Animations:** **React Native Reanimated** (Tactile feedback, transitions).
 *   **UI Components:** Custom polished components in `components/` (`Button`, `Card`, `Input`, `SetCard`).
 
@@ -29,6 +30,7 @@ This file provides context and instructions for the Gemini AI agent working on t
     *   `schema.ts`: **Source of Truth** for the data model.
     *   `client.ts`: DB connection and migration runner.
 *   **`src/validators/`**: Zod schemas for route params (`routes.ts`) and form inputs (`forms.ts`).
+*   **`src/i18n/`**: Translation system with React Context, `useI18n()` hook, and 4 language files.
 *   **`src/utils/`**: Pure utility functions (exercise, timer, warmup, calculations). Export via `src/utils/index.ts`.
 *   **`drizzle/`**: SQL Migration files.
 *   **`components/`**: Reusable polished UI components.

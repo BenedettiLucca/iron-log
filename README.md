@@ -4,7 +4,18 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão:** 3.1.2 · **Expo SDK:** 54 · **Testes:** 134 passando
+**Versão:** 3.2.0 · **Expo SDK:** 54 · **Testes:** 260 passando
+
+---
+
+## 🌍 Idiomas Suportados
+
+- 🇧🇷 **Português** (padrão)
+- 🇺🇸 **English**
+- 🇪🇸 **Español**
+- 🇨🇳 **简体中文**
+
+O idioma pode ser alterado a qualquer momento em **Configurações**.
 
 ---
 
@@ -23,7 +34,7 @@ O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. 
 - **Metas** — Objetivos para peso e medidas com data-alvo
 - **Lembretes Mensais** — Notificações configuráveis para check-in
 
-### 📊 Analytics (novo!)
+### 📊 Analytics
 - **Strength Score (0-100)** — Score composto de Volume + Intensidade + Consistência
 - **Níveis:** Novato → Iniciante → Intermediário → Avançado → Elite
 - **Consistência** — Streak de semanas, frequência semanal/mensal, total de sessões
@@ -32,7 +43,7 @@ O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. 
 - **1RM Estimado** — Fórmula Epley para os 10 exercícios mais pesados
 - **Recordes Pessoais** — Tracking automático de PRs por exercício
 
-### 📤 Exportação de Dados (novo!)
+### 📤 Exportação de Dados
 - **CSV Export** — Export completo de treinos e métricas corporais
 - **CSV por Sessão** — Export individual pelo Resumo de cada treino
 - **Share Nativo** — Compartilhamento via sistema (WhatsApp, Email, etc.)
@@ -117,43 +128,23 @@ iron-log/
 │   │   │   └── analytics.tsx # Strength Score, Volume, PRs
 │   │   ├── routines/       # CRUD de rotinas + editor + templates
 │   │   ├── history/        # Calendário + histórico de sessões
-│   │   ├── settings.tsx    # Config, backup, export CSV
+│   │   ├── settings.tsx    # Config, backup, export CSV, idioma
 │   │   └── about.tsx       # Sobre o app
 │   └── session/            # Fluxo de treino (Stack isolada)
 │       ├── [routineId].tsx # Seleção de exercícios
 │       ├── exercise.tsx    # Execução do exercício
 │       ├── finish.tsx      # Finalizar treino (sRPE, peso, notas)
 │       └── summary.tsx     # Resumo + export CSV individual
-├── components/             # 17 componentes de UI reutilizáveis
-│   ├── Button, Card, Input, Dialog, Toast
-│   ├── Skeleton, EmptyState, ProgressBar
-│   ├── RestTimer, Stopwatch, SetCard, SetEditor
-│   ├── RoutinePreview, StrengthCurve, PhotoComparison
-│   ├── DatePicker, ErrorBoundary
+├── components/             # 17+ componentes de UI reutilizáveis
 ├── hooks/                  # Hooks de domínio
-│   ├── use-routines.ts     # CRUD de rotinas
-│   ├── use-sessions.ts     # Histórico de sessões
-│   ├── use-session-exercise.ts # Lógica de séries
-│   ├── use-body-metrics.ts # Métricas corporais
-│   └── index.ts            # Barrel exports
 ├── services/               # Serviços de negócio
-│   ├── AnalyticsService.ts # Strength Score, Volume Trends, 1RM, PRs
-│   ├── CsvExportService.ts # Export CSV com share nativo
-│   ├── DatabaseBackupService.ts # Backup/restore SQLite
-│   ├── NotificationService.ts   # Lembretes
-│   ├── logger.ts           # Logging estruturado
-│   └── index.ts            # Barrel exports
 ├── src/
 │   ├── db/                 # Drizzle ORM
-│   │   ├── client.ts       # SQLite com WAL, FK, busy_timeout
-│   │   └── schema.ts       # Tabelas + indexes + constraints
 │   ├── types/              # TypeScript interfaces
-│   ├── utils/              # Funções puras (exercise, timer, warmup, calculations)
-│   └── validators/         # Zod schemas (routes + forms)
-├── __tests__/              # 9 suites, 134 testes
-│   ├── utils/              # exercise, timer, warmup, calculations
-│   ├── services/           # analytics, csv-export
-│   └── validators/         # routes, forms
+│   ├── utils/              # Funções puras
+│   ├── validators/         # Zod schemas
+│   └── i18n/               # Sistema de tradução (pt/en/es/zh)
+├── __tests__/              # 13 suites, 260 testes
 ├── constants/              # Cores e tipografia
 └── drizzle/                # Migrações SQL
 ```
@@ -197,3 +188,15 @@ iron-log/
    ```env
    EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
    ```
+
+---
+
+## 📄 Documentação
+
+- [English](docs/i18n/README.en.md)
+- [Español](docs/i18n/README.es.md)
+- [简体中文](docs/i18n/README.zh.md)
+
+---
+
+**Licença:** MIT · **Autor:** Lucca Benedetti

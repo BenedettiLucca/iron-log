@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v3.1.1
+**Current Version:** v3.2.0
 
 ## Tech Stack
 
@@ -19,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Notifications:** expo-notifications for monthly check-in reminders
 - **Haptics:** expo-haptics for tactile feedback
 - **Date Picker:** @react-native-community/datetimepicker for date selection
+- **i18n:** React Context + AsyncStorage — Portuguese (default), English, Spanish, Simplified Chinese
 
 ## Common Commands
 
@@ -139,7 +140,7 @@ All services export barrel via `services/index.ts`.
 - All screens validate inputs before submission; invalid params fall back to safe defaults.
 
 **Testing** (`__tests__/`):
-- 9 test suites, 134 tests passing
+- 13 test suites, 260 tests passing
 - Utils: exercise, timer, warmup, calculations
 - Services: analytics (Epley formula, scoring logic), csv-export (escapeCsvField, formatDateBR)
 - Validators: routes (15 tests), forms (32 tests)
