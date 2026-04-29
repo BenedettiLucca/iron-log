@@ -349,7 +349,7 @@ export default function FinishSessionScreen() {
 
         {/* Note Templates */}
         <View className="mb-6">
-          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">Notas Rápidas</Text>
+          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">{t("finish.quickNotes")}</Text>
           <View className="flex-row flex-wrap gap-2">
             {NOTE_TEMPLATES.map((template) => (
               <TouchableOpacity
@@ -415,8 +415,8 @@ export default function FinishSessionScreen() {
           `• ${(sessionStats.totalVolume / 1000).toFixed(1)} toneladas de volume\n` +
           `• Peso: ${weight || 'N/A'} kg\n` +
           `• sRPE: ${sRpe}`}
-        confirmText="Confirmar"
-        cancelText="Voltar"
+        confirmText={t("common.confirm")}
+        cancelText={t("common.back")}
         onConfirm={confirmFinish}
         onCancel={() => setShowConfirmDialog(false)}
       />

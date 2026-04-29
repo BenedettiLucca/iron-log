@@ -186,8 +186,8 @@ export default function SessionScreen() {
         visible={showExitDialog}
         title="Sair do Treino?"
         message={t("session.exitConfirm")}
-        confirmText="Sair"
-        cancelText="Ficar"
+        confirmText={t("common.exit")}
+        cancelText={t("common.stay")}
         type="destructive"
         onConfirm={async () => {
           setShowExitDialog(false);
@@ -218,8 +218,8 @@ export default function SessionScreen() {
         visible={showFinishDialog}
         title="Finalizar Treino?"
         message={t("session.finishConfirm")}
-        confirmText="Finalizar"
-        cancelText="Continuar Treino"
+        confirmText={t("finish.finishButton")}
+        cancelText={t("finish.continueWorkout")}
         type="destructive"
         onConfirm={confirmFinish}
         onCancel={() => setShowFinishDialog(false)}

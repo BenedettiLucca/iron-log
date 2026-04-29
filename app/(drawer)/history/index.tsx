@@ -240,7 +240,7 @@ export default function HistoryScreen() {
                     accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-primary font-black text-2xs uppercase tracking-wider">Ver</Text>
+                    <Text className="text-primary font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center min-w-[52px]"
@@ -248,7 +248,7 @@ export default function HistoryScreen() {
                     accessibilityLabel={`Excluir treino ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-danger font-black text-2xs uppercase tracking-wider">Excluir</Text>
+                    <Text className="text-danger font-black text-2xs uppercase tracking-wider">{t("common.delete")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -261,8 +261,8 @@ export default function HistoryScreen() {
         visible={deleteDialog.visible}
         title="Excluir Treino?"
         message={`Deseja excluir o treino "${deleteDialog.sessionName}"? Esta ação não pode ser desfeita.`}
-        confirmText="Excluir"
-        cancelText="Cancelar"
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
         type="destructive"
         onConfirm={handleDeleteSession}
         onCancel={() => setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' })}

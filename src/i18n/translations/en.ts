@@ -26,6 +26,8 @@ export const en = {
     required: 'Required',
   
     compare: 'Compare',
+    exit: 'Exit',
+    stay: 'Stay',
     invalidData: 'Invalid data',},
   home: {
     title: 'Iron Log',
@@ -152,6 +154,7 @@ export const en = {
     tabAll: 'ALL',
     tabGeneral: 'GENERAL',
     copy: 'COPY',
+    start: 'Start',
   },
   history: {
     title: 'History',
@@ -211,6 +214,8 @@ export const en = {
     startSet: 'Start Set',
     stop: 'Stop',
     saveDurationSet: 'Save Set',
+    rirModerateDesc: 'Controlled effort, good for hypertrophy',
+    rirLightDesc: 'Warmup or technique',
   },
   restTimer: {
     rest: 'Rest',
@@ -270,6 +275,7 @@ export const en = {
     sRPEFailure: 'Failure',
     discardSession: 'Discard Workout?',
     discardConfirm: 'Are you sure you want to discard this workout?',
+    quickNotes: 'Quick Notes',
   },
   summary: {
     title: 'Workout Summary',

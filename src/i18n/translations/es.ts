@@ -26,6 +26,8 @@ export const es = {
     required: 'Obligatorio',
   
     compare: 'Comparar',
+    exit: 'Salir',
+    stay: 'Quedarse',
     invalidData: 'Datos invalidos',},
   home: {
     title: 'Iron Log',
@@ -152,6 +154,7 @@ export const es = {
     tabAll: 'TODAS',
     tabGeneral: 'GENERAL',
     copy: 'COPIAR',
+    start: 'Iniciar',
   },
   history: {
     title: 'Historial',
@@ -211,6 +214,8 @@ export const es = {
     startSet: 'Iniciar Serie',
     stop: 'Parar',
     saveDurationSet: 'Guardar Serie',
+    rirModerateDesc: 'Esfuerzo controlado, bueno para hipertrofia',
+    rirLightDesc: 'Calentamiento o técnica',
   },
   restTimer: {
     rest: 'Descanso',
@@ -270,6 +275,7 @@ export const es = {
     sRPEFailure: 'Fallo',
     discardSession: '¿Descartar Entrenamiento?',
     discardConfirm: '¿Estás seguro de que deseas descartar este entrenamiento?',
+    quickNotes: 'Notas Rápidas',
   },
   summary: {
     title: 'Resumen del Entreno',

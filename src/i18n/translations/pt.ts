@@ -29,6 +29,8 @@ export const pt = {
     required: 'Obrigatório',
   
     compare: 'Comparar',
+    exit: 'Sair',
+    stay: 'Ficar',
     invalidData: 'Dados invalidos',},
 
   // Home / Dashboard
@@ -166,6 +168,7 @@ export const pt = {
     tabAll: 'TODAS',
     tabGeneral: 'GERAL',
     copy: 'COPIAR',
+    start: 'Iniciar',
   },
 
   // History
@@ -231,6 +234,8 @@ export const pt = {
     startSet: 'Iniciar Série',
     stop: 'Parar',
     saveDurationSet: 'Salvar Série',
+    rirModerateDesc: 'Esforço controlado, bom para hipertrofia',
+    rirLightDesc: 'Aquecimento ou técnica',
   },
 
   // Rest Timer
@@ -294,6 +299,7 @@ export const pt = {
     sRPEFailure: 'Falha',
     discardSession: 'Descartar Treino?',
     discardConfirm: 'Tem certeza que deseja descartar este treino?',
+    quickNotes: 'Notas Rápidas',
   },
 
   // Summary

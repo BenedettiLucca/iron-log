@@ -26,6 +26,8 @@ export const zh = {
     required: '必填',
   
     compare: 'dui bi',
+    exit: '退出',
+    stay: '留下',
     invalidData: 'shu ju wu xiao',},
   home: {
     title: 'Iron Log',
@@ -152,6 +154,7 @@ export const zh = {
     tabAll: '全部',
     tabGeneral: '通用',
     copy: '复制',
+    start: '开始',
   },
   history: {
     title: '历史',
@@ -211,6 +214,8 @@ export const zh = {
     startSet: '开始组',
     stop: '停止',
     saveDurationSet: '保存组',
+    rirModerateDesc: '控制力训练，适合肌肉增长',
+    rirLightDesc: '热身或技术练习',
   },
   restTimer: {
     rest: '休息',
@@ -270,6 +275,7 @@ export const zh = {
     sRPEFailure: '力竭',
     discardSession: '放弃训练？',
     discardConfirm: '确定要放弃这次训练吗？',
+    quickNotes: '快速备注',
   },
   summary: {
     title: '训练总结',

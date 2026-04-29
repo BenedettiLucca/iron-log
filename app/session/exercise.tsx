@@ -499,14 +499,14 @@ export default function ExerciseScreen() {
 
               <View className="flex-row justify-between items-center mb-2">
                 <View className="flex-row items-baseline gap-2 flex-1">
-                  <Text className="text-subtext text-2xs font-bold uppercase tracking-widest">Tempo</Text>
+                  <Text className="text-subtext text-2xs font-bold uppercase tracking-widest">{t("exerciseSession.time")}</Text>
                   <Stopwatch startTime={startTime} />
                 </View>
                 <TouchableOpacity
                   onPress={() => setHistoryVisible(true)}
                   className="bg-background px-2 py-1 rounded-lg border border-border"
                 >
-                  <Text className="text-subtext text-2xs font-bold uppercase">Histórico</Text>
+                  <Text className="text-subtext text-2xs font-bold uppercase">{t("exerciseSession.history")}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -746,9 +746,9 @@ export default function ExerciseScreen() {
         <Modal visible={historyVisible} animationType="slide" presentationStyle="pageSheet">
           <View className="flex-1 bg-background p-4">
             <View className="flex-row justify-between items-center mb-4 mt-2">
-              <Text className="text-text text-xl font-bold uppercase">Histórico</Text>
+              <Text className="text-text text-xl font-bold uppercase">{t("exerciseSession.history")}</Text>
               <TouchableOpacity onPress={() => setHistoryVisible(false)}>
-                <Text className="text-primary font-bold uppercase">Fechar</Text>
+                <Text className="text-primary font-bold uppercase">{t("common.close")}</Text>
               </TouchableOpacity>
             </View>
             <FlatList
@@ -838,8 +838,8 @@ export default function ExerciseScreen() {
                     <Text className="text-2xl">0-1</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-text font-bold text-base mb-1">Forte / Pesado</Text>
-                    <Text className="text-subtext text-sm">Próximo da falha muscular</Text>
+                    <Text className="text-text font-bold text-base mb-1">{t("exercise.rirStrong")}</Text>
+                    <Text className="text-subtext text-sm">{t("exerciseSession.next")}</Text>
                   </View>
                 </View>
 
@@ -848,8 +848,8 @@ export default function ExerciseScreen() {
                     <Text className="text-2xl">2-3</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-text font-bold text-base mb-1">Moderado</Text>
-                    <Text className="text-subtext text-sm">Esforço controlado, bom para hipertrofia</Text>
+                    <Text className="text-text font-bold text-base mb-1">{t("exercise.rirModerate")}</Text>
+                    <Text className="text-subtext text-sm">{t("exercise.rirModerateDesc")}</Text>
                   </View>
                 </View>
 
@@ -858,8 +858,8 @@ export default function ExerciseScreen() {
                     <Text className="text-2xl">4-5</Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-text font-bold text-base mb-1">Leve</Text>
-                    <Text className="text-subtext text-sm">Aquecimento ou técnica</Text>
+                    <Text className="text-text font-bold text-base mb-1">{t("exercise.rirLight")}</Text>
+                    <Text className="text-subtext text-sm">{t("exercise.rirLightDesc")}</Text>
                   </View>
                 </View>
 

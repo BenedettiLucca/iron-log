@@ -217,32 +217,32 @@ export default function RoutinesListScreen() {
                     e.stopPropagation();
                     handleQuickStart(item.id);
                   }}
-                  accessibilityLabel="Iniciar rotina"
+                  accessibilityLabel={t("routines.startRoutine")}
                   accessibilityRole="button"
                   className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >
-                  <Text className="text-success text-xs font-bold uppercase">Iniciar</Text>
+                  <Text className="text-success text-xs font-bold uppercase">{t("routines.start")}</Text>
                   <Text className="text-success text-sm">▶</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
             <View className="flex-row gap-2 border-t border-border pt-3 mt-2">
               <Button 
-                title="Duplicar"
+                title={t("routines.duplicate")}
                 onPress={() => handleDuplicate(item.id, item.name)}
                 variant="ghost"
                 size="sm"
                 style={{ flex: 1 }}
               />
               <Button 
-                title="Editar"
+                title={t("routines.edit")}
                 onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
                 variant="ghost"
                 size="sm"
                 style={{ flex: 1 }}
               />
               <Button 
-                title="Excluir"
+                title={t("common.delete")}
                 onPress={() => handleDelete(item.id, item.name)}
                 variant="danger"
                 size="sm"
