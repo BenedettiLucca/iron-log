@@ -1,3 +1,18 @@
+## [3.3.6] - 2025-04-28
+
+### ✅ Corrigido
+- history/index.tsx: LocaleConfig agora suporta pt/en/es/zh
+- routines/editor.tsx: 6 strings de UI traduzidas
+- _layout.tsx: Títulos do Stack e Modal de Recuperação traduzidos
+- session/exercise.tsx: REPS, RIR labels traduzidos
+- session/finish.tsx: NOTE_TEMPLATES movido para dentro do componente
+- SetCard.tsx: SET, EDIT labels traduzidos
+- Stopwatch.tsx: PAUSED label traduzido
+- 50+ novas keys de tradução adicionadas
+- Todos os 281 testes passando
+
+---
+
 ## [3.3.5] - 2025-04-28
 
 ### ✅ Corrigido
