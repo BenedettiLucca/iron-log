@@ -18,7 +18,6 @@ import { Colors } from '@/constants/colors';
 WebBrowser.maybeCompleteAuthSession();
 
 export default function SettingsScreen() {
-  const { t } = useI18n();
   const { t, setLanguage, language } = useI18n();
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
