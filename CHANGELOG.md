@@ -1,3 +1,21 @@
+## [3.3.5] - 2025-04-28
+
+### ✅ Corrigido
+- Add `useI18n()` hook a `templates.tsx` e `settings.tsx`
+- Substitui 20+ strings hardcoded PT restantes com `t()`
+- Adiciona descrições RIR (rirModerateDesc, rirLightDesc) em todos idiomas
+- Adiciona keys de ação comuns: cancel, confirm, close, view, exit, stay, back
+- Fix declaração duplicada de `t` em `settings.tsx`
+- Todos os 281 testes passando
+
+### 🌐 Telas 100% traduzíveis
+- Rotinas / Templates / Histórico
+- About / Settings / Bio
+- Routine Detail / Exercise Session / Finish Session
+- Active Workout / Discard Dialog / RIR Explainer
+
+---
+
 ## [3.3.4] - 2025-04-28
 
 ### ✅ Corrigido
