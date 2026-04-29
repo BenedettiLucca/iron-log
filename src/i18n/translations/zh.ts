@@ -28,6 +28,7 @@ export const zh = {
     compare: 'dui bi',
     exit: '退出',
     stay: '留下',
+    paused: '已暂停',
     invalidData: 'shu ju wu xiao',},
   home: {
     title: 'Iron Log',
@@ -155,6 +156,7 @@ export const zh = {
     tabGeneral: '通用',
     copy: '复制',
     start: '开始',
+    routineName: '训练名称',
   },
   history: {
     title: '历史',
@@ -186,6 +188,12 @@ export const zh = {
     finishContinue: '继续训练',
     pressAgain: '再次点击以退出',
     end: '结束',
+    activeWorkoutTitle: '激活训练',
+    resumeWorkout: '继续训练？',
+    resumeDescription: '您有一个进行中的训练。您想继续还是保存？',
+    dontAskAgain: '不再询问',
+    resume: '继续',
+    saveWorkout: '保存训练',
   },
   exercise: {
     timer: '时间',

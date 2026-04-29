@@ -667,7 +667,7 @@ export default function ExerciseScreen() {
                 </View>
 
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">REPS</Text>
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">{t("exercise.reps")}</Text>
                   <TextInput
                     className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
@@ -715,8 +715,8 @@ export default function ExerciseScreen() {
                   thumbTintColor={Colors.primary}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-gray-400 text-2xs">MÁXIMO</Text>
-                  <Text className="text-gray-400 text-2xs">LEVE</Text>
+                  <Text className="text-gray-400 text-2xs">{t("finish.maximum")}</Text>
+                  <Text className="text-gray-400 text-2xs">{t("finish.regenerative")}</Text>
                 </View>
               </View>
 
@@ -865,7 +865,7 @@ export default function ExerciseScreen() {
 
                 <View className="bg-background p-3 rounded-lg border border-border mt-4">
                   <Text className="text-subtext text-xs leading-5">
-                    <Text className="font-bold text-text">RIR</Text> = Repetições na Reserva. Quanto maior o número, mais fácil foi a série. <Text className="font-bold text-text">RIR 0</Text> significa que você não conseguiria fazer mais uma repetição.
+                    {t("exercise.rirExplainer")}
                   </Text>
                 </View>
               </View>

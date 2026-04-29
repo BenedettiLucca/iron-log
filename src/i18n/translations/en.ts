@@ -28,6 +28,7 @@ export const en = {
     compare: 'Compare',
     exit: 'Exit',
     stay: 'Stay',
+    paused: 'PAUSED',
     invalidData: 'Invalid data',},
   home: {
     title: 'Iron Log',
@@ -155,6 +156,7 @@ export const en = {
     tabGeneral: 'GENERAL',
     copy: 'COPY',
     start: 'Start',
+    routineName: 'ROUTINE NAME',
   },
   history: {
     title: 'History',
@@ -186,6 +188,12 @@ export const en = {
     finishContinue: 'Continue Workout',
     pressAgain: 'Press again to exit',
     end: 'END',
+    activeWorkoutTitle: 'Active Workout',
+    resumeWorkout: 'Resume Workout?',
+    resumeDescription: 'You have a workout in progress. Do you want to continue or save?',
+    dontAskAgain: "Don't ask again",
+    resume: "Resume",
+    saveWorkout: "Save Workout",
   },
   exercise: {
     timer: 'Time',

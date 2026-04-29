@@ -28,6 +28,7 @@ export const es = {
     compare: 'Comparar',
     exit: 'Salir',
     stay: 'Quedarse',
+    paused: 'PAUSADO',
     invalidData: 'Datos invalidos',},
   home: {
     title: 'Iron Log',
@@ -155,6 +156,7 @@ export const es = {
     tabGeneral: 'GENERAL',
     copy: 'COPIAR',
     start: 'Iniciar',
+    routineName: 'NOMBRE DE LA RUTINA',
   },
   history: {
     title: 'Historial',
@@ -186,6 +188,12 @@ export const es = {
     finishContinue: 'Continuar Entreno',
     pressAgain: 'Presiona de nuevo para salir',
     end: 'FIN',
+    activeWorkoutTitle: 'Entrenamiento Activo',
+    resumeWorkout: '¿Retomar Entrenamiento?',
+    resumeDescription: 'Tienes un entrenamiento en curso. ¿Deseas continuar o guardar?',
+    dontAskAgain: 'No volver a preguntar',
+    resume: 'Retomar',
+    saveWorkout: 'Guardar Entrenamiento',
   },
   exercise: {
     timer: 'Tiempo',

@@ -172,7 +172,7 @@ export default function RoutineEditorScreen() {
         contentContainerStyle={{ gap: 16 }}
       >
         <Input
-            label="NOME DA ROTINA"
+            label={t("routines.routineName")}
             value={name}
             onChangeText={setName}
             placeholder="Ex: Treino C (Pernas)"
@@ -277,7 +277,7 @@ export default function RoutineEditorScreen() {
 
       <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg">
         <Button 
-          title="SALVAR"
+          title={t("common.save")}
           onPress={() => setShowTemplateOptions(true)}
           variant="success"
           fullWidth
@@ -308,12 +308,12 @@ export default function RoutineEditorScreen() {
 
                   <View className="flex-row justify-end gap-3">
                       <Button 
-                        title="CANCELAR"
+                        title={t("common.cancel")}
                         onPress={() => setRenamingEx(null)}
                         variant="ghost"
                       />
                       <Button 
-                        title="SALVAR"
+                        title={t("common.save")}
                         onPress={handleRename}
                         variant="primary"
                       />
@@ -382,7 +382,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
         <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
           <Text className="text-text text-xl font-bold uppercase tracking-wide">Selecionar</Text>
           <Button 
-            title="FECHAR"
+            title={t("common.close")}
             onPress={onClose}
             variant="ghost"
             size="sm"
@@ -433,7 +433,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                             size="sm"
                         />
                         <Button 
-                            title="TEMPO"
+                            title={t("exerciseSession.time")}
                             onPress={() => setNewType('duration')}
                             variant={newType === 'duration' ? 'primary' : 'ghost'}
                             size="sm"

@@ -97,7 +97,7 @@ function SetCard({
         }`}
       >
         <View className="mr-4 items-center justify-center w-8">
-          <Text className="text-subtext/50 font-black text-xs uppercase tracking-widest">SET</Text>
+          <Text className="text-subtext/50 font-black text-xs uppercase tracking-widest">{t("exercise.set")}</Text>
           <Text className="text-text font-black text-xl leading-5">{setNumber}</Text>
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
@@ -111,7 +111,7 @@ function SetCard({
           )}
           {isEdited && (
             <View className="bg-secondary px-1 py-0.5 rounded mt-1">
-              <Text className="text-white text-2xs font-bold">EDIT</Text>
+              <Text className="text-white text-2xs font-bold">{t("common.edit")}</Text>
             </View>
           )}
         </View>

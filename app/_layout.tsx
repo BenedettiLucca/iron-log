@@ -18,12 +18,58 @@ import { configureReanimatedLogger } from 'react-native-reanimated';
 import { logger } from '@/services/logger';
 import { SessionContext } from '@/src/types';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import { I18nProvider } from '../src/i18n/index';
+import { I18nProvider, useI18n } from '../src/i18n/index';
 import { Colors } from '@/constants/colors';
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
 });
+
+
+function AppStack({ colorScheme }: { colorScheme: string }) {
+  const { t } = useI18n();
+  return (
+    <AppStack colorScheme={colorScheme} />
+  );
+}
+
+function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAgain, setDontShowAgain }: {
+  visible: boolean;
+  onResume: () => void;
+  onSave: () => void;
+  onDismiss: () => void;
+  dontShowAgain: boolean;
+  setDontShowAgain: (v: boolean) => void;
+}) {
+  const { t } = useI18n();
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
+      <TouchableOpacity activeOpacity={1} className="flex-1 justify-center items-center bg-black/40" onPress={onDismiss}>
+        <TouchableOpacity activeOpacity={1} className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl" onPress={(e) => e.stopPropagation()}>
+          <Text className="text-text text-xl font-bold mb-3">{t('session.resumeWorkout')}</Text>
+          <Text className="text-subtext text-base mb-4 leading-6">{t('session.resumeDescription')}</Text>
+          <TouchableOpacity className="flex-row items-center mb-4 py-2" onPress={() => setDontShowAgain(!dontShowAgain)}>
+            <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'}`}>
+              {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
+            </View>
+            <Text className="text-subtext text-sm">{t('session.dontAskAgain')}</Text>
+          </TouchableOpacity>
+          <View className="flex-col gap-3">
+            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-primary" onPress={onResume}>
+              <Text className="text-white font-semibold text-base">{t('session.resume')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-success" onPress={onSave}>
+              <Text className="text-white font-semibold text-base">{t('session.saveWorkout')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-background border border-border" onPress={onDismiss}>
+              <Text className="text-text font-semibold text-base">{t('common.cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
 
 export default function Layout() {
   const { success, error } = useMigrations(db, migrations);
@@ -196,66 +242,14 @@ export default function Layout() {
         <Stack.Screen name="session/summary" options={{ title: 'Resumo' }} />
       </Stack>
 
-      {/* Session Recovery Dialog */}
-      <Modal
+      <SessionRecoveryModal
         visible={showRecoveryDialog}
-        transparent
-        animationType="fade"
-        onRequestClose={handleDismissDialog}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          className="flex-1 justify-center items-center bg-black/40"
-          onPress={handleDismissDialog}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl"
-            onPress={(e) => e.stopPropagation()}
-          >
-            <Text className="text-text text-xl font-bold mb-3">Retomar Treino?</Text>
-            <Text className="text-subtext text-base mb-4 leading-6">
-              Você tem um treino em andamento. Deseja continuar ou salvar?
-            </Text>
-
-            {/* Don't Show Again Checkbox */}
-            <TouchableOpacity
-              className="flex-row items-center mb-4 py-2"
-              onPress={() => setDontShowAgain(!dontShowAgain)}
-            >
-              <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${
-                dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'
-              }`}>
-                {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
-              </View>
-              <Text className="text-subtext text-sm">Não perguntar novamente</Text>
-            </TouchableOpacity>
-
-            <View className="flex-col gap-3">
-              <TouchableOpacity
-                className="py-3 px-4 rounded-xl items-center bg-primary"
-                onPress={handleResumeSession}
-              >
-                <Text className="text-white font-semibold text-base">Retomar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className="py-3 px-4 rounded-xl items-center bg-success"
-                onPress={handleSaveWorkout}
-              >
-                <Text className="text-white font-semibold text-base">Salvar Treino</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className="py-3 px-4 rounded-xl items-center bg-background border border-border"
-                onPress={handleDismissDialog}
-              >
-                <Text className="text-text font-semibold text-base">Cancelar</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+        onResume={handleResumeSession}
+        onSave={handleSaveWorkout}
+        onDismiss={handleDismissDialog}
+        dontShowAgain={dontShowAgain}
+        setDontShowAgain={setDontShowAgain}
+      />
     </GestureHandlerRootView>
     </I18nProvider>
     </ErrorBoundary>

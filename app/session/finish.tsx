@@ -27,12 +27,6 @@ interface NoteTemplate {
   text: string;
 }
 
-const NOTE_TEMPLATES: NoteTemplate[] = [
-  { label: 'Jejum', emoji: '🍽️', text: 'Treino feito em jejum' },
-  { label: 'Ruim', emoji: '😴', text: 'Dia ruim, baixa energia' },
-  { label: 'PR!', emoji: '🏆', text: 'Recorde pessoal batido!' },
-  { label: 'Cardio', emoji: '❤️', text: 'Incluí cardio extra' },
-];
 
 export default function FinishSessionScreen() {
   const { t } = useI18n();

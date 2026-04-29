@@ -31,6 +31,7 @@ export const pt = {
     compare: 'Comparar',
     exit: 'Sair',
     stay: 'Ficar',
+    paused: 'PAUSADO',
     invalidData: 'Dados invalidos',},
 
   // Home / Dashboard
@@ -169,6 +170,7 @@ export const pt = {
     tabGeneral: 'GERAL',
     copy: 'COPIAR',
     start: 'Iniciar',
+    routineName: 'NOME DA ROTINA',
   },
 
   // History
@@ -204,6 +206,12 @@ export const pt = {
     finishContinue: 'Continuar Treino',
     pressAgain: 'Pressione novamente para sair',
     end: 'FIM',
+    activeWorkoutTitle: 'Treino Ativo',
+    resumeWorkout: 'Retomar Treino?',
+    resumeDescription: 'Você tem um treino em andamento. Deseja continuar ou salvar?',
+    dontAskAgain: 'Não perguntar novamente',
+    resume: 'Retomar',
+    saveWorkout: 'Salvar Treino',
   },
 
   // Exercise screen
