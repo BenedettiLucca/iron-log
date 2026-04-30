@@ -1,3 +1,24 @@
+## [3.4.0] - 2025-04-29
+
+### 🌐 i18n — Full Coverage
+- Added `useI18n` hook to 10 components: SetEditor, RoutinePreview, MonthlyCheckinComparison, ErrorBoundary, RestTimer, SetCard, Dialog, EmptyState, _layout screens
+- ~150 new translation keys added across pt/en/es/zh
+- Replaced all pinyin with proper Chinese characters in zh.ts
+- Error/loading screens now use translations even before I18nProvider initializes
+
+### 🐛 Bug Fixes
+- **Calendar crash**: Added missing `LocaleConfig` import in history screen
+- **AppStack infinite loop**: Fixed recursive component call in `_layout.tsx`
+- **Zod v4 compat**: Changed `.errors` → `.issues` in goals and check-in validation
+
+### 🔧 TypeScript
+- Resolved all 50 schema/type errors across 12 files
+- Fixed Drizzle JOIN result type mismatches (exercise, routine, session queries)
+- Fixed unknown catch variable types in settings.tsx
+- Zero `tsc --noEmit` errors, zero lint errors
+
+---
+
 ## [3.3.6] - 2025-04-28
 
 ### ✅ Corrigido
