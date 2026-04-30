@@ -494,6 +494,8 @@ export const zh = {
     exportAlexandriaJson: 'dao chu Alexandria JSON',
     exportCsvBtn: '📊 导出 CSV',
     googleConnected: 'yi lian jie Google Drive!',
+    tokenExpired: '会话已过期',
+    tokenExpiredDesc: '您的 Google 会话已过期。请重新连接以继续。',
     localExportSuccess: 'bei fen dao chu cheng gong!',
     importBackup: '导入备份',
     importBackupWarning: 'zhe jiang yong bei fen shu ju ti huan suo you dang qian shu ju. ci cao zuo bu ke ni zhuan. nin yao ji xu ma?',

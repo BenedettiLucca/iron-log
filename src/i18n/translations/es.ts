@@ -494,6 +494,8 @@ export const es = {
     exportAlexandriaJson: 'Exportar Alexandria JSON',
     exportCsvBtn: 'Exportar CSV',
     googleConnected: 'Conectado a Google Drive!',
+    tokenExpired: 'Sesión expirada',
+    tokenExpiredDesc: 'Tu sesión de Google ha expirado. Por favor, reconecta para continuar.',
     localExportSuccess: 'Backup exportado con exito!',
     importBackup: 'Importar Backup',
     importBackupWarning: 'Esto reemplazara TODOS los datos actuales con los del backup. Esta accion es irreversible. Deseas continuar?',

@@ -1,6 +1,6 @@
 import { db } from '@/src/db/client';
 import { sessions, sets, exercises, personalRecords } from '@/src/db/schema';
-import { desc, asc, isNull, eq, and, sql, gt } from 'drizzle-orm';
+import { desc, asc, isNull, eq, and, sql, gt, inArray } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 
 /**
@@ -140,7 +140,7 @@ export const AnalyticsService = {
         .from(sets)
         .where(and(
           isNull(sets.deletedAt),
-          sql`${sets.sessionId} IN (${sql.join(sessionIds.map(id => sql`${id}`), sql`, `)})`
+          inArray(sets.sessionId, sessionIds),
         ));
 
       // Volume Score (0-40): Based on average weekly volume
@@ -282,7 +282,7 @@ export const AnalyticsService = {
         .from(sets)
         .where(and(
           isNull(sets.deletedAt),
-          sql`${sets.sessionId} IN (${sql.join(sessionIds.map(id => sql`${id}`), sql`, `)})`
+          inArray(sets.sessionId, sessionIds),
         ));
 
       // Group by ISO week

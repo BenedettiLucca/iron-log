@@ -21,6 +21,7 @@ export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [tokenExpiresAt, setTokenExpiresAt] = useState<number | null>(null);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
@@ -34,6 +35,9 @@ export default function SettingsScreen() {
   useEffect(() => {
     if (response?.type === 'success') {
       setAccessToken(response.authentication?.accessToken || null);
+      // Google access tokens expire in ~1 hour; store the expiry time
+      const expiresIn = response.authentication?.accessTokenExpirationDate;
+      setTokenExpiresAt(expiresIn ? new Date(expiresIn).getTime() : Date.now() + 3600 * 1000);
       setToast({ visible: true, message: t('settings.googleConnected'), type: 'success' });
     }
   }, [response, t]);
@@ -83,6 +87,24 @@ export default function SettingsScreen() {
 
   const handleCloudBackup = async () => {
     if (!accessToken) return;
+
+    // Check if token is expired or about to expire (5 min buffer)
+    if (tokenExpiresAt && Date.now() > tokenExpiresAt - 5 * 60 * 1000) {
+      setAccessToken(null);
+      setTokenExpiresAt(null);
+      setDialog({
+        visible: true,
+        title: t('settings.tokenExpired'),
+        message: t('settings.tokenExpiredDesc'),
+        type: 'default',
+        onConfirm: () => {
+          setDialog(prev => ({ ...prev, visible: false }));
+          initiateGoogleAuth();
+        },
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await DatabaseBackupService.uploadToDrive(accessToken);

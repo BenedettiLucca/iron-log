@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, uniqueIndex, index, primaryKey } from 'drizzle-orm/sqlite-core';
 
 // TABELA: Templates de Treino (Ex: Treino A, Treino B)
 export const routines = sqliteTable('routines', {
@@ -25,7 +25,9 @@ export const routineExercises = sqliteTable('routine_exercises', {
   target: text('target'), // Ex: "3x8-12" ou "60s"
   notes: text('notes'),   // Ex: "Banco altura 4, foco na negativa"
   restSeconds: integer('rest_seconds'), // Tempo de descanso em segundos
-});
+}, (t) => [
+  primaryKey({ columns: [t.routineId, t.exerciseId] }),
+]);
 
 // TABELA: Sessões de Treino
 export const sessions = sqliteTable('sessions', {

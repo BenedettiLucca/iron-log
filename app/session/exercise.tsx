@@ -14,8 +14,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
-import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { sets, exercises, sessions, routineExercises, personalRecords } from '../../src/db/schema';
+import { eq, and, desc, isNull, sql } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
@@ -344,6 +344,58 @@ export default function ExerciseScreen() {
       }, 10000);
 
       await loadData();
+
+      // Check for Personal Records (only for non-warmup strength sets)
+      if (!isWarmupMode && !isDuration && result[0]) {
+        try {
+          const savedSet = result[0];
+          const now = Date.now();
+          const setDetails = JSON.stringify({ weightKg: savedSet.weightKg, reps: savedSet.reps, rir: savedSet.rir });
+
+          // Check weight PR
+          const existingWeightPR = await db.select({ value: personalRecords.value })
+            .from(personalRecords)
+            .where(and(eq(personalRecords.exerciseId, exerciseId), eq(personalRecords.recordType, 'weight')))
+            .limit(1);
+
+          if (!existingWeightPR.length || savedSet.weightKg > existingWeightPR[0].value) {
+            await db.insert(personalRecords).values({
+              exerciseId,
+              sessionId,
+              recordType: 'weight',
+              value: savedSet.weightKg,
+              date: now,
+              setDetails,
+            }).onConflictDoUpdate({
+              target: [personalRecords.exerciseId, personalRecords.recordType],
+              set: { value: savedSet.weightKg, sessionId, date: now, setDetails },
+            });
+          }
+
+          // Check reps PR (at same or higher weight)
+          const existingRepsPR = await db.select({ value: personalRecords.value })
+            .from(personalRecords)
+            .where(and(eq(personalRecords.exerciseId, exerciseId), eq(personalRecords.recordType, 'reps')))
+            .limit(1);
+
+          if (!existingRepsPR.length || savedSet.reps > existingRepsPR[0].value) {
+            await db.insert(personalRecords).values({
+              exerciseId,
+              sessionId,
+              recordType: 'reps',
+              value: savedSet.reps,
+              date: now,
+              setDetails,
+            }).onConflictDoUpdate({
+              target: [personalRecords.exerciseId, personalRecords.recordType],
+              set: { value: savedSet.reps, sessionId, date: now, setDetails },
+            });
+          }
+        } catch (prErr) {
+          logger.warn('Failed to update PR', prErr);
+        }
+      }
+
       setReps('');
       setDuration('');
 
