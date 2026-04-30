@@ -28,7 +28,7 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="bio/index"
           options={{
-            title: t('drawer.bioEvolution'),
+            title: t('drawer.bio'),
             drawerLabel: t('drawer.bio')
           }}
         />
