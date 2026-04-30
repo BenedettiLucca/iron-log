@@ -1,3 +1,34 @@
+## [3.5.0] - 2026-04-30
+
+### 🔒 QA Bug Review — 14 fixes
+
+**Critical:**
+- **Hard DELETE → Soft delete** — Sessions now use `deletedAt` timestamp instead of physical deletion, preserving relational integrity for associated sets (`finish.tsx`, `[routineId].tsx`)
+- **Import DB validation** — Backup import now validates SQLite header and minimum schema (sessions, sets, exercises tables) before replacing active DB (`DatabaseBackupService.ts`)
+- **OAuth dummy ID removed** — No more `DUMMY_ID_FOR_DEV` fallback in Google OAuth; empty clientId blocks OAuth silently instead of connecting to wrong account (`settings.tsx`)
+
+**Bug Fixes:**
+- **Warmup volume inflation** — Warmup sets excluded from total volume and set count calculations on finish screen (`finish.tsx`)
+- **Duplicate routine exercises** — Composite unique key `(routineId, exerciseId)` added to `routineExercises` table with migration 0016 (`schema.ts`)
+- **Personal Records insertion** — PRs now automatically tracked (weight + reps) after each set save (`exercise.tsx`)
+- **N+1 queries** — History screen and AnalyticsService batch queries with `inArray()` instead of per-item loops (`history/index.tsx`, `AnalyticsService.ts`)
+- **Photo file leak** — Deleting a bio photo now removes the physical file from filesystem (`bio/index.tsx`)
+- **Square crop forced** — Photo resize changed to width-only; no longer forces 800×800 square crop (`bio/index.tsx`)
+- **Token expiry** — Google Drive upload now checks token expiration (5-min buffer) and prompts re-auth when needed (`settings.tsx`)
+- **Raw SQL** — Replaced `IN` clause raw SQL with Drizzle `inArray()` for type safety (`AnalyticsService.ts`)
+
+**Code Quality:**
+- Hardcoded hex colors (`#fff`, `#000`) replaced with `Colors.white`, `Colors.black` across 4 layout files
+- `as any` photo key access replaced with typed `as const` pattern (`bio/index.tsx`)
+
+**Docs:**
+- README (PT/EN/ES/ZH), CLAUDE.md, GEMINI.md — version and test counts updated
+- QA review document: `docs/plans/2026-04-30-qa-bug-review.md`
+
+**Tests:** 281 passing (16 suites), 0 failures
+
+---
+
 ## [3.4.0] - 2025-04-29
 
 ### 🌐 i18n — Full Coverage
