@@ -401,7 +401,7 @@ export default function RoutinePreviewScreen() {
     <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: 24 }}>
       <View className="flex-row gap-3">
         <Button
-          title={t("routines.edit")}
+          title={t("common.edit")}
           onPress={handleEdit}
           variant="secondary"
           size="lg"
