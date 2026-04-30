@@ -4,7 +4,7 @@
 **Source Files:** ~100 (excluding node_modules/android-sdk)  
 **Largest File:** `app/session/exercise.tsx` (886 LOC)  
 **Tests:** 281 passing across 16 suites ✅  
-**Migrations:** 16 (0000–0015)
+**Migrations:** 17 (0000–0016)
 
 ---
 
@@ -228,20 +228,12 @@ Multiple files use `parseInt(str)` without explicit radix `10`. While modern JS 
 | 1 | BUG-1 | Hard DELETE → soft delete | Small |
 | 2 | BUG-4 | Warmup sets in volume | Trivial |
 | 3 | BUG-2 | DB import validation | Medium |
-| 4 | BUG-6 | N+1 history queries | Small |
-| 5 | BUG-7 | PR insertion logic | Medium |
-| 6 | BUG-8 | Photo file cleanup | Small |
-| 7 | BUG-3 | Google OAuth fallback | Small |
-| 8 | BUG-9 | Token expiry | Small |
-| 9 | BUG-1 | BUG-1 | Hard DELETE on sessions | Small |
-| 2 | BUG-4 | Volume includes warmup in finish | Trivial |
-| 3 | BUG-2 | No DB schema validation on import | Medium |
 | 4 | BUG-5 | Missing routineExercises composite PK | Medium (migration) |
-| 5 | BUG-6 | N+1 queries in history | Small |
-| 6 | BUG-7 | Dead PR tracking feature | Medium |
+| 5 | BUG-6 | N+1 history queries | Small |
+| 6 | BUG-7 | PR insertion logic | Medium |
 | 7 | BUG-8 | Photo file cleanup | Small |
-| 8 | BUG-9 | Google token expiry | Small |
-| 9 | BUG-3 | Dummy Google client ID | Small |
+| 8 | BUG-3 | Google OAuth fallback | Small |
+| 9 | BUG-9 | Token expiry | Small |
 | 10 | BUG-11 | Image crop forces square | Small |
 | 11+ | SUG-* | Suggestions | Various |
 
@@ -253,10 +245,15 @@ Multiple files use `parseInt(str)` without explicit radix `10`. While modern JS 
 - [x] BUG-1 fix — soft delete in finish.tsx + [routineId].tsx
 - [x] BUG-4 fix — exclude warmup from volume & totalSets in finish.tsx
 - [x] BUG-2 fix — SQLite header validation in DatabaseBackupService.ts
+- [x] BUG-5 fix — composite PK (routineId, exerciseId) on routineExercises + migration 0016
 - [x] BUG-6 fix — batch query with inArray in history/index.tsx
+- [x] BUG-7 fix — PR upsert logic (weight + reps) after set save in exercise.tsx
 - [x] BUG-8 fix — physical file deletion in bio/index.tsx deletePhoto()
 - [x] BUG-3 fix — removed DUMMY_ID fallback in settings.tsx
+- [x] BUG-9 fix — token expiry tracking + re-auth prompt in settings.tsx
+- [x] BUG-10 fix — replaced raw SQL IN with inArray() in AnalyticsService (2 occurrences)
 - [x] BUG-11 fix — resize width-only (no forced square crop) in bio/index.tsx
 - [x] SUG-1 fix — replaced #fff/#000 with Colors.white/Colors.black in 4 files
 - [x] SUG-2 fix — typed photo key access with `as const` in bio/index.tsx
 - [x] Test suite — 281/281 passing after all changes
+- [x] All fixes committed and pushed to master
