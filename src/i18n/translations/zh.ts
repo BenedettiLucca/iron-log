@@ -42,6 +42,17 @@ export const zh = {
     exercises: '练习',
     preparingApp: '正在准备 Iron Log...',
     dbMigrationError: '数据库迁移错误',
+    add: '添加',
+    addAtLeastOneExercise: '至少添加一个动作',
+    closeComparison: '关闭对比',
+    createExerciseError: '创建动作出错',
+    createExerciseFail: '创建动作失败',
+    exercisePlural: '个动作',
+    exerciseRenamed: '动作已重命名！',
+    exerciseSingular: '个动作',
+    invalidName: '名称无效',
+    operationError: '操作错误',
+
   },
   home: {
     title: 'Iron Log',
@@ -62,7 +73,10 @@ export const zh = {
     startRoutine: '创建您的第一个训练或生成示例以快速开始。',
     tapToContinue: '点击继续',
     activeWorkout: '进行中的训练',
-    generateExampleRoutines: '生成示例训练',},
+    generateExampleRoutines: '生成示例训练',
+    continue: '继续',
+
+  },
   bio: {
     title: '身体数据 & 进展',
     registerWeight: '记录体重 (公斤)',
@@ -98,7 +112,11 @@ export const zh = {
     deletePhotoConfirm: '您确定要删除 {{field}} 照片吗？',
     invalidWeight: '体重无效',
     notesPlaceholder: '备注...',
-    armRightAbbr: '右手臂',},
+    armRightAbbr: '右手臂',
+    latestCheckins: '最新签到',
+    weightEvolution: '体重变化',
+
+  },
   bioNav: {
     goals: '目标',
     evolution: '进展',
@@ -131,7 +149,9 @@ export const zh = {
       elite: '精英',
     error: '错误',
       intermediate: '中级',
-    noData: '无数据',},},
+    noData: '无数据',
+  },
+  },
   goals: {
     title: '目标 & 定义',
   },
@@ -212,6 +232,14 @@ export const zh = {
     deleteTemplateError: '删除模板失败。',
     exerciseCount: '{count} 个',
     moreExercises: '+{count} 更多...',
+    back: '返回',
+    deleteTemplateMessage: '确定要删除此模板吗？',
+    deleteTemplateTitle: '删除模板',
+    importedWithExercises: '训练 "{name}" 已导入，包含 {count} 个动作！',
+    invalidJson: 'JSON格式无效，请检查格式。',
+    startRoutine: '开始训练',
+    templateLoadedWithExercises: '模板已加载，包含 {count} 个动作！',
+
   },
   history: {
     title: '历史',
@@ -225,6 +253,8 @@ export const zh = {
       sets: '组',
     viewSummary: '查看训练摘要',
     deleteWorkout: '删除训练',
+    calendarIcon: '📅',
+
   },
   session: {
     activeWorkout: '进行中的训练',
@@ -254,6 +284,10 @@ export const zh = {
     saveWorkout: '保存训练',
     setsProgress: '{done}/{target} 组',
     continue: '继续',
+    deleteSet: '删除组',
+    editSet: '编辑组',
+    exitConfirm: '确定要退出吗？进度将丢失。',
+
   },
   exercise: {
     timer: '时间',
@@ -303,6 +337,8 @@ export const zh = {
     saveBtn: '保存',
     nextExerciseLabel: '下一个：{name}',
     finishWorkoutLabel: '结束训练',
+    sqlHistoryError: '加载历史记录出错',
+
   },
   restTimer: {
     rest: '休息',
@@ -318,7 +354,20 @@ export const zh = {
     continueAccessibility: '继续训练',
     skipAccessibility: '跳过休息',
     nextExerciseLabel: '下一个：',
+    readyForNextSet: '准备好下一组！',
+
   },
+
+
+  // Set Editor
+  setEditor: {
+    description: '描述',
+    duration: '时长 (秒)',
+    extraWeight: '额外重量',
+    repetitions: '次数',
+    title: '编辑组',
+  },
+
   finish: {
     title: '结束训练',
     review: '保存前请检查你的数据',
@@ -379,6 +428,8 @@ export const zh = {
     notesPlaceholder: '感觉如何？酸痛、重量调整、能量...',
     recovery: '恢复',
     confirmDetails: '结束前请检查数据：\n\n• {sets} 组\n• {exercises} 个动作\n• {volume} 吨训练量\n• 体重：{weight} kg\n• sRPE：{srpe}',
+    finishError: '结束训练出错',
+
   },
   summary: {
     title: '训练总结',
@@ -454,7 +505,8 @@ export const zh = {
     alexandriaExportError: 'dao chu dao Alexandria shi bai.',
     csvExportError: 'CSV dao chu shi bai.',
     exportError: 'dao chu shi bai.',
-    importError: 'dao ru shi bai.',},
+    importError: 'dao ru shi bai.',
+  },
   about: {
     title: '关于 Iron Log',
     version: 'v{version} • Polished Edition',
@@ -473,7 +525,8 @@ export const zh = {
   
     bioTracking: 'wan zheng sheng wu zhui zong (ti zhong, chi cun, zhao pian)',
     csvExport: 'CSV dao chu he SQLite bei fen',
-    quickLog: '快速记录组数和负重',},
+    quickLog: '快速记录组数和负重',
+  },
   dialog: {
     importTitle: '导入备份',
     importDesc: '这将用备份数据替换所有当前数据。此操作不可撤销。确定要继续吗?',
@@ -549,6 +602,8 @@ export const zh = {
     tipText: '健康的体重变化目标是每周减少或增加 0.5-1kg。',
     waist: '腰围（cm）',
     noPhoto: '无照片',
+    chest: '胸围',
+
   },
 
   bioGoals: {
@@ -576,8 +631,8 @@ export const zh = {
   services: {
     dbNotFound: 'wei zhao dao shu ju ku.',
     invalidBackup: 'bei fen wen jian wu xiao huo wei kong.',
-    sharingUnavailable: '此设备不支持分享。',},
-
+    sharingUnavailable: '此设备不支持分享。',
+  },
   // Routine Detail
   routineDetail: {
     exercises: '动作',
@@ -593,6 +648,10 @@ export const zh = {
     avgDurationLabel: '平均时长：{duration} 分钟',
     duration: '时长',
     timesTrainedCount: '{count}次训练',
+    avgDuration: '平均时长',
+    timesTrained: '已训练',
+    title: '训练详情',
+
   },
 
   // Exercise Session (active exercise screen)

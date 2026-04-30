@@ -98,13 +98,16 @@ export default function FinishSessionScreen() {
           .from(sets)
           .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
 
-        // Calculate total volume (weight × reps for strength exercises)
+        // Calculate total volume (weight × reps for strength exercises, excluding warmups)
         let totalVolume = 0;
-        let totalSets = sessionSets.length;
+        let totalSets = 0;
 
         for (const set of sessionSets) {
-          if (set.reps && set.weightKg) {
-            totalVolume += set.reps * set.weightKg;
+          if (!set.isWarmup) {
+            totalSets++;
+            if (set.reps && set.weightKg) {
+              totalVolume += set.reps * set.weightKg;
+            }
           }
         }
 
@@ -159,7 +162,13 @@ export default function FinishSessionScreen() {
     setShowDiscardDialog(false);
     setIsFinishing(true);
     try {
-      await db.delete(sessions).where(eq(sessions.id, Number(sessionId)));
+      // Soft-delete: also soft-delete any sets belonging to this session
+      await db.update(sets)
+        .set({ deletedAt: Date.now() })
+        .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
+      await db.update(sessions)
+        .set({ deletedAt: Date.now() })
+        .where(eq(sessions.id, Number(sessionId)));
       await AsyncStorage.removeItem('incomplete_session');
       router.replace('/(drawer)' as any);
     } catch (e) {

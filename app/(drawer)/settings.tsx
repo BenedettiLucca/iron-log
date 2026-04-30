@@ -25,8 +25,9 @@ export default function SettingsScreen() {
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
 
+  const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'DUMMY_ID_FOR_DEV', // Fallback to avoid crash
+    clientId: googleClientId || '', // Empty string prevents silent auth with dummy values
     scopes: ['https://www.googleapis.com/auth/drive.file'],
   });
 
@@ -156,7 +157,7 @@ export default function SettingsScreen() {
               onValueChange={toggleEnabled}
               disabled={notificationsLoading}
               trackColor={{ false: Colors.darkButton, true: Colors.primary }}
-              thumbColor="#fff"
+              thumbColor={Colors.white}
             />
           </View>
 

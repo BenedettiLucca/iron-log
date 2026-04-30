@@ -98,6 +98,23 @@ export const DatabaseBackupService = {
         throw new Error('services.invalidBackup');
       }
 
+      // 2.5 Validate SQLite header (first 16 bytes should be "SQLite format 3\000")
+      try {
+        const headerBase64 = await FileSystem.readAsStringAsync(sourceUri, {
+          encoding: FileSystem.EncodingType.Base64,
+          position: 0,
+          length: 16,
+        });
+        const header = atob(headerBase64);
+        if (!header.startsWith('SQLite format 3')) {
+          throw new Error('services.invalidBackupFormat');
+        }
+      } catch (e: any) {
+        if (e.message === 'services.invalidBackupFormat') throw e;
+        logger.warn('[IronLog] Could not read SQLite header for validation', e);
+        // Non-fatal: proceed with caution if header read fails (e.g. position not supported)
+      }
+
       // 3. Confirm with user (handled in UI usually, but we can double check here or just proceed)
 
       // 3.5 Create safety snapshot of current database

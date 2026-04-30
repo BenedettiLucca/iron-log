@@ -12,11 +12,11 @@ export default function DrawerLayout() {
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
       <Drawer screenOptions={{
         headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
-        headerTintColor: '#fff',
+        headerTintColor: Colors.white,
         headerTitleStyle: { fontWeight: 'bold' },
         drawerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
         drawerActiveTintColor: Colors.primary,
-        drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#000',
+        drawerInactiveTintColor: colorScheme === 'dark' ? Colors.white : Colors.black,
       } }>
         <Drawer.Screen
           name="index"

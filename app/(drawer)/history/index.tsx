@@ -4,7 +4,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { sessions, sets } from '../../../src/db/schema';
-import { desc, isNull, eq, and } from 'drizzle-orm';
+import { desc, isNull, eq, and, inArray } from 'drizzle-orm';
 import { Card } from '../../../components/Card';
 import { Dialog } from '../../../components/Dialog';
 import { SkeletonList } from '../../../components/Skeleton';
@@ -45,6 +45,9 @@ const localeConfigs = {
   },
 };
 
+// Set default locale (must be set before Calendar renders)
+LocaleConfig.defaultLocale = 'pt';
+
 ['pt', 'en', 'es', 'zh'].forEach(lang => {
   LocaleConfig.locales[lang] = localeConfigs[lang as keyof typeof localeConfigs];
 });
@@ -55,8 +58,15 @@ interface SessionWithExercises extends Session {
 }
 
 export default function HistoryScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
+
+  // Update calendar locale when language changes
+  useEffect(() => {
+    if (LocaleConfig.locales[language]) {
+      LocaleConfig.defaultLocale = language;
+    }
+  }, [language]);
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [markedDates, setMarkedDates] = useState<Record<string, { marked: boolean; dotColor: string }>>({});
   const [selectedDate, setSelectedDate] = useState('');
@@ -119,26 +129,40 @@ export default function HistoryScreen() {
       return sDate === day.dateString;
     });
 
-    // Load exercise info for each session
-    const enriched: SessionWithExercises[] = [];
-    for (const session of filtered) {
-      try {
-        const sessionSets = await db
-          .select({ exerciseName: sets.exerciseName })
-          .from(sets)
-          .where(and(eq(sets.sessionId, session.id), isNull(sets.deletedAt)));
-
-        const exerciseNames = Array.from(new Set(sessionSets.map(s => s.exerciseName).filter(Boolean))) as string[];
-        enriched.push({
-          ...session,
-          exerciseNames,
-          totalSets: sessionSets.length,
-        });
-      } catch (e) {
-        logger.error('Failed to load session exercises', e);
-        enriched.push({ ...session, exerciseNames: [], totalSets: 0 });
-      }
+    // Load exercise info for all filtered sessions in a single batch query
+    if (filtered.length === 0) {
+      setDaySessions([]);
+      return;
     }
+
+    const sessionIds = filtered.map(s => s.id);
+    const allSets = await db
+      .select({ sessionId: sets.sessionId, exerciseName: sets.exerciseName })
+      .from(sets)
+      .where(and(
+        inArray(sets.sessionId, sessionIds),
+        isNull(sets.deletedAt),
+      ));
+
+    // Group sets by session
+    const setsBySession = new Map<number, { names: Set<string>; count: number }>();
+    for (const row of allSets) {
+      if (!setsBySession.has(row.sessionId)) {
+        setsBySession.set(row.sessionId, { names: new Set(), count: 0 });
+      }
+      const entry = setsBySession.get(row.sessionId)!;
+      entry.count++;
+      if (row.exerciseName) entry.names.add(row.exerciseName);
+    }
+
+    const enriched: SessionWithExercises[] = filtered.map(session => {
+      const data = setsBySession.get(session.id);
+      return {
+        ...session,
+        exerciseNames: data ? Array.from(data.names) : [],
+        totalSets: data?.count ?? 0,
+      };
+    });
 
     setDaySessions(enriched);
   }, [allSessions]);

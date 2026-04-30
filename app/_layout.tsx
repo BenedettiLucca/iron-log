@@ -33,7 +33,7 @@ function AppStack({ colorScheme }: { colorScheme: string }) {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
-        headerTintColor: '#fff',
+        headerTintColor: Colors.white,
         headerTitleStyle: { fontWeight: 'bold' },
         contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
         animation: 'default',

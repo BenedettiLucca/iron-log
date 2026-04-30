@@ -190,14 +190,16 @@ export default function SessionScreen() {
         type="destructive"
         onConfirm={async () => {
           setShowExitDialog(false);
-          // If session has no sets, hard-delete it to avoid ghost sessions
+          // If session has no sets, soft-delete to avoid ghost sessions
           if (sessionId) {
             try {
               const setCount = await db.select({ count: count() })
                 .from(sets)
-                .where(eq(sets.sessionId, sessionId));
+                .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)));
               if (setCount[0]?.count === 0) {
-                await db.delete(sessions).where(eq(sessions.id, sessionId));
+                await db.update(sessions)
+                  .set({ deletedAt: Date.now() })
+                  .where(eq(sessions.id, sessionId));
               }
             } catch (e) {
               logger.error('Failed to cleanup empty session', e);

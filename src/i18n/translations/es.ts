@@ -42,6 +42,17 @@ export const es = {
     exercises: 'ejercicios',
     preparingApp: 'Preparando Iron Log...',
     dbMigrationError: 'Error en la Migración de la Base de Datos',
+    add: 'Agregar',
+    addAtLeastOneExercise: 'Agrega al menos un ejercicio',
+    closeComparison: 'Cerrar Comparación',
+    createExerciseError: 'Error al crear ejercicio',
+    createExerciseFail: 'Fallo al crear ejercicio',
+    exercisePlural: 'ejercicios',
+    exerciseRenamed: '¡Ejercicio renombrado!',
+    exerciseSingular: 'ejercicio',
+    invalidName: 'Nombre inválido',
+    operationError: 'Error de operación',
+
   },
   home: {
     title: 'Iron Log',
@@ -62,7 +73,10 @@ export const es = {
     startRoutine: 'Comienza creando tu primera rutina de entrenamiento o genera ejemplos para empezar rapidamente.',
     tapToContinue: 'Toca para continuar',
     activeWorkout: 'Entreno Activo',
-    generateExampleRoutines: 'Generar Rutinas de Ejemplo',},
+    generateExampleRoutines: 'Generar Rutinas de Ejemplo',
+    continue: 'Continuar',
+
+  },
   bio: {
     title: 'Bio & Evolución',
     registerWeight: 'Registrar Peso (KG)',
@@ -98,7 +112,11 @@ export const es = {
     deletePhotoConfirm: 'Estas seguro de que deseas eliminar la foto {{field}}?',
     invalidWeight: 'Peso invalido',
     notesPlaceholder: 'Notas...',
-    armRightAbbr: 'BRAZO D.',},
+    armRightAbbr: 'BRAZO D.',
+    latestCheckins: 'Últimos Check-ins',
+    weightEvolution: 'Evolución de Peso',
+
+  },
   bioNav: {
     goals: 'Metas',
     evolution: 'Evolución',
@@ -131,7 +149,9 @@ export const es = {
       elite: 'Elite',
     error: 'Error',
       intermediate: 'Intermedio',
-    noData: 'Sin datos',},},
+    noData: 'Sin datos',
+  },
+  },
   goals: {
     title: 'Metas & Objetivos',
   },
@@ -212,6 +232,14 @@ export const es = {
     deleteTemplateError: 'Error al eliminar plantilla.',
     exerciseCount: '{count} ej',
     moreExercises: '+{count} más...',
+    back: 'Volver',
+    deleteTemplateMessage: '¿Estás seguro de que deseas eliminar esta plantilla?',
+    deleteTemplateTitle: 'Eliminar Plantilla',
+    importedWithExercises: '¡Rutina "{name}" importada con {count} ejercicios!',
+    invalidJson: 'JSON inválido. Verifica el formato.',
+    startRoutine: 'Iniciar Rutina',
+    templateLoadedWithExercises: '¡Plantilla cargada con {count} ejercicios!',
+
   },
   history: {
     title: 'Historial',
@@ -225,6 +253,8 @@ export const es = {
       sets: 'series',
     viewSummary: 'Ver resumen del entrenamiento',
     deleteWorkout: 'Eliminar entrenamiento',
+    calendarIcon: '📅',
+
   },
   session: {
     activeWorkout: 'Entreno Activo',
@@ -254,6 +284,10 @@ export const es = {
     saveWorkout: 'Guardar Entrenamiento',
     setsProgress: '{done}/{target} series',
     continue: 'Continuar',
+    deleteSet: 'Eliminar Serie',
+    editSet: 'Editar Serie',
+    exitConfirm: '¿Estás seguro de que deseas salir? El progreso se perderá.',
+
   },
   exercise: {
     timer: 'Tiempo',
@@ -303,6 +337,8 @@ export const es = {
     saveBtn: 'GUARDAR',
     nextExerciseLabel: 'SIGUIENTE: {name}',
     finishWorkoutLabel: 'FINALIZAR ENTRENAMIENTO',
+    sqlHistoryError: 'Error al cargar historial',
+
   },
   restTimer: {
     rest: 'Descanso',
@@ -318,7 +354,20 @@ export const es = {
     continueAccessibility: 'Continuar entrenamiento',
     skipAccessibility: 'Saltar descanso',
     nextExerciseLabel: 'Siguiente:',
+    readyForNextSet: '¡Listo para la próxima serie!',
+
   },
+
+
+  // Set Editor
+  setEditor: {
+    description: 'Descripción',
+    duration: 'Duración (s)',
+    extraWeight: 'Peso Extra',
+    repetitions: 'Repeticiones',
+    title: 'Editar Serie',
+  },
+
   finish: {
     title: 'Finalizar Entreno',
     review: 'Revisa tus datos antes de guardar',
@@ -379,6 +428,8 @@ export const es = {
     notesPlaceholder: '¿Cómo te sentiste? Dolor, ajustes de peso, energía...',
     recovery: 'Recuperación',
     confirmDetails: 'Revisa los datos antes de finalizar:\n\n• {sets} series\n• {exercises} ejercicios\n• {volume} toneladas de volumen\n• Peso: {weight} kg\n• sRPE: {srpe}',
+    finishError: 'Error al finalizar entrenamiento',
+
   },
   summary: {
     title: 'Resumen del Entreno',
@@ -454,7 +505,8 @@ export const es = {
     alexandriaExportError: 'Error al exportar a Alexandria.',
     csvExportError: 'Error al exportar CSV.',
     exportError: 'Error al exportar.',
-    importError: 'Error al importar.',},
+    importError: 'Error al importar.',
+  },
   about: {
     title: 'Acerca de Iron Log',
     version: 'v{version} • Polished Edition',
@@ -473,7 +525,8 @@ export const es = {
   
     bioTracking: 'Bio-Tracking Completo (Peso, Medidas, Fotos)',
     csvExport: 'Exportacion CSV & Backup SQLite',
-    quickLog: 'Registro Rapido de Series & Cargas',},
+    quickLog: 'Registro Rapido de Series & Cargas',
+  },
   dialog: {
     importTitle: 'Importar Backup',
     importDesc: 'Esto reemplazará TODOS los datos actuales por los del backup. Esta acción es irreversible. ¿Deseas continuar?',
@@ -549,6 +602,8 @@ export const es = {
     tipText: 'Para cambios de peso saludables, busca perder o ganjar 0.5-1kg por semana.',
     waist: 'Cintura (cm)',
     noPhoto: 'Sin foto',
+    chest: 'Pecho',
+
   },
 
   bioGoals: {
@@ -576,8 +631,8 @@ export const es = {
   services: {
     dbNotFound: 'Base de datos no encontrada.',
     invalidBackup: 'Archivo de backup invalido o vacio.',
-    sharingUnavailable: 'Compartir no esta disponible en este dispositivo.',},
-
+    sharingUnavailable: 'Compartir no esta disponible en este dispositivo.',
+  },
   // Routine Detail
   routineDetail: {
     exercises: 'Ejercicios',
@@ -593,6 +648,10 @@ export const es = {
     avgDurationLabel: 'Duración prom: {duration} min',
     duration: 'Duración',
     timesTrainedCount: '{count}x entrenado',
+    avgDuration: 'Duración promedio',
+    timesTrained: 'entrenado',
+    title: 'Detalle de Rutina',
+
   },
 
   // Exercise Session (active exercise screen)

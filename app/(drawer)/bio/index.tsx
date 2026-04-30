@@ -89,8 +89,7 @@ export default function BioScreen() {
               const manipResult = await ImageManipulator.manipulateAsync(
                   uri,
                   [
-                      { resize: { width: 800, height: 800 } },
-                      { crop: { originX: 0, originY: 0, width: 800, height: 800 } },
+                      { resize: { width: 800 } },
                   ]
               );
 
@@ -113,6 +112,18 @@ export default function BioScreen() {
           title: t('bio.deletePhoto'),
           message: t('bio.deletePhotoConfirm'),
           onConfirm: async () => {
+              // Delete the physical file to prevent orphaned photos
+              const photoUri = photos[field];
+              if (photoUri) {
+                try {
+                  const fileInfo = await FileSystem.getInfoAsync(photoUri);
+                  if (fileInfo.exists) {
+                    await FileSystem.deleteAsync(photoUri, { idempotent: true });
+                  }
+                } catch (e) {
+                  logger.warn('Failed to delete photo file', e);
+                }
+              }
               setPhotos(prev => ({ ...prev, [field]: null }));
               setPhotoNotes(prev => ({ ...prev, [field]: '' }));
               setDialog({ visible: false, title: '', message: '', onConfirm: () => {}, field: null });
@@ -300,9 +311,9 @@ export default function BioScreen() {
             <Card>
                 <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">{t("bio.recentPhotos")}</Text>
                 <View className="flex-row justify-between">
-                    {['photoFront', 'photoBack', 'photoSide'].map((p) => {
-                        const latestMonthly = metrics.find(m => m.type === 'monthly' && (m as any)[p]);
-                        const uri = latestMonthly ? (latestMonthly as any)[p] : undefined;
+                    {(['photoFront', 'photoBack', 'photoSide'] as const).map((p) => {
+                        const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
+                        const uri = latestMonthly ? latestMonthly[p] : undefined;
                         return (
                             <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-lg border border-border overflow-hidden">
                                 {uri ? (

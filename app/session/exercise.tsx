@@ -626,7 +626,7 @@ export default function ExerciseScreen() {
                 className="rounded-2xl items-center py-5 px-16 shadow-lg"
                 style={{
                   backgroundColor: isActiveSetRunning ? Colors.red400 : Colors.success,
-                  shadowColor: '#000',
+                  shadowColor: Colors.black,
                   shadowOffset: { width: 0, height: 4 },
                   shadowOpacity: 0.3,
                   shadowRadius: 8,

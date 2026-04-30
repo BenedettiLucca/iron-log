@@ -42,6 +42,17 @@ export const en = {
     exercises: 'exercises',
     preparingApp: 'Preparing Iron Log...',
     dbMigrationError: 'Database Migration Error',
+    add: 'Add',
+    addAtLeastOneExercise: 'Add at least one exercise',
+    closeComparison: 'Close Comparison',
+    createExerciseError: 'Error creating exercise',
+    createExerciseFail: 'Failed to create exercise',
+    exercisePlural: 'exercises',
+    exerciseRenamed: 'Exercise renamed!',
+    exerciseSingular: 'exercise',
+    invalidName: 'Invalid name',
+    operationError: 'Operation error',
+
   },
   home: {
     title: 'Iron Log',
@@ -62,7 +73,10 @@ export const en = {
     startRoutine: 'Start by creating your first workout routine or generate examples to get started quickly.',
     tapToContinue: 'Tap to continue',
     activeWorkout: 'Active Workout',
-    generateExampleRoutines: 'Generate Example Routines',},
+    generateExampleRoutines: 'Generate Example Routines',
+    continue: 'Continue',
+
+  },
   bio: {
     title: 'Bio & Evolution',
     registerWeight: 'Log Weight (KG)',
@@ -98,7 +112,11 @@ export const en = {
     deletePhotoConfirm: 'Are you sure you want to delete the {{field}} photo?',
     invalidWeight: 'Invalid weight',
     notesPlaceholder: 'Notes...',
-    armRightAbbr: 'R. ARM',},
+    armRightAbbr: 'R. ARM',
+    latestCheckins: 'Latest Check-ins',
+    weightEvolution: 'Weight Evolution',
+
+  },
   bioNav: {
     goals: 'Goals',
     evolution: 'Evolution',
@@ -131,7 +149,9 @@ export const en = {
       elite: 'Elite',
     error: 'Error',
       intermediate: 'Intermediate',
-    noData: 'No data',},},
+    noData: 'No data',
+  },
+  },
   goals: {
     title: 'Goals & Objectives',
   },
@@ -212,6 +232,14 @@ export const en = {
     deleteTemplateError: 'Failed to delete template.',
     exerciseCount: '{count} ex',
     moreExercises: '+{count} more...',
+    back: 'Back',
+    deleteTemplateMessage: 'Are you sure you want to delete this template?',
+    deleteTemplateTitle: 'Delete Template',
+    importedWithExercises: 'Routine "{name}" imported with {count} exercises!',
+    invalidJson: 'Invalid JSON. Check the format.',
+    startRoutine: 'Start Routine',
+    templateLoadedWithExercises: 'Template loaded with {count} exercises!',
+
   },
   history: {
     title: 'History',
@@ -225,6 +253,8 @@ export const en = {
       sets: 'sets',
     viewSummary: 'View workout summary',
     deleteWorkout: 'Delete workout',
+    calendarIcon: '📅',
+
   },
   session: {
     activeWorkout: 'Active Workout',
@@ -254,6 +284,10 @@ export const en = {
     saveWorkout: "Save Workout",
       setsProgress: '{done}/{target} sets',
     continue: 'Continue',
+    deleteSet: 'Delete Set',
+    editSet: 'Edit Set',
+    exitConfirm: 'Are you sure you want to exit? Progress will be lost.',
+
   },
   exercise: {
     timer: 'Time',
@@ -303,6 +337,8 @@ export const en = {
     saveBtn: 'SAVE',
     nextExerciseLabel: 'NEXT: {name}',
     finishWorkoutLabel: 'FINISH WORKOUT',
+    sqlHistoryError: 'Error loading history',
+
   },
   restTimer: {
     rest: 'Rest',
@@ -318,7 +354,20 @@ export const en = {
     continueAccessibility: 'Continue workout',
     skipAccessibility: 'Skip rest',
     nextExerciseLabel: 'Next:',
+    readyForNextSet: 'Ready for next set!',
+
   },
+
+
+  // Set Editor
+  setEditor: {
+    description: 'Description',
+    duration: 'Duration (s)',
+    extraWeight: 'Extra Weight',
+    repetitions: 'Repetitions',
+    title: 'Edit Set',
+  },
+
   finish: {
     title: 'Finish Workout',
     review: 'Review your data before saving',
@@ -379,6 +428,8 @@ export const en = {
     notesPlaceholder: 'How did you feel? Soreness, weight adjustments, energy...',
     recovery: 'Recovery',
     confirmDetails: 'Review the data before finishing:\n\n• {sets} sets\n• {exercises} exercises\n• {volume} tons of volume\n• Weight: {weight} kg\n• sRPE: {srpe}',
+    finishError: 'Error finishing workout',
+
   },
   summary: {
     title: 'Workout Summary',
@@ -454,7 +505,8 @@ export const en = {
     alexandriaExportError: 'Failed to export to Alexandria.',
     csvExportError: 'Failed to export CSV.',
     exportError: 'Failed to export.',
-    importError: 'Failed to import.',},
+    importError: 'Failed to import.',
+  },
   about: {
     title: 'About Iron Log',
     version: 'v{version} • Polished Edition',
@@ -473,7 +525,8 @@ export const en = {
   
     bioTracking: 'Complete Bio-Tracking (Weight, Measurements, Photos)',
     csvExport: 'CSV Export & SQLite Backup',
-    quickLog: 'Quick Set & Load Logging',},
+    quickLog: 'Quick Set & Load Logging',
+  },
   dialog: {
     importTitle: 'Import Backup',
     importDesc: 'This will REPLACE ALL current data with the backup data. This action is irreversible. Do you want to continue?',
@@ -549,6 +602,8 @@ export const en = {
     tipText: 'For healthy weight changes, aim to lose or gain 0.5-1kg per week.',
     waist: 'Waist (cm)',
     noPhoto: 'No photo',
+    chest: 'Chest',
+
   },
 
   bioGoals: {
@@ -576,8 +631,8 @@ export const en = {
   services: {
     dbNotFound: 'Database not found.',
     invalidBackup: 'Invalid or empty backup file.',
-    sharingUnavailable: 'Sharing is not available on this device.',},
-
+    sharingUnavailable: 'Sharing is not available on this device.',
+  },
   // Routine Detail
   routineDetail: {
     exercises: 'Exercises',
@@ -593,6 +648,10 @@ export const en = {
     avgDurationLabel: 'Avg duration: {duration} min',
     duration: 'Duration',
     timesTrainedCount: '{count}x trained',
+    avgDuration: 'Avg duration',
+    timesTrained: 'trained',
+    title: 'Routine Detail',
+
   },
 
   // Exercise Session (active exercise screen)
