@@ -149,16 +149,21 @@ export default function RoutinesListScreen() {
             variant="secondary"
             style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
           />
-          {folders.map(folder => (
+          {folders.map(folder => {
+            const displayFolder = folder === 'Todos' ? t('routines.tabAll')
+              : folder === 'Geral' ? t('routines.tabGeneral')
+              : folder;
+            return (
             <Button
               key={folder}
-              title={folder}
+              title={displayFolder}
               onPress={() => setSelectedFolder(folder)}
               size="sm"
               variant={selectedFolder === folder ? 'primary' : 'ghost'}
               style={{ borderRadius: 9999, borderWidth: 1, borderColor: selectedFolder === folder ? 'transparent' : 'rgba(156, 163, 175, 0.2)' }}
             />
-          ))}
+            );
+          })}
         </ScrollView>
       </View>
 
@@ -235,7 +240,7 @@ export default function RoutinesListScreen() {
                 style={{ flex: 1 }}
               />
               <Button 
-                title={t("routines.edit")}
+                title={t("common.edit")}
                 onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
                 variant="ghost"
                 size="sm"
@@ -253,22 +258,21 @@ export default function RoutinesListScreen() {
         )}
       />
 
-      <View className="p-4 border-t border-border flex-row gap-3 bg-card shadow-lg">
-        <View className="flex-1">
+      <View className="p-4 border-t border-border bg-card shadow-lg">
+        <View className="flex-row gap-3">
             <Button 
             title={t('routines.import')}
             onPress={handleImportFromClipboard}
             variant="secondary"
-            fullWidth
+            size="sm"
+            style={{ flex: 1, minHeight: 44 }}
             />
-        </View>
-
-        <View className="flex-[2]">
             <Button
             title={t('routines.createNewRoutine')}
             onPress={() => router.push('/routines/editor')}
             variant="primary"
-            fullWidth
+            size="sm"
+            style={{ flex: 2, minHeight: 44 }}
             />
         </View>
       </View>
