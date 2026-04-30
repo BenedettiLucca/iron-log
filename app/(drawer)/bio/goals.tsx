@@ -19,12 +19,12 @@ type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' 
 export default function GoalsScreen() {
   const { t } = useI18n();
   const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
-    weight: 'Peso (kg)',
-    waist: 'Cintura (cm)',
+    weight: t('bioGoals.weight'),
+    waist: t('bioGoals.waist'),
     armRight: t('bioGoals.armRight'),
-    thighRight: 'Coxa Direita (cm)',
+    thighRight: t('bioGoals.thighRight'),
     chest: t('bioGoals.chest'),
-    calf: 'Panturrilha (cm)',
+    calf: t('bioGoals.calf'),
   };
   const [goals, setGoals] = useState<InferSelectModel<typeof measurementGoals>[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -66,7 +66,7 @@ export default function GoalsScreen() {
         targetDate: newGoal.targetDate,
       });
       if (!validation.success) {
-        const msg = validation.error.errors[0]?.message || t('common.invalidData');
+        const msg = validation.error.issues[0]?.message || t('common.invalidData');
         logger.warn('Goal validation failed:', msg);
         return;
       }
@@ -138,7 +138,7 @@ export default function GoalsScreen() {
                     {MEASUREMENT_LABELS[goal.type as MeasurementType]}
                   </Text>
                   <Text className="text-subtext text-xs">
-                    Meta: {goal.targetValue} • {getDaysRemaining(goal.targetDate)} dias restantes
+                    {t('bioGoals.goalStatus', { target: goal.targetValue, days: getDaysRemaining(goal.targetDate) })}
                   </Text>
                 </View>
                 {goal.achieved && (
@@ -197,7 +197,7 @@ export default function GoalsScreen() {
             </View>
 
             <Input
-              label="Valor Alvo"
+              label={t('bioGoals.targetValue')}
               keyboardType="numeric"
               value={newGoal.targetValue}
               onChangeText={(text) => setNewGoal({ ...newGoal, targetValue: text })}
@@ -205,7 +205,7 @@ export default function GoalsScreen() {
             />
 
             <DatePicker
-              label="Data Alvo"
+              label={t('bioGoals.targetDate')}
               value={newGoal.targetDate}
               onChange={(date) => setNewGoal({ ...newGoal, targetDate: date })}
               placeholder={t("bioGoals.selectDate")}

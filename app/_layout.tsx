@@ -18,7 +18,8 @@ import { configureReanimatedLogger } from 'react-native-reanimated';
 import { logger } from '@/services/logger';
 import { SessionContext } from '@/src/types';
 import { ErrorBoundary } from '../components/ErrorBoundary';
-import { I18nProvider, useI18n } from '../src/i18n/index';
+import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
+import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
 
 configureReanimatedLogger({
@@ -29,7 +30,22 @@ configureReanimatedLogger({
 function AppStack({ colorScheme }: { colorScheme: string }) {
   const { t } = useI18n();
   return (
-    <AppStack colorScheme={colorScheme} />
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
+        contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
+        animation: 'default',
+      }}
+    >
+      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen name="routine/[routineId]" options={{ title: t('routineDetail.title') }} />
+      <Stack.Screen name="session/[routineId]" options={{ title: t('session.activeWorkout') }} />
+      <Stack.Screen name="session/exercise" options={{ title: 'Exercise', headerShown: false }} />
+      <Stack.Screen name="session/finish" options={{ title: t('finish.title') }} />
+      <Stack.Screen name="session/summary" options={{ title: t('summary.title') }} />
+    </Stack>
   );
 }
 
@@ -73,7 +89,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
 
 export default function Layout() {
   const { success, error } = useMigrations(db, migrations);
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const router = useRouter();
 
   // Session recovery state
@@ -162,7 +178,7 @@ export default function Layout() {
         target: recoverySession.target,
         notes: recoverySession.notes,
         restSeconds: recoverySession.restSeconds?.toString(),
-        startTime: recoverySession.startTime.toString()
+        startTime: (recoverySession.startTime ?? Date.now()).toString()
       }
     });
   };
@@ -178,7 +194,7 @@ export default function Layout() {
       pathname: '/session/finish',
       params: {
         sessionId: recoverySession.sessionId,
-        startTime: recoverySession.startTime.toString()
+        startTime: (recoverySession.startTime ?? Date.now()).toString()
       }
     });
   };
@@ -201,7 +217,7 @@ export default function Layout() {
   if (error) {
     return (
       <View className="flex-1 justify-center items-center bg-background p-4">
-        <Text className="text-danger text-lg font-bold">Erro na Migração do Banco de Dados</Text>
+        <Text className="text-danger text-lg font-bold">{getNestedValue(ptTranslations, 'common.dbMigrationError') || 'Erro na Migração do Banco de Dados'}</Text>
         <Text className="text-danger mt-2">{error.message}</Text>
       </View>
     );
@@ -211,7 +227,7 @@ export default function Layout() {
     return (
       <View className="flex-1 justify-center items-center bg-background">
         <ActivityIndicator size="large" color={Colors.primary} />
-        <Text className="text-text mt-4">Preparando Iron Log...</Text>
+        <Text className="text-text mt-4">{getNestedValue(ptTranslations, 'common.preparingApp') || 'Preparando Iron Log...'}</Text>
       </View>
     );
   }
@@ -220,27 +236,7 @@ export default function Layout() {
     <ErrorBoundary>
     <I18nProvider>
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground }}>
-      <Stack
-        screenOptions={{
-          headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
-          headerTintColor: '#fff',
-          headerTitleStyle: { fontWeight: 'bold' },
-          contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
-          animation: 'default',
-        }}
-      >
-        {/* O Drawer é a tela principal */}
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-
-        {/* Pré-visualização de Rotina */}
-        <Stack.Screen name="routine/[routineId]" options={{ title: 'Rotina' }} />
-
-        {/* Fluxo de Sessão (Stack Pura) */}
-        <Stack.Screen name="session/[routineId]" options={{ title: 'Treino Ativo' }} />
-        <Stack.Screen name="session/exercise" options={{ title: 'Exercise', headerShown: false }} />
-        <Stack.Screen name="session/finish" options={{ title: 'Finalizar' }} />
-        <Stack.Screen name="session/summary" options={{ title: 'Resumo' }} />
-      </Stack>
+      <AppStack colorScheme={colorScheme} />
 
       <SessionRecoveryModal
         visible={showRecoveryDialog}

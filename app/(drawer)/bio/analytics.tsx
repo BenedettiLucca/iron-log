@@ -137,7 +137,7 @@ export default function AnalyticsScreen() {
       {/* Streak + Frequency */}
       <View className="flex-row gap-3 mt-2">
         <Card className="flex-1">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">🔥 Streak Atual</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t('bioAnalytics.currentStreakLabel')}</Text>
           <Text className="text-text text-3xl font-black">{consistency.currentStreak}</Text>
           <Text className="text-subtext text-xs">{t("bioAnalytics.weeksConsecutive")}</Text>
         </Card>
@@ -158,7 +158,7 @@ export default function AnalyticsScreen() {
       {/* Volume Trends */}
       {volumeTrends.length > 0 && (
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">📈 Volume Semanal (Últimas 12 Semanas)</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('bioAnalytics.weeklyVolumeTitleLabel')}</Text>
           <View className="gap-1">
             {(() => {
               const maxVolume = Math.max(...volumeTrends.map(w => w.totalVolume), 1);
@@ -187,7 +187,7 @@ export default function AnalyticsScreen() {
       {/* Top Exercise Progressions */}
       {topExercises.length > 0 && (
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">🏆 Exercícios em Progressão</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('bioAnalytics.topExercisesLabel')}</Text>
           <View className="gap-3">
             {topExercises.map(ex => (
               <View key={ex.exerciseId} className="flex-row justify-between items-center">
@@ -209,7 +209,7 @@ export default function AnalyticsScreen() {
       {/* Estimated 1RM */}
       {estimated1RM.length > 0 && (
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">💪 1RM Estimado (Epley)</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('bioAnalytics.estimated1RMLabel')}</Text>
           <View className="gap-2">
             {estimated1RM.slice(0, 8).map(item => (
               <View key={item.exercise} className="flex-row justify-between items-center">

@@ -20,7 +20,7 @@ interface ExerciseWithStats {
   target: string | null;
   notes: string | null;
   restSeconds: number | null;
-  orderIndex: number;
+  orderIndex: number | null;
   lastWeight: number | null;
   lastReps: number | null;
   lastDate: number | null;
@@ -71,7 +71,7 @@ export default function RoutinePreviewScreen() {
         .orderBy(routineExercises.orderIndex);
 
       // 2. For each exercise, load stats
-      const exercisesWithStats: ExerciseWithStats[] = await Promise.all(
+      const exercisesWithStats = await Promise.all(
         exData.map(async (ex) => {
           // Last performed set
           const lastSets = await db.select({
@@ -227,7 +227,7 @@ export default function RoutinePreviewScreen() {
   return (
     <View className="flex-1 bg-background">
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
-      <Stack.Screen options={{ title: routineName || 'Rotina' }} />
+      <Stack.Screen options={{ title: routineName || t('routineDetail.title') }} />
 
       {/* Quick Stats Row */}
       <View className="flex-row gap-3">
@@ -261,7 +261,7 @@ export default function RoutinePreviewScreen() {
             <View>
               <Text className="text-text text-lg font-bold">{formatDate(stats.lastSessionDate)}</Text>
               {stats.avgDuration > 0 && (
-                <Text className="text-subtext text-xs">Duração média: {stats.avgDuration} min</Text>
+                <Text className="text-subtext text-xs">{t('routineDetail.avgDuration', { duration: stats.avgDuration })}</Text>
               )}
             </View>
           </View>
@@ -305,7 +305,7 @@ export default function RoutinePreviewScreen() {
                           <Text className="text-subtext text-xs">⏱ {formatRest(ex.restSeconds)}</Text>
                         ) : null}
                         {ex.type === 'duration' && (
-                          <Text className="text-secondary text-xs">⏱ Duração</Text>
+                          <Text className="text-secondary text-xs">⏱ {t('exercise.duration')}</Text>
                         )}
                       </View>
                     </View>
@@ -337,7 +337,7 @@ export default function RoutinePreviewScreen() {
                         </View>
                       )}
                       <View className="bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
-                        <Text className="text-blue-500 text-xs font-bold">{ex.sessionCount}x treinado</Text>
+                        <Text className="text-blue-500 text-xs font-bold">{t('routineDetail.timesTrained', { count: ex.sessionCount })}</Text>
                       </View>
                     </View>
                   )}

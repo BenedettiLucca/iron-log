@@ -42,6 +42,13 @@ export default function FinishSessionScreen() {
     9: t('finish.maximum'),
     10: t('finish.sRPEFailure'),
   };
+  const NOTE_TEMPLATES: NoteTemplate[] = [
+    { label: t('finish.fasting'), emoji: '🥣', text: t('finish.fastingText') },
+    { label: t('finish.badDay'), emoji: '😴', text: t('finish.badDayText') },
+    { label: t('finish.pr'), emoji: '🏆', text: t('finish.prText') },
+    { label: t('finish.cardio'), emoji: '❤️', text: t('finish.cardioText') },
+  ];
+
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(finishParamsSchema, rawParams, 'FinishScreen');
@@ -154,9 +161,9 @@ export default function FinishSessionScreen() {
     try {
       await db.delete(sessions).where(eq(sessions.id, Number(sessionId)));
       await AsyncStorage.removeItem('incomplete_session');
-      router.replace('/(drawer)/');
+      router.replace('/(drawer)' as any);
     } catch (e) {
-      logger.error('Erro na finalização', e);
+      logger.error(t('finish.finishError'), e);
       setIsFinishing(false);
     }
   };
@@ -200,7 +207,7 @@ export default function FinishSessionScreen() {
       });
 
     } catch (e) {
-      logger.error('Erro na finalização', e);
+      logger.error(t('finish.finishError'), e);
       setShowConfirmDialog(false);
       setIsFinishing(false);
     }
@@ -258,7 +265,7 @@ export default function FinishSessionScreen() {
         {/* Peso Corporal */}
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Peso Corporal (KG)</Text>
+            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.bodyWeight')}</Text>
             {lastWeightDate && (
               <Text className="text-subtext text-xs">{t('finish.last')}:</Text>
             )}
@@ -305,7 +312,7 @@ export default function FinishSessionScreen() {
         {/* sRPE Selector */}
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">Esforço Percebido (sRPE)</Text>
+            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.perceivedEffort')}</Text>
             <View className="bg-primary px-4 py-1.5 rounded-full">
               <Text className="text-white font-bold text-xl">{sRpe}</Text>
             </View>
@@ -335,8 +342,8 @@ export default function FinishSessionScreen() {
             <Text className="text-subtext text-center text-xs mt-1">
               {sRpe <= 4 ? t('finish.lightWorkout') :
                 sRpe <= 6 ? t('finish.moderateWorkout') :
-                  sRpe <= 8 ? 'Treino intenso, precisa de descanso' :
-                    'Treino extremo, descanse bem'}
+                  sRpe <= 8 ? t('finish.intenseWorkout') :
+                    t('finish.extremeWorkout')}
             </Text>
           </View>
         </View>
@@ -403,11 +410,11 @@ export default function FinishSessionScreen() {
       <Dialog
         visible={showConfirmDialog}
         title={t('finish.confirmFinishTitle')}
-        message={`Confira os dados antes de finalizar:\n\n` +
-          `• ${sessionStats.totalSets} séries\n` +
-          `• ${sessionStats.totalExercises} exercícios\n` +
-          `• ${(sessionStats.totalVolume / 1000).toFixed(1)} toneladas de volume\n` +
-          `• Peso: ${weight || 'N/A'} kg\n` +
+        message={`${t('finish.confirmFinishMessage')}:\n\n` +
+          `• ${sessionStats.totalSets} ${t('finish.sets')}\n` +
+          `• ${sessionStats.totalExercises} ${t('finish.exercises')}\n` +
+          `• ${(sessionStats.totalVolume / 1000).toFixed(1)} ${t('finish.volume')}\n` +
+          `• ${t('finish.bodyWeight')}: ${weight || 'N/A'} kg\n` +
           `• sRPE: ${sRpe}`}
         confirmText={t("common.confirm")}
         cancelText={t("common.back")}

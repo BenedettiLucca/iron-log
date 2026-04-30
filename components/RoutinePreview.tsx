@@ -6,6 +6,7 @@ import { db } from '../src/db/client';
 import { routineExercises, exercises } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
+import { useI18n } from '@/src/i18n/index';
 
 interface RoutinePreviewProps {
   visible: boolean;
@@ -25,6 +26,7 @@ interface ExercisePreview {
 }
 
 export function RoutinePreview({ visible, routineId, onClose, onStart, routineName }: RoutinePreviewProps) {
+  const { t } = useI18n();
   const [exerciseList, setExerciseList] = useState<ExercisePreview[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -87,10 +89,10 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-border">
           <View>
-            <Text className="text-subtext text-xs font-bold uppercase tracking-wider">Pré-visualização</Text>
-            <Text className="text-text text-xl font-bold" numberOfLines={1}>{routineName || 'Rotina'}</Text>
+            <Text className="text-subtext text-xs font-bold uppercase tracking-wider">{t('routines.preview')}</Text>
+            <Text className="text-text text-xl font-bold" numberOfLines={1}>{routineName || t('routineDetail.title')}</Text>
           </View>
-          <Button title="Fechar" onPress={onClose} variant="ghost" size="sm" />
+          <Button title={t('common.close')} onPress={onClose} variant="ghost" size="sm" />
         </View>
 
         {/* Content */}
@@ -99,25 +101,25 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
           <View className="flex-row gap-3">
             <Card className="flex-1 items-center py-4 bg-primary/5">
               <Text className="text-primary text-3xl font-bold">{exerciseList.length}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Exercícios</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('routines.exercises')}</Text>
             </Card>
             <Card className="flex-1 items-center py-4 bg-primary/5">
               <Text className="text-primary text-3xl font-bold">~{estimatedDuration}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Minutos</Text>
+              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.minutes')}</Text>
             </Card>
           </View>
 
           {/* Exercise List */}
           <View>
-            <Text className="text-subtext text-xs font-bold uppercase mb-4 tracking-wider">Sequência de Exercícios</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mb-4 tracking-wider">{t('routines.exerciseSequence')}</Text>
             
             {loading ? (
               <Card className="items-center py-8">
-                <Text className="text-subtext">Carregando...</Text>
+                <Text className="text-subtext">{t('common.loading')}</Text>
               </Card>
             ) : exerciseList.length === 0 ? (
               <Card className="items-center py-8">
-                <Text className="text-subtext">Nenhum exercício encontrado</Text>
+                <Text className="text-subtext">{t('routines.noExercises')}</Text>
               </Card>
             ) : (
               <View className="gap-3">
@@ -143,7 +145,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
                           </Text>
                         )}
                         {exercise.type === 'duration' && (
-                          <Text className="text-secondary text-xs">⏱️ Duração</Text>
+                          <Text className="text-secondary text-xs">⏱️ {t('exercise.duration')}</Text>
                         )}
                       </View>
                       {exercise.notes && (
@@ -162,7 +164,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
         {/* Footer Actions */}
         <View className="p-4 border-t border-border bg-card">
           <Button
-            title="Iniciar Treino"
+            title={t('routines.startWorkout')}
             onPress={onStart}
             variant="primary"
             size="lg"

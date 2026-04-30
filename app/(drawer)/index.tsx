@@ -69,7 +69,7 @@ export default function HomeScreen() {
       setToast({ visible: true, message: t('home.populateSuccess'), type: 'success' });
     } catch (e) {
       logger.error('Falha ao popular banco', e);
-      setToast({ visible: true, message: 'Falha ao popular banco.', type: 'error' });
+      setToast({ visible: true, message: t('home.populateError'), type: 'error' });
     }
   };
 
@@ -197,7 +197,7 @@ export default function HomeScreen() {
             icon="🏋️"
             title={t("home.noRoutines")}
             description={t("home.startRoutine")}
-            actionLabel="Gerar Rotinas de Exemplo"
+            actionLabel={t("home.generateExampleRoutines")}
             onAction={seedDatabase}
           />
         )}

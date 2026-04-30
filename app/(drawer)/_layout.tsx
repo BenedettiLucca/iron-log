@@ -18,19 +18,19 @@ export default function DrawerLayout() {
         drawerActiveTintColor: Colors.primary,
         drawerInactiveTintColor: colorScheme === 'dark' ? '#fff' : '#000',
       } }>
-        <Drawer.Screen 
-          name="index" 
-          options={{ 
-            title: 'Iron Log', 
-            drawerLabel: t('drawer.dashboard') 
-          }} 
+        <Drawer.Screen
+          name="index"
+          options={{
+            title: t('home.title'),
+            drawerLabel: t('drawer.dashboard')
+          }}
         />
-        <Drawer.Screen 
-          name="bio/index" 
-          options={{ 
-            title: t('drawer.bioEvolution'), 
-            drawerLabel: t('drawer.bio') 
-          }} 
+        <Drawer.Screen
+          name="bio/index"
+          options={{
+            title: t('drawer.bioEvolution'),
+            drawerLabel: t('drawer.bio')
+          }}
         />
         <Drawer.Screen
           name="bio/evolution"
@@ -41,23 +41,23 @@ export default function DrawerLayout() {
         <Drawer.Screen
           name="bio/goals"
           options={{
-            title: 'Metas & Objetivos',
+            title: t('goals.title'),
             drawerLabel: t('drawer.goals')
           }}
         />
-        <Drawer.Screen 
-          name="routines/index" 
-          options={{ 
-            title: 'Minhas Rotinas', 
-            drawerLabel: t('drawer.routines') 
-          }} 
+        <Drawer.Screen
+          name="routines/index"
+          options={{
+            title: t('routines.title'),
+            drawerLabel: t('drawer.routines')
+          }}
         />
-        <Drawer.Screen 
-          name="routines/editor" 
-          options={{ 
-            title: 'Editor de Rotina', 
-            drawerItemStyle: { display: 'none' } 
-          }} 
+        <Drawer.Screen
+          name="routines/editor"
+          options={{
+            title: t('drawer.editorTitle'),
+            drawerItemStyle: { display: 'none' }
+          }}
         />
         <Drawer.Screen
           name="routines/templates"
@@ -77,26 +77,26 @@ export default function DrawerLayout() {
             drawerItemStyle: { display: 'none' }
           }}
         />
-        <Drawer.Screen 
-          name="history/index" 
-          options={{ 
-            title: t('drawer.history'), 
-            drawerLabel: t('drawer.history') 
-          }} 
+        <Drawer.Screen
+          name="history/index"
+          options={{
+            title: t('drawer.history'),
+            drawerLabel: t('drawer.history')
+          }}
         />
-        <Drawer.Screen 
-          name="about" 
-          options={{ 
-            title: 'Sobre', 
-            drawerLabel: t('drawer.about') 
-          }} 
+        <Drawer.Screen
+          name="about"
+          options={{
+            title: t('drawer.about'),
+            drawerLabel: t('drawer.about')
+          }}
         />
-        <Drawer.Screen 
-          name="settings" 
-          options={{ 
-            title: t('settings.title'), 
-            drawerLabel: t('drawer.settings') 
-          }} 
+        <Drawer.Screen
+          name="settings"
+          options={{
+            title: t('settings.title'),
+            drawerLabel: t('drawer.settings')
+          }}
         />
       </Drawer>
     </GestureHandlerRootView>

@@ -42,8 +42,9 @@ export default function SettingsScreen() {
     try {
       await DatabaseBackupService.exportDb();
       setToast({ visible: true, message: t('settings.localExportSuccess'), type: 'success' });
-    } catch (e) {
-      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.exportError'), type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.exportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -69,8 +70,9 @@ export default function SettingsScreen() {
               onConfirm: () => Updates.reloadAsync()
             });
           }
-        } catch (e) {
-          setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.importError'), type: 'error' });
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e);
+          setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.importError'), type: 'error' });
         } finally {
           setLoading(false);
         }
@@ -96,8 +98,9 @@ export default function SettingsScreen() {
     try {
       await CsvExportService.exportAllAndShare();
       setToast({ visible: true, message: t('settings.csvExportSuccess'), type: 'success' });
-    } catch (e) {
-      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.csvExportError'), type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.csvExportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -108,8 +111,9 @@ export default function SettingsScreen() {
     try {
       await AlexandriaExportService.exportAndShare();
       setToast({ visible: true, message: t('settings.alexandriaExportSuccess'), type: 'success' });
-    } catch (e) {
-      setToast({ visible: true, message: (e.message?.startsWith('services.') ? t(e.message) : e.message) || t('settings.alexandriaExportError'), type: 'error' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.alexandriaExportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -144,7 +148,7 @@ export default function SettingsScreen() {
             <View className="flex-1">
               <Text className="text-text font-semibold text-sm">{t("settings.enableReminders")}</Text>
               <Text className="text-subtext text-xs mt-0.5">
-                Dia {notificationSettings.checkinDay} às {notificationSettings.checkinHour}:00
+                {t('settings.dayAt', { day: notificationSettings.checkinDay, hour: notificationSettings.checkinHour })}
               </Text>
             </View>
             <Switch

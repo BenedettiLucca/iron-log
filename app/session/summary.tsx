@@ -211,9 +211,9 @@ export default function SummaryScreen() {
 
   const getMotivationalMessage = useCallback(() => {
     const srpe = sessionData?.sRpe || 7;
-    if (srpe <= 4) return '💪 Ótimo treino leve!';
-    if (srpe <= 6) return '🔥 Treino consistente!';
-    if (srpe <= 8) return '⚡ Trabalho duro!';
+    if (srpe <= 4) return t('summary.greatLightWorkout');
+    if (srpe <= 6) return t('summary.consistentWorkout');
+    if (srpe <= 8) return t('summary.hardWork');
     return t("summary.herculeanEffort");
   }, [sessionData]);
 
@@ -240,7 +240,7 @@ export default function SummaryScreen() {
                 ? `${(stats.totalVolume / 1000).toFixed(1)}k`
                 : stats.totalVolume}
             </Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Volume (kg)</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.volume')}</Text>
           </Card>
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
@@ -250,14 +250,14 @@ export default function SummaryScreen() {
 
           <Card className="flex-1 min-w-[45%] items-center py-5">
             <Text className="text-text text-4xl font-bold">{sessionData?.durationMinutes || 0}</Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">Minutos</Text>
+            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.minutes')}</Text>
           </Card>
         </View>
 
         {/* Best Performance */}
         {stats.bestSet && (
           <Card className="items-center p-4 mb-5 bg-accent/10 border-accent">
-            <Text className="text-subtext text-xs font-bold uppercase mb-2">🏆 Melhor Série</Text>
+            <Text className="text-subtext text-xs font-bold uppercase mb-2">🏆 {t('summary.bestSet')}</Text>
             <Text className="text-text text-2xl font-bold">
               {stats.bestSet.weight}kg × {stats.bestSet.reps} reps
             </Text>
@@ -306,14 +306,14 @@ export default function SummaryScreen() {
             <Text className="text-subtext text-xs font-bold uppercase mb-3 text-center">{t("summary.nextSteps")}</Text>
             <View className="flex-row gap-2">
               <Button
-                title="Novo Treino"
+                title={t('summary.newWorkout')}
                 onPress={() => router.push('/routines')}
                 variant="success"
                 size="md"
                 style={{ flex: 1 }}
               />
               <Button
-                title="Voltar"
+                title={t('common.back')}
                 onPress={goHome}
                 variant="ghost"
                 size="md"

@@ -77,16 +77,16 @@ export default function RoutinesListScreen() {
       try {
           data = JSON.parse(content);
       } catch {
-          return setToast({ visible: true, message: 'O texto copiado não é um JSON válido.', type: 'error' });
+          return setToast({ visible: true, message: t('routines.invalidJson'), type: 'error' });
       }
 
       if (!data.name || !Array.isArray(data.exercises)) {
-          return setToast({ visible: true, message: 'O JSON deve ter "name" e uma lista de "exercises".', type: 'error' });
+          return setToast({ visible: true, message: t('routines.invalidJsonStructure'), type: 'error' });
       }
 
       const existingRoutine = await db.select().from(routinesTable).where(eq(routinesTable.name, data.name));
       if (existingRoutine.length > 0) {
-        return setToast({ visible: true, message: `Já existe uma rotina com o nome "${data.name}".`, type: 'error' });
+        return setToast({ visible: true, message: t('routines.duplicateName', { name: data.name }), type: 'error' });
       }
 
       const routineRes = await db.insert(routinesTable).values({
@@ -112,7 +112,7 @@ export default function RoutinesListScreen() {
                 const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
                 exerciseId = newEx[0].id;
             } catch (err) {
-                logger.error('Erro ao criar exercício', err);
+                logger.error(t('common.createExerciseError'), err);
                 continue;
             }
         }
@@ -130,11 +130,11 @@ export default function RoutinesListScreen() {
       }
 
       fetchRoutines();
-      setToast({ visible: true, message: `Rotina "${data.name}" importada com ${order-1} exercícios!`, type: 'success' });
+      setToast({ visible: true, message: t('routines.importedWithExercises', { name: data.name, count: order - 1 }), type: 'success' });
 
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao importar do clipboard.', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('routines.importError'), type: 'error' });
     }
   };
 
@@ -143,7 +143,7 @@ export default function RoutinesListScreen() {
       <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
           <Button
-            title="💾 Templates"
+            title={`💾 ${t('routines.tabTemplates')}`}
             onPress={() => router.push('/routines/templates')}
             size="sm"
             variant="secondary"
@@ -177,9 +177,9 @@ export default function RoutinesListScreen() {
         ListHeaderComponent={
             isLoading ? null : (
             <Card className="mb-6 bg-card/50">
-                <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">💡 Importação via JSON</Text>
+                <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">{t('routines.jsonImportHint')}</Text>
                 <Text className="text-subtext text-xs leading-5">
-                    Peça para a IA gerar um JSON neste formato:{"\n"}
+                    {t('routines.jsonFormatHint')}{"\n"}
                     <Text className="font-mono text-xs text-text">
                         {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}
                     </Text>
@@ -191,7 +191,7 @@ export default function RoutinesListScreen() {
           isLoading ? (
             <SkeletonList count={4} />
           ) : (
-            <Text className="text-subtext text-center mt-10">Nenhuma rotina encontrada.</Text>
+            <Text className="text-subtext text-center mt-10">{t('home.noRoutines')}</Text>
           )
         }
         renderItem={({ item }) => isLoading ? null : (

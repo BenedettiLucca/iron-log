@@ -30,7 +30,7 @@ import { parseTargetSets } from '../../src/utils/exercise';
 import { formatTimer } from '../../src/utils/timer';
 import { useHaptics } from '../../hooks/use-haptics';
 import { logger } from '@/services/logger';
-import { Set, Exercise } from '@/src/types';
+import { Set } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { setInputSchema } from '@/src/validators/forms';
@@ -62,8 +62,8 @@ export default function ExerciseScreen() {
   const [duration, setDuration] = useState('');
   const [rir, setRir] = useState(2);
   const [sessionSets, setSessionSets] = useState<Set[]>([]);
-  const [nextExercise, setNextExercise] = useState<Exercise | null>(null);
-  const [allExercises, setAllExercises] = useState<Exercise[]>([]);
+  const [nextExercise, setNextExercise] = useState<any>(null);
+  const [allExercises, setAllExercises] = useState<any[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
 
   // Track completed exercises by target sets
@@ -205,7 +205,7 @@ export default function ExerciseScreen() {
         }
       }
     } catch (e) {
-      logger.error('Erro na operação', e);
+      logger.error(t('common.operationError'), e);
     }
   }, [sessionId, exerciseId, routineId]);
 
@@ -227,7 +227,7 @@ export default function ExerciseScreen() {
       history.sort((a, b) => b.date - a.date);
       setHistoryData(history);
     } catch (e) {
-      logger.error("Erro SQL Histórico", e);
+      logger.error(t("exercise.sqlHistoryError"), e);
     }
   }, [exerciseId]);
 
@@ -297,21 +297,21 @@ export default function ExerciseScreen() {
       isWarmup: isWarmupMode,
     });
     if (!setValidation.success) {
-      const msg = setValidation.error.errors[0]?.message || t('common.invalidData');
+      const msg = setValidation.error.issues[0]?.message || t('common.invalidData');
       setToast({ visible: true, message: msg, type: 'error' });
       return;
     }
     // Extra business logic validation
     if (isDuration && finalDuration <= 0) {
-      setToast({ visible: true, message: 'Digite o tempo da série (em segundos)', type: 'error' });
+      setToast({ visible: true, message: t('exercise.enterDuration'), type: 'error' });
       return;
     }
     if (!isDuration && finalReps <= 0) {
-      setToast({ visible: true, message: 'Digite o número de repetições', type: 'error' });
+      setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
       return;
     }
     if (!isDuration && !weight) {
-      setToast({ visible: true, message: 'Digite a carga utilizada', type: 'error' });
+      setToast({ visible: true, message: t('exercise.enterWeight'), type: 'error' });
       return;
     }
 
@@ -354,8 +354,8 @@ export default function ExerciseScreen() {
       }
 
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao salvar série', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('exercise.saveSetError'), type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -368,10 +368,10 @@ export default function ExerciseScreen() {
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id));
       setLastSavedSet(null);
       await loadData();
-      setToast({ visible: true, message: 'A última série foi removida', type: 'success' });
+      setToast({ visible: true, message: t('exercise.lastSetRemoved'), type: 'success' });
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao desfazer', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('exercise.undoError'), type: 'error' });
     }
   }, [lastSavedSet, loadData]);
 
@@ -379,10 +379,10 @@ export default function ExerciseScreen() {
     try {
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
       await loadData();
-      setToast({ visible: true, message: 'Série excluída', type: 'success' });
+      setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao excluir série', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
   }, [loadData]);
 
@@ -394,8 +394,8 @@ export default function ExerciseScreen() {
         setShowSetEditor(true);
       }
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao carregar série', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('exercise.loadSetError'), type: 'error' });
     }
   }, []);
 
@@ -416,10 +416,10 @@ export default function ExerciseScreen() {
       await loadData();
       setShowSetEditor(false);
       setEditingSet(null);
-      setToast({ visible: true, message: 'Série editada com sucesso', type: 'success' });
+      setToast({ visible: true, message: t('exercise.setEdited'), type: 'success' });
     } catch (e) {
-      logger.error('Erro na operação', e);
-      setToast({ visible: true, message: 'Falha ao editar série', type: 'error' });
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
     }
   }, [editingSet, loadData]);
 
@@ -548,7 +548,7 @@ export default function ExerciseScreen() {
                 onPress={handleUndo}
                 className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
               >
-                <Text className="text-white font-bold text-sm">↩ Desfazer última série (10s)</Text>
+                <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -556,7 +556,7 @@ export default function ExerciseScreen() {
           {/* Saved Sets List */}
           <View className="flex-1 px-4">
             <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2 mt-2">
-              Séries Registradas ({sessionSets?.length || 0})
+              {t('exercise.registeredSetsCount', { count: sessionSets?.length || 0 })}
             </Text>
               <FlatList
                data={sessionSets}
@@ -609,7 +609,7 @@ export default function ExerciseScreen() {
 
               {!isActiveSetRunning && activeSetTime === 0 && (
                 <View className="w-full flex-row items-center justify-center gap-2 mb-4">
-                  <Text className="text-subtext text-xs uppercase font-bold">Carga Extra (kg):</Text>
+                  <Text className="text-subtext text-xs uppercase font-bold">{t('exercise.extraWeight')}</Text>
                   <TextInput
                     className="bg-background text-text p-2 rounded border border-border w-20 text-center"
                     keyboardType="numeric"
@@ -634,7 +634,7 @@ export default function ExerciseScreen() {
                 }}
               >
                 <Text className="text-white font-bold text-xl uppercase tracking-widest">
-                  {isActiveSetRunning ? 'PARAR' : 'INICIAR SÉRIE'}
+                  {isActiveSetRunning ? t('exercise.stop') : t('exercise.startSet')}
                 </Text>
               </TouchableOpacity>
 
@@ -642,7 +642,7 @@ export default function ExerciseScreen() {
               {!isActiveSetRunning && activeSetTime > 0 && (
                 <View className="mt-4">
                   <Button
-                    title="SALVAR SÉRIE"
+                    title={t("exercise.saveSet")}
                     onPress={() => handleSaveSet(activeSetTime)}
                     variant="primary"
                     size="lg"
@@ -655,7 +655,7 @@ export default function ExerciseScreen() {
             <>
               <View className="flex-row gap-3 mb-4">
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">Carga (kg)</Text>
+                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">{t('exercise.weight')}</Text>
                   <TextInput
                     className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
@@ -685,7 +685,7 @@ export default function ExerciseScreen() {
                     onPress={() => setShowRirExplainer(true)}
                     className="flex-row items-center gap-1"
                   >
-                    <Text className="text-subtext font-bold uppercase text-xs">Reserva (RIR)</Text>
+                    <Text className="text-subtext font-bold uppercase text-xs">{t('exercise.rir')}</Text>
                     <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">
                       <Text className="text-subtext text-2xs font-bold">?</Text>
                     </View>
@@ -695,7 +695,7 @@ export default function ExerciseScreen() {
                     style={{ backgroundColor: `${getRirColor(rir)}20`, borderColor: getRirColor(rir) }}
                   >
                     <Text style={{ color: getRirColor(rir) }} className="font-bold text-lg">
-                      {rir === 0 ? 'FALHA' : rir}
+                      {rir === 0 ? t('exercise.failure') : rir}
                     </Text>
                   </View>
                 </View>
@@ -721,7 +721,7 @@ export default function ExerciseScreen() {
               </View>
 
               <Button
-                title={isSaving ? 'SALVANDO...' : 'SALVAR'}
+                title={isSaving ? t('exercise.saving') : t('exercise.saveBtn')}
                 onPress={() => handleSaveSet()}
                 variant="primary"
                 size="md"
@@ -733,7 +733,7 @@ export default function ExerciseScreen() {
 
           <View className="mt-4">
             <Button
-              title={nextExercise ? `PRÓXIMO: ${nextExercise.name}` : 'FINALIZAR TREINO'}
+              title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
               onPress={goToNextOrFinish}
               variant={nextExercise ? 'secondary' : 'danger'}
               size="md"
@@ -803,7 +803,7 @@ export default function ExerciseScreen() {
           setNumber={editingSet?.setNumber || 0}
           initialWeight={editingSet?.weightKg || 0}
           initialReps={editingSet?.reps}
-          initialDuration={editingSet?.durationSeconds}
+          initialDuration={editingSet?.durationSeconds ?? undefined}
           initialRir={editingSet?.rir}
           isDuration={exerciseType === 'duration'}
           onSave={handleSaveEditedSet}
@@ -826,7 +826,7 @@ export default function ExerciseScreen() {
               onPress={(e) => e.stopPropagation()}
             >
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-text text-xl font-bold">O que é RIR?</Text>
+                <Text className="text-text text-xl font-bold">{t('exercise.rirQuestion')}</Text>
                 <TouchableOpacity onPress={() => setShowRirExplainer(false)}>
                   <Text className="text-subtext text-2xl font-bold">✕</Text>
                 </TouchableOpacity>
@@ -874,7 +874,7 @@ export default function ExerciseScreen() {
                 onPress={() => setShowRirExplainer(false)}
                 className="mt-6 bg-primary p-3 rounded-xl items-center"
               >
-                <Text className="text-white font-bold text-base uppercase">Entendi!</Text>
+                <Text className="text-white font-bold text-base uppercase">{t('common.understood')}</Text>
               </TouchableOpacity>
             </TouchableOpacity>
           </TouchableOpacity>

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter, type RelativePathString } from 'expo-router';
 import { Card } from './Card';
+import { useI18n } from '../src/i18n/index';
 
 interface EmptyStateProps {
   icon?: string;
@@ -23,6 +24,7 @@ export function EmptyState({
   onAction,
 }: EmptyStateProps) {
   const router = useRouter();
+  const { t } = useI18n();
 
   const handleAction = () => {
     if (onAction) {
@@ -45,7 +47,7 @@ export function EmptyState({
           className="bg-primary/10 border-2 border-primary/30 rounded-2xl px-6 py-3"
         >
           <Text className="text-primary font-bold text-sm uppercase tracking-wider">
-            {actionLabel || 'Adicionar'}
+            {actionLabel || t('common.add')}
           </Text>
         </TouchableOpacity>
       )}

@@ -141,8 +141,14 @@ export interface DialogState {
 
 export interface SessionContext {
   sessionId: number;
-  routineId: number;
+  routineId: number | null;
   routineName: string;
+  exerciseId?: number;
+  exerciseName?: string;
+  target?: string | null;
+  notes?: string | null;
+  restSeconds?: number | null;
+  startTime?: number;
 }
 
 export interface ExerciseSummary {

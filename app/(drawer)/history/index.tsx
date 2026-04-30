@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter, Stack } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { sessions, sets } from '../../../src/db/schema';
@@ -128,7 +128,7 @@ export default function HistoryScreen() {
           .from(sets)
           .where(and(eq(sets.sessionId, session.id), isNull(sets.deletedAt)));
 
-        const exerciseNames = Array.from(new Set(sessionSets.map(s => s.exerciseName).filter(Boolean)));
+        const exerciseNames = Array.from(new Set(sessionSets.map(s => s.exerciseName).filter(Boolean))) as string[];
         enriched.push({
           ...session,
           exerciseNames,
@@ -201,7 +201,7 @@ export default function HistoryScreen() {
 
       <View className="px-4 pt-4">
         <Text className="text-subtext font-black uppercase text-xs mb-3 tracking-widest pl-1">
-          {selectedDate ? `Treinos em ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
+          {selectedDate ? `${t('history.workoutsOn')} ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
         </Text>
       </View>
     </View>
@@ -244,7 +244,7 @@ export default function HistoryScreen() {
                 <View className="flex-1">
                   <Text className="text-text font-black text-lg mb-1 tracking-tight">{item.routineName}</Text>
                   <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">
-                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} séries
+                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} {t('session.series')}
                   </Text>
                   {item.exerciseNames.length > 0 && (
                     <View className="flex-row flex-wrap gap-1">
@@ -263,15 +263,15 @@ export default function HistoryScreen() {
                   <TouchableOpacity
                     className="bg-primary/10 px-2.5 py-1.5 rounded-lg border border-primary/20 items-center min-w-[52px]"
                     onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
-                    accessibilityLabel={`Ver resumo do treino ${item.routineName}`}
+                    accessibilityLabel={`${t('history.view')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
                     <Text className="text-primary font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center min-w-[52px]"
-                    onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName })}
-                    accessibilityLabel={`Excluir treino ${item.routineName}`}
+                    onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName ?? '' })}
+                    accessibilityLabel={`${t('common.delete')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
                     <Text className="text-danger font-black text-2xs uppercase tracking-wider">{t("common.delete")}</Text>
@@ -285,8 +285,8 @@ export default function HistoryScreen() {
 
       <Dialog
         visible={deleteDialog.visible}
-        title="Excluir Treino?"
-        message={`Deseja excluir o treino "${deleteDialog.sessionName}"? Esta ação não pode ser desfeita.`}
+        title={t('history.deleteConfirm')}
+        message={t('history.deleteDesc', { name: deleteDialog.sessionName })}
         confirmText={t("common.delete")}
         cancelText={t("common.cancel")}
         type="destructive"

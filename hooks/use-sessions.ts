@@ -10,7 +10,7 @@ const INCOMPLETE_SESSION_KEY = 'incomplete_session';
 
 export function useSessions() {
   const [lastSession, setLastSession] = useState<Session | null>(null);
-  const [incompleteSession, setIncompleteSession] = useState<Session | null>(null);
+  const [incompleteSession, setIncompleteSession] = useState<(Session & { sessionId?: number; exerciseId?: number; exerciseName?: string; target?: string | null; notes?: string | null }) | null>(null);
   const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

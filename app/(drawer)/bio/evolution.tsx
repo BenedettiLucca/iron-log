@@ -16,7 +16,7 @@ import { useI18n } from '../../../src/i18n/index';
 
 export default function EvolutionScreen() {
   const { t } = useI18n();
-  const [weightData, setWeightData] = useState<BodyMetric[]>([]);
+  const [weightData, setWeightData] = useState<any[]>([]);
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
@@ -78,7 +78,7 @@ export default function EvolutionScreen() {
       const photoEntries = data
         .filter(m => m.type === 'monthly' && (m.photoFront || m.photoBack || m.photoSide))
         .reverse(); // Descendente
-      setPhotos(photoEntries);
+      setPhotos(photoEntries as BodyMetric[]);
 
       // 4. Calculate Analytics
       if (weights.length > 0) {
@@ -159,13 +159,13 @@ export default function EvolutionScreen() {
           {activeTab === 'weight' && (
               <>
                 <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverage")}</Text>
-                {renderChart(weightData, 'Evolução de Peso', Colors.primary)}
+                {renderChart(weightData, t('bio.weightEvolution'), Colors.primary)}
               </>
           )}
 
           {activeTab === 'measures' && (
               <>
-                {renderChart(measuresData.waist, 'Cintura (cm)', Colors.success)}
+                {renderChart(measuresData.waist, t('bioEvolution.waist'), Colors.success)}
                 {renderChart(measuresData.arm, t("bioEvolution.arm"), Colors.secondary)}
                 {renderChart(measuresData.chest, t("bioEvolution.chest"), Colors.accent)}
               </>
@@ -186,7 +186,7 @@ export default function EvolutionScreen() {
                                            visible: true,
                                            beforeUri: previous.photoFront || previous.photoBack || previous.photoSide,
                                            afterUri: latest.photoFront || latest.photoBack || latest.photoSide,
-                                           label: 'Últimos Check-ins',
+                                           label: t('bio.latestCheckins'),
                                        });
                                    }
                                }}
@@ -311,9 +311,9 @@ export default function EvolutionScreen() {
                           <View className="flex-1">
                             <Text className="text-text font-bold text-sm mb-1">
                               {analytics.weightChangeRate > 0.1
-                                ? 'Ganhando peso'
+                                ? t('bioEvolution.gainingWeightTitle')
                                 : analytics.weightChangeRate < -0.1
-                                ? 'Perdendo peso'
+                                ? t('bioEvolution.losingWeightTitle')
                                 : t("bioEvolution.stable")}
                             </Text>
                             <Text className="text-subtext text-xs">
@@ -329,9 +329,9 @@ export default function EvolutionScreen() {
 
                       {/* Info Card */}
                       <Card className="bg-secondary/10 border-secondary/20">
-                        <Text className="text-secondary text-xs font-bold uppercase mb-2">💡 Dica</Text>
+                        <Text className="text-secondary text-xs font-bold uppercase mb-2">💡 {t('bioEvolution.tip')}</Text>
                         <Text className="text-subtext text-xs leading-5">
-                          Para mudanças de peso saudáveis, tente manter uma variação entre -0.5 a +0.5 kg por semana.
+                          {t('bioEvolution.tipText')}
                         </Text>
                       </Card>
                      </>

@@ -55,7 +55,7 @@ function SetCard({
             accessibilityLabel={t("session.editSet")}
             accessibilityRole="button"
           >
-            <Text className="text-white text-xs font-bold uppercase">Editar</Text>
+            <Text className="text-white text-xs font-bold uppercase">{t('common.edit')}</Text>
           </TouchableOpacity>
         )}
         {onDelete && (
@@ -69,7 +69,7 @@ function SetCard({
             accessibilityLabel={t("session.deleteSet")}
             accessibilityRole="button"
           >
-            <Text className="text-white text-xs font-bold uppercase">Excluir</Text>
+            <Text className="text-white text-xs font-bold uppercase">{t('common.delete')}</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -8,6 +8,7 @@ export const pt = {
     about: 'Sobre o App',
     settings: 'Configurações',
     goals: 'Minhas Metas',
+    editorTitle: 'Editor de Rotina',
   },
 
   // Common
@@ -27,12 +28,24 @@ export const pt = {
     no: 'Não',
     optional: 'Opcional',
     required: 'Obrigatório',
-  
     compare: 'Comparar',
     exit: 'Sair',
     stay: 'Ficar',
     paused: 'PAUSADO',
-    invalidData: 'Dados invalidos',},
+    invalidData: 'Dados invalidos',
+    retry: 'Tentar Novamente',
+    errorBoundaryDesc: 'Ocorreu um erro inesperado. Tente novamente.',
+    errorBoundaryTitle: 'Algo deu errado',
+    rename: 'Renomear',
+    select: 'Selecionar',
+    understood: 'Entendi!',
+    view: 'Ver',
+    sets: 'séries',
+    exercise: 'exercício',
+    exercises: 'exercícios',
+    preparingApp: 'Preparando Iron Log...',
+    dbMigrationError: 'Erro na Migração do Banco de Dados',
+  },
 
   // Home / Dashboard
   home: {
@@ -52,7 +65,9 @@ export const pt = {
     populateSuccess: 'Banco de dados populado!',
     viewCalendar: 'Ver Calendario',
     startRoutine: 'Comece criando sua primeira rotina de treino ou gere exemplos para comecar rapidamente.',
-    tapToContinue: 'Toque para continuar',},
+    tapToContinue: 'Toque para continuar',
+    activeWorkout: 'Treino Ativo',
+    generateExampleRoutines: 'Gerar Rotinas de Exemplo',},
 
   // Bio
   bio: {
@@ -122,12 +137,11 @@ export const pt = {
   
     strengthLevel: {
       advanced: 'Avancado',
-    
-      beginner: 'Iniciante',
+    beginner: 'Iniciante',
       elite: 'Elite',
-      error: 'Erro',
+    error: 'Erro',
       intermediate: 'Intermediario',
-      noData: 'Sem dados',},},
+    noData: 'Sem dados',},},
 
   // Goals
   goals: {
@@ -171,6 +185,47 @@ export const pt = {
     copy: 'COPIAR',
     start: 'Iniciar',
     routineName: 'NOME DA ROTINA',
+    loadError: 'Falha ao carregar rotina.',
+    saveError: 'Falha ao salvar.',
+    renameError: 'Falha ao renomear.',
+    savedAsTemplate: 'Rotina salva como template!',
+    saveTemplateError: 'Falha ao salvar template.',
+    namePlaceholder: 'Ex: Treino C (Pernas)',
+    exercisesCount: 'Exercícios ({count})',
+    addExercise: '+ Adicionar',
+    targetPlaceholder: 'Meta (ex: 4x10)',
+    notesPlaceholder: 'Notas (ex: Banco 45°)',
+    restSeconds: 'Descanso (s):',
+    saveNormal: 'Salvar rotina normalmente',
+    saveAsTemplate: '💾 Salvar como Template',
+    templateLibraryHint: 'Disponível na biblioteca de templates',
+    renameWarning: 'Isso mudará o nome em TODAS as rotinas.',
+    updateError: 'Falha ao atualizar.',
+    editing: 'Editando: {name}',
+    searchOrCreate: 'Buscar ou Criar...',
+    notFound: 'Não encontrado.',
+    createExercise: 'CRIAR "{name}"',
+    typeToSearch: 'Digite para buscar',
+    selectExercise: 'Selecionar',
+    tempo: 'Tempo',
+    editExercise: 'Editar',
+    invalidJsonStructure: 'O JSON deve ter "name" e uma lista de "exercises".',
+    duplicateName: 'Já existe uma rotina com o nome "{name}".',
+    importError: 'Falha ao importar do clipboard.',
+    jsonImportHint: '💡 Importação via JSON',
+    jsonFormatHint: 'Peça para a IA gerar um JSON neste formato:',
+    description: 'Descrição',
+    descriptionPlaceholder: 'Descrição (opcional)',
+    strength: 'Força',
+    confirmCreate: 'Confirmar criação',
+    preview: 'Pré-visualização',
+    exerciseSequence: 'Sequência de Exercícios',
+    templateCopy: '{name} (Cópia)',
+    loadTemplateError: 'Falha ao carregar template.',
+    templateRemoved: 'Template removido.',
+    deleteTemplateError: 'Falha ao excluir template.',
+    exerciseCount: '{count} ex',
+    moreExercises: '+{count} mais...',
   },
 
   // History
@@ -183,6 +238,9 @@ export const pt = {
     view: 'Ver',
     deleteConfirm: 'Excluir Treino?',
     deleteDesc: 'Deseja excluir o treino "{name}"? Esta ação não pode ser desfeita.',
+      sets: 'séries',
+    viewSummary: 'Ver resumo do treino',
+    deleteWorkout: 'Excluir treino',
   },
 
   // Session
@@ -212,6 +270,8 @@ export const pt = {
     dontAskAgain: 'Não perguntar novamente',
     resume: 'Retomar',
     saveWorkout: 'Salvar Treino',
+    setsProgress: '{done}/{target} séries',
+    continue: 'Continuar',
   },
 
   // Exercise screen
@@ -244,6 +304,25 @@ export const pt = {
     saveDurationSet: 'Salvar Série',
     rirModerateDesc: 'Esforço controlado, bom para hipertrofia',
     rirLightDesc: 'Aquecimento ou técnica',
+      enterDuration: 'Digite o tempo da série (em segundos)',
+    enterReps: 'Digite o número de repetições',
+    enterWeight: 'Digite a carga utilizada',
+    saveSetError: 'Falha ao salvar série',
+    lastSetRemoved: 'A última série foi removida',
+    undoError: 'Falha ao desfazer',
+    setDeleted: 'Série excluída',
+    deleteSetError: 'Falha ao excluir série',
+    loadSetError: 'Falha ao carregar série',
+    setEdited: 'Série editada com sucesso',
+    editSetError: 'Falha ao editar série',
+    undoLastSet: '↩ Desfazer última série (10s)',
+    registeredSetsCount: 'Séries Registradas ({count})',
+    extraWeight: 'Carga Extra (kg):',
+    failure: 'FALHA',
+    saving: 'SALVANDO...',
+    saveBtn: 'SALVAR',
+    nextExerciseLabel: 'PRÓXIMO: {name}',
+    finishWorkoutLabel: 'FINALIZAR TREINO',
   },
 
   // Rest Timer
@@ -256,6 +335,11 @@ export const pt = {
     add30s: '+30s',
     minus10s: '-10s',
     nextExercise: 'Próximo',
+      add30sAccessibility: 'Adicionar 30 segundos',
+    minus10sAccessibility: 'Diminuir 10 segundos',
+    continueAccessibility: 'Continuar treino',
+    skipAccessibility: 'Pular descanso',
+    nextExerciseLabel: 'Próximo:',
   },
 
   // Finish
@@ -308,12 +392,22 @@ export const pt = {
     discardSession: 'Descartar Treino?',
     discardConfirm: 'Tem certeza que deseja descartar este treino?',
     quickNotes: 'Notas Rápidas',
+      weightVsPrevious: '{weight}kg vs. anterior',
+    intenseWorkout: 'Treino intenso, precisa de descanso',
+    extremeWorkout: 'Treino extremo, descanse bem',
+    lightWorkout: 'Treino leve',
+    moderateWorkout: 'Treino moderado',
+    characterCount: '{count} caracteres',
+    decreaseWeight: 'Diminuir peso 0.5kg',
+    increaseWeight: 'Aumentar peso 0.5kg',
+    notesPlaceholder: 'Como você se sentiu? Dores, ajustes de carga, energia...',
+    recovery: 'Recuperação',
+    confirmDetails: 'Confira os dados antes de finalizar:\n\n• {sets} séries\n• {exercises} exercícios\n• {volume} toneladas de volume\n• Peso: {weight} kg\n• sRPE: {srpe}',
   },
 
   // Summary
   summary: {
     title: 'Resumo do Treino',
-  
     reportError: 'Erro ao gerar relatorio.',
     consistentWorkout: 'Treino consistente!',
     exportSessionCsv: 'Exportar Sessao CSV',
@@ -324,7 +418,21 @@ export const pt = {
     nextSteps: 'Proximos Passos',
     notes: 'Observacoes',
     weight: 'Peso',
-    workoutComplete: 'Treino Concluido!',},
+    workoutComplete: 'Treino Concluido!',
+    generatingReport: 'Gerando relatório...',
+    reportCopied: 'Relatório copiado!',
+    volume: 'Volume (kg)',
+    minutes: 'Minutos',
+    copied: '✓ Copiado',
+    copyText: '📋 Copiar Texto',
+    share: '📤 Compartilhar',
+    exportCsv: '📊 Exportar CSV',
+    newWorkout: 'Novo Treino',
+    hardWork: '⚡ Trabalho duro!',
+    greatLightWorkout: 'Treino leve e eficiente!',
+    workoutShareTitle: 'Treino {name}',
+    backToHome: 'Voltar',
+  },
 
   // Settings
   settings: {
@@ -355,7 +463,6 @@ export const pt = {
     en: 'English',
     es: 'Español',
     zh: '中文',
-  
     alexandriaExportSuccess: 'Dados exportados para Alexandria!',
     cloudBackupError: 'Falha no backup em nuvem.',
     cloudBackupSuccess: 'Backup salvo no Google Drive!',
@@ -418,7 +525,6 @@ export const pt = {
 
   bioAnalytics: {
     avg12Weeks: 'media nas ultimas 12 semanas',
-  
     bestStreak: 'Melhor Streak',
     consistency: 'Consistencia',
     currentStreak: 'Streak Atual',
@@ -434,11 +540,16 @@ export const pt = {
     weeklyFrequency: 'Frequencia Semanal',
     weeklyVolumeTitle: 'Volume Semanal (Ultimas 12 Semanas)',
     weeksConsecutive: 'semanas consecutivas',
-    emptyDesc: 'Complete alguns treinos para ver suas analises.',},
+    emptyDesc: 'Complete alguns treinos para ver suas analises.',
+    currentStreakLabel: '🔥 Streak Atual',
+    weeklyVolumeTitleLabel: '📈 Volume Semanal (Últimas 12 Semanas)',
+    topExercisesLabel: '🏆 Exercícios em Progressão',
+    estimated1RMLabel: '💪 1RM Estimado (Epley)',
+    insufficientData: 'Dados insuficientes',
+  },
 
   bioEvolution: {
     avgWeight: 'Peso Medio',
-  
     back: 'COSTAS',
     front: 'FRENTE',
     insufficientData: 'Dados insuficientes para',
@@ -463,11 +574,17 @@ export const pt = {
     losingWeight: 'Voce esta perdendo peso consistentemente',
     stable: 'Estavel',
     weightStable: 'Seu peso esta estavel',
-    arm: 'Braco (cm)',},
+    arm: 'Braco (cm)',
+    weightEvolution: 'Evolução de Peso',
+    gainingWeightTitle: 'Ganhando peso',
+    losingWeightTitle: 'Perdendo peso',
+    tipText: 'Para mudanças de peso saudáveis, procure perder ou ganhar 0.5-1kg por semana.',
+    waist: 'Cintura (cm)',
+    noPhoto: 'Sem foto',
+  },
 
   bioGoals: {
     achieved: 'Alcancada!',
-  
     createGoal: 'Criar Meta',
     delete: 'Excluir',
     measurementType: 'Tipo de Medida',
@@ -478,11 +595,44 @@ export const pt = {
     deleteGoalConfirm: 'Tem certeza que deseja excluir esta meta?',
     armRight: 'Braco Direito (cm)',
     chest: 'Torax (cm)',
-    emptyDesc: 'Defina metas para suas metricas corporais e acompanhe seu progresso.',},
+    emptyDesc: 'Defina metas para suas metricas corporais e acompanhe seu progresso.',
+    weight: 'Peso (kg)',
+    waist: 'Cintura (cm)',
+    thighRight: 'Coxa Direita (cm)',
+    calf: 'Panturrilha (cm)',
+    goalStatus: 'Meta: {target} • {days} dias restantes',
+    targetValue: 'Valor Alvo',
+    targetDate: 'Data Alvo',
+  },
 
   services: {
     dbNotFound: 'Banco de dados nao encontrado.',
-  
     invalidBackup: 'Arquivo de backup invalido ou vazio.',
     sharingUnavailable: 'Compartilhamento nao disponivel neste dispositivo.',},
+  // Routine Detail
+  routineDetail: {
+    exercises: 'Exercícios',
+    min: 'min',
+    workouts: 'Treinos',
+    prs: 'PRs',
+    lastWorkout: 'Último Treino',
+    weightEvolution: 'Evolução de Carga',
+    recentHistory: 'Histórico Recente',
+    new: 'Novo',
+    startWorkout: 'Iniciar Treino',
+    routine: 'Rotina',
+    avgDurationLabel: 'Duração média: {duration} min',
+    duration: 'Duração',
+    timesTrainedCount: '{count}x treinado',
+  },
+
+  // Exercise Session (active exercise screen)
+  exerciseSession: {
+    time: 'Tempo',
+    history: 'Histórico',
+    noSetsYet: 'Nenhuma série registrada ainda.',
+    warmup: 'Aquecimento',
+    next: 'Quase falha muscular',
+  },
+
 };

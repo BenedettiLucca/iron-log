@@ -26,7 +26,7 @@ export default function CheckinScreen() {
       const data = await db.select().from(bodyMetrics)
         .where(eq(bodyMetrics.type, 'monthly'))
         .orderBy(desc(bodyMetrics.date));
-      setMonthlyMetrics(data || []);
+      setMonthlyMetrics((data || []) as BodyMetric[]);
     } catch (e) {
       logger.error('Failed to load monthly metrics', e);
     } finally {

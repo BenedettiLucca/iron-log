@@ -34,7 +34,7 @@ export default function BioScreen() {
   const [refreshing, setRefreshing] = useState(false);
   
   // Estados para o Check-in Mensal
-  const [monthlyData, setMonthlyData] = useState({
+  const [monthlyData, setMonthlyData] = useState<Record<string, string>>({
       waist: '', armRight: '', thighRight: '', chest: '', calf: ''
   });
   const [photos, setPhotos] = useState<Record<string, string | null>>({ front: null, back: null, side: null });
@@ -56,7 +56,7 @@ export default function BioScreen() {
     if (!todayWeight) return;
     const validation = weightInputSchema.safeParse({ weight: todayWeight });
     if (!validation.success) {
-      setToast({ visible: true, message: validation.error.errors[0]?.message || t('bio.invalidWeight'), type: 'error' });
+      setToast({ visible: true, message: validation.error.issues[0]?.message || t('bio.invalidWeight'), type: 'error' });
       return;
     }
     const success = await hookSaveWeight(validation.data.weight);
@@ -103,7 +103,7 @@ export default function BioScreen() {
               setToast({ visible: true, message: t('bio.photoSelected'), type: 'success' });
           }
       } catch {
-          setToast({ visible: true, message: 'Falha ao selecionar imagem.', type: 'error' });
+          setToast({ visible: true, message: t('bio.photoSelectError'), type: 'error' });
       }
   };
 
@@ -116,7 +116,7 @@ export default function BioScreen() {
               setPhotos(prev => ({ ...prev, [field]: null }));
               setPhotoNotes(prev => ({ ...prev, [field]: '' }));
               setDialog({ visible: false, title: '', message: '', onConfirm: () => {}, field: null });
-              setToast({ visible: true, message: 'Foto removida.', type: 'success' });
+              setToast({ visible: true, message: t('bio.photoRemoved'), type: 'success' });
           },
           field,
       });
@@ -142,7 +142,7 @@ export default function BioScreen() {
           if (!monthlyValidation.success) {
               logger.warn('Monthly checkin validation failed:', monthlyValidation.error.flatten().fieldErrors);
           }
-          const validatedMeasures = monthlyValidation.success ? monthlyValidation.data : {};
+          const validatedMeasures = monthlyValidation.success ? monthlyValidation.data : {} as Record<string, any>;
           
           const entryData = {
               date: existingMonthly.length > 0 && existingMonthly[0].date >= startOfMonth && existingMonthly[0].date < endOfMonth
@@ -175,7 +175,7 @@ export default function BioScreen() {
           setToast({ visible: true, message: t('bio.saveCheckinSuccess'), type: 'success' });
       } catch (e) {
           logger.error('Erro inesperado', e);
-          setToast({ visible: true, message: 'Falha ao salvar check-in.', type: 'error' });
+          setToast({ visible: true, message: t('bio.saveCheckinError'), type: 'error' });
       }
   };
 
@@ -301,8 +301,8 @@ export default function BioScreen() {
                 <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">{t("bio.recentPhotos")}</Text>
                 <View className="flex-row justify-between">
                     {['photoFront', 'photoBack', 'photoSide'].map((p) => {
-                        const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
-                        const uri = latestMonthly?.[p];
+                        const latestMonthly = metrics.find(m => m.type === 'monthly' && (m as any)[p]);
+                        const uri = latestMonthly ? (latestMonthly as any)[p] : undefined;
                         return (
                             <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-lg border border-border overflow-hidden">
                                 {uri ? (

@@ -65,7 +65,7 @@ export default function RoutineEditorScreen() {
           restSeconds: j.restSeconds || undefined
       })));
     } catch {
-      setToast({ visible: true, message: 'Falha ao carregar rotina.', type: 'error' });
+      setToast({ visible: true, message: t('routines.loadError'), type: 'error' });
     }
   }, [id]);
 
@@ -78,11 +78,11 @@ export default function RoutineEditorScreen() {
   const handleSave = async () => {
     const nameValidation = routineNameSchema.safeParse({ name, description });
     if (!nameValidation.success) {
-      setToast({ visible: true, message: nameValidation.error.errors[0]?.message || 'Nome inválido', type: 'error' });
+      setToast({ visible: true, message: nameValidation.error.issues[0]?.message || t('common.invalidName'), type: 'error' });
       return;
     }
     if (selectedExercises.length === 0) {
-      setToast({ visible: true, message: 'Adicione pelo menos um exercício', type: 'error' });
+      setToast({ visible: true, message: t('common.addAtLeastOneExercise'), type: 'error' });
       return;
     }
 
@@ -114,7 +114,7 @@ export default function RoutineEditorScreen() {
       router.back();
     } catch (e) {
       logger.error('Erro inesperado', e);
-      setToast({ visible: true, message: 'Falha ao salvar.', type: 'error' });
+      setToast({ visible: true, message: t('routines.saveError'), type: 'error' });
     }
   };
 
@@ -131,9 +131,9 @@ export default function RoutineEditorScreen() {
 
           setRenamingEx(null);
           setNewName('');
-          setToast({ visible: true, message: 'Exercício renomeado.', type: 'success' });
+          setToast({ visible: true, message: t('common.exerciseRenamed'), type: 'success' });
       } catch {
-          setToast({ visible: true, message: 'Falha ao renomear.', type: 'error' });
+          setToast({ visible: true, message: t('routines.renameError'), type: 'error' });
       }
   };
 
@@ -143,11 +143,11 @@ export default function RoutineEditorScreen() {
         .set({ isTemplate: true })
         .where(eq(routines.id, Number(id)));
 
-      setToast({ visible: true, message: 'Rotina salva como template!', type: 'success' });
+      setToast({ visible: true, message: t('routines.savedAsTemplate'), type: 'success' });
       router.back();
     } catch (e) {
       logger.error('Erro inesperado', e);
-      setToast({ visible: true, message: 'Falha ao salvar template.', type: 'error' });
+      setToast({ visible: true, message: t('routines.saveTemplateError'), type: 'error' });
     }
   };
 
@@ -175,7 +175,7 @@ export default function RoutineEditorScreen() {
             label={t("routines.routineName")}
             value={name}
             onChangeText={setName}
-            placeholder="Ex: Treino C (Pernas)"
+            placeholder={t("routines.namePlaceholder")}
         />
 
         <Input 
@@ -186,9 +186,9 @@ export default function RoutineEditorScreen() {
         />
 
         <View className="flex-row justify-between items-center mt-2">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-wider">Exercícios ({selectedExercises.length})</Text>
+          <Text className="text-subtext text-xs font-bold uppercase tracking-wider">{t("routines.exercisesCount", { count: selectedExercises.length })}</Text>
           <Button 
-            title="+ Adicionar"
+            title={t("routines.addExercise")}
             onPress={() => setModalVisible(true)}
             variant="ghost"
             size="sm"
@@ -219,7 +219,7 @@ export default function RoutineEditorScreen() {
             <View className="flex-row gap-3">
                 <View className="flex-1">
                     <Input 
-                        placeholder="Meta (ex: 4x10)"
+                        placeholder={t("routines.targetPlaceholder")}
                         value={ex.target}
                         onChangeText={(t) => updateExerciseField(index, 'target', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
@@ -227,7 +227,7 @@ export default function RoutineEditorScreen() {
                 </View>
                 <View className="flex-[2]">
                     <Input 
-                        placeholder="Notas (ex: Banco 45°)"
+                        placeholder={t("routines.notesPlaceholder")}
                         value={ex.notes}
                         onChangeText={(t) => updateExerciseField(index, 'notes', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
@@ -235,7 +235,7 @@ export default function RoutineEditorScreen() {
                 </View>
             </View>
             <View className="mt-3 flex-row items-center gap-3">
-                <Text className="text-subtext text-xs font-bold uppercase">Descanso (s):</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t("routines.restSeconds")}</Text>
                 <Input 
                     placeholder="90"
                     keyboardType="numeric"
@@ -260,16 +260,16 @@ export default function RoutineEditorScreen() {
               onPressOut={() => setShowTemplateOptions(false)}
               className="p-4"
             >
-              <Text className="text-text font-bold text-base">Salvar</Text>
-              <Text className="text-subtext text-xs">Salvar rotina normalmente</Text>
+              <Text className="text-text font-bold text-base">{t("common.save")}</Text>
+              <Text className="text-subtext text-xs">{t("routines.saveNormal")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleSaveAsTemplate}
               onPressOut={() => setShowTemplateOptions(false)}
               className="p-4 border-t border-border"
             >
-              <Text className="text-primary font-bold text-base">💾 Salvar como Template</Text>
-              <Text className="text-subtext text-xs">Disponível na biblioteca de templates</Text>
+              <Text className="text-primary font-bold text-base">{t("routines.saveAsTemplate")}</Text>
+              <Text className="text-subtext text-xs">{t("routines.templateLibraryHint")}</Text>
             </TouchableOpacity>
           </Card>
         </View>
@@ -296,8 +296,8 @@ export default function RoutineEditorScreen() {
       <Modal visible={!!renamingEx} transparent animationType="fade">
           <View className="flex-1 bg-black/60 justify-center items-center p-4">
               <View className="bg-card p-6 rounded-2xl w-full border border-border shadow-xl">
-                  <Text className="text-text font-bold text-lg mb-2 uppercase tracking-wide">Renomear</Text>
-                  <Text className="text-subtext text-xs mb-6">Isso mudará o nome em TODAS as rotinas.</Text>
+                  <Text className="text-text font-bold text-lg mb-2 uppercase tracking-wide">{t("common.rename")}</Text>
+                  <Text className="text-subtext text-xs mb-6">{t("routines.renameWarning")}</Text>
                   
                   <Input 
                       value={newName}
@@ -359,7 +359,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
     } catch {
-      setToast({ visible: true, message: 'Falha ao criar exercício.', type: 'error' });
+      setToast({ visible: true, message: t('common.createExerciseFail'), type: 'error' });
     }
   };
 
@@ -372,7 +372,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           setEditingEx(null);
           setEditName('');
       } catch {
-          setToast({ visible: true, message: 'Falha ao atualizar.', type: 'error' });
+          setToast({ visible: true, message: t('routines.updateError'), type: 'error' });
       }
   };
 
@@ -380,7 +380,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <View className="flex-1 bg-background">
         <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
-          <Text className="text-text text-xl font-bold uppercase tracking-wide">Selecionar</Text>
+          <Text className="text-text text-xl font-bold uppercase tracking-wide">{t("routines.selectExercise")}</Text>
           <Button 
             title={t("common.close")}
             onPress={onClose}
@@ -392,7 +392,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
         <View className="p-4">
             {editingEx ? (
                 <Card className="mb-4 border-primary">
-                    <Text className="text-subtext text-xs mb-2">Editando: {editingEx.name}</Text>
+                    <Text className="text-subtext text-xs mb-2">{t('routines.editing', { name: editingEx.name })}</Text>
                     <View className="flex-row gap-2">
                         <View className="flex-1">
                             <Input 
@@ -407,7 +407,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                 </Card>
             ) : (
                 <Input 
-                    placeholder="Buscar ou Criar..."
+                    placeholder={t("routines.searchOrCreate")}
                     value={search}
                     onChangeText={setSearch}
                     autoFocus
@@ -422,8 +422,8 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
             ListEmptyComponent={
                 search ? (
                 <Card className="mt-4 items-center p-6">
-                    <Text className="text-subtext text-center mb-2">Não encontrado.</Text>
-                    <Text className="text-text font-bold text-lg text-center mb-6">CRIAR &quot;{search}&quot;</Text>
+                    <Text className="text-subtext text-center mb-2">{t("routines.notFound")}</Text>
+                    <Text className="text-text font-bold text-lg text-center mb-6">{t("routines.createExercise", { name: search })}</Text>
                     
                     <View className="flex-row gap-4 mb-6 justify-center">
                         <Button 
@@ -447,7 +447,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                         fullWidth
                     />
                 </Card>
-                ) : <Text className="text-subtext text-center mt-10 uppercase text-xs font-bold tracking-widest">Digite para buscar</Text>
+                ) : <Text className="text-subtext text-center mt-10 uppercase text-xs font-bold tracking-widest">{t("routines.typeToSearch")}</Text>
             }
             renderItem={({ item }) => (
                 <TouchableOpacity 
@@ -457,7 +457,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     <View className="flex-1">
                         <Text className="text-text font-bold text-lg">{item.name}</Text>
                         {item.type === 'duration' && (
-                            <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">Tempo</Text>
+                            <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">{t("routines.tempo")}</Text>
                         )}
                     </View>
                     
@@ -468,7 +468,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                         }}
                         className="p-2"
                     >
-                        <Text className="text-primary text-xs font-bold uppercase">Editar</Text>
+                        <Text className="text-primary text-xs font-bold uppercase">{t("routines.editExercise")}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
             )}

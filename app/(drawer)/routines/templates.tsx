@@ -84,27 +84,27 @@ export default function TemplateLibraryScreen() {
         });
       }
 
-      setToast({ visible: true, message: `Rotina "${template.name}" carregada com ${template.exercises.length} exercícios!`, type: 'success' });
+      setToast({ visible: true, message: t('routines.templateLoadedWithExercises', { name: template.name, count: template.exercises.length }), type: 'success' });
       router.back();
     } catch (e) {
       logger.error('Error loading from template', e);
-      setToast({ visible: true, message: 'Falha ao carregar template.', type: 'error' });
+      setToast({ visible: true, message: t('routines.loadTemplateError'), type: 'error' });
     }
   };
 
   const handleDeleteTemplate = (id: number, name: string) => {
     setDialog({
       visible: true,
-      title: 'Excluir Template',
-      message: `Tem certeza que deseja excluir o template "${name}"?`,
+      title: t('routines.deleteTemplateTitle'),
+      message: t('routines.deleteTemplateMessage', { name }),
       onConfirm: async () => {
         try {
           await db.update(routines).set({ isTemplate: false }).where(eq(routines.id, id));
           await loadTemplates();
-          setToast({ visible: true, message: 'Template removido.', type: 'success' });
+          setToast({ visible: true, message: t('routines.templateRemoved'), type: 'success' });
         } catch (e) {
-          logger.error('Erro na operação', e);
-          setToast({ visible: true, message: 'Falha ao excluir template.', type: 'error' });
+          logger.error(t('common.operationError'), e);
+          setToast({ visible: true, message: t('routines.deleteTemplateError'), type: 'error' });
         }
       },
     });
@@ -127,7 +127,7 @@ export default function TemplateLibraryScreen() {
             )}
           </View>
           <Text className="text-subtext text-xs font-bold bg-primary/10 px-2 py-1 rounded">
-            {item.exercises.length} ex
+            {t('routines.exerciseCount', { count: item.exercises.length })}
           </Text>
         </View>
         <TouchableOpacity
@@ -140,7 +140,7 @@ export default function TemplateLibraryScreen() {
 
       {/* Exercise Summary */}
       <View className="border-t border-border pt-2 mt-2">
-        <Text className="text-subtext text-xs font-bold uppercase mb-1">Exercícios:</Text>
+        <Text className="text-subtext text-xs font-bold uppercase mb-1">{t('routines.exercises')}:</Text>
         <View className="flex-row flex-wrap gap-1">
           {item.exercises.slice(0, 4).map((ex: any, idx: number) => (
             <View key={ex.id} className="bg-background border border-border rounded px-2 py-1">
@@ -151,7 +151,7 @@ export default function TemplateLibraryScreen() {
             </View>
           ))}
           {item.exercises.length > 4 && (
-            <Text className="text-subtext text-xs italic">+{item.exercises.length - 4} mais...</Text>
+            <Text className="text-subtext text-xs italic">{t('routines.moreExercises', { count: item.exercises.length - 4 })}</Text>
           )}
         </View>
       </View>

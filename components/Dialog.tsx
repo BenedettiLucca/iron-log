@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
+import { useI18n } from '../src/i18n/index';
 
 interface DialogProps {
   visible: boolean;
@@ -15,12 +16,15 @@ export function Dialog({
   visible,
   title,
   message,
-  confirmText = 'Confirmar',
-  cancelText = 'Cancelar',
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   type = 'default',
 }: DialogProps) {
+  const { t } = useI18n();
+  const resolvedConfirmText = confirmText ?? t('common.confirm');
+  const resolvedCancelText = cancelText ?? t('common.cancel');
   return (
     <Modal
       visible={visible}
@@ -49,19 +53,19 @@ export function Dialog({
                 type === 'destructive' ? 'bg-danger' : 'bg-primary'
               }`}
               onPress={onConfirm}
-              accessibilityLabel={confirmText}
+              accessibilityLabel={resolvedConfirmText}
               accessibilityRole="button"
             >
-              <Text className="text-white font-semibold text-base">{confirmText}</Text>
+              <Text className="text-white font-semibold text-base">{resolvedConfirmText}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-background border border-border"
               onPress={onCancel}
-              accessibilityLabel={cancelText}
+              accessibilityLabel={resolvedCancelText}
               accessibilityRole="button"
             >
-              <Text className="text-text font-semibold text-base">{cancelText}</Text>
+              <Text className="text-text font-semibold text-base">{resolvedCancelText}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

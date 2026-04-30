@@ -2,19 +2,22 @@ import { View, Text, Image, ScrollView } from 'react-native';
 import { BodyMetric } from '@/src/types';
 import { formatMonthYear, calculateChange, getPhotoOverlayData } from '@/src/utils/checkin';
 import { PhotoOverlay } from './PhotoOverlay';
+import { useI18n } from '@/src/i18n/index';
 
 interface MonthlyCheckinComparisonProps {
   current: BodyMetric;
   previous: BodyMetric | null;
 }
 
-const POSES: { key: keyof BodyMetric; label: string }[] = [
-  { key: 'photoFront', label: 'FRENTE' },
-  { key: 'photoBack', label: 'COSTAS' },
-  { key: 'photoSide', label: 'LATERAL' },
-];
-
 export function MonthlyCheckinComparison({ current, previous }: MonthlyCheckinComparisonProps) {
+  const { t } = useI18n();
+
+  const POSES: { key: keyof BodyMetric; label: string }[] = [
+    { key: 'photoFront', label: t('bioEvolution.front') },
+    { key: 'photoBack', label: t('bioEvolution.back') },
+    { key: 'photoSide', label: t('bioEvolution.side') },
+  ];
+
   const currentOverlay = getPhotoOverlayData(current);
   const previousOverlay = previous ? getPhotoOverlayData(previous) : { weight: null, waist: null };
 
@@ -43,7 +46,7 @@ export function MonthlyCheckinComparison({ current, previous }: MonthlyCheckinCo
                   ) : (
                     <View className="flex-1 justify-center items-center">
                       <Text className="text-3xl">📷</Text>
-                      <Text className="text-subtext text-xs mt-2">Sem foto</Text>
+                      <Text className="text-subtext text-xs mt-2">{t('bioEvolution.noPhotos')}</Text>
                     </View>
                   )}
                 </View>
@@ -67,7 +70,7 @@ export function MonthlyCheckinComparison({ current, previous }: MonthlyCheckinCo
                   ) : (
                     <View className="flex-1 justify-center items-center">
                       <Text className="text-3xl">📷</Text>
-                      <Text className="text-subtext text-xs mt-2">Sem foto</Text>
+                      <Text className="text-subtext text-xs mt-2">{t('bioEvolution.noPhotos')}</Text>
                     </View>
                   )}
                 </View>

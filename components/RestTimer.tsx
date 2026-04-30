@@ -105,7 +105,7 @@ export function RestTimer({
         <View className="w-10 h-1 bg-border rounded-full self-center mb-5" />
 
         <View className="items-center">
-          <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">Descanso</Text>
+          <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">{t('restTimer.rest')}</Text>
 
           <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-success' : 'text-primary'}`}>
             {formatTimer(seconds)}
@@ -120,7 +120,7 @@ export function RestTimer({
             <TouchableOpacity
               className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(30)}
-              accessibilityLabel="Adicionar 30 segundos"
+              accessibilityLabel={t('restTimer.add30sAccessibility')}
               accessibilityRole="button"
             >
               <Text className="text-text font-bold text-base">+30s</Text>
@@ -129,7 +129,7 @@ export function RestTimer({
             <TouchableOpacity
               className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
               onPress={() => onAddTime(-10)}
-              accessibilityLabel="Diminuir 10 segundos"
+              accessibilityLabel={t('restTimer.minus10sAccessibility')}
               accessibilityRole="button"
             >
               <Text className="text-text font-bold text-base">-10s</Text>
@@ -138,16 +138,16 @@ export function RestTimer({
             <TouchableOpacity
               className={`flex-1 p-4 rounded-xl items-center min-h-[52px] justify-center ${status === 'finished' ? 'bg-success' : 'bg-primary'}`}
               onPress={onSkip}
-              accessibilityLabel={status === 'finished' ? 'Continuar treino' : 'Pular descanso'}
+              accessibilityLabel={status === 'finished' ? t('restTimer.continueAccessibility') : t('restTimer.skipAccessibility')}
               accessibilityRole="button"
             >
-              <Text className="text-white font-bold text-base">{status === 'finished' ? 'Continuar' : 'Pular'}</Text>
+              <Text className="text-white font-bold text-base">{status === 'finished' ? t('restTimer.continue') : t('restTimer.skip')}</Text>
             </TouchableOpacity>
           </View>
 
           {nextExerciseName && (
             <View className="items-center pt-4 border-t border-border w-full">
-              <Text className="text-subtext text-xs font-bold uppercase mb-1">Próximo:</Text>
+              <Text className="text-subtext text-xs font-bold uppercase mb-1">{t('restTimer.nextExerciseLabel')}</Text>
               <Text className="text-text font-semibold text-base">{nextExerciseName}</Text>
             </View>
           )}

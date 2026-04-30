@@ -12,7 +12,6 @@ import { Toast } from '../../components/Toast';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
-import { RoutineExercise } from '@/src/types';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { useI18n } from '../../src/i18n/index';
 
@@ -26,7 +25,7 @@ export default function SessionScreen() {
   const navigation = useNavigation();
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
-  const [routineExs, setRoutineExs] = useState<RoutineExercise[]>([]);
+  const [routineExs, setRoutineExs] = useState<any[]>([]);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
@@ -62,7 +61,7 @@ export default function SessionScreen() {
       } else {
         // First press - show toast
         lastBackPressTime.current = now;
-        setExitToast({ visible: true, message: 'Pressione novamente para sair' });
+        setExitToast({ visible: true, message: t('session.pressAgain') });
         
         // Hide toast after 2 seconds
         setTimeout(() => {
@@ -184,7 +183,7 @@ export default function SessionScreen() {
 
       <Dialog
         visible={showExitDialog}
-        title="Sair do Treino?"
+        title={t('session.exitTitle')}
         message={t("session.exitConfirm")}
         confirmText={t("common.exit")}
         cancelText={t("common.stay")}
@@ -216,7 +215,7 @@ export default function SessionScreen() {
 
       <Dialog
         visible={showFinishDialog}
-        title="Finalizar Treino?"
+        title={t('session.finishTitle')}
         message={t("session.finishConfirm")}
         confirmText={t("finish.finishButton")}
         cancelText={t("finish.continueWorkout")}
@@ -271,7 +270,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
             {isActive && (
               <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
                 <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
-                  {doneSets}/{targetSets || '?'} séries
+                  {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
                 </Text>
               </View>
             )}
