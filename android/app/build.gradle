@@ -82,7 +82,7 @@ def enableMinifyInReleaseBuilds = (findProperty('android.enableMinifyInReleaseBu
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    ndkVersion "29.0.14206865"
+    ndkVersion rootProject.ext.ndkVersion
 
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
@@ -92,8 +92,8 @@ android {
         applicationId 'com.lucca.ironlog'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 8
-        versionName "3.5.0"
+        versionCode 3
+        versionName "3.6.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -105,10 +105,12 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file('iron-log-release.keystore')
-            storePassword project.hasProperty('RELEASE_STORE_PASSWORD') ? RELEASE_STORE_PASSWORD : ''
-            keyAlias project.hasProperty('RELEASE_KEY_ALIAS') ? RELEASE_KEY_ALIAS : ''
-            keyPassword project.hasProperty('RELEASE_KEY_PASSWORD') ? RELEASE_KEY_PASSWORD : ''
+            if (project.hasProperty('IRONLOG_RELEASE_STORE_FILE')) {
+                storeFile file(IRONLOG_RELEASE_STORE_FILE)
+                storePassword IRONLOG_RELEASE_STORE_PASSWORD
+                keyAlias IRONLOG_RELEASE_KEY_ALIAS
+                keyPassword IRONLOG_RELEASE_KEY_PASSWORD
+            }
         }
     }
     buildTypes {
