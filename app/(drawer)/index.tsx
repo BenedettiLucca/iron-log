@@ -10,6 +10,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useSessions } from '@/hooks/use-sessions';
+import { usePrograms } from '@/hooks/use-programs';
 import { useI18n } from '../../src/i18n/index';
 
 export default function HomeScreen() {
@@ -17,12 +18,13 @@ export default function HomeScreen() {
   const router = useRouter();
   const { allRoutines: routinesList, fetchRoutines } = useRoutines();
   const { lastSession, incompleteSession, fetchHomeData } = useSessions();
+  const { activeProgram, fetchActiveProgram, getCurrentWeek, getWeeksUntilDeload, getCurrentPhase } = usePrograms();
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
-    await Promise.all([fetchRoutines(), fetchHomeData()]);
-  }, [fetchRoutines, fetchHomeData]);
+    await Promise.all([fetchRoutines(), fetchHomeData(), fetchActiveProgram()]);
+  }, [fetchRoutines, fetchHomeData, fetchActiveProgram]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -115,6 +117,48 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Active Program / Deload Banner */}
+      {activeProgram && (() => {
+        const currentWeek = getCurrentWeek();
+        const weeksUntilDeload = getWeeksUntilDeload();
+        const phase = getCurrentPhase();
+        if (currentWeek === null) return null;
+
+        const isDeloadWeek = phase === 'deload';
+        const isNearDeload = weeksUntilDeload !== null && weeksUntilDeload <= 2 && !isDeloadWeek;
+
+        return (
+          <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
+            <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}`)}>
+              <Card className={isDeloadWeek ? 'bg-green-500/10 border border-green-500/30' : isNearDeload ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-primary/5 border border-primary/20'}>
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-1 mr-3">
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t('programs.active')}</Text>
+                      <Text className="text-subtext text-xs">•</Text>
+                      <Text className="text-subtext text-xs font-medium">
+                        {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
+                      </Text>
+                    </View>
+                    <Text className="text-text font-bold text-base">{activeProgram.name}</Text>
+                    {isDeloadWeek ? (
+                      <Text className="text-green-500 text-xs mt-0.5 font-medium">{t('programs.deloadNow')}</Text>
+                    ) : isNearDeload && weeksUntilDeload !== null ? (
+                      <Text className="text-yellow-600 text-xs mt-0.5 font-medium">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
+                    ) : (
+                      <Text className="text-subtext text-xs mt-0.5">{t(`programs.phases.${phase}`)}</Text>
+                    )}
+                  </View>
+                  <View className="w-8 h-8 bg-primary/10 rounded-full justify-center items-center flex-shrink-0">
+                    <Text className="text-primary text-lg">{'>'}</Text>
+                  </View>
+                </View>
+              </Card>
+            </TouchableOpacity>
+          </View>
+        );
+      })()}
 
       <View className={`mt-4 ${incompleteSession ? 'mb-4' : 'mb-8'}`}>
         <View className="flex-row justify-between items-center mb-2 px-1">
