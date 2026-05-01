@@ -1,3 +1,27 @@
+## [3.6.0] - 2026-05-01
+
+### 🏋️ Structured Periodization (Mesocycles) — closes #16
+
+**Added:**
+- **Programs system** — Create and manage training programs with configurable mesocycle length (1-16 weeks)
+- **Program weeks** — Each week tracks its own set/reps/weight targets per exercise
+- **Double progression tracker** — Automatic weight/reps progression when targets are met (shown in exercise screen)
+- **Deload countdown** — Dashboard banner showing weeks until deload week
+- **3 new screens** — Program list, program creation wizard, program detail view (accessible via drawer)
+- **ProgramService** — Full CRUD + double progression logic with pure-function test coverage
+- **usePrograms hook** — React integration layer with active program state management
+
+**Database:**
+- 3 new tables: `programs`, `programWeeks`, `programExerciseTargets`
+- Migration 0017 with performance indexes
+
+**i18n:**
+- Full translation coverage for programs feature in PT/EN/ES/ZH
+
+**Tests:** 300 passing (up from 281), 0 failures
+
+---
+
 ## [3.5.0] - 2026-04-30
 
 ### 🔒 QA Bug Review — 14 fixes
