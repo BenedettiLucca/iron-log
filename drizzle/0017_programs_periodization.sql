@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS "program_weeks" (
   "phase" text DEFAULT 'accumulation' NOT NULL,
   "rir_target" integer DEFAULT 0,
   "intensity_mod" real DEFAULT 1.0,
-  FOREIGN KEY ("program_id" REFERENCES "programs"("id")),
-  FOREIGN KEY ("routine_id" REFERENCES "routines"("id"))
+  FOREIGN KEY ("program_id") REFERENCES "programs"("id"),
+  FOREIGN KEY ("routine_id") REFERENCES "routines"("id")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "program_exercise_targets" (
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS "program_exercise_targets" (
   "target_reps_min" integer NOT NULL,
   "target_reps_max" integer NOT NULL,
   "target_sets" integer NOT NULL,
-  FOREIGN KEY ("program_id" REFERENCES "programs"("id")),
-  FOREIGN KEY ("exercise_id" REFERENCES "exercises"("id"))
+  FOREIGN KEY ("program_id") REFERENCES "programs"("id"),
+  FOREIGN KEY ("exercise_id") REFERENCES "exercises"("id")
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "program_week_unique" ON "program_weeks" ("program_id","week_number");
