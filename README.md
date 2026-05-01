@@ -4,7 +4,7 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão:** 3.5.0 · **Expo SDK:** 54 · **Testes:** 281 passando
+**Versão:** 3.6.0 · **Expo SDK:** 54 · **Testes:** 300 passando
 
 ---
 

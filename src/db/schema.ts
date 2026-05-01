@@ -118,6 +118,45 @@ export const personalRecords = sqliteTable('personal_records', {
   uniqueIndex("pr_exercise_type_unique").on(table.exerciseId, table.recordType),
 ]);
 
+// TABELA: Programas / Mesociclos (Periodização)
+export const programs = sqliteTable('programs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(), // Ex: "Força Bruta v8.2"
+  description: text('description'),
+  startDate: integer('start_date').notNull(), // Epoch
+  endDate: integer('end_date').notNull(), // Epoch
+  weeksDuration: integer('weeks_duration').notNull().default(6),
+  deloadWeek: integer('deload_week'), // Week number for deload (e.g. 6)
+  goal: text('goal').notNull().default('hypertrophy'), // 'hypertrophy' | 'strength' | 'endurance' | 'deload'
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at').$defaultFn(() => Date.now()),
+});
+
+// TABELA: Vinculação Rotina ↔ Semana do Programa
+export const programWeeks = sqliteTable('program_weeks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  programId: integer('program_id').notNull().references(() => programs.id),
+  weekNumber: integer('week_number').notNull(), // 1–N
+  routineId: integer('routine_id').references(() => routines.id),
+  phase: text('phase').notNull().default('accumulation'), // 'accumulation' | 'intensification' | 'deload'
+  rirTarget: integer('rir_target').default(0), // Target RIR for this week
+  intensityMod: real('intensity_mod').default(1.0), // Multiplier for load (e.g. 0.6 for deload)
+}, (t) => [
+  uniqueIndex("program_week_unique").on(t.programId, t.weekNumber),
+]);
+
+// TABELA: RIR Target por Exercício no Programa
+export const programExerciseTargets = sqliteTable('program_exercise_targets', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  programId: integer('program_id').notNull().references(() => programs.id),
+  exerciseId: integer('exercise_id').notNull().references(() => exercises.id),
+  targetRepsMin: integer('target_reps_min').notNull(), // Bottom of double progression range
+  targetRepsMax: integer('target_reps_max').notNull(), // Top of range
+  targetSets: integer('target_sets').notNull(), // Number of working sets
+}, (t) => [
+  uniqueIndex("program_exercise_unique").on(t.programId, t.exerciseId),
+]);
+
 // Indexes for query performance
 export const sessionsDateIdx = index("sessions_date_idx").on(sessions.startTime);
 export const setsSessionIdx = index("sets_session_id_idx").on(sets.sessionId);
@@ -127,4 +166,7 @@ export const personalRecordsExerciseIdx = index("pr_exercise_type_idx").on(perso
 export const routineExercisesRoutineIdx = index("re_routine_id_idx").on(routineExercises.routineId);
 export const routineExercisesExerciseIdx = index("re_exercise_id_idx").on(routineExercises.exerciseId);
 export const sessionsRoutineIdx = index("sessions_routine_id_idx").on(sessions.routineId);
+export const programsActiveIdx = index("programs_active_idx").on(programs.isActive);
+export const programWeeksProgramIdx = index("pw_program_id_idx").on(programWeeks.programId);
+export const programExerciseTargetsIdx = index("pet_program_exercise_idx").on(programExerciseTargets.programId, programExerciseTargets.exerciseId);
 

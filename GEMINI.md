@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.5.0.
+*   **Current State:** v3.6.0.
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -68,7 +68,7 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 
 ### Linting & Testing
 *   **Lint:** `npm run lint`
-*   **Tests:** `npx jest` (16 suites, 281 tests)
+*   **Tests:** `npx jest` (16 suites, 300 tests)
 
 ## 5. Coding Conventions & Guidelines
 

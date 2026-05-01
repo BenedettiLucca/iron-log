@@ -53,6 +53,27 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
+          name="programs/index"
+          options={{
+            title: t('programs.title'),
+            drawerLabel: t('programs.drawer')
+          }}
+        />
+        <Drawer.Screen
+          name="programs/create"
+          options={{
+            title: t('programs.createTitle'),
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
+          name="programs/detail"
+          options={{
+            title: t('programs.detail'),
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
           name="routines/editor"
           options={{
             title: t('drawer.editorTitle'),

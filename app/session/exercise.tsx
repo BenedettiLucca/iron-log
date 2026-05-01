@@ -35,6 +35,8 @@ import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { setInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
+import { usePrograms } from '../../hooks/use-programs';
+import type { DoubleProgressionStatus } from '../../src/types';
 
 export default function ExerciseScreen() {
   const { t } = useI18n();
@@ -42,6 +44,8 @@ export default function ExerciseScreen() {
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const { trigger } = useHaptics();
+  const { activeProgram, fetchActiveProgram, getDoubleProgressionStatus } = usePrograms();
+  const [progressionStatus, setProgressionStatus] = useState<DoubleProgressionStatus | null>(null);
 
   // Validate route params with Zod to prevent NaN
   // (Validation runs after hooks — early return is handled by useEffect)
@@ -235,6 +239,20 @@ export default function ExerciseScreen() {
     loadData();
     loadHistory();
   }, [loadData, loadHistory]);
+
+  // Load double progression status for active program
+  useEffect(() => {
+    const loadProgression = async () => {
+      await fetchActiveProgram();
+    };
+    loadProgression();
+  }, [fetchActiveProgram]);
+
+  useEffect(() => {
+    if (activeProgram && exerciseId) {
+      getDoubleProgressionStatus(activeProgram.id, exerciseId, exerciseName).then(setProgressionStatus);
+    }
+  }, [activeProgram, exerciseId, exerciseName, getDoubleProgressionStatus]);
 
   // Cleanup undo timeout
   useEffect(() => {
@@ -594,14 +612,40 @@ export default function ExerciseScreen() {
           </View>
 
           {/* Undo Button (visible for 10s after save) */}
-          {lastSavedSet && (
+           {lastSavedSet && (
+             <View className="mx-4 mt-2">
+               <TouchableOpacity
+                 onPress={handleUndo}
+                 className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
+               >
+                 <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
+               </TouchableOpacity>
+             </View>
+           )}
+
+          {/* Double Progression Banner */}
+          {activeProgram && progressionStatus && (
             <View className="mx-4 mt-2">
-              <TouchableOpacity
-                onPress={handleUndo}
-                className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
-              >
-                <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
-              </TouchableOpacity>
+              <View className="bg-primary/5 p-3 rounded-xl border border-primary/20">
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-1">
+                    <Text className="text-subtext text-2xs font-bold uppercase tracking-wider">
+                      {t('programs.repsRange', { sets: progressionStatus.targetSets, min: progressionStatus.targetRepsMin, max: progressionStatus.targetRepsMax })}
+                    </Text>
+                    {progressionStatus.lastPerformance && (
+                      <Text className="text-text text-xs mt-0.5 font-medium">
+                        {t('programs.lastPerformance', { weight: progressionStatus.lastPerformance.weight, reps: progressionStatus.lastPerformance.reps })}
+                      </Text>
+                    )}
+                    {progressionStatus.isAtTop && (
+                      <Text className="text-primary text-2xs font-bold mt-1">{t('programs.atTopRange')}</Text>
+                    )}
+                  </View>
+                  <Text className="text-sm">
+                    {progressionStatus.trend === 'up' ? t('programs.trendUp') : progressionStatus.trend === 'down' ? t('programs.trendDown') : t('programs.trendFlat')}
+                  </Text>
+                </View>
+              </View>
             </View>
           )}
 

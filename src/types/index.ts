@@ -12,6 +12,8 @@ export type BioMetricType = 'daily' | 'monthly';
 export type MeasurementGoalType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 export type RecordType = 'weight' | 'reps' | 'volume' | 'duration';
 export type Sex = 'M' | 'F' | 'O';
+export type ProgramGoal = 'hypertrophy' | 'strength' | 'endurance' | 'deload';
+export type ProgramPhase = 'accumulation' | 'intensification' | 'deload';
 
 // ---------------------------------------------------------------------------
 // Core Entities
@@ -122,6 +124,42 @@ export interface PersonalRecord {
 }
 
 // ---------------------------------------------------------------------------
+// Program / Periodization Types
+// ---------------------------------------------------------------------------
+
+export interface Program {
+  id: number;
+  name: string;
+  description: string | null;
+  startDate: number;
+  endDate: number;
+  weeksDuration: number;
+  deloadWeek: number | null;
+  goal: ProgramGoal;
+  isActive: boolean;
+  createdAt: number | null;
+}
+
+export interface ProgramWeek {
+  id: number;
+  programId: number;
+  weekNumber: number;
+  routineId: number | null;
+  phase: ProgramPhase;
+  rirTarget: number | null;
+  intensityMod: number | null;
+}
+
+export interface ProgramExerciseTarget {
+  id: number;
+  programId: number;
+  exerciseId: number;
+  targetRepsMin: number;
+  targetRepsMax: number;
+  targetSets: number;
+}
+
+// ---------------------------------------------------------------------------
 // UI / Domain Types
 // ---------------------------------------------------------------------------
 
@@ -169,4 +207,20 @@ export interface NoteTemplate {
   label: string;
   emoji: string;
   text: string;
+}
+
+// Double Progression status for an exercise
+export interface DoubleProgressionStatus {
+  exerciseId: number;
+  exerciseName: string;
+  targetRepsMin: number;
+  targetRepsMax: number;
+  targetSets: number;
+  lastPerformance: {
+    weight: number;
+    reps: number;
+    sets: number;
+  } | null;
+  isAtTop: boolean; // All sets hit targetRepsMax → suggest load increase
+  trend: 'up' | 'flat' | 'down';
 }

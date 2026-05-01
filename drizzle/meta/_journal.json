@@ -120,6 +120,13 @@
       "when": 1777563239879,
       "tag": "0016_smiling_wolfpack",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1777570000000,
+      "tag": "0017_programs_periodization",
+      "breakpoints": true
     }
   ]
 }
