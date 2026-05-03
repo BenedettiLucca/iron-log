@@ -794,4 +794,19 @@ export const es = {
     deleteMessage: 'Este suplemento será eliminado de tu lista.',
     },
 
+    reports: {
+      title: 'Informe Semanal',
+      drawerLabel: 'Informe Semanal',
+      noSessions: 'Sin sesiones esta semana.',
+      summary: 'Resumen de la Semana',
+      sessions: 'Sesiones',
+      volume: 'Volumen Total',
+      avgSrpe: 'sRPE Promedio',
+      copyNotion: '📝 Exportar Notion MD',
+      copyNotionSession: '📝 Exportar Notion MD',
+      copied: '¡Markdown copiado!',
+      exportError: 'Error al generar informe.',
+      copyError: 'Error al copiar.',
+    },
+
     };

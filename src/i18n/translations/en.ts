@@ -803,4 +803,19 @@ export const en = {
     deleteMessage: 'This supplement will be removed from your list.',
     },
 
+    reports: {
+      title: 'Weekly Report',
+      drawerLabel: 'Weekly Report',
+      noSessions: 'No sessions this week.',
+      summary: 'Week Summary',
+      sessions: 'Sessions',
+      volume: 'Total Volume',
+      avgSrpe: 'Avg sRPE',
+      copyNotion: '📝 Export Notion MD',
+      copyNotionSession: '📝 Export Notion MD',
+      copied: 'Markdown copied!',
+      exportError: 'Failed to generate report.',
+      copyError: 'Failed to copy.',
+    },
+
     };

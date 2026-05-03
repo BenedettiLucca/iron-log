@@ -113,6 +113,13 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
+          name="reports/weekly"
+          options={{
+            title: t('reports.title'),
+            drawerLabel: t('reports.drawerLabel')
+          }}
+        />
+        <Drawer.Screen
           name="about"
           options={{
             title: t('drawer.about'),

@@ -833,4 +833,19 @@ export const pt = {
     deleteMessage: 'Este suplemento será removido da sua lista.',
     },
 
+    reports: {
+      title: 'Relatório Semanal',
+      drawerLabel: 'Relatório Semanal',
+      noSessions: 'Nenhuma sessão esta semana.',
+      summary: 'Resumo da Semana',
+      sessions: 'Sessões',
+      volume: 'Volume Total',
+      avgSrpe: 'sRPE Médio',
+      copyNotion: '📝 Exportar Notion MD',
+      copyNotionSession: '📝 Exportar Notion MD',
+      copied: 'Markdown copiado!',
+      exportError: 'Erro ao gerar relatório.',
+      copyError: 'Erro ao copiar.',
+    },
+
     };

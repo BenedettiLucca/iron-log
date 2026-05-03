@@ -191,17 +191,32 @@ export default function SummaryScreen() {
   const handleExportSessionCsv = async () => {
     try {
       const csv = await CsvExportService.exportSessionCsv(sessionId);
-      if (csv && (await import('expo-sharing')).Sharing.isAvailableAsync()) {
+      const Sharing = await import('expo-sharing');
+      if (csv && await Sharing.isAvailableAsync()) {
         const fs = await import('expo-file-system/legacy');
         const path = fs.cacheDirectory + `ironlog_session_${sessionId}.csv`;
         await fs.writeAsStringAsync(path, csv);
-        await (await import('expo-sharing')).Sharing.shareAsync(path, {
+        await Sharing.shareAsync(path, {
           dialogTitle: t('summary.exportSessionCsv'),
           mimeType: 'text/csv',
         });
       }
     } catch (e) {
       logger.error('Failed to export session CSV', e);
+    }
+  };
+
+  const handleExportNotionMd = async () => {
+    try {
+      const { NotionExportService } = await import('@/services/NotionExportService');
+      const md = await NotionExportService.exportSessionMarkdown(sessionId);
+      if (md) {
+        await Clipboard.setStringAsync(md);
+        setCopied(true);
+        setShowToast(true);
+      }
+    } catch (e) {
+      logger.error('Failed to export Notion MD', e);
     }
   };
 
@@ -296,6 +311,14 @@ export default function SummaryScreen() {
           <Button
             title="📊 Exportar CSV"
             onPress={handleExportSessionCsv}
+            variant="ghost"
+            size="lg"
+            fullWidth
+          />
+
+          <Button
+            title={t('reports.copyNotionSession')}
+            onPress={handleExportNotionMd}
             variant="ghost"
             size="lg"
             fullWidth

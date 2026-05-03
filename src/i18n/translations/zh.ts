@@ -794,4 +794,19 @@ export const zh = {
     deleteMessage: '此补剂将从您的列表中移除。',
     },
 
+    reports: {
+      title: '每周报告',
+      drawerLabel: '每周报告',
+      noSessions: '本周没有训练记录。',
+      summary: '本周总结',
+      sessions: '训练次数',
+      volume: '总训练量',
+      avgSrpe: '平均 sRPE',
+      copyNotion: '📝 导出 Notion MD',
+      copyNotionSession: '📝 导出 Notion MD',
+      copied: 'Markdown 已复制！',
+      exportError: '生成报告失败。',
+      copyError: '复制失败。',
+    },
+
     };
