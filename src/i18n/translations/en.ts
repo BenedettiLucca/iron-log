@@ -792,10 +792,10 @@ export const en = {
     timingRequired: 'Timing is required',
     emoji: 'Emoji',
     weeklyAdherence: 'Weekly Adherence',
-    adherencePercent: '{{percent}}% adherence',
+    adherencePercent: '{percent}% adherence',
     todayProgress: "Today's Progress",
-    completedCount: '{{taken}} of {{total}} taken',
-    deleteConfirm: 'Delete {{name}}?',
+    completedCount: '{taken} of {total} taken',
+    deleteConfirm: 'Delete {name}?',
     deleteMessage: 'This supplement will be removed from your list.',
     },
 

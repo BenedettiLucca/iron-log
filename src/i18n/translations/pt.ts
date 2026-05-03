@@ -822,10 +822,10 @@ export const pt = {
     timingRequired: 'Horário é obrigatório',
     emoji: 'Emoji',
     weeklyAdherence: 'Aderência Semanal',
-    adherencePercent: '{{percent}}% de aderência',
+    adherencePercent: '{percent}% de aderência',
     todayProgress: 'Progresso de Hoje',
-    completedCount: '{{taken}} de {{total}} tomados',
-    deleteConfirm: 'Excluir {{name}}?',
+    completedCount: '{taken} de {total} tomados',
+    deleteConfirm: 'Excluir {name}?',
     deleteMessage: 'Este suplemento será removido da sua lista.',
     },
 

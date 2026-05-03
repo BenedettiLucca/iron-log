@@ -783,10 +783,10 @@ export const zh = {
     timingRequired: '服用时间为必填项',
     emoji: '表情',
     weeklyAdherence: '每周坚持率',
-    adherencePercent: '{{percent}}% 坚持率',
+    adherencePercent: '{percent}% 坚持率',
     todayProgress: '今日进度',
-    completedCount: '已服用 {{taken}} / {{total}}',
-    deleteConfirm: '删除 {{name}}？',
+    completedCount: '已服用 {taken} / {total}',
+    deleteConfirm: '删除 {name}？',
     deleteMessage: '此补剂将从您的列表中移除。',
     },
 
