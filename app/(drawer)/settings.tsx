@@ -36,8 +36,9 @@ export default function SettingsScreen() {
     if (response?.type === 'success') {
       setAccessToken(response.authentication?.accessToken || null);
       // Google access tokens expire in ~1 hour; store the expiry time
-      const expiresIn = response.authentication?.accessTokenExpirationDate;
-      setTokenExpiresAt(expiresIn ? new Date(expiresIn).getTime() : Date.now() + 3600 * 1000);
+      const expiresIn = response.authentication?.expiresIn;
+      const issuedAt = response.authentication?.issuedAt ?? Date.now();
+      setTokenExpiresAt(expiresIn ? issuedAt + expiresIn * 1000 : Date.now() + 3600 * 1000);
       setToast({ visible: true, message: t('settings.googleConnected'), type: 'success' });
     }
   }, [response, t]);

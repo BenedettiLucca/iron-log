@@ -24,7 +24,7 @@ export default function SupplementsScreen() {
     addSupplement,
     updateSupplement,
     deleteSupplement,
-    getStreak,
+    getAllStreaks,
     seedDefaultSupplements,
   } = useSupplements();
 
@@ -56,16 +56,13 @@ export default function SupplementsScreen() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const newStreaks: Record<number, number> = {};
-      for (const item of items) {
-        newStreaks[item.id] = await getStreak(item.id);
-      }
+      const newStreaks = await getAllStreaks(items.map(item => item.id));
       setStreaks(newStreaks);
     };
     if (items.length > 0) {
       fetchStats();
     }
-  }, [items, getStreak]);
+  }, [items, getAllStreaks]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -297,14 +294,14 @@ export default function SupplementsScreen() {
               label={t('supplements.dosage')}
               value={dosage}
               onChangeText={setDosage}
-              placeholder="e.g. 5g, 2 caps"
+              placeholder={t('supplements.dosagePlaceholder')}
             />
 
             <Input
               label={t('supplements.timing')}
               value={timing}
               onChangeText={setTiming}
-              placeholder="e.g. 30min pre-workout"
+              placeholder={t('supplements.timingPlaceholder')}
             />
 
             <View>

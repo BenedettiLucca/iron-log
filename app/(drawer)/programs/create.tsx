@@ -81,7 +81,7 @@ export default function CreateProgramScreen() {
       if (program) {
         setToast({ visible: true, message: t('programs.createSuccess'), type: 'success' });
         setTimeout(() => {
-          router.push(`/programs/detail?programId=${program.id}`);
+          router.push(`/programs/detail?programId=${program.id}` as any);
         }, 500);
       } else {
         setToast({ visible: true, message: t('programs.createError'), type: 'error' });

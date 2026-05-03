@@ -130,7 +130,7 @@ export default function HomeScreen() {
 
         return (
           <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
-            <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}`)}>
+            <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
               <Card className={isDeloadWeek ? 'bg-green-500/10 border border-green-500/30' : isNearDeload ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-primary/5 border border-primary/20'}>
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1 mr-3">

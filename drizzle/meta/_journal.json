@@ -134,6 +134,13 @@
       "when": 1777825346575,
       "tag": "0018_safe_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1777827920112,
+      "tag": "0019_optimal_marauders",
+      "breakpoints": true
     }
   ]
 }

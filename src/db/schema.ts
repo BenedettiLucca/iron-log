@@ -194,5 +194,7 @@ export const supplementLogs = sqliteTable('supplement_logs', {
   takenAt: integer('taken_at').notNull(), // exact epoch timestamp
 }, (t) => [
   index("supplement_logs_date_idx").on(t.date),
+  index("supplement_logs_supplement_id_idx").on(t.supplementId),
+  index("supplement_logs_compound_idx").on(t.supplementId, t.date),
 ]);
 

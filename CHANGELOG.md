@@ -1,3 +1,31 @@
+## [3.7.0] - 2026-05-03
+
+### 💊 Supplement Checklist — closes #19
+
+**Added:**
+- **Supplement tracking** — Daily checklist with toggle, streak counter, and weekly adherence
+- **Default stack** — One-tap seed of Creatine, Caffeine+L-Theanine, D3, Omega 3, Mg Bisglycinate, Ashwagandha
+- **Supplement management** — Add/edit/delete custom supplements with dosage, timing, frequency, emoji
+- **Supplements screen** — Drawer-accessible checklist with progress bar, FAB add, bottom sheet modal
+- **Batch streak query** — Single DB query for all streaks instead of N+1
+
+**Fixed:**
+- **41 TypeScript errors** across ProgramService (goal/phase cast, deletedAt IS NULL, Map type), router routes, settings TokenResponse
+- **setAllWeeks** parameter type (single object → array)
+- **Missing i18n keys** — Added `common.saveSuccess`/`deleteSuccess` and supplement placeholders in PT/EN/ES/ZH
+- **Seed function** — Removed `as any` cast, explicit `isActive: true` on all seed data
+- **Adherence cap** — `getWeeklyAdherence` now capped at 100%
+- **DB indexes** — Added `supplement_logs.supplement_id` and `(supplement_id, date)` compound index
+
+**Database:**
+- 2 new tables: `supplements`, `supplement_logs`
+- Migration 0018 (schema) + 0019 (performance indexes)
+
+**i18n:**
+- Full translation coverage for supplements feature in PT/EN/ES/ZH
+
+---
+
 ## [3.6.0] - 2026-05-01
 
 ### 🏋️ Structured Periodization (Mesocycles) — closes #16

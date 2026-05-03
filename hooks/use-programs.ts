@@ -132,7 +132,7 @@ export function usePrograms() {
       phase: string;
       rirTarget: number;
       intensityMod: number;
-    }
+    }[]
   ): Promise<boolean> => {
     const success = await ProgramService.setAllWeeks(programId, weekData);
     if (success) {

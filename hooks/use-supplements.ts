@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { db } from '@/src/db/client';
 import { supplements, supplementLogs } from '@/src/db/schema';
-import { eq, and, desc, asc, gte } from 'drizzle-orm';
+import { eq, and, desc, asc, gte, inArray } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Supplement, SupplementLog } from '@/src/types';
 
@@ -140,6 +140,82 @@ export function useSupplements() {
     }
   }, []);
 
+  const getAllStreaks = useCallback(async (supplementIds: number[]): Promise<Record<number, number>> => {
+    try {
+      const streaks: Record<number, number> = {};
+      for (const id of supplementIds) {
+        streaks[id] = 0;
+      }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Fetch last 30 days of logs for ALL supplements in one query
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const startEpoch = thirtyDaysAgo.getTime();
+      
+      const logs = await db
+        .select()
+        .from(supplementLogs)
+        .where(
+          and(
+            inArray(supplementLogs.supplementId, supplementIds),
+            gte(supplementLogs.date, startEpoch)
+          )
+        )
+        .orderBy(desc(supplementLogs.date)) as SupplementLog[];
+      
+      // Group logs by supplement
+      const logsBySupplement = new Map<number, number[]>();
+      for (const log of logs) {
+        if (!logsBySupplement.has(log.supplementId)) {
+          logsBySupplement.set(log.supplementId, []);
+        }
+        logsBySupplement.get(log.supplementId)!.push(log.date);
+      }
+      
+      // Calculate streak for each supplement
+      for (const id of supplementIds) {
+        const dates = logsBySupplement.get(id) || [];
+        const uniqueDays = [...new Set(dates.map(d => {
+          const d2 = new Date(d);
+          d2.setHours(0, 0, 0, 0);
+          return d2.getTime();
+        }))].sort((a, b) => b - a);
+        
+        if (uniqueDays.length === 0) {
+          streaks[id] = 0;
+          continue;
+        }
+        
+        const msPerDay = 24 * 60 * 60 * 1000;
+        let streak = 0;
+        let expected = today.getTime();
+        
+        // Allow today or yesterday as start
+        if (uniqueDays[0] >= expected - msPerDay) {
+          streak = 1;
+          expected = uniqueDays[0];
+          for (let i = 1; i < uniqueDays.length; i++) {
+            if (expected - uniqueDays[i] <= msPerDay) {
+              streak++;
+              expected = uniqueDays[i];
+            } else {
+              break;
+            }
+          }
+        }
+        streaks[id] = streak;
+      }
+      
+      return streaks;
+    } catch (e) {
+      logger.error('Failed to get all streaks', e);
+      return {};
+    }
+  }, []);
+
   const getWeeklyAdherence = useCallback(async (): Promise<Record<number, number>> => {
     try {
       const now = new Date();
@@ -157,7 +233,7 @@ export function useSupplements() {
         // Calculation depends on frequency, but a simple 1 week = 7 days adherence
         // If frequency is 'daily', total possible is 7.
         // For simplicity and matching common patterns, we'll return % based on 7 days
-        adherence[item.id] = Math.round((itemLogs / 7) * 100);
+        adherence[item.id] = Math.min(100, Math.round((itemLogs / 7) * 100));
       });
 
       return adherence;
@@ -172,16 +248,16 @@ export function useSupplements() {
       const count = await db.select().from(supplements).limit(1);
       if (count.length === 0) {
         const defaultStack = [
-          { name: 'Creatina Monohidratada', dosage: '5g', timing: 'qualquer hora', frequency: 'daily', reminderTime: '09:00', isNighttime: false, emoji: '💊', orderIndex: 0 },
-          { name: 'Cafeína + L-Theanine', dosage: '200mg + 100mg', timing: '30min antes do treino', frequency: 'training_days', reminderTime: null, isNighttime: false, emoji: '☕', orderIndex: 1 },
-          { name: 'Vitamina D3', dosage: '2000 UI', timing: 'após café da manhã', frequency: 'daily', reminderTime: '08:00', isNighttime: false, emoji: '☀️', orderIndex: 2 },
-          { name: 'Ômega 3 (EPA/DHA)', dosage: '1g', timing: 'com alguma refeição', frequency: 'daily', reminderTime: '12:00', isNighttime: false, emoji: '🐟', orderIndex: 3 },
-          { name: 'Magnésio Bisglicinato', dosage: '400mg', timing: 'antes de dormir', frequency: 'daily', reminderTime: '21:30', isNighttime: true, emoji: '🧪', orderIndex: 4 },
-          { name: 'Ashwagandha (KSM-66)', dosage: '300mg', timing: 'antes de dormir', frequency: 'daily', reminderTime: '21:30', isNighttime: true, emoji: '🌿', orderIndex: 5 },
+          { name: 'Creatina Monohidratada', dosage: '5g', timing: 'qualquer hora', frequency: 'daily', reminderTime: '09:00', isNighttime: false, emoji: '💊', orderIndex: 0, isActive: true },
+          { name: 'Cafeína + L-Theanine', dosage: '200mg + 100mg', timing: '30min antes do treino', frequency: 'training_days', reminderTime: null, isNighttime: false, emoji: '☕', orderIndex: 1, isActive: true },
+          { name: 'Vitamina D3', dosage: '2000 UI', timing: 'após café da manhã', frequency: 'daily', reminderTime: '08:00', isNighttime: false, emoji: '☀️', orderIndex: 2, isActive: true },
+          { name: 'Ômega 3 (EPA/DHA)', dosage: '1g', timing: 'com alguma refeição', frequency: 'daily', reminderTime: '12:00', isNighttime: false, emoji: '🐟', orderIndex: 3, isActive: true },
+          { name: 'Magnésio Bisglicinato', dosage: '400mg', timing: 'antes de dormir', frequency: 'daily', reminderTime: '21:30', isNighttime: true, emoji: '🧪', orderIndex: 4, isActive: true },
+          { name: 'Ashwagandha (KSM-66)', dosage: '300mg', timing: 'antes de dormir', frequency: 'daily', reminderTime: '21:30', isNighttime: true, emoji: '🌿', orderIndex: 5, isActive: true },
         ];
         
         for (const item of defaultStack) {
-          await db.insert(supplements).values(item as any);
+          await db.insert(supplements).values(item);
         }
         await fetchSupplements();
       }
@@ -201,6 +277,7 @@ export function useSupplements() {
     updateSupplement,
     deleteSupplement,
     getStreak,
+    getAllStreaks,
     getWeeklyAdherence,
     seedDefaultSupplements,
   };

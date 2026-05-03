@@ -77,7 +77,7 @@ export default function ProgramsListScreen() {
           title={t('programs.emptyTitle')}
           description={t('programs.emptyDescription')}
           actionLabel={t('programs.createNew')}
-          onAction={() => router.push('/programs/create')}
+          onAction={() => router.push('/programs/create' as any)}
         />
         <Toast
           visible={toast.visible}
@@ -111,7 +111,7 @@ export default function ProgramsListScreen() {
       >
         {/* Active Program Card */}
         {activeProgram && (
-          <Card pressable onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}`)}>
+          <Card pressable onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
             <View className="flex-row justify-between items-start mb-2">
               <View className="flex-1 mr-3">
                 <View className="flex-row items-center gap-2 mb-1">
@@ -176,7 +176,7 @@ export default function ProgramsListScreen() {
               <Card
                 key={program.id}
                 pressable
-                onPress={() => router.push(`/programs/detail?programId=${program.id}`)}
+                onPress={() => router.push(`/programs/detail?programId=${program.id}` as any)}
                 className="mb-3"
               >
                 <View className="flex-row justify-between items-center">
@@ -202,7 +202,7 @@ export default function ProgramsListScreen() {
       <View className="p-4 border-t border-border bg-card shadow-lg">
         <Button
           title={`➕ ${t('programs.createNew')}`}
-          onPress={() => router.push('/programs/create')}
+          onPress={() => router.push('/programs/create' as any)}
           variant="primary"
           size="md"
           fullWidth

@@ -1,0 +1,2 @@
+CREATE INDEX `supplement_logs_supplement_id_idx` ON `supplement_logs` (`supplement_id`);--> statement-breakpoint
+CREATE INDEX `supplement_logs_compound_idx` ON `supplement_logs` (`supplement_id`,`date`);

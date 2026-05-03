@@ -2,7 +2,17 @@ import { db } from '@/src/db/client';
 import { programs, programWeeks, programExerciseTargets, sets, sessions } from '@/src/db/schema';
 import { eq, and, desc, between, sql } from 'drizzle-orm';
 import { logger } from './logger';
-import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus } from '@/src/types';
+import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus, ProgramGoal, ProgramPhase } from '@/src/types';
+
+/** Cast a raw DB row to the Program type (goal: string → ProgramGoal) */
+function castProgram(row: Record<string, unknown>): Program {
+  return { ...(row as Omit<Program, 'goal'>), goal: row.goal as ProgramGoal };
+}
+
+/** Cast a raw DB row to the ProgramWeek type (phase: string → ProgramPhase) */
+function castProgramWeek(row: Record<string, unknown>): ProgramWeek {
+  return { ...(row as Omit<ProgramWeek, 'phase'>), phase: row.phase as ProgramPhase };
+}
 
 // ---------------------------------------------------------------------------
 // Program CRUD
@@ -19,7 +29,7 @@ export const ProgramService = {
         .from(programs)
         .where(eq(programs.isActive, true))
         .limit(1);
-      return result[0] ?? null;
+      return result[0] ? castProgram(result[0] as unknown as Record<string, unknown>) : null;
     } catch (e) {
       logger.error('Failed to get active program', e);
       return null;
@@ -31,7 +41,8 @@ export const ProgramService = {
    */
   async getAllPrograms(): Promise<Program[]> {
     try {
-      return await db.select().from(programs).orderBy(desc(programs.createdAt));
+      const rows = await db.select().from(programs).orderBy(desc(programs.createdAt));
+      return rows.map(r => castProgram(r as unknown as Record<string, unknown>));
     } catch (e) {
       logger.error('Failed to get all programs', e);
       return [];
@@ -44,7 +55,7 @@ export const ProgramService = {
   async getProgram(id: number): Promise<Program | null> {
     try {
       const result = await db.select().from(programs).where(eq(programs.id, id));
-      return result[0] ?? null;
+      return result[0] ? castProgram(result[0] as unknown as Record<string, unknown>) : null;
     } catch (e) {
       logger.error('Failed to get program', e);
       return null;
@@ -78,7 +89,7 @@ export const ProgramService = {
         isActive: true,
       }).returning();
 
-      return result[0] ?? null;
+      return result[0] ? castProgram(result[0] as unknown as Record<string, unknown>) : null;
     } catch (e) {
       logger.error('Failed to create program', e);
       return null;
@@ -135,11 +146,12 @@ export const ProgramService = {
    */
   async getProgramWeeks(programId: number): Promise<ProgramWeek[]> {
     try {
-      return await db
+      const rows = await db
         .select()
         .from(programWeeks)
         .where(eq(programWeeks.programId, programId))
         .orderBy(programWeeks.weekNumber);
+      return rows.map(r => castProgramWeek(r as unknown as Record<string, unknown>));
     } catch (e) {
       logger.error('Failed to get program weeks', e);
       return [];
@@ -169,13 +181,13 @@ export const ProgramService = {
           .set({ routineId, phase, rirTarget, intensityMod })
           .where(eq(programWeeks.id, existing[0].id))
           .returning();
-        return result[0] ?? null;
+        return result[0] ? castProgramWeek(result[0] as unknown as Record<string, unknown>) : null;
       } else {
         const result = await db
           .insert(programWeeks)
           .values({ programId, weekNumber, routineId, phase, rirTarget, intensityMod })
           .returning();
-        return result[0] ?? null;
+        return result[0] ? castProgramWeek(result[0] as unknown as Record<string, unknown>) : null;
       }
     } catch (e) {
       logger.error('Failed to set week routine', e);
@@ -194,7 +206,7 @@ export const ProgramService = {
       phase: string;
       rirTarget: number;
       intensityMod: number;
-    }
+    }[]
   ): Promise<boolean> {
     try {
       await db.delete(programWeeks).where(eq(programWeeks.programId, programId));
@@ -327,7 +339,7 @@ export const ProgramService = {
           and(
             eq(sets.exerciseId, exerciseId),
             eq(sets.isWarmup, false),
-            eq(sets.deletedAt, null as unknown as number | null)
+            sql`${sets.deletedAt} IS NULL`
           )
         )
         .orderBy(desc(sets.createdAt))
@@ -339,7 +351,7 @@ export const ProgramService = {
 
       if (recentSets.length > 0) {
         // Group by session
-        const sessionMap = new Map<number, { weight: number; reps: number }>();
+        const sessionMap = new Map<number, { weight: number; reps: number }[]>();
         for (const s of recentSets) {
           if (!sessionMap.has(s.sessionId)) sessionMap.set(s.sessionId, []);
           sessionMap.get(s.sessionId)!.push({ weight: s.weight, reps: s.reps });
@@ -444,7 +456,7 @@ export const ProgramService = {
           and(
             between(sessions.startTime, weekStart, weekEnd),
             eq(sets.isWarmup, false),
-            eq(sessions.deletedAt, null as unknown as number | null)
+            sql`${sessions.deletedAt} IS NULL`
           )
         );
 
