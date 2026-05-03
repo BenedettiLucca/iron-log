@@ -203,7 +203,7 @@ export default function SupplementsScreen() {
             <EmptyState
               title={t('supplements.empty')}
               description={t('supplements.emptyDesc')}
-              actionTitle={t('supplements.seedStack')}
+              actionLabel={t('supplements.seedStack')}
               onAction={seedDefaultSupplements}
             />
           </View>
@@ -334,7 +334,7 @@ export default function SupplementsScreen() {
               <Switch
                 value={isNighttime}
                 onValueChange={setIsNighttime}
-                trackColor={{ false: Colors.border, true: Colors.primary }}
+                trackColor={{ false: Colors.lightBorder, true: Colors.primary }}
               />
             </View>
 
