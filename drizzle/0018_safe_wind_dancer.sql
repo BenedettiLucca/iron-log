@@ -1,4 +1,4 @@
-CREATE TABLE `program_exercise_targets` (
+CREATE TABLE IF NOT EXISTS `program_exercise_targets` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`program_id` integer NOT NULL,
 	`exercise_id` integer NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE `program_exercise_targets` (
 	FOREIGN KEY (`exercise_id`) REFERENCES `exercises`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `program_exercise_unique` ON `program_exercise_targets` (`program_id`,`exercise_id`);--> statement-breakpoint
-CREATE TABLE `program_weeks` (
+CREATE UNIQUE INDEX IF NOT EXISTS `program_exercise_unique` ON `program_exercise_targets` (`program_id`,`exercise_id`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `program_weeks` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`program_id` integer NOT NULL,
 	`week_number` integer NOT NULL,
@@ -22,8 +22,8 @@ CREATE TABLE `program_weeks` (
 	FOREIGN KEY (`routine_id`) REFERENCES `routines`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `program_week_unique` ON `program_weeks` (`program_id`,`week_number`);--> statement-breakpoint
-CREATE TABLE `programs` (
+CREATE UNIQUE INDEX IF NOT EXISTS `program_week_unique` ON `program_weeks` (`program_id`,`week_number`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `programs` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
@@ -36,7 +36,7 @@ CREATE TABLE `programs` (
 	`created_at` integer
 );
 --> statement-breakpoint
-CREATE TABLE `supplement_logs` (
+CREATE TABLE IF NOT EXISTS `supplement_logs` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`supplement_id` integer NOT NULL,
 	`date` integer NOT NULL,
@@ -44,8 +44,8 @@ CREATE TABLE `supplement_logs` (
 	FOREIGN KEY (`supplement_id`) REFERENCES `supplements`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE INDEX `supplement_logs_date_idx` ON `supplement_logs` (`date`);--> statement-breakpoint
-CREATE TABLE `supplements` (
+CREATE INDEX IF NOT EXISTS `supplement_logs_date_idx` ON `supplement_logs` (`date`);--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `supplements` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL,
 	`dosage` text NOT NULL,
@@ -58,4 +58,4 @@ CREATE TABLE `supplements` (
 	`is_active` integer DEFAULT true NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX `supplements_active_idx` ON `supplements` (`is_active`);
+CREATE INDEX IF NOT EXISTS `supplements_active_idx` ON `supplements` (`is_active`);
