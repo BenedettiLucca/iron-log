@@ -127,6 +127,13 @@
       "when": 1777570000000,
       "tag": "0017_programs_periodization",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1777825346575,
+      "tag": "0018_safe_wind_dancer",
+      "breakpoints": true
     }
   ]
 }

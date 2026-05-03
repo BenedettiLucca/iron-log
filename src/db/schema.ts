@@ -170,3 +170,29 @@ export const programsActiveIdx = index("programs_active_idx").on(programs.isActi
 export const programWeeksProgramIdx = index("pw_program_id_idx").on(programWeeks.programId);
 export const programExerciseTargetsIdx = index("pet_program_exercise_idx").on(programExerciseTargets.programId, programExerciseTargets.exerciseId);
 
+// TABELA: Suplementos
+export const supplements = sqliteTable('supplements', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  dosage: text('dosage').notNull(),           // "5g", "200mg + 100mg"
+  timing: text('timing').notNull(),            // "qualquer hora", "30min antes do treino", "antes de dormir"
+  frequency: text('frequency').notNull().default('daily'), // "daily", "training_days", "rest_days"
+  reminderTime: text('reminder_time'),         // "07:00", "21:30"
+  isNighttime: integer('is_nighttime', { mode: 'boolean' }).notNull().default(false),
+  emoji: text('emoji').default('💊'),
+  orderIndex: integer('order_index').notNull().default(0),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+}, (t) => [
+  index("supplements_active_idx").on(t.isActive),
+]);
+
+// TABELA: Log de Suplementação
+export const supplementLogs = sqliteTable('supplement_logs', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  supplementId: integer('supplement_id').notNull().references(() => supplements.id),
+  date: integer('date').notNull(),       // epoch start of day (midnight)
+  takenAt: integer('taken_at').notNull(), // exact epoch timestamp
+}, (t) => [
+  index("supplement_logs_date_idx").on(t.date),
+]);
+

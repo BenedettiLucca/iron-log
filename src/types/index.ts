@@ -14,6 +14,7 @@ export type RecordType = 'weight' | 'reps' | 'volume' | 'duration';
 export type Sex = 'M' | 'F' | 'O';
 export type ProgramGoal = 'hypertrophy' | 'strength' | 'endurance' | 'deload';
 export type ProgramPhase = 'accumulation' | 'intensification' | 'deload';
+export type SupplementFrequency = 'daily' | 'training_days' | 'rest_days';
 
 // ---------------------------------------------------------------------------
 // Core Entities
@@ -121,6 +122,26 @@ export interface PersonalRecord {
   value: number;
   date: number;
   setDetails: string | null; // JSON string
+}
+
+export interface Supplement {
+  id: number;
+  name: string;
+  dosage: string;
+  timing: string;
+  frequency: SupplementFrequency;
+  reminderTime: string | null;
+  isNighttime: boolean;
+  emoji: string | null;
+  orderIndex: number;
+  isActive: boolean;
+}
+
+export interface SupplementLog {
+  id: number;
+  supplementId: number;
+  date: number;
+  takenAt: number;
 }
 
 // ---------------------------------------------------------------------------

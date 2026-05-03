@@ -46,6 +46,13 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
+          name="supplements/index"
+          options={{
+            title: t('supplements.title'),
+            drawerLabel: t('drawer.supplements')
+          }}
+        />
+        <Drawer.Screen
           name="routines/index"
           options={{
             title: t('routines.title'),

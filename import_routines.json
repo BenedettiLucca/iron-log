@@ -1,0 +1,217 @@
+{
+  "routines": [
+    {
+      "name": "UPPER A: Densidade e Força Bruta",
+      "description": "Foco na espessura de tronco, alongamento peitoral e blindagem de braços.",
+      "exercises": [
+        {
+          "name": "Supino Reto (Barra/Halter)",
+          "sets": 3,
+          "reps": "6-8",
+          "rest": 180,
+          "notes": "Controle a descida. Explosao na subida. RIR 0."
+        },
+        {
+          "name": "Remada Apoiada (Maquina/Banco)",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 120,
+          "notes": "Peito colado no banco = Lombar 100% salva."
+        },
+        {
+          "name": "Desenvolvimento (Halteres/Maquina)",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 120,
+          "notes": "Construtor de ombros largos."
+        },
+        {
+          "name": "Voador (Peck Deck)",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 90,
+          "notes": "Foco extremo no alongamento do peito."
+        },
+        {
+          "name": "Elevacao Lateral (Halter ou Cabo)",
+          "sets": 3,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "Frequencia extra de ombro. Falha total."
+        },
+        {
+          "name": "Triceps Testa ou Pulley",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "Isole a cabeca longa. Cotovelos imoveis."
+        },
+        {
+          "name": "Rosca Martelo",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "Foco no braquial e antebraço."
+        },
+        {
+          "name": "Abdominal Maquina",
+          "sets": 3,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "Enrole a coluna (Tatu-bola). RIR 0."
+        }
+      ]
+    },
+    {
+      "name": "LOWER A: Artilharia Frontal e Core",
+      "description": "Sobrecarga maxima de quadriceps e estabilizacao de obliquos.",
+      "exercises": [
+        {
+          "name": "Agachamento Livre",
+          "sets": 3,
+          "reps": "6-8",
+          "rest": 180,
+          "notes": "Profundidade maxima. Base rigida."
+        },
+        {
+          "name": "Leg Press 45",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": 180,
+          "notes": "Amplitude maxima segura. Nao tranque o joelho."
+        },
+        {
+          "name": "Cadeira Flexora",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": 90,
+          "notes": "Contracao de pico de 1s. Retenha a descida."
+        },
+        {
+          "name": "Panturrilha em Pe",
+          "sets": 4,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "3s descendo, 2s PARADO EMBAIXO, sobe explosivo."
+        },
+        {
+          "name": "Pallof Press (Cabo ou Elastico)",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "Anti-rotacao. Segure 2s sob tensao. Blindagem obliqua."
+        }
+      ]
+    },
+    {
+      "name": "UPPER B: Largura, Refinamento e Arsenal Completo",
+      "description": "Silhueta V, isolamento de ombros, trapezio e bracos completos.",
+      "exercises": [
+        {
+          "name": "Puxada Frontal (Neutra ou Aberta)",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 120,
+          "notes": "Puxe com os cotovelos, nao com as maos."
+        },
+        {
+          "name": "Supino Inclinado (Halteres)",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 120,
+          "notes": "Foco na porcao superior (Clavicular) do peitoral."
+        },
+        {
+          "name": "Elevacao Lateral (Halter ou Cabo)",
+          "sets": 3,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "Sem gangorra de tronco. Falha absoluta."
+        },
+        {
+          "name": "Voador Inverso (Peck Deck)",
+          "sets": 2,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "Peito apoiado. Isole o posterior de ombro."
+        },
+        {
+          "name": "Encolhimento (Halteres ou Barra)",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "O colarinho de armadura. Segure 1s no topo."
+        },
+        {
+          "name": "Rosca Direta",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "Foco no biceps. Coluna imovel."
+        },
+        {
+          "name": "Triceps Pulley (Corda)",
+          "sets": 2,
+          "reps": "10-12",
+          "rest": 60,
+          "notes": "Fechando a frequencia do triceps na semana."
+        },
+        {
+          "name": "Rosca Inversa (Barra W ou Cabo)",
+          "sets": 2,
+          "reps": "12-15",
+          "rest": 60,
+          "notes": "Pegada pronada. Esmague os extensores do antebraço."
+        }
+      ]
+    },
+    {
+      "name": "LOWER B: Cadeia Posterior e Pelvica",
+      "description": "Tracao traseira, isquiotibiais, gluteo e estabilizacao adutora.",
+      "exercises": [
+        {
+          "name": "Levantamento Terra Romeno (RDL)",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 180,
+          "notes": "Quadril para tras. Sinta o posterior rasgar."
+        },
+        {
+          "name": "Hack Squat (Pes Altos) ou V-Squat",
+          "sets": 3,
+          "reps": "8-10",
+          "rest": 180,
+          "notes": "Pe mais alto na plataforma para focar em gluteo."
+        },
+        {
+          "name": "Elevacao Pelvica (Hip Thrust)",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": 120,
+          "notes": "O rei do gluteo. Segure 1s contraido no topo."
+        },
+        {
+          "name": "Cadeira Adutora",
+          "sets": 3,
+          "reps": "12-15",
+          "rest": 90,
+          "notes": "Espessura interna da coxa. Esmague no centro."
+        },
+        {
+          "name": "Panturrilha Sentado (Soleo)",
+          "sets": 3,
+          "reps": "15-20",
+          "rest": 60,
+          "notes": "Foco no musculo Soleo. Amplitude maxima."
+        },
+        {
+          "name": "Prancha Abdominal",
+          "sets": 3,
+          "reps": "Falha",
+          "rest": 60,
+          "notes": "Trave o core. Respire curto pelo nariz."
+        }
+      ]
+    }
+  ]
+}
