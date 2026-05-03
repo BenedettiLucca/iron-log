@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { db } from '@/src/db/client';
 import { sessions, sets } from '@/src/db/schema';
-import { asc, isNull, eq, and, gte, lte } from 'drizzle-orm';
+import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
 import { formatEpochDate, computeVolume } from './AlexandriaExportService';
 import { logger } from '@/services/logger';
 
@@ -136,13 +136,10 @@ export const NotionExportService = {
     const sessionIds = weekSessions.map(s => s.id);
     let allSets: (typeof sets.$inferSelect)[] = [];
     if (sessionIds.length > 0) {
-      // Query sets for all sessions in the week
       allSets = await db.select()
         .from(sets)
-        .where(isNull(sets.deletedAt))
+        .where(and(isNull(sets.deletedAt), inArray(sets.sessionId, sessionIds)))
         .orderBy(asc(sets.sessionId), asc(sets.setNumber));
-      // Filter in-memory since Drizzle doesn't have a nice IN clause for this
-      allSets = allSets.filter(s => sessionIds.includes(s.sessionId));
     }
 
     const setsBySession = new Map<number, typeof allSets>();

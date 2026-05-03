@@ -793,8 +793,7 @@ export const zh = {
     deleteConfirm: '删除 {name}？',
     deleteMessage: '此补剂将从您的列表中移除。',
     },
-
-    reports: {
+  reports: {
       title: '每周报告',
       drawerLabel: '每周报告',
       noSessions: '本周没有训练记录。',
@@ -808,5 +807,4 @@ export const zh = {
       exportError: '生成报告失败。',
       copyError: '复制失败。',
     },
-
-    };
+};

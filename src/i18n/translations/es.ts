@@ -793,8 +793,7 @@ export const es = {
     deleteConfirm: '¿Eliminar {name}?',
     deleteMessage: 'Este suplemento será eliminado de tu lista.',
     },
-
-    reports: {
+  reports: {
       title: 'Informe Semanal',
       drawerLabel: 'Informe Semanal',
       noSessions: 'Sin sesiones esta semana.',
@@ -808,5 +807,4 @@ export const es = {
       exportError: 'Error al generar informe.',
       copyError: 'Error al copiar.',
     },
-
-    };
+};

@@ -802,8 +802,7 @@ export const en = {
     deleteConfirm: 'Delete {name}?',
     deleteMessage: 'This supplement will be removed from your list.',
     },
-
-    reports: {
+  reports: {
       title: 'Weekly Report',
       drawerLabel: 'Weekly Report',
       noSessions: 'No sessions this week.',
@@ -817,5 +816,4 @@ export const en = {
       exportError: 'Failed to generate report.',
       copyError: 'Failed to copy.',
     },
-
-    };
+};

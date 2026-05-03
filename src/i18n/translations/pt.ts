@@ -832,8 +832,7 @@ export const pt = {
     deleteConfirm: 'Excluir {name}?',
     deleteMessage: 'Este suplemento será removido da sua lista.',
     },
-
-    reports: {
+  reports: {
       title: 'Relatório Semanal',
       drawerLabel: 'Relatório Semanal',
       noSessions: 'Nenhuma sessão esta semana.',
@@ -847,5 +846,4 @@ export const pt = {
       exportError: 'Erro ao gerar relatório.',
       copyError: 'Erro ao copiar.',
     },
-
-    };
+};
