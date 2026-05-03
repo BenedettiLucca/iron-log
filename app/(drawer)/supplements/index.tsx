@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/colors';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -12,12 +10,10 @@ import { Toast } from '@/components/Toast';
 import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
 import { Supplement, SupplementFrequency } from '@/src/types';
-import { logger } from '@/services/logger';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function SupplementsScreen() {
   const { t } = useI18n();
-  const { colorScheme } = useColorScheme();
   const {
     items,
     todayLogs,
@@ -29,7 +25,6 @@ export default function SupplementsScreen() {
     updateSupplement,
     deleteSupplement,
     getStreak,
-    getWeeklyAdherence,
     seedDefaultSupplements,
   } = useSupplements();
 
@@ -37,7 +32,6 @@ export default function SupplementsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingSupplement, setEditingSupplement] = useState<Supplement | null>(null);
   const [streaks, setStreaks] = useState<Record<number, number>>({});
-  const [adherence, setAdherence] = useState<Record<number, number>>({});
   
   // Form state
   const [name, setName] = useState('');
@@ -67,12 +61,11 @@ export default function SupplementsScreen() {
         newStreaks[item.id] = await getStreak(item.id);
       }
       setStreaks(newStreaks);
-      setAdherence(await getWeeklyAdherence());
     };
     if (items.length > 0) {
       fetchStats();
     }
-  }, [items, todayLogs, getStreak, getWeeklyAdherence]);
+  }, [items, getStreak]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { db } from '@/src/db/client';
 import { supplements, supplementLogs } from '@/src/db/schema';
-import { eq, and, desc, asc, gte, lte } from 'drizzle-orm';
+import { eq, and, desc, asc, gte } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Supplement, SupplementLog } from '@/src/types';
 
