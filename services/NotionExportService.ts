@@ -5,13 +5,15 @@ import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
 import { formatEpochDate, computeVolume } from './AlexandriaExportService';
 import { logger } from '@/services/logger';
 
+type TFunction = (key: string) => string;
+
 export const NotionExportService = {
 
   /**
    * Generate Notion-friendly Markdown for a single session.
    * Includes YAML frontmatter, exercise table, and session metadata.
    */
-  async exportSessionMarkdown(sessionId: number): Promise<string> {
+  async exportSessionMarkdown(sessionId: number, t: TFunction): Promise<string> {
     // 1. Fetch session
     const sessionData = await db.select().from(sessions).where(eq(sessions.id, sessionId));
     if (!sessionData.length) return '';
@@ -31,7 +33,7 @@ export const NotionExportService = {
     // 4. Build frontmatter
     let md = `---\n`;
     md += `date: ${dateStr}\n`;
-    md += `routine: "${session.routineName || 'Workout'}"\n`;
+    md += `routine: "${session.routineName || t('reports.md.workout')}"\n`;
     md += `duration: ${session.durationMinutes || 0}\n`;
     md += `srpe: ${session.sRpe || '-'}\n`;
     md += `body_weight: ${session.bodyWeight || '-'}\n`;
@@ -40,12 +42,12 @@ export const NotionExportService = {
     md += `---\n\n`;
 
     // 5. Title
-    md += `## ${session.routineName || 'Workout'}\n\n`;
+    md += `## ${session.routineName || t('reports.md.workout')}\n\n`;
 
     // 6. Group sets by exercise
     const byExercise = new Map<string, typeof sessionSets>();
     for (const s of sessionSets) {
-      const name = s.exerciseName || 'Unknown';
+      const name = s.exerciseName || t('reports.md.unknown');
       if (!byExercise.has(name)) byExercise.set(name, []);
       byExercise.get(name)!.push(s);
     }
@@ -53,7 +55,7 @@ export const NotionExportService = {
     // 7. Build exercise tables
     for (const [name, exerciseSets] of byExercise) {
       md += `### ${name}\n\n`;
-      md += `| Set | Weight (kg) | Reps | RIR | Warmup |\n`;
+      md += `| ${t('reports.md.set')} | ${t('reports.md.weightKg')} | ${t('reports.md.reps')} | RIR | ${t('reports.md.warmup')} |\n`;
       md += `|-----|-------------|------|-----|--------|\n`;
       for (const s of exerciseSets) {
         md += `| ${s.setNumber} | ${s.weightKg} | ${s.reps} | ${s.rir ?? '-'} | ${s.isWarmup ? '✓' : '-'} |\n`;
@@ -73,7 +75,7 @@ export const NotionExportService = {
    * Generate a weekly report aggregating all sessions from the current week (Mon-Sun).
    * Returns Markdown ready for Notion.
    */
-  async exportWeeklyReport(referenceDate?: Date): Promise<{
+  async exportWeeklyReport(t: TFunction, referenceDate?: Date): Promise<{
     markdown: string;
     sessionCount: number;
     totalVolume: number;
@@ -125,7 +127,7 @@ export const NotionExportService = {
 
     if (weekSessions.length === 0) {
       return {
-        markdown: `# Semana ${weekNum} — ${weekLabel}\n\nNenhuma sessão registrada esta semana.`,
+        markdown: `# ${t('reports.md.week')} ${weekNum} — ${weekLabel}\n\n${t('reports.noSessions')}`,
         sessionCount: 0,
         totalVolume: 0,
         avgSRPE: 0,
@@ -174,32 +176,32 @@ export const NotionExportService = {
     md += `avg_srpe: ${avgSRPE}\n`;
     md += `---\n\n`;
 
-    md += `# Semana ${weekNum} — ${weekLabel}\n\n`;
+    md += `# ${t('reports.md.week')} ${weekNum} — ${weekLabel}\n\n`;
 
     // Summary
-    md += `## Resumo\n\n`;
-    md += `- **Sessões:** ${weekSessions.length}\n`;
-    md += `- **Volume total:** ${totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume} kg\n`;
-    md += `- **sRPE médio:** ${avgSRPE || '-'}\n\n`;
+    md += `## ${t('reports.md.summary')}\n\n`;
+    md += `- **${t('reports.sessions')}:** ${weekSessions.length}\n`;
+    md += `- **${t('reports.md.totalVolume')}:** ${totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume} kg\n`;
+    md += `- **${t('reports.avgSrpe')}:** ${avgSRPE || '-'}\n\n`;
 
     // Sessions
-    md += `## Sessões\n\n`;
+    md += `## ${t('reports.md.sessions')}\n\n`;
     for (const session of weekSessions) {
       const dateStr = formatEpochDate(session.startTime) || '';
       const dayName = new Date(session.startTime).toLocaleDateString('pt-BR', { weekday: 'short' });
       const capitalized = dayName.charAt(0).toUpperCase() + dayName.slice(1);
 
-      md += `### ${capitalized} — ${session.routineName || 'Workout'} (${dateStr})\n\n`;
+      md += `### ${capitalized} — ${session.routineName || t('reports.md.workout')} (${dateStr})\n\n`;
 
       // Session stats
       const sessionSets = setsBySession.get(session.id) || [];
       const sessionVolume = computeVolume(sessionSets);
-      md += `**Duração:** ${session.durationMinutes || 0} min | **Volume:** ${sessionVolume >= 1000 ? `${(sessionVolume / 1000).toFixed(1)}k` : sessionVolume} kg | **sRPE:** ${session.sRpe || '-'}\n\n`;
+      md += `**${t('reports.md.duration')}:** ${session.durationMinutes || 0} ${t('reports.md.min')} | **${t('reports.md.volume')}:** ${sessionVolume >= 1000 ? `${(sessionVolume / 1000).toFixed(1)}k` : sessionVolume} kg | **sRPE:** ${session.sRpe || '-'}\n\n`;
 
       // Group sets by exercise
       const byExercise = new Map<string, typeof sessionSets>();
       for (const s of sessionSets) {
-        const name = s.exerciseName || 'Unknown';
+        const name = s.exerciseName || t('reports.md.unknown');
         if (!byExercise.has(name)) byExercise.set(name, []);
         byExercise.get(name)!.push(s);
       }

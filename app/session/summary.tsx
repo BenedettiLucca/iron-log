@@ -49,6 +49,7 @@ export default function SummaryScreen() {
   });
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const generateMarkdown = useCallback(async () => {
     try {
@@ -172,6 +173,7 @@ export default function SummaryScreen() {
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(report);
     setCopied(true);
+    setToastMessage(t('summary.reportCopied'));
     setShowToast(true);
     const timer = setTimeout(() => setCopied(false), 2000);
     return () => clearTimeout(timer);
@@ -209,10 +211,10 @@ export default function SummaryScreen() {
   const handleExportNotionMd = async () => {
     try {
       const { NotionExportService } = await import('@/services/NotionExportService');
-      const md = await NotionExportService.exportSessionMarkdown(sessionId);
+      const md = await NotionExportService.exportSessionMarkdown(sessionId, t);
       if (md) {
         await Clipboard.setStringAsync(md);
-        setCopied(true);
+        setToastMessage(t('reports.copied'));
         setShowToast(true);
       }
     } catch (e) {
@@ -349,7 +351,7 @@ export default function SummaryScreen() {
 
       <Toast
         visible={showToast}
-        message={t("summary.reportCopied")}
+        message={toastMessage || t("summary.reportCopied")}
         type="success"
         onHide={() => setShowToast(false)}
       />

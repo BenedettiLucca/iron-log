@@ -25,7 +25,7 @@ export default function WeeklyReportScreen() {
   const generateReport = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await NotionExportService.exportWeeklyReport();
+      const result = await NotionExportService.exportWeeklyReport(t);
       setMarkdown(result.markdown);
       setSessionCount(result.sessionCount);
       setTotalVolume(result.totalVolume);
