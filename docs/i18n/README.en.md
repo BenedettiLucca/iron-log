@@ -4,7 +4,7 @@
 
 **Iron Log** is a complete local-first fitness monitoring platform. Built for people who take training seriously — fast load logging, body tracking, performance analytics, and data export.
 
-**Version:** 3.7.0 · **Expo SDK:** 54 · **Tests:** 300 passing
+**Version:** 3.8.0 · **Expo SDK:** 54 · **Tests:** 300 passing
 
 ---
 
@@ -192,3 +192,4 @@ iron-log/
 ---
 
 **License:** MIT · **Author:** Lucca Benedetti
+

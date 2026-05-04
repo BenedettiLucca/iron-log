@@ -93,7 +93,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
-        versionName "3.7.0"
+        versionName "3.8.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -105,12 +105,10 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('IRONLOG_RELEASE_STORE_FILE')) {
-                storeFile file(IRONLOG_RELEASE_STORE_FILE)
-                storePassword IRONLOG_RELEASE_STORE_PASSWORD
-                keyAlias IRONLOG_RELEASE_KEY_ALIAS
-                keyPassword IRONLOG_RELEASE_KEY_PASSWORD
-            }
+            storeFile file('release.keystore')
+            storePassword findProperty('IRONLOG_RELEASE_STORE_PASSWORD') ?: 'android'
+            keyAlias findProperty('IRONLOG_RELEASE_KEY_ALIAS') ?: 'ironlog'
+            keyPassword findProperty('IRONLOG_RELEASE_KEY_PASSWORD') ?: 'android'
         }
     }
     buildTypes {
@@ -118,6 +116,8 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()

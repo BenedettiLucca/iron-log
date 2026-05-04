@@ -23,7 +23,7 @@ export default function AboutScreen() {
             style={{ width: 100, height: 100, borderRadius: 20 }}
         />
         <Text className="text-text text-3xl font-black mt-4 tracking-tight">{t("drawer.dashboard")}</Text>
-        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">{t("about.version", { version: "3.7.0" })}</Text>
+        <Text className="text-primary font-bold uppercase tracking-widest text-xs mt-1">{t("about.version", { version: "3.8.0" })}</Text>
       </View>
 
       <Card contentPadding={false}>
@@ -56,3 +56,4 @@ export default function AboutScreen() {
     </ScrollView>
   );
 }
+

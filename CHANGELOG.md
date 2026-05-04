@@ -1,3 +1,14 @@
+## [3.8.0] - 2026-05-03
+
+### Added
+- **Notion Markdown Export** — Export individual sessions with YAML frontmatter + exercise tables (`#17`)
+- **Weekly Report Screen** — New drawer item "Relatório Semanal" aggregates current week sessions with stats cards and Markdown preview
+- i18n support for Notion export strings in all 4 languages (PT, EN, ES, ZH)
+
+### Fixed
+- Weekly report sets query uses SQL `IN` clause instead of loading entire database into memory
+- Toast messages now correctly differentiate between clipboard copy and Notion MD export
+
 ## [3.7.0] - 2026-05-03
 
 ### 💊 Supplement Checklist — closes #19
@@ -327,3 +338,4 @@ All notable changes to Iron Log are documented here.
 - MVP: Registro de treinos com séries e cargas
 - Gestão de rotinas
 - Histórico de sessões
+
