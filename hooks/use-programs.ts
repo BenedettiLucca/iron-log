@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ProgramService } from '@/services/ProgramService';
 import { logger } from '@/services/logger';
-import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus } from '@/src/types';
+import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus, KeyLift, WeekCompletionStatus } from '@/src/types';
 
 export function usePrograms() {
   const [allPrograms, setAllPrograms] = useState<Program[]>([]);
@@ -9,6 +9,13 @@ export function usePrograms() {
   const [weeks, setWeeks] = useState<ProgramWeek[]>([]);
   const [targets, setTargets] = useState<ProgramExerciseTarget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Dashboard state
+  const [weeklyVolume, setWeeklyVolume] = useState(0);
+  const [avgWeeklyVolume, setAvgWeeklyVolume] = useState(0);
+  const [avgSRPE, setAvgSRPE] = useState<number | null>(null);
+  const [keyLifts, setKeyLifts] = useState<KeyLift[]>([]);
+  const [weekCompletionMap, setWeekCompletionMap] = useState<Map<number, WeekCompletionStatus>>(new Map());
 
   const fetchAllPrograms = useCallback(async () => {
     try {
@@ -194,12 +201,42 @@ export function usePrograms() {
     return ProgramService.getWeeklyVolume(activeProgram);
   }, [activeProgram]);
 
+  const fetchDashboardData = useCallback(async () => {
+    if (!activeProgram) return;
+    try {
+      const [vol, avgVol, rpe, lifts, completion] = await Promise.all([
+        ProgramService.getWeeklyVolume(activeProgram),
+        ProgramService.getAverageWeeklyVolume(activeProgram),
+        ProgramService.getAverageSRPE(activeProgram),
+        ProgramService.getKeyLifts(activeProgram),
+        ProgramService.getWeekCompletionMap(activeProgram),
+      ]);
+      setWeeklyVolume(vol);
+      setAvgWeeklyVolume(avgVol);
+      setAvgSRPE(rpe);
+      setKeyLifts(lifts);
+      setWeekCompletionMap(completion);
+    } catch (e) {
+      logger.error('Failed to fetch dashboard data', e);
+    }
+  }, [activeProgram]);
+
+  const getSessionsForWeek = useCallback(async (weekNumber: number) => {
+    if (!activeProgram) return [];
+    return ProgramService.getSessionsForWeek(activeProgram, weekNumber);
+  }, [activeProgram]);
+
   return {
     allPrograms,
     activeProgram,
     weeks,
     targets,
     isLoading,
+    weeklyVolume,
+    avgWeeklyVolume,
+    avgSRPE,
+    keyLifts,
+    weekCompletionMap,
     fetchAllPrograms,
     fetchActiveProgram,
     fetchProgramDetails,
@@ -216,5 +253,7 @@ export function usePrograms() {
     getWeeksUntilDeload,
     getCurrentPhase,
     getWeeklyVolume,
+    fetchDashboardData,
+    getSessionsForWeek,
   };
 }
