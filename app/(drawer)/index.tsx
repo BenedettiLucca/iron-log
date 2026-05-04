@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { db } from '../../src/db/client';
 import { exercises, routineExercises } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
+import { ProgressBar } from '../../components/ProgressBar';
 import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
@@ -18,13 +19,30 @@ export default function HomeScreen() {
   const router = useRouter();
   const { allRoutines: routinesList, fetchRoutines } = useRoutines();
   const { lastSession, incompleteSession, fetchHomeData } = useSessions();
-  const { activeProgram, fetchActiveProgram, getCurrentWeek, getWeeksUntilDeload, getCurrentPhase } = usePrograms();
+  const { 
+    activeProgram, 
+    fetchActiveProgram, 
+    getCurrentWeek, 
+    getWeeksUntilDeload, 
+    getCurrentPhase,
+    weeklyVolume,
+    avgWeeklyVolume,
+    avgSRPE,
+    keyLifts,
+    fetchDashboardData
+  } = usePrograms();
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     await Promise.all([fetchRoutines(), fetchHomeData(), fetchActiveProgram()]);
   }, [fetchRoutines, fetchHomeData, fetchActiveProgram]);
+
+  useEffect(() => {
+    if (activeProgram) {
+      fetchDashboardData();
+    }
+  }, [activeProgram, fetchDashboardData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -118,7 +136,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Active Program / Deload Banner */}
+      {/* Active Program / Dashboard */}
       {activeProgram && (() => {
         const currentWeek = getCurrentWeek();
         const weeksUntilDeload = getWeeksUntilDeload();
@@ -132,7 +150,7 @@ export default function HomeScreen() {
           <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
             <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
               <Card className={isDeloadWeek ? 'bg-green-500/10 border border-green-500/30' : isNearDeload ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-primary/5 border border-primary/20'}>
-                <View className="flex-row justify-between items-center">
+                <View className="flex-row justify-between items-start">
                   <View className="flex-1 mr-3">
                     <View className="flex-row items-center gap-2 mb-1">
                       <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t('programs.active')}</Text>
@@ -141,13 +159,36 @@ export default function HomeScreen() {
                         {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
                       </Text>
                     </View>
-                    <Text className="text-text font-bold text-base">{activeProgram.name}</Text>
+                    <Text className="text-text font-bold text-lg mb-3">{activeProgram.name}</Text>
+                    
+                    {/* Dashboard Stats */}
+                    <View className="flex-row items-center justify-between mb-3">
+                      <View className="flex-1 mr-6">
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-subtext text-[10px] font-bold uppercase">{t('programs.dashboard.volume')}</Text>
+                          <Text className="text-text text-[10px] font-bold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
+                        </View>
+                        <ProgressBar 
+                          current={weeklyVolume} 
+                          total={Math.max(weeklyVolume, avgWeeklyVolume, 1)} 
+                          height={4}
+                        />
+                        <Text className="text-subtext text-[9px] mt-1">
+                          {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
+                        </Text>
+                      </View>
+                      <View className="items-end">
+                        <Text className="text-subtext text-[10px] font-bold uppercase">{t('programs.dashboard.avgSRPE')}</Text>
+                        <Text className="text-text text-base font-bold">{avgSRPE ?? '-'}</Text>
+                      </View>
+                    </View>
+
                     {isDeloadWeek ? (
-                      <Text className="text-green-500 text-xs mt-0.5 font-medium">{t('programs.deloadNow')}</Text>
+                      <Text className="text-green-500 text-xs font-medium">{t('programs.deloadNow')}</Text>
                     ) : isNearDeload && weeksUntilDeload !== null ? (
-                      <Text className="text-yellow-600 text-xs mt-0.5 font-medium">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
+                      <Text className="text-yellow-600 text-xs font-medium">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
                     ) : (
-                      <Text className="text-subtext text-xs mt-0.5">{t(`programs.phases.${phase}`)}</Text>
+                      <Text className="text-subtext text-xs">{t(`programs.phases.${phase}`)}</Text>
                     )}
                   </View>
                   <View className="w-8 h-8 bg-primary/10 rounded-full justify-center items-center flex-shrink-0">
@@ -156,6 +197,24 @@ export default function HomeScreen() {
                 </View>
               </Card>
             </TouchableOpacity>
+
+            {/* Key Lifts Dashboard */}
+            {keyLifts.length > 0 && (
+              <View className="mt-3 px-1">
+                <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-2">{t('programs.dashboard.keyLifts')}</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {keyLifts.slice(0, 3).map((lift) => (
+                    <View key={lift.exerciseId} className="bg-card border border-border rounded-xl px-3 py-2 flex-1 min-w-[30%]">
+                      <Text className="text-text text-[11px] font-bold" numberOfLines={1}>{lift.name}</Text>
+                      <View className="flex-row items-center justify-between mt-0.5">
+                        <Text className="text-subtext text-[10px]">{lift.currentWeight}kg</Text>
+                        <Text className="text-xs">{t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
           </View>
         );
       })()}
