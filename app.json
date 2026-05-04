@@ -2,7 +2,7 @@
   "expo": {
     "name": "Iron Log",
     "slug": "iron-log",
-    "version": "3.8.0",
+    "version": "3.9.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "ironlog",
@@ -21,7 +21,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#E07A5F"
       },
-      "versionCode": 4
+      "versionCode": 5
     },
     "web": {
       "output": "static",

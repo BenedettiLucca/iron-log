@@ -1,3 +1,18 @@
+## [3.9.0] - 2026-05-03
+
+### Added
+- **Program Dashboard** — Enhanced active program card on home screen with weekly volume bar, average sRPE, and key lifts with trend indicators (`#18`)
+- **Week Grid** — Visual week-by-week completion grid (✅ done / ❌ missed / 💚 deload) on program detail screen
+- **Week Detail Screen** — Tap any week to see sessions for that period with horizontal scrollable week selector
+- **Key Lifts** — Top 5 exercises by volume with weekly max weight progression and trend detection (↗️/➡️/↘️)
+- **Volume Tracking** — Weekly volume vs 4-week average with progress bar
+- **New Service Methods** — `getAverageWeeklyVolume`, `getAverageSRPE`, `getWeekCompletionMap`, `getSessionsForWeek`, `getKeyLifts`
+- i18n support for dashboard strings in all 4 languages (PT, EN, ES, ZH)
+
+### Changed
+- Program detail week grid now uses real completion data from `weekCompletionMap` instead of static date math
+- Week grid cells are now tappable and navigate to week detail screen
+
 ## [3.8.0] - 2026-05-03
 
 ### Added
