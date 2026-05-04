@@ -25,6 +25,8 @@ export default function ProgramDetailScreen() {
     getCurrentWeek,
     getWeeksUntilDeload,
     getCurrentPhase,
+    weekCompletionMap,
+    fetchDashboardData
   } = usePrograms();
 
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
@@ -34,9 +36,11 @@ export default function ProgramDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       if (programIdNum) {
-        fetchProgramDetails(programIdNum);
+        fetchProgramDetails(programIdNum).then(() => {
+          fetchDashboardData();
+        });
       }
-    }, [programIdNum, fetchProgramDetails])
+    }, [programIdNum, fetchProgramDetails, fetchDashboardData])
   );
 
   const onRefresh = useCallback(async () => {
@@ -225,24 +229,38 @@ export default function ProgramDetailScreen() {
         {/* Weekly Grid */}
         <View>
           <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            {t('programs.weeklyProgress')}
+            {t('programs.dashboard.weekGrid')}
           </Text>
           <View className="flex-row flex-wrap gap-2">
-            {Array.from({ length: program.weeksDuration }, (_, i) => i + 1).map(weekNum => {
-              const status = getWeekStatus(weekNum);
+            {weeks.map(week => {
+              const status = weekCompletionMap.get(week.weekNumber) || 'future';
+              const isCurrent = currentWeek === week.weekNumber;
+              
+              let emoji = '';
+              if (isCurrent) emoji = '🏋️';
+              else if (status === 'done') emoji = '✅';
+              else if (status === 'missed') emoji = '❌';
+              else if (status === 'deload') emoji = '💚';
+
               return (
                 <TouchableOpacity
-                  key={weekNum}
-                  className={`w-[calc(25%-6px)] aspect-square rounded-xl border-2 items-center justify-center ${getWeekCellStyle(status)}`}
+                  key={week.id}
+                  onPress={() => router.push({
+                    pathname: '/programs/week-detail',
+                    params: { programId: program.id, weekNumber: week.weekNumber }
+                  } as any)}
+                  className={`w-[calc(20%-7px)] aspect-square rounded-xl border-2 items-center justify-center ${
+                    isCurrent ? 'bg-primary border-primary' : 
+                    status === 'done' ? 'bg-green-500/10 border-green-500/30' :
+                    status === 'missed' ? 'bg-red-500/10 border-red-500/30' :
+                    status === 'deload' ? 'bg-green-500/20 border-green-500/50' :
+                    'bg-card border-border'
+                  }`}
                 >
-                  <Text className={`text-xs font-bold ${getWeekTextClass(status)}`}>
-                    {getWeekIcon(status) || weekNum}
+                  <Text className={`text-xs font-bold ${isCurrent ? 'text-white' : 'text-text'}`}>
+                    {week.weekNumber}
                   </Text>
-                  {status === 'future' && (
-                    <Text className={`text-[10px] font-semibold ${getWeekTextClass(status)}`}>
-                      {weekNum}
-                    </Text>
-                  )}
+                  {emoji ? <Text className="text-[10px] mt-0.5">{emoji}</Text> : null}
                 </TouchableOpacity>
               );
             })}
