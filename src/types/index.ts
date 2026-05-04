@@ -245,3 +245,21 @@ export interface DoubleProgressionStatus {
   isAtTop: boolean; // All sets hit targetRepsMax → suggest load increase
   trend: 'up' | 'flat' | 'down';
 }
+
+export interface KeyLift {
+  exerciseId: number;
+  name: string;
+  trend: 'up' | 'flat' | 'down';
+  currentWeight: number;
+  history: { week: number; maxWeight: number }[];
+}
+
+export type WeekCompletionStatus = 'done' | 'missed' | 'deload' | 'future';
+
+export interface ProgramDashboardData {
+  weeklyVolume: number;
+  avgWeeklyVolume: number;
+  avgSRPE: number | null;
+  keyLifts: KeyLift[];
+  weekCompletionMap: Map<number, WeekCompletionStatus>;
+}
