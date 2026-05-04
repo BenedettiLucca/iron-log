@@ -686,6 +686,7 @@ export const es = {
     weeksLabel: 'semanas',
     weeksDuration: '{weeks} semanas',
     weekNumber: 'Semana {num}',
+    weekDetail: 'Detalle Semanal',
     weeklyProgress: 'Progreso Semanal',
     deloadIn: 'Deload en {weeks} semanas',
     deloadNow: '💚 Semana de Deload — ¡Recupera!',

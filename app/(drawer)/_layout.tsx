@@ -81,6 +81,13 @@ export default function DrawerLayout() {
           }}
         />
         <Drawer.Screen
+          name="programs/week-detail"
+          options={{
+            title: t('programs.weekDetail'),
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
+        <Drawer.Screen
           name="routines/editor"
           options={{
             title: t('drawer.editorTitle'),

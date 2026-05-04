@@ -686,6 +686,7 @@ export const zh = {
     weeksLabel: '周',
     weeksDuration: '{weeks} 周',
     weekNumber: '第 {num} 周',
+    weekDetail: '周详情',
     weeklyProgress: '每周进度',
     deloadIn: '减载还剩 {weeks} 周',
     deloadNow: '💚 减载周 — 恢复！',
