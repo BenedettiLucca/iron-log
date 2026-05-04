@@ -796,6 +796,22 @@ export const pt = {
       invalidWeeks: 'Duração deve ser entre 1 e 16 semanas',
       invalidDeload: 'Semana de deload deve ser menor que a duração total',
     },
+    dashboard: {
+      volume: 'Volume semanal',
+      volumeAvg: 'Média 4 sem',
+      avgSRPE: 'sRPE médio',
+      keyLifts: 'Exercícios-Chave',
+      overreaching: '⚠️ Volume alto — possível overreaching',
+      weekGrid: 'Grade Semanal',
+      weekStatus: {
+        done: 'Treino realizado',
+        missed: 'Treino perdido',
+        deload: 'Semana de deload',
+        future: 'Semana futura',
+      },
+      noSessions: 'Nenhuma sessão nesta semana',
+      sessions: 'Sessões',
+    },
     },
 
     supplements: {

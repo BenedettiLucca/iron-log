@@ -751,13 +751,30 @@ export const es = {
       preview: 'Vista previa',
       untitled: 'Sin título',
       submit: 'Crear Programa',
-    },
-    errors: {
+      },
+      errors: {
       nameRequired: 'El nombre es obligatorio',
       invalidWeeks: 'La duración debe ser entre 1 y 16 semanas',
       invalidDeload: 'La semana de deload debe ser menor que la duración total',
-    },
-    },
+      },
+      dashboard: {
+      volume: 'Volumen semanal',
+      volumeAvg: 'Media 4 sem',
+      avgSRPE: 'sRPE promedio',
+      keyLifts: 'Ejercicios Clave',
+      overreaching: '⚠️ Volumen alto — posible sobreentrenamiento',
+      weekGrid: 'Cuadrícula Semanal',
+      weekStatus: {
+        done: 'Entrenamiento realizado',
+        missed: 'Entrenamiento perdido',
+        deload: 'Semana de descarga',
+        future: 'Semana futura',
+      },
+      noSessions: 'Sin sesiones esta semana',
+      sessions: 'Sesiones',
+      },
+      },
+
 
     supplements: {
     title: '💊 Suplementación',

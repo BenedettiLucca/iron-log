@@ -766,6 +766,22 @@ export const en = {
       invalidWeeks: 'Duration must be between 1 and 16 weeks',
       invalidDeload: 'Deload week must be less than total duration',
     },
+    dashboard: {
+      volume: 'Weekly volume',
+      volumeAvg: '4-week avg',
+      avgSRPE: 'Avg sRPE',
+      keyLifts: 'Key Lifts',
+      overreaching: '⚠️ High volume — possible overreaching',
+      weekGrid: 'Week Grid',
+      weekStatus: {
+        done: 'Workout done',
+        missed: 'Workout missed',
+        deload: 'Deload week',
+        future: 'Future week',
+      },
+      noSessions: 'No sessions this week',
+      sessions: 'Sessions',
+    },
     },
 
     supplements: {

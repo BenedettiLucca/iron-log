@@ -757,6 +757,22 @@ export const zh = {
       invalidWeeks: '持续周数必须在1到16之间',
       invalidDeload: '减载周必须小于总持续周数',
     },
+    dashboard: {
+      volume: '每周训练量',
+      volumeAvg: '4周平均',
+      avgSRPE: '平均sRPE',
+      keyLifts: '关键动作',
+      overreaching: '⚠️ 训练量过高 — 可能过度训练',
+      weekGrid: '周网格',
+      weekStatus: {
+        done: '已完成训练',
+        missed: '错过训练',
+        deload: '减载周',
+        future: '未来周',
+      },
+      noSessions: '本周无训练',
+      sessions: '训练记录',
+    },
     },
 
     supplements: {
