@@ -171,7 +171,7 @@ export default function HomeScreen() {
                         <ProgressBar 
                           current={weeklyVolume} 
                           total={Math.max(weeklyVolume, avgWeeklyVolume, 1)} 
-                          height={4}
+                          
                         />
                         <Text className="text-subtext text-[9px] mt-1">
                           {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg

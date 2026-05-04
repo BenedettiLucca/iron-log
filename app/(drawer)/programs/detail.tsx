@@ -75,51 +75,6 @@ export default function ProgramDetailScreen() {
     }
   };
 
-  const getWeekStatus = (weekNum: number): 'completed' | 'current' | 'future' | 'deload' => {
-    if (program?.deloadWeek === weekNum) return 'deload';
-    if (!currentWeek) return 'future';
-    if (weekNum < currentWeek) return 'completed';
-    if (weekNum === currentWeek) return 'current';
-    return 'future';
-  };
-
-  const getWeekCellStyle = (status: 'completed' | 'current' | 'future' | 'deload') => {
-    switch (status) {
-      case 'completed':
-        return 'bg-success/20 border-success/40';
-      case 'current':
-        return 'bg-primary border-primary';
-      case 'deload':
-        return 'bg-success/30 border-success/60';
-      case 'future':
-      default:
-        return 'bg-card border-border';
-    }
-  };
-
-  const getWeekTextClass = (status: 'completed' | 'current' | 'future' | 'deload') => {
-    switch (status) {
-      case 'completed':
-        return 'text-success';
-      case 'current':
-        return 'text-white';
-      case 'deload':
-        return 'text-success';
-      case 'future':
-      default:
-        return 'text-subtext';
-    }
-  };
-
-  const getWeekIcon = (status: 'completed' | 'current' | 'future' | 'deload') => {
-    switch (status) {
-      case 'completed': return '✅';
-      case 'current': return '🏋️';
-      case 'deload': return '💚';
-      case 'future': return '';
-    }
-  };
-
   const handleDelete = () => {
     if (!program) return;
     setDialog({

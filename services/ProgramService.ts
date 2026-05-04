@@ -1,5 +1,5 @@
 import { db } from '@/src/db/client';
-import { programs, programWeeks, programExerciseTargets, sets, sessions, exercises } from '@/src/db/schema';
+import { programs, programWeeks, programExerciseTargets, sets, sessions } from '@/src/db/schema';
 import { eq, and, desc, between, sql } from 'drizzle-orm';
 import { logger } from './logger';
 import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus, ProgramGoal, ProgramPhase, Session } from '@/src/types';
