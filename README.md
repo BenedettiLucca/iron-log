@@ -4,7 +4,7 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão:** 3.8.0 · **Expo SDK:** 54 · **Testes:** 300 passando
+**Versão:** 3.9.0 · **Expo SDK:** 54 · **Testes:** 300 passando
 
 ---
 
@@ -28,11 +28,19 @@ O idioma pode ser alterado a qualquer momento em **Configurações**.
 - **Histórico Instantâneo** — Consulte cargas anteriores sem sair da tela de exercício
 - **Warmup Progression** — Cálculo automático de séries de aquecimento (40/60/80%)
 
+### 🏋️ Programas & Periodização
+- **Dashboard de Programas** — Card ativo na home com volume semanal, sRPE médio e key lifts com indicadores de tendência
+- **Grade Semanal** — Visualização de conclusão por semana (✅ feito / ❌ perdido / 💚 deload)
+- **Detalhe da Semana** — Toque em qualquer semana para ver as sessões do período
+- **Progressão Dupla** — Tracking automático de progressão de carga/reps quando alvos são atingidos
+- **Contagem Regressiva Deload** — Banner no dashboard mostrando semanas até o deload
+
 ### 🧬 Bio & Evolução
 - **Bio-Tracking Completo** — Peso, medidas corporais e fotos comparativas
 - **Gráficos de Evolução** — Média móvel (7 dias), galeria de fotos por data
 - **Metas** — Objetivos para peso e medidas com data-alvo
 - **Lembretes Mensais** — Notificações configuráveis para check-in
+- **Check-in Mensal** — Comparação lado a lado de fotos (frente/costas/lateral) com sobreposição de medidas
 
 ### 📊 Analytics
 - **Strength Score (0-100)** — Score composto de Volume + Intensidade + Consistência
@@ -46,9 +54,16 @@ O idioma pode ser alterado a qualquer momento em **Configurações**.
 ### 📤 Exportação de Dados
 - **CSV Export** — Export completo de treinos e métricas corporais
 - **CSV por Sessão** — Export individual pelo Resumo de cada treino
+- **Notion Markdown Export** — Export de sessões individuais com YAML frontmatter + tabelas de exercícios
+- **Relatório Semanal** — Tela dedicada com agregação de sessões da semana, cards de stats e preview Markdown
 - **Share Nativo** — Compartilhamento via sistema (WhatsApp, Email, etc.)
 - **Backup Local** — Export/import do banco SQLite completo (.db)
 - **Backup em Nuvem** — Google Drive (opcional)
+
+### 💊 Suplementos
+- **Checklist Diário** — Toggle de suplementos com streak e aderência semanal
+- **Stack Padrão** — Seed com um toque de Creatina, Cafeína+L-Theanine, D3, Ômega 3, Mg Bisglicinato, Ashwagandha
+- **Gestão Personalizada** — Adicione/edite/delete suplementos com dosagem, horário, frequência e emoji
 
 ### 🛡️ Validação & Robustez
 - **Zod Schemas** — Validação de route params e form inputs em todas as telas
@@ -125,7 +140,17 @@ iron-log/
 │   │   │   ├── index.tsx   # Peso e medidas
 │   │   │   ├── evolution.tsx # Gráficos
 │   │   │   ├── goals.tsx   # Metas
-│   │   │   └── analytics.tsx # Strength Score, Volume, PRs
+│   │   │   ├── analytics.tsx # Strength Score, Volume, PRs
+│   │   │   └── checkin.tsx # Check-in mensal com comparação de fotos
+│   │   ├── programs/       # Programas de treino
+│   │   │   ├── index.tsx   # Lista de programas
+│   │   │   ├── create.tsx  # Wizard de criação
+│   │   │   ├── detail.tsx  # Detalhe + grade semanal
+│   │   │   └── week-detail.tsx # Sessões da semana
+│   │   ├── supplements/    # Checklist de suplementos
+│   │   │   └── index.tsx   # Checklist diário + gestão
+│   │   ├── reports/        # Relatórios
+│   │   │   └── weekly.tsx  # Relatório semanal Markdown
 │   │   ├── routines/       # CRUD de rotinas + editor + templates
 │   │   ├── history/        # Calendário + histórico de sessões
 │   │   ├── settings.tsx    # Config, backup, export CSV, idioma
@@ -135,7 +160,7 @@ iron-log/
 │       ├── exercise.tsx    # Execução do exercício
 │       ├── finish.tsx      # Finalizar treino (sRPE, peso, notas)
 │       └── summary.tsx     # Resumo + export CSV individual
-├── components/             # 17+ componentes de UI reutilizáveis
+├── components/             # 20 componentes de UI reutilizáveis
 ├── hooks/                  # Hooks de domínio
 ├── services/               # Serviços de negócio
 ├── src/
@@ -144,7 +169,7 @@ iron-log/
 │   ├── utils/              # Funções puras
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # Sistema de tradução (pt/en/es/zh)
-├── __tests__/              # 16 suites, 281 testes
+├── __tests__/              # 17 suites, 300 testes
 ├── constants/              # Cores e tipografia
 └── drizzle/                # Migrações SQL
 ```

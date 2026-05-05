@@ -1,3 +1,25 @@
+# Changelog
+
+All notable changes to Iron Log are documented here.
+
+## [Unreleased]
+
+### Added
+- Issue #20: Automated Monthly Check-in Comparison
+  - New `/bio/checkin` screen with side-by-side photo comparison (front/back/side)
+  - Measurement overlays on photos showing weight and waist
+  - Chronological gallery with horizontal scroll of all monthly check-ins
+  - "Before/After" slider per pose via enhanced PhotoComparison
+  - Pure utility functions with full test coverage (processCheckinData, formatMonthYear, calculateChange)
+  - Enhanced monthly notification with deep link to `/bio/checkin`
+  - i18n translations for check-in flow in PT/EN/ES/ZH
+
+### Fixed
+- `Input.tsx` event handler types (`onFocus`/`onBlur`)
+- `use-body-metrics.ts` Drizzle result type casting
+
+---
+
 ## [3.9.0] - 2026-05-03
 
 ### Added
@@ -190,26 +212,6 @@
 - Corrigida key de tradução `routines.addExercisesHint` em PT/EN/ES/ZH
 
 ---
-
-# Changelog
-
-All notable changes to Iron Log are documented here.
-
-## [Unreleased]
-
-### Added
-- Issue #20: Automated Monthly Check-in Comparison
-  - New `/bio/checkin` screen with side-by-side photo comparison (front/back/side)
-  - Measurement overlays on photos showing weight and waist
-  - Chronological gallery with horizontal scroll of all monthly check-ins
-  - "Before/After" slider per pose via enhanced PhotoComparison
-  - Pure utility functions with full test coverage (processCheckinData, formatMonthYear, calculateChange)
-  - Enhanced monthly notification with deep link to `/bio/checkin`
-  - i18n translations for check-in flow in PT/EN/ES/ZH
-
-### Fixed
-- `Input.tsx` event handler types (`onFocus`/`onBlur`)
-- `use-body-metrics.ts` Drizzle result type casting
 
 ## [3.2.0] - 2026-04-28
 

@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.8.0.
+*   **Current State:** v3.9.0.
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -25,6 +25,11 @@ This file provides context and instructions for the Gemini AI agent working on t
 ### Directory Map
 *   **`app/`**: Application screens and routes (Expo Router).
     *   `app/(drawer)/`: Main navigation (Home, Bio, Routines, History).
+        *   `programs/`: Program list, creation, detail, week detail.
+        *   `supplements/`: Daily supplement checklist and management.
+        *   `reports/`: Weekly report with Markdown export.
+        *   `bio/checkin.tsx`: Monthly check-in photo comparison.
+        *   `bio/analytics.tsx`: Strength Score, Volume, PRs, 1RM.
     *   `app/session/`: **Isolated Stack** for active workout sessions. *Critical logic here.*
 *   **`src/db/`**: Database layer.
     *   `schema.ts`: **Source of Truth** for the data model.
@@ -35,7 +40,11 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **`drizzle/`**: SQL Migration files.
 *   **`components/`**: Reusable polished UI components.
 *   **`hooks/`**: Domain hooks (routines, sessions, session-exercise, body-metrics) + utility hooks (haptics, notifications, color-scheme). All export via `hooks/index.ts`.
+    *   `use-programs.ts`: Program CRUD, active program state, dashboard data.
+    *   `use-supplements.ts`: Supplement checklist, streaks, adherence tracking.
 *   **`services/`**: Business logic services (AnalyticsService, CsvExportService, AlexandriaExportService, DatabaseBackupService, NotificationService, logger). All export via `services/index.ts`.
+    *   `NotionExportService.ts`: Notion Markdown export for sessions and weekly reports.
+    *   `ProgramService.ts`: Program CRUD, double progression, dashboard data.
 *   **`assets/`**: Images and static resources.
 
 ### Data Model (Drizzle)
@@ -50,6 +59,11 @@ The app relies on a strictly typed SQLite schema. Key tables include:
 *   `measurement_goals`: User goals for body metrics with target dates.
 *   `personal_records`: PR tracking (weight, reps, volume, duration).
 *   `user_settings`: App preferences (single-row table).
+*   `programs`: Training programs with configurable mesocycle length.
+*   `program_weeks`: Weekly targets per exercise within a program.
+*   `program_exercise_targets`: Set/reps/weight targets per exercise per week.
+*   `supplements`: Supplement definitions (name, dosage, timing, frequency).
+*   `supplement_logs`: Daily supplement check-in records.
 
 ## 4. Development Workflow & Commands
 
@@ -68,7 +82,7 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 
 ### Linting & Testing
 *   **Lint:** `npm run lint`
-*   **Tests:** `npx jest` (16 suites, 300 tests)
+*   **Tests:** `npx jest` (17 suites, 300 tests)
 
 ## 5. Coding Conventions & Guidelines
 

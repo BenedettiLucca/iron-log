@@ -4,7 +4,7 @@
 
 **Iron Log** is a complete local-first fitness monitoring platform. Built for people who take training seriously — fast load logging, body tracking, performance analytics, and data export.
 
-**Version:** 3.8.0 · **Expo SDK:** 54 · **Tests:** 300 passing
+**Version:** 3.9.0 · **Expo SDK:** 54 · **Tests:** 300 passing
 
 ---
 
@@ -28,11 +28,19 @@ The language can be changed anytime in **Settings**.
 - **Instant History** — Check previous loads without leaving the exercise screen
 - **Warmup Progression** — Automatic warmup set calculation (40/60/80%)
 
+### 🏋️ Programs & Periodization
+- **Program Dashboard** — Active program card on home with weekly volume, average sRPE, and key lifts with trend indicators
+- **Week Grid** — Visual week-by-week completion grid (✅ done / ❌ missed / 💚 deload)
+- **Week Detail** — Tap any week to see sessions for that period
+- **Double Progression** — Automatic weight/reps progression tracking when targets are met
+- **Deload Countdown** — Dashboard banner showing weeks until deload week
+
 ### 🧬 Bio & Evolution
 - **Complete Bio-Tracking** — Weight, body measurements, and comparative photos
 - **Evolution Charts** — 7-day moving average, photo gallery by date
 - **Goals** — Weight and measurement goals with target dates
 - **Monthly Reminders** — Configurable notifications for check-ins
+- **Monthly Check-in** — Side-by-side photo comparison (front/back/side) with measurement overlays
 
 ### 📊 Analytics
 - **Strength Score (0-100)** — Composite score of Volume + Intensity + Consistency
@@ -46,9 +54,16 @@ The language can be changed anytime in **Settings**.
 ### 📤 Data Export
 - **CSV Export** — Full export of workouts and body metrics
 - **Per-Session CSV** — Individual export from each workout Summary
+- **Notion Markdown Export** — Export individual sessions with YAML frontmatter + exercise tables
+- **Weekly Report** — Dedicated screen with week session aggregation, stats cards, and Markdown preview
 - **Native Share** — System sharing (WhatsApp, Email, etc.)
 - **Local Backup** — Export/import of complete SQLite database (.db)
 - **Cloud Backup** — Google Drive (optional)
+
+### 💊 Supplements
+- **Daily Checklist** — Supplement toggle with streak counter and weekly adherence
+- **Default Stack** — One-tap seed of Creatine, Caffeine+L-Theanine, D3, Omega 3, Mg Bisglycinate, Ashwagandha
+- **Custom Management** — Add/edit/delete supplements with dosage, timing, frequency, and emoji
 
 ### 🛡️ Validation & Robustness
 - **Zod Schemas** — Route params and form input validation on all screens
@@ -122,12 +137,26 @@ iron-log/
 │   ├── (drawer)/           # Side drawer menu
 │   │   ├── index.tsx       # Home
 │   │   ├── bio/            # Bio-Tracking + Analytics
+│   │   │   ├── index.tsx   # Weight & measurements
+│   │   │   ├── evolution.tsx # Charts
+│   │   │   ├── goals.tsx   # Goals
+│   │   │   ├── analytics.tsx # Strength Score, Volume, PRs
+│   │   │   └── checkin.tsx # Monthly check-in photo comparison
+│   │   ├── programs/       # Training programs
+│   │   │   ├── index.tsx   # Program list
+│   │   │   ├── create.tsx  # Creation wizard
+│   │   │   ├── detail.tsx  # Detail + week grid
+│   │   │   └── week-detail.tsx # Sessions for the week
+│   │   ├── supplements/    # Supplement checklist
+│   │   │   └── index.tsx   # Daily checklist + management
+│   │   ├── reports/        # Reports
+│   │   │   └── weekly.tsx  # Weekly Markdown report
 │   │   ├── routines/       # Routine CRUD + editor + templates
 │   │   ├── history/        # Calendar + session history
 │   │   ├── settings.tsx    # Config, backup, CSV export, language
 │   │   └── about.tsx       # About the app
 │   └── session/            # Workout flow (isolated Stack)
-├── components/             # 17+ reusable UI components
+├── components/             # 20 reusable UI components
 ├── hooks/                  # Domain hooks
 ├── services/               # Business services
 ├── src/
@@ -136,7 +165,7 @@ iron-log/
 │   ├── utils/              # Pure functions
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # Translation system (pt/en/es/zh)
-├── __tests__/              # 16 suites, 281 tests
+├── __tests__/              # 17 suites, 300 tests  
 ├── constants/              # Colors and typography
 └── drizzle/                # SQL migrations
 ```

@@ -4,7 +4,7 @@
 
 **Iron Log** es una plataforma completa de monitoreo fitness local-first. Diseñado para quienes se toman el entrenamiento en serio — registro rápido de cargas, seguimiento corporal, análisis de rendimiento y exportación de datos.
 
-**Versión:** 3.8.0 · **Expo SDK:** 54 · **Tests:** 300 pasando
+**Versión:** 3.9.0 · **Expo SDK:** 54 · **Tests:** 300 pasando
 
 ---
 
@@ -28,11 +28,19 @@ El idioma se puede cambiar en cualquier momento desde **Configuración**.
 - **Historial Instantáneo** — Consulta cargas anteriores sin salir de la pantalla de ejercicio
 - **Warmup Progression** — Cálculo automático de series de calentamiento (40/60/80%)
 
+### 🏋️ Programas & Periodización
+- **Dashboard de Programas** — Tarjeta activa en inicio con volumen semanal, sRPE promedio y key lifts con indicadores de tendencia
+- **Grade Semanal** — Visualización de conclusión por semana (✅ hecho / ❌ perdido / 💚 deload)
+- **Detalle de la Semana** — Toca cualquier semana para ver las sesiones del período
+- **Progresión Doble** — Seguimiento automático de progresión de carga/reps cuando se alcanzan los objetivos
+- **Cuenta Regresiva Deload** — Banner en el dashboard mostrando semanas hasta la semana de deload
+
 ### 🧬 Bio & Evolución
 - **Bio-Tracking Completo** — Peso, medidas corporales y fotos comparativas
 - **Gráficos de Evolución** — Media móvil (7 días), galería de fotos por fecha
 - **Metas** — Objetivos para peso y medidas con fecha objetivo
 - **Recordatorios Mensuales** — Notificaciones configurables para check-in
+- **Check-in Mensual** — Comparación lado a lado de fotos (frente/espalda/lateral) con superposición de medidas
 
 ### 📊 Analytics
 - **Strength Score (0-100)** — Puntaje compuesto de Volumen + Intensidad + Consistencia
@@ -46,9 +54,16 @@ El idioma se puede cambiar en cualquier momento desde **Configuración**.
 ### 📤 Exportación de Datos
 - **CSV Export** — Exportación completa de entrenamientos y métricas corporales
 - **CSV por Sesión** — Exportación individual desde el Resumen de cada entrenamiento
+- **Notion Markdown Export** — Exportación de sesiones individuales con YAML frontmatter + tablas de ejercicios
+- **Reporte Semanal** — Pantalla dedicada con agregación de sesiones de la semana, tarjetas de stats y vista previa Markdown
 - **Share Nativo** — Compartir vía sistema (WhatsApp, Email, etc.)
 - **Backup Local** — Export/import de la base SQLite completa (.db)
 - **Backup en la Nube** — Google Drive (opcional)
+
+### 💊 Suplementos
+- **Checklist Diario** — Toggle de suplementos con contador de racha y adherencia semanal
+- **Stack Predeterminado** — Seed con un toque de Creatina, Cafeína+L-Theanine, D3, Omega 3, Mg Bisglicinato, Ashwagandha
+- **Gestión Personalizada** — Agrega/edita/elimina suplementos con dosificación, horario, frecuencia y emoji
 
 ### 🛡️ Validación & Robustez
 - **Zod Schemas** — Validación de route params y form inputs en todas las pantallas
@@ -122,12 +137,26 @@ iron-log/
 │   ├── (drawer)/           # Menú lateral
 │   │   ├── index.tsx       # Home
 │   │   ├── bio/            # Bio-Tracking + Analytics
+│   │   │   ├── index.tsx   # Peso y medidas
+│   │   │   ├── evolution.tsx # Gráficos
+│   │   │   ├── goals.tsx   # Metas
+│   │   │   ├── analytics.tsx # Strength Score, Volumen, PRs
+│   │   │   └── checkin.tsx # Check-in mensual con comparación de fotos
+│   │   ├── programs/       # Programas de entrenamiento
+│   │   │   ├── index.tsx   # Lista de programas
+│   │   │   ├── create.tsx  # Asistente de creación
+│   │   │   ├── detail.tsx  # Detalle + grade semanal
+│   │   │   └── week-detail.tsx # Sesiones de la semana
+│   │   ├── supplements/    # Checklist de suplementos
+│   │   │   └── index.tsx   # Checklist diario + gestión
+│   │   ├── reports/        # Reportes
+│   │   │   └── weekly.tsx  # Reporte semanal Markdown
 │   │   ├── routines/       # CRUD de rutinas + editor + templates
 │   │   ├── history/        # Calendario + historial de sesiones
 │   │   ├── settings.tsx    # Config, backup, export CSV, idioma
 │   │   └── about.tsx       # Sobre la app
 │   └── session/            # Flujo de entrenamiento (Stack aislada)
-├── components/             # 17+ componentes de UI reutilizables
+├── components/             # 20 componentes de UI reutilizables
 ├── hooks/                  # Hooks de dominio
 ├── services/               # Servicios de negocio
 ├── src/
@@ -136,7 +165,7 @@ iron-log/
 │   ├── utils/              # Funciones puras
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # Sistema de traducción (pt/en/es/zh)
-├── __tests__/              # 16 suites, 281 tests
+├── __tests__/              # 17 suites, 300 tests
 ├── constants/              # Colores y tipografía
 └── drizzle/                # Migraciones SQL
 ```
