@@ -8,7 +8,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { sets, routineExercises, sessions as sessionsTable } from '../../src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
@@ -18,20 +18,7 @@ import { Session } from '@/src/types';
 import { safeParseParams, summaryParamsSchema } from '@/src/validators/routes';
 import { CsvExportService } from '../../services/CsvExportService';
 import { useI18n } from '../../src/i18n/index';
-
-interface ExerciseSummary {
-  name: string;
-  sets: { setNumber: number; weightKg: number; reps: number; durationSeconds: number | null; rir: number | null }[];
-  exId: number;
-  target?: string;
-}
-
-interface SessionStats {
-  totalSets: number;
-  totalVolume: number;
-  bestSet: { weight: number; reps: number; exercise: string } | null;
-  averageIntensity: number;
-}
+import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
 
 export default function SummaryScreen() {
   const { t } = useI18n();
@@ -59,8 +46,10 @@ export default function SummaryScreen() {
       const session = sessionDataResult[0];
       setSessionData(session);
 
-      // 2. Buscar Sets
-      const setsData = await db.select().from(sets).where(eq(sets.sessionId, Number(sessionId)));
+      // 2. Buscar Sets ativos (soft-deleted sets ficam fora do summary e export)
+      const setsData = await db.select()
+        .from(sets)
+        .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
 
       // 3. Buscar Targets da Rotina (Se houver routineId)
       const targetsMap = new Map<number, string>();
@@ -77,94 +66,21 @@ export default function SummaryScreen() {
         });
       }
 
-      // 4. Agrupar por Exercício
-      const exercisesMap = new Map<string, ExerciseSummary>();
-
-      setsData.forEach(set => {
-        const exName = set.exerciseName || `${t('common.exercise')} ${set.exerciseId}`;
-        if (!exercisesMap.has(exName)) {
-          exercisesMap.set(exName, { sets: [], exId: set.exerciseId, name: exName });
-        }
-        exercisesMap.get(exName)!.sets.push(set);
+      const summary = buildSessionSummary({
+        session,
+        setsData,
+        targetsMap,
+        t,
       });
 
-      // Add targets to exercises
-      exercisesMap.forEach((data, exName) => {
-        const target = targetsMap.get(data.exId);
-        if (target) data.target = target;
-      });
-
-      // 5. Calculate statistics
-      let totalVolume = 0;
-      let maxVolume = 0;
-      let bestSet: { weight: number; reps: number; exercise: string } | null = null;
-
-      setsData.forEach(set => {
-        if (set.reps && set.weightKg) {
-          const volume = set.reps * set.weightKg;
-          totalVolume += volume;
-
-          if (volume > maxVolume) {
-            maxVolume = volume;
-            bestSet = {
-              weight: set.weightKg,
-              reps: set.reps,
-              exercise: set.exerciseName || 'Unknown',
-            };
-          }
-        }
-      });
-
-      setStats({
-        totalSets: setsData.length,
-        totalVolume,
-        bestSet,
-        averageIntensity: setsData.length > 0 ? totalVolume / setsData.length : 0,
-      });
-
-      // 6. Formatar Data
-      const dateObj = new Date(session.startTime);
-      const dateStr = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
-
-      // 7. Montar String
-      let md = `💪 TREINO ${session.routineName} - [${dateStr}]\n\n`;
-      md += `⚖️ Peso: ${session.bodyWeight || 'N/A'} kg | ⏱️ Duração: ${session.durationMinutes} min | 🔥 sRPE: ${session.sRpe}\n\n`;
-
-      exercisesMap.forEach((data) => {
-        const { sets: setsList, target } = data;
-
-        // Ordenar sets
-        setsList.sort((a, b) => a.setNumber - b.setNumber);
-
-        // Formatar cada set
-        const setsStr = setsList.map(s => {
-          let coreStr = "";
-          if (s.durationSeconds) {
-            coreStr = `${s.durationSeconds}s`;
-            if (s.weightKg > 0) coreStr += `x${s.weightKg}kg`;
-          } else {
-            coreStr = `${s.reps}x${s.weightKg}kg`;
-          }
-          return `S${s.setNumber}: ${coreStr}${s.rir !== null ? `xRIR${s.rir}` : ''}`;
-        }).join(" | ");
-
-        // Header com Meta
-        const header = target ? `[${data.name}] (Meta: ${target})` : `[${data.name}]`;
-
-        md += `${header}: ${setsStr}\n`;
-      });
-
-      if (session.notes) {
-        md += `\n📝 Observações: ${session.notes}`;
-      }
-
-      setReport(md);
+      setStats(summary.stats);
+      setReport(summary.report);
 
     } catch (e) {
       logger.error('Erro inesperado', e);
       setReport(t('summary.reportError'));
     }
-  }, [sessionId]);
+  }, [sessionId, t]);
 
   useEffect(() => {
     generateMarkdown();
@@ -232,7 +148,7 @@ export default function SummaryScreen() {
     if (srpe <= 6) return t('summary.consistentWorkout');
     if (srpe <= 8) return t('summary.hardWork');
     return t("summary.herculeanEffort");
-  }, [sessionData]);
+  }, [sessionData, t]);
 
   return (
     <View className="flex-1 bg-background">
