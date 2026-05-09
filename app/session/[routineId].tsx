@@ -71,7 +71,7 @@ export default function SessionScreen() {
     });
 
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, t]);
 
   const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
 

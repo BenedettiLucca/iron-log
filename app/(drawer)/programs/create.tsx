@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Toast } from '../../../components/Toast';
@@ -27,8 +27,11 @@ export default function CreateProgramScreen() {
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
   // Auto-calculate end date
-  const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + parseInt(weeksDuration || '0', 10) * 7);
+  const endDate = useMemo(() => {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + parseInt(weeksDuration || '0', 10) * 7);
+    return date;
+  }, [startDate, weeksDuration]);
 
   const getGoalEmoji = (g: string) => {
     switch (g) {
@@ -39,14 +42,14 @@ export default function CreateProgramScreen() {
     }
   };
 
-  const validate = (): boolean => {
+  const validate = useCallback((): boolean => {
     if (!name.trim()) {
       setNameError(t('programs.errors.nameRequired'));
       return false;
     }
     setNameError('');
     return true;
-  };
+  }, [name, t]);
 
   const handleSubmit = useCallback(async () => {
     if (!validate()) return;
@@ -91,7 +94,7 @@ export default function CreateProgramScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t]);
+  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t, validate]);
 
   return (
     <View className="flex-1 bg-background">

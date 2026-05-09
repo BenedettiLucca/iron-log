@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises, personalRecords } from '../../src/db/schema';
-import { eq, and, desc, isNull, sql } from 'drizzle-orm';
+import { eq, and, desc, isNull } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
@@ -211,7 +211,7 @@ export default function ExerciseScreen() {
     } catch (e) {
       logger.error(t('common.operationError'), e);
     }
-  }, [sessionId, exerciseId, routineId]);
+  }, [sessionId, exerciseId, routineId, t]);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -233,7 +233,7 @@ export default function ExerciseScreen() {
     } catch (e) {
       logger.error(t("exercise.sqlHistoryError"), e);
     }
-  }, [exerciseId]);
+  }, [exerciseId, t]);
 
   useEffect(() => {
     loadData();
@@ -429,7 +429,7 @@ export default function ExerciseScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t]);
 
   const handleUndo = useCallback(async () => {
     if (!lastSavedSet) return;
@@ -443,7 +443,7 @@ export default function ExerciseScreen() {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.undoError'), type: 'error' });
     }
-  }, [lastSavedSet, loadData]);
+  }, [lastSavedSet, loadData, t]);
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
@@ -454,7 +454,7 @@ export default function ExerciseScreen() {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [loadData]);
+  }, [loadData, t]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {
@@ -467,7 +467,7 @@ export default function ExerciseScreen() {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.loadSetError'), type: 'error' });
     }
-  }, []);
+  }, [t]);
 
   const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number) => {
     if (!editingSet) return;
@@ -491,7 +491,7 @@ export default function ExerciseScreen() {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
     }
-  }, [editingSet, loadData]);
+  }, [editingSet, loadData, t]);
 
   const goToNextOrFinish = useCallback(async () => {
     if (nextExercise) {

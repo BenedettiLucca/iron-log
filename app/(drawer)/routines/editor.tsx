@@ -67,7 +67,7 @@ export default function RoutineEditorScreen() {
     } catch {
       setToast({ visible: true, message: t('routines.loadError'), type: 'error' });
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     if (isEditing) {
