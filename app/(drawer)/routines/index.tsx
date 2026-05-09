@@ -15,6 +15,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useI18n } from '../../../src/i18n/index';
+import { buildSessionStartRoute } from '../../../src/utils/session-start';
 
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -64,8 +65,8 @@ export default function RoutinesListScreen() {
     }
   };
 
-  const handleQuickStart = (routineId: number) => {
-    router.push(`/session/${routineId}`);
+  const handleQuickStart = (routineId: number, routineName: string) => {
+    router.push(buildSessionStartRoute({ id: routineId, name: routineName }));
   };
 
   const handleImportFromClipboard = async () => {
@@ -220,7 +221,7 @@ export default function RoutinesListScreen() {
                 <TouchableOpacity 
                   onPress={(e) => {
                     e.stopPropagation();
-                    handleQuickStart(item.id);
+                    handleQuickStart(item.id, item.name);
                   }}
                   accessibilityLabel={t("routines.startRoutine")}
                   accessibilityRole="button"
@@ -302,7 +303,7 @@ export default function RoutinesListScreen() {
         onClose={() => setPreviewRoutine(null)}
         onStart={() => {
           if (previewRoutine) {
-            handleQuickStart(previewRoutine.id);
+            handleQuickStart(previewRoutine.id, previewRoutine.name);
           }
           setPreviewRoutine(null);
         }}

@@ -2,7 +2,7 @@ import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
-import { sessions, routineExercises, exercises, sets } from '../../src/db/schema';
+import { sessions, routineExercises, exercises, sets, routines } from '../../src/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -13,6 +13,7 @@ import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
+import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
 
 export default function SessionScreen() {
@@ -31,6 +32,7 @@ export default function SessionScreen() {
   const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [exitToast, setExitToast] = useState({ visible: false, message: '' });
+  const [sessionRoutineName, setSessionRoutineName] = useState(routineName);
   const lastBackPressTime = useRef<number>(0);
 
   // Force refresh when screen comes into focus
@@ -101,9 +103,22 @@ export default function SessionScreen() {
       try {
         const now = Date.now();
         setStartTime(now);
+
+        const routeRoutineName = routineName as string;
+        const fetchedRoutine = await db.select({ name: routines.name })
+          .from(routines)
+          .where(eq(routines.id, Number(rIdStr)))
+          .limit(1);
+        const resolvedRoutineName = resolveCanonicalSessionRoutineName(fetchedRoutine?.[0]?.name ?? null, routeRoutineName);
+
+        if (!resolvedRoutineName) {
+          throw new Error(`Cannot start session without routineName for routine ${rIdStr}`);
+        }
+
+        setSessionRoutineName(resolvedRoutineName);
         const result = await db.insert(sessions).values({
           routineId: Number(rIdStr),
-          routineName: routineName as string,
+          routineName: resolvedRoutineName,
           startTime: now,
           bodyWeight: 0,
           sRpe: 0,
@@ -149,7 +164,7 @@ export default function SessionScreen() {
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
         <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">{t('session.activeWorkout')}</Text>
-        <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{routineName}</Text>
+        <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{sessionRoutineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
       </View>
