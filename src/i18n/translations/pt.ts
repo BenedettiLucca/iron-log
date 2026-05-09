@@ -751,6 +751,7 @@ export const pt = {
     createError: 'Erro ao criar programa',
     detail: 'Detalhes do Programa',
     notFound: 'Programa não encontrado',
+    loadError: 'Erro ao carregar programa',
     noWeeks: 'Nenhuma semana configurada',
     noRoutine: 'Nenhuma rotina',
     routineAssigned: 'Rotina atribuída',

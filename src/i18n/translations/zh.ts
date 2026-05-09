@@ -711,6 +711,7 @@ export const zh = {
     createError: '创建计划失败',
     detail: '计划详情',
     notFound: '未找到计划',
+    loadError: '加载计划失败',
     noWeeks: '未配置周数',
     noRoutine: '无训练',
     routineAssigned: '已分配训练',

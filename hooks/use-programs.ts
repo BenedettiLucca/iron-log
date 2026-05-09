@@ -9,6 +9,7 @@ export function usePrograms() {
   const [weeks, setWeeks] = useState<ProgramWeek[]>([]);
   const [targets, setTargets] = useState<ProgramExerciseTarget[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   // Dashboard state
   const [weeklyVolume, setWeeklyVolume] = useState(0);
@@ -51,16 +52,26 @@ export function usePrograms() {
 
   const fetchProgramDetails = useCallback(async (programId: number) => {
     try {
+      setIsLoading(true);
+      setDetailError(null);
       const [program, w, t] = await Promise.all([
         ProgramService.getProgram(programId),
         ProgramService.getProgramWeeks(programId),
         ProgramService.getExerciseTargets(programId),
       ]);
-      if (program) setActiveProgram(program);
+      if (program) {
+        setActiveProgram(program);
+      } else {
+        setActiveProgram(null);
+      }
       setWeeks(w);
       setTargets(t);
     } catch (e) {
       logger.error('Failed to fetch program details', e);
+      setActiveProgram(null);
+      setDetailError(e instanceof Error ? e.message : 'Failed to load program');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -232,6 +243,7 @@ export function usePrograms() {
     weeks,
     targets,
     isLoading,
+    detailError,
     weeklyVolume,
     avgWeeklyVolume,
     avgSRPE,

@@ -720,6 +720,7 @@ export const en = {
     createError: 'Failed to create program',
     detail: 'Program Details',
     notFound: 'Program not found',
+    loadError: 'Failed to load program',
     noWeeks: 'No weeks configured',
     noRoutine: 'No routine',
     routineAssigned: 'Routine assigned',

@@ -8,6 +8,7 @@ import { Dialog } from '../../../components/Dialog';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
 import { useI18n } from '../../../src/i18n/index';
+import { getDetailScreenView, resolveFetchState } from '@/src/utils/program-detail-state';
 
 export default function ProgramDetailScreen() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function ProgramDetailScreen() {
     weeks,
     targets,
     isLoading,
+    detailError,
     fetchProgramDetails,
     deleteProgram,
     getCurrentWeek,
@@ -93,7 +95,40 @@ export default function ProgramDetailScreen() {
     });
   };
 
-  if (!program && !isLoading) {
+  const fetchState = resolveFetchState({
+    isLoading,
+    hasProgram: !!program,
+    hasError: !!detailError,
+    errorMessage: detailError ?? undefined,
+  });
+
+  const viewState = getDetailScreenView(fetchState);
+
+  if (viewState === 'loading') {
+    return (
+      <View className="flex-1 bg-background justify-center items-center">
+        <Text className="text-subtext">{t('common.loading')}</Text>
+      </View>
+    );
+  }
+
+  if (viewState === 'error') {
+    return (
+      <View className="flex-1 bg-background justify-center items-center px-8">
+        <Text className="text-6xl mb-6">⚠️</Text>
+        <Text className="text-text text-xl font-bold text-center mb-2">{t('programs.loadError')}</Text>
+        <Text className="text-subtext text-sm text-center mb-6">{fetchState.errorMessage}</Text>
+        <Button
+          title={t('common.back')}
+          onPress={() => router.back()}
+          variant="secondary"
+          size="md"
+        />
+      </View>
+    );
+  }
+
+  if (viewState === 'not_found') {
     return (
       <View className="flex-1 bg-background justify-center items-center px-8">
         <Text className="text-6xl mb-6">🔍</Text>
@@ -107,8 +142,6 @@ export default function ProgramDetailScreen() {
       </View>
     );
   }
-
-  if (!program) return null;
 
   const goalInfo = getGoalBadge(program.goal);
 
