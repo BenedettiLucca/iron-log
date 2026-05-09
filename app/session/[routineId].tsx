@@ -5,6 +5,7 @@ import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets, routines } from '../../src/db/schema';
 import { and, count, eq, isNull } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
+import { Button } from '../../components/Button';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
@@ -174,6 +175,19 @@ export default function SessionScreen() {
         data={routineExs}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, gap: 12 }}
+        ListEmptyComponent={
+          <View className="items-center py-12 px-8">
+            <Text className="text-5xl mb-4">📋</Text>
+            <Text className="text-text text-lg font-bold text-center mb-2">{t('routines.noExercises')}</Text>
+            <Text className="text-subtext text-sm text-center mb-6">{t('routines.addExercisesHint')}</Text>
+            <Button
+              title={t('common.back')}
+              onPress={() => router.back()}
+              variant="secondary"
+              size="md"
+            />
+          </View>
+        }
         renderItem={({ item, index }) => (
           <ExerciseCard
             exercise={item}

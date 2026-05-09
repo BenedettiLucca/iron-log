@@ -413,6 +413,7 @@ export default function RoutinePreviewScreen() {
           variant="primary"
           size="lg"
           className="flex-[2]"
+          disabled={exercisesData.length === 0}
         />
       </View>
     </View>

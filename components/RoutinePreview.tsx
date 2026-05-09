@@ -163,13 +163,23 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
 
         {/* Footer Actions */}
         <View className="p-4 border-t border-border bg-card">
-          <Button
-            title={t('routines.startWorkout')}
-            onPress={onStart}
-            variant="primary"
-            size="lg"
-            fullWidth
-          />
+          {exerciseList.length === 0 ? (
+            <Button
+              title={t('routines.addExercisesFirst')}
+              onPress={onClose}
+              variant="secondary"
+              size="lg"
+              fullWidth
+            />
+          ) : (
+            <Button
+              title={t('routines.startWorkout')}
+              onPress={onStart}
+              variant="primary"
+              size="lg"
+              fullWidth
+            />
+          )}
         </View>
       </View>
     </Modal>
