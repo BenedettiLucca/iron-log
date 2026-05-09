@@ -178,6 +178,7 @@ export interface ProgramExerciseTarget {
   targetRepsMin: number;
   targetRepsMax: number;
   targetSets: number;
+  exerciseName?: string;
 }
 
 // ---------------------------------------------------------------------------

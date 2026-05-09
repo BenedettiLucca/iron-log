@@ -1,5 +1,5 @@
 import { db } from '@/src/db/client';
-import { programs, programWeeks, programExerciseTargets, sets, sessions } from '@/src/db/schema';
+import { programs, programWeeks, programExerciseTargets, exercises, sets, sessions } from '@/src/db/schema';
 import { eq, and, desc, between, sql } from 'drizzle-orm';
 import { logger } from './logger';
 import type { Program, ProgramWeek, ProgramExerciseTarget, DoubleProgressionStatus, ProgramGoal, ProgramPhase, Session } from '@/src/types';
@@ -229,10 +229,29 @@ export const ProgramService = {
    */
   async getExerciseTargets(programId: number): Promise<ProgramExerciseTarget[]> {
     try {
-      return await db
-        .select()
+      const rows = await db
+        .select({
+          id: programExerciseTargets.id,
+          programId: programExerciseTargets.programId,
+          exerciseId: programExerciseTargets.exerciseId,
+          targetRepsMin: programExerciseTargets.targetRepsMin,
+          targetRepsMax: programExerciseTargets.targetRepsMax,
+          targetSets: programExerciseTargets.targetSets,
+          exerciseName: exercises.name,
+        })
         .from(programExerciseTargets)
+        .leftJoin(exercises, eq(programExerciseTargets.exerciseId, exercises.id))
         .where(eq(programExerciseTargets.programId, programId));
+
+      return rows.map(row => ({
+        id: row.id,
+        programId: row.programId,
+        exerciseId: row.exerciseId,
+        targetRepsMin: row.targetRepsMin,
+        targetRepsMax: row.targetRepsMax,
+        targetSets: row.targetSets,
+        exerciseName: row.exerciseName ?? undefined,
+      }));
     } catch (e) {
       logger.error('Failed to get exercise targets', e);
       return [];

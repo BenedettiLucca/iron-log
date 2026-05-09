@@ -319,7 +319,7 @@ export default function ProgramDetailScreen() {
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1">
                     <Text className="text-text text-sm font-semibold">
-                      {t('programs.exerciseId', { id: target.exerciseId })}
+                      {target.exerciseName || t('programs.exerciseId', { id: target.exerciseId })}
                     </Text>
                     <Text className="text-subtext text-xs mt-0.5">
                       {target.targetSets}×{target.targetRepsMin}–{target.targetRepsMax}
