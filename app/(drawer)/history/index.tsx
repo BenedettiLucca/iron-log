@@ -12,6 +12,7 @@ import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { useI18n } from '../../../src/i18n/index';
+import { toLocalDateKey } from '@/src/utils/date-key';
 
 // Configuração de Locale multilíngue
 const localeConfigs = {
@@ -83,7 +84,7 @@ export default function HistoryScreen() {
 
       const marks: Record<string, { marked: boolean; dotColor: string }> = {};
       result.forEach(s => {
-        const dateStr = new Date(s.startTime).toISOString().split('T')[0];
+        const dateStr = toLocalDateKey(s.startTime);
         marks[dateStr] = {
           marked: true,
           dotColor: Colors.primary,
@@ -125,7 +126,7 @@ export default function HistoryScreen() {
   const handleDayPress = useCallback(async (day: any) => {
     setSelectedDate(day.dateString);
     const filtered = allSessions.filter(s => {
-      const sDate = new Date(s.startTime).toISOString().split('T')[0];
+      const sDate = toLocalDateKey(s.startTime);
       return sDate === day.dateString;
     });
 
