@@ -121,6 +121,7 @@ export const zh = {
     noCheckinYet: '暂无签到',
     discardTitle: '放弃更改？',
     discardMessage: '你有未保存的照片或测量数据。现在离开将丢失所有内容。',
+    validationError: '测量数据无效。请检查字段',
   },
   bioNav: {
     goals: '目标',

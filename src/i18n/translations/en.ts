@@ -121,6 +121,7 @@ export const en = {
     noCheckinYet: 'No check-in yet',
     discardTitle: 'Discard Changes?',
     discardMessage: 'You have unsaved photos or measurements. Leaving now will lose everything.',
+    validationError: 'Invalid measurements. Check the fields',
   },
   bioNav: {
     goals: 'Goals',

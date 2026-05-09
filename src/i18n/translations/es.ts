@@ -121,6 +121,7 @@ export const es = {
     noCheckinYet: 'Sin check-in aún',
     discardTitle: '¿Descartar Cambios?',
     discardMessage: 'Tienes fotos o medidas sin guardar. Salir ahora perderá todo.',
+    validationError: 'Medidas inválidas. Verifica los campos',
   },
   bioNav: {
     goals: 'Metas',

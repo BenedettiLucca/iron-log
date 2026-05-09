@@ -15,9 +15,10 @@ import { Dialog } from '../../../components/Dialog';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
-import { weightInputSchema, monthlyCheckinSchema } from '@/src/validators/forms';
+import { weightInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../../src/i18n/index';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
+import { validateMonthlyCheckin, buildCheckinEntryData } from '@/src/utils/checkin-validation';
 
 export default function BioScreen() {
   const { t } = useI18n();
@@ -162,6 +163,16 @@ export default function BioScreen() {
 
   const saveMonthlyCheckin = async () => {
       try {
+          // Step 1: Validate — block save on failure
+          const validation = validateMonthlyCheckin(monthlyData);
+          if (!validation.success) {
+              logger.warn('Monthly checkin validation blocked save:', validation.errors);
+              const fields = validation.errors ? Object.keys(validation.errors).join(', ') : '';
+              setToast({ visible: true, message: `${t('bio.validationError')}${fields ? ` (${fields})` : ''}`, type: 'error' });
+              return;
+          }
+
+          // Step 2: Check for existing monthly entry this month
           const now = new Date();
           const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
           const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 0, -1).getTime();
@@ -175,40 +186,28 @@ export default function BioScreen() {
               ? existingMonthly[0].id
               : null;
 
-          // Validate monthly data with Zod
-          const monthlyValidation = monthlyCheckinSchema.safeParse(monthlyData);
-          if (!monthlyValidation.success) {
-              logger.warn('Monthly checkin validation failed:', monthlyValidation.error.flatten().fieldErrors);
-          }
-          const validatedMeasures = monthlyValidation.success ? monthlyValidation.data : {} as Record<string, any>;
-          
-          const entryData = {
-              date: existingMonthly.length > 0 && existingMonthly[0].date >= startOfMonth && existingMonthly[0].date < endOfMonth
-                  ? existingMonthly[0].date
-                  : Date.now(),
-              type: 'monthly' as const,
-              weight: Number(todayWeight) || (existingMonthly.length > 0 ? existingMonthly[0].weight : 0),
-              waist: validatedMeasures.waist || (existingMonthly.length > 0 ? existingMonthly[0].waist : 0),
-              armRight: validatedMeasures.armRight || (existingMonthly.length > 0 ? existingMonthly[0].armRight : 0),
-              thighRight: validatedMeasures.thighRight || (existingMonthly.length > 0 ? existingMonthly[0].thighRight : 0),
-              chest: validatedMeasures.chest || (existingMonthly.length > 0 ? existingMonthly[0].chest : 0),
-              calf: validatedMeasures.calf || (existingMonthly.length > 0 ? existingMonthly[0].calf : 0),
-              photoFront: photos.front || (existingMonthly.length > 0 ? existingMonthly[0].photoFront : null),
-              photoBack: photos.back || (existingMonthly.length > 0 ? existingMonthly[0].photoBack : null),
-              photoSide: photos.side || (existingMonthly.length > 0 ? existingMonthly[0].photoSide : null),
-              photoNotes: JSON.stringify(photoNotes),
-          };
+          const existingData = existingMonthly.length > 0 ? existingMonthly[0] : undefined;
+          const entryDate = existingId && existingData ? existingData.date : Date.now();
 
+          // Step 3: Build entry data using validated values + fallbacks
+          const entryData = buildCheckinEntryData({
+            validated: validation.data!,
+            existingData,
+            photos,
+            photoNotes,
+            weight: Number(todayWeight) || (existingData?.weight ?? 0),
+            date: entryDate,
+          });
+
+          // Step 4: Persist
           if (existingId) {
               await db.update(bodyMetrics).set(entryData).where(eq(bodyMetrics.id, existingId));
           } else {
               await db.insert(bodyMetrics).values(entryData);
           }
 
+          resetCheckinForm();
           setModalVisible(false);
-          setPhotos({ front: null, back: null, side: null });
-          setPhotoNotes({ front: '', back: '', side: '' });
-          setMonthlyData({ waist: '', armRight: '', thighRight: '', chest: '', calf: '' });
           fetchMetrics();
           setToast({ visible: true, message: t('bio.saveCheckinSuccess'), type: 'success' });
       } catch (e) {

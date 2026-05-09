@@ -128,6 +128,7 @@ export const pt = {
     noCheckinYet: 'Nenhum check-in ainda',
     discardTitle: 'Descartar Alterações?',
     discardMessage: 'Você tem fotos ou medidas não salvas. Sair agora vai perder tudo.',
+    validationError: 'Medidas inválidas. Verifique os campos',
 
   },
 
