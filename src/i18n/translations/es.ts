@@ -118,7 +118,9 @@ export const es = {
     armRightAbbr: 'BRAZO D.',
     latestCheckins: 'Últimos Check-ins',
     weightEvolution: 'Evolución de Peso',
-
+    noCheckinYet: 'Sin check-in aún',
+    discardTitle: '¿Descartar Cambios?',
+    discardMessage: 'Tienes fotos o medidas sin guardar. Salir ahora perderá todo.',
   },
   bioNav: {
     goals: 'Metas',

@@ -118,7 +118,9 @@ export const en = {
     armRightAbbr: 'R. ARM',
     latestCheckins: 'Latest Check-ins',
     weightEvolution: 'Weight Evolution',
-
+    noCheckinYet: 'No check-in yet',
+    discardTitle: 'Discard Changes?',
+    discardMessage: 'You have unsaved photos or measurements. Leaving now will lose everything.',
   },
   bioNav: {
     goals: 'Goals',

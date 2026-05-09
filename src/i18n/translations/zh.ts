@@ -118,7 +118,9 @@ export const zh = {
     armRightAbbr: '右手臂',
     latestCheckins: '最新签到',
     weightEvolution: '体重变化',
-
+    noCheckinYet: '暂无签到',
+    discardTitle: '放弃更改？',
+    discardMessage: '你有未保存的照片或测量数据。现在离开将丢失所有内容。',
   },
   bioNav: {
     goals: '目标',

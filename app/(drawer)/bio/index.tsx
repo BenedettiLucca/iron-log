@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
@@ -17,6 +17,7 @@ import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema, monthlyCheckinSchema } from '@/src/validators/forms';
 import { useI18n } from '../../../src/i18n/index';
+import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 
 export default function BioScreen() {
   const { t } = useI18n();
@@ -106,6 +107,7 @@ export default function BioScreen() {
       }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const deletePhoto = (field: 'front' | 'back' | 'side') => {
       setDialog({
           visible: true,
@@ -132,6 +134,31 @@ export default function BioScreen() {
           field,
       });
   };
+
+  const resetCheckinForm = useCallback(() => {
+    setPhotos({ front: null, back: null, side: null });
+    setPhotoNotes({ front: '', back: '', side: '' });
+    setMonthlyData({ waist: '', armRight: '', thighRight: '', chest: '', calf: '' });
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    const dirty = isCheckinDirty({ photos, monthlyData, photoNotes });
+    if (dirty) {
+      setDialog({
+        visible: true,
+        title: t('bio.discardTitle'),
+        message: t('bio.discardMessage'),
+        onConfirm: () => {
+          resetCheckinForm();
+          setModalVisible(false);
+          setDialog({ visible: false, title: '', message: '', onConfirm: () => {}, field: null });
+        },
+        field: null,
+      });
+    } else {
+      setModalVisible(false);
+    }
+  }, [photos, monthlyData, photoNotes, t, resetCheckinForm]);
 
   const saveMonthlyCheckin = async () => {
       try {
@@ -259,51 +286,38 @@ export default function BioScreen() {
             <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-primary font-bold text-xs uppercase tracking-widest">{t("bio.monthlyCheckin")}</Text>
                 <TouchableOpacity 
-                    onPress={() => router.push('/bio/checkin')}
+                    onPress={() => setModalVisible(true)}
                     className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
                 >
                     <Text className="text-white font-bold text-xs uppercase">{t("bio.open")}</Text>
                 </TouchableOpacity>
             </View>
 
-            <View className="flex-row justify-between">
-                {(['front', 'back', 'side'] as const).map(side => {
-                    const label = side === 'front' ? t('bio.front') : side === 'back' ? t('bio.back') : t('bio.side');
-                    return (
-                        <View key={side} className="w-[31%]">
-                            <TouchableOpacity 
-                                onPress={() => pickImage(side)}
-                                className="w-full aspect-[3/4] bg-background border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70 relative"
-                            >
-                                {photos[side] ? (
-                                    <>
-                                        <Image source={{ uri: photos[side] }} className="w-full h-full" />
-                                        <TouchableOpacity
-                                            onPress={() => deletePhoto(side)}
-                                            className="absolute top-2 right-2 bg-danger/90 w-6 h-6 rounded-full justify-center items-center shadow-lg"
-                                        >
-                                            <Text className="text-white text-xs font-bold">✕</Text>
-                                        </TouchableOpacity>
-                                    </>
+            {/* Show last check-in photos as read-only thumbnails */}
+            {metrics.find(m => m.type === 'monthly' && (m.photoFront || m.photoBack || m.photoSide)) ? (
+                <View className="flex-row justify-between">
+                    {(['photoFront', 'photoBack', 'photoSide'] as const).map((p) => {
+                        const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
+                        const uri = latestMonthly ? latestMonthly[p] : undefined;
+                        const labelKey = p === 'photoFront' ? 'bio.front' : p === 'photoBack' ? 'bio.back' : 'bio.side';
+                        return (
+                            <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-lg border border-border overflow-hidden">
+                                {uri ? (
+                                    <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
-                                    <View className="items-center">
-                                        <Text className="text-2xl mb-1">📷</Text>
-                                        <Text className="text-subtext text-xs uppercase font-bold">{label}</Text>
+                                    <View className="w-full h-full justify-center items-center">
+                                        <Text className="text-subtext text-xs uppercase font-bold">{t(labelKey)}</Text>
                                     </View>
                                 )}
-                            </TouchableOpacity>
-                            <TextInput
-                                className="mt-2 bg-card rounded-lg px-2 py-1.5 text-xs text-text border border-border"
-                                placeholder={t('bio.notesPlaceholder')}
-                                placeholderTextColor={Colors.darkSubtext}
-                                value={photoNotes[side]}
-                                onChangeText={t => setPhotoNotes(prev => ({ ...prev, [side]: t }))}
-                                maxLength={60}
-                            />
-                        </View>
-                    );
-                })}
-            </View>
+                            </View>
+                        );
+                    })}
+                </View>
+            ) : (
+                <View className="items-center py-4">
+                    <Text className="text-subtext text-xs uppercase font-bold">{t("bio.noCheckinYet")}</Text>
+                </View>
+            )}
         </Card>
 
         {/* Galeria Recente (Último Monthly) */}
@@ -362,7 +376,7 @@ export default function BioScreen() {
                   <Text className="text-text text-xl font-bold uppercase tracking-widest">{t("bio.checkin")}</Text>
                   <Button 
                     title={t("common.close")} 
-                    onPress={() => setModalVisible(false)} 
+                    onPress={handleCloseModal} 
                     variant="ghost" 
                     size="sm" 
                   />

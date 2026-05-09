@@ -125,6 +125,9 @@ export const pt = {
     armRightAbbr: 'BRAÇO D.',
     latestCheckins: 'Últimos Check-ins',
     weightEvolution: 'Evolução de Peso',
+    noCheckinYet: 'Nenhum check-in ainda',
+    discardTitle: 'Descartar Alterações?',
+    discardMessage: 'Você tem fotos ou medidas não salvas. Sair agora vai perder tudo.',
 
   },
 
