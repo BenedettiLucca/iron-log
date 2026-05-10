@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { TextInput, View, Text, TextInputProps, ViewStyle } from 'react-native';
+import { TextInput, View, Text, TextInputProps, ViewStyle, useColorScheme } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
-import { Colors } from '@/constants/colors';
+import { getThemeColors } from '@/constants/colors';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -24,16 +24,18 @@ export function Input({
   ...textInputProps
 }: InputProps) {
   const { trigger } = useHaptics();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme);
   const [isFocused, setIsFocused] = useState(false);
 
   // Animate border color
   const borderColor = isFocused
-    ? Colors.primary // Primary color when focused
+    ? theme.primary
     : error
-    ? Colors.red400 // Error red
+    ? theme.danger
     : success
-    ? Colors.green500 // Success green
-    : Colors.secondary; // Default border
+    ? theme.success
+    : theme.border;
 
   const handleFocus = (e: any) => {
     setIsFocused(true);
@@ -65,7 +67,7 @@ export function Input({
             },
             style,
           ]}
-          placeholderTextColor={Colors.darkSubtext}
+          placeholderTextColor={theme.subtext}
           onFocus={handleFocus}
           onBlur={handleBlur}
           value={value}

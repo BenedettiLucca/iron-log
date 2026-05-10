@@ -39,6 +39,29 @@ export const Colors = {
   green500: '#10B981',
   blue300: '#cdd6f4',
   darkButton: '#3e3e3e',
+  overlay: 'rgba(0, 0, 0, 0.5)',
 } as const;
 
 export type ColorKey = keyof typeof Colors;
+
+/**
+ * Returns hex color tokens for the current theme.
+ * Useful for RN components/props that don't support Tailwind classes.
+ */
+export function getThemeColors(colorScheme: 'light' | 'dark' | null | undefined) {
+  const isDark = colorScheme === 'dark';
+  return {
+    background: isDark ? Colors.darkBackground : Colors.lightBackground,
+    card: isDark ? Colors.darkCard : Colors.lightCard,
+    text: isDark ? Colors.darkText : Colors.lightText,
+    subtext: isDark ? Colors.darkSubtext : Colors.lightSubtext,
+    border: isDark ? Colors.darkBorder : Colors.lightBorder,
+    primary: Colors.primary,
+    secondary: Colors.secondary,
+    accent: Colors.accent,
+    success: Colors.success,
+    danger: Colors.danger,
+    warning: Colors.warning,
+    overlay: Colors.overlay,
+  } as const;
+}

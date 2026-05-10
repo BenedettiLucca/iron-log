@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Platform, Pressable, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Platform, Pressable, Modal, View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Colors } from '@/constants/colors';
+import { getThemeColors } from '@/constants/colors';
 
 interface DatePickerProps {
   label?: string;
@@ -21,6 +21,8 @@ export function DatePicker({
   mode = 'date',
 }: DatePickerProps) {
   const [show, setShow] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme);
 
   const showMode = () => {
     setShow(true);
@@ -44,7 +46,7 @@ export function DatePicker({
     });
   };
 
-  const borderColor = value ? Colors.primary : Colors.secondary;
+  const borderColor = value ? theme.primary : theme.border;
 
   return (
     <View className="mb-4">
@@ -73,7 +75,7 @@ export function DatePicker({
             animationType="slide"
             onRequestClose={() => setShow(false)}
           >
-            <View style={styles.modalOverlay}>
+            <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
               <View className="bg-background rounded-t-3xl p-4">
                 <View className="flex-row justify-between items-center mb-4">
                   <Text className="text-text text-lg font-bold uppercase">Selecionar Data</Text>
@@ -90,7 +92,7 @@ export function DatePicker({
                     minimumDate={minimumDate}
                     style={{ width: '100%' }}
                     locale="pt-BR"
-                    textColor={Colors.primary}
+                    textColor={theme.primary}
                   />
                 </View>
               </View>
@@ -119,7 +121,7 @@ export function DatePicker({
               display="default"
               onChange={handleChange}
               minimumDate={minimumDate}
-              accentColor={Colors.primary}
+              accentColor={theme.primary}
             />
           )}
         </>
@@ -140,6 +142,5 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });

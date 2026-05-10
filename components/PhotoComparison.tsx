@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
-import { View, Text, Image, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Modal, TouchableOpacity, useColorScheme } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
-import { Colors } from '@/constants/colors';
+import { getThemeColors } from '@/constants/colors';
 import { useI18n } from '../src/i18n/index';
 
 interface PhotoComparisonProps {
@@ -15,6 +15,8 @@ interface PhotoComparisonProps {
 
 export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }: PhotoComparisonProps) {
   const { t } = useI18n();
+  const colorScheme = useColorScheme();
+  const theme = getThemeColors(colorScheme);
   const [sliderValue, setSliderValue] = useState(0.5);
   const [containerWidth, setContainerWidth] = useState(0);
   const afterPercent = Math.round(sliderValue * 100);
@@ -83,16 +85,16 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
 
             {/* Divider Line */}
             <View
-              className="absolute top-0 bottom-0 w-0.5 bg-white/90"
+              className="absolute top-0 bottom-0 w-0.5 bg-primary/90"
               style={{ left: clipWidth - 1 }}
             />
 
             {/* Handle knob */}
             <View
-              className="absolute top-1/2 w-8 h-8 bg-white rounded-full shadow-lg justify-center items-center"
+              className="absolute top-1/2 w-8 h-8 bg-card border border-primary rounded-full shadow-lg justify-center items-center"
               style={{ left: clipWidth - 16, marginTop: -16 }}
             >
-              <Text className="text-text text-xs font-bold">⟨⟩</Text>
+              <Text className="text-primary text-xs font-bold">⟨⟩</Text>
             </View>
 
             {/* Labels */}
@@ -126,9 +128,9 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
                 now: afterPercent,
                 text: t('photoComparison.sliderValue', { before: beforePercent, after: afterPercent }),
               }}
-              minimumTrackTintColor={Colors.primary}
-              maximumTrackTintColor={Colors.gray300}
-              thumbTintColor={Colors.primary}
+              minimumTrackTintColor={theme.primary}
+              maximumTrackTintColor={theme.border}
+              thumbTintColor={theme.primary}
             />
             <View className="flex-row justify-between px-2 mt-1">
               <Text className="text-subtext text-xs">Antes</Text>

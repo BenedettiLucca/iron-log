@@ -1,6 +1,5 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import Animated, { useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
-import { Colors } from '@/constants/colors';
 
 interface SkeletonProps {
   width?: string | number;
@@ -23,13 +22,16 @@ export function Skeleton({ width = '100%', height = 40, className = '' }: Skelet
   return (
     <Animated.View
       style={[
-        styles.skeleton,
         { height, opacity },
-        typeof width === 'number' ? { width } : {},
+        getSkeletonWidth(width),
       ]}
-      className={`rounded-lg ${className}`}
+      className={`bg-border rounded-lg ${className}`}
     />
   );
+}
+
+function getSkeletonWidth(width: string | number) {
+  return typeof width === 'number' ? { width } : {};
 }
 
 interface SkeletonCardProps {
@@ -69,9 +71,3 @@ export function SkeletonList({ count = 3, className = '' }: SkeletonListProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  skeleton: {
-    backgroundColor: Colors.gray300,
-  },
-});
