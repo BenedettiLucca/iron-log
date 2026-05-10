@@ -20,6 +20,12 @@ import { useI18n } from '../../../src/i18n/index';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData } from '@/src/utils/checkin-validation';
 
+type CheckinPhotos = {
+  front: string | null;
+  back: string | null;
+  side: string | null;
+};
+
 export default function BioScreen() {
   const { t } = useI18n();
   const router = useRouter();
@@ -39,7 +45,7 @@ export default function BioScreen() {
   const [monthlyData, setMonthlyData] = useState<Record<string, string>>({
       waist: '', armRight: '', thighRight: '', chest: '', calf: ''
   });
-  const [photos, setPhotos] = useState<Record<string, string | null>>({ front: null, back: null, side: null });
+  const [photos, setPhotos] = useState<CheckinPhotos>({ front: null, back: null, side: null });
   const [photoNotes, setPhotoNotes] = useState<Record<string, string>>({ front: '', back: '', side: '' });
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {}, field: '' as 'front' | 'back' | 'side' | null });

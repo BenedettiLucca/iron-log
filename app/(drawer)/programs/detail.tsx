@@ -128,7 +128,7 @@ export default function ProgramDetailScreen() {
     );
   }
 
-  if (viewState === 'not_found') {
+  if (viewState === 'not_found' || !program) {
     return (
       <View className="flex-1 bg-background justify-center items-center px-8">
         <Text className="text-6xl mb-6">🔍</Text>
