@@ -392,9 +392,16 @@ export const zh = {
 
   // Set Card
   setCard: {
-    actionsHint: '向左滑动进行编辑或删除，或使用辅助功能操作。',
-    editAction: '编辑练习',
-    deleteAction: '删除练习',
+    accessibilityLabel: '第 {setNumber} 组，{details}',
+    actionsHint: '向左滑动可编辑或删除，或使用辅助功能操作。',
+    noWeight: '无负重',
+    durationSeconds: '{duration}秒',
+    repsCount: '{reps} 次',
+    rir: 'RIR {rir}',
+    personalRecord: '个人纪录',
+    warmup: '热身',
+    editAction: '编辑动作',
+    deleteAction: '删除动作',
   },
 
   // Set Editor

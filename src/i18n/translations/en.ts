@@ -392,7 +392,14 @@ export const en = {
 
   // Set Card
   setCard: {
+    accessibilityLabel: 'Set {setNumber}, {details}',
     actionsHint: 'Swipe left for edit or delete actions, or use accessibility actions.',
+    noWeight: 'no weight',
+    durationSeconds: '{duration}s',
+    repsCount: '{reps} reps',
+    rir: 'RIR {rir}',
+    personalRecord: 'Personal record',
+    warmup: 'Warm-up',
     editAction: 'Edit exercise',
     deleteAction: 'Delete exercise',
   },

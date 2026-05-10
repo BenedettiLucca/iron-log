@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { TouchableOpacityProps } from 'react-native';
+import type { GestureResponderEvent, TouchableOpacityProps } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
 
@@ -19,7 +19,7 @@ export function Pressable({
 }: PressableProps) {
   const { trigger } = useHaptics();
 
-  const handlePress = (e: any) => {
+  const handlePress = (e: GestureResponderEvent) => {
     trigger(hapticType);
     onPress?.(e);
   };

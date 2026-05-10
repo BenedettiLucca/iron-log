@@ -38,6 +38,18 @@ function SetCard({
   const swipeableRef = useRef<Swipeable | null>(null);
   const { trigger } = useHaptics();
 
+  const weightLabel = weight > 0 ? `${weight}kg` : t('setCard.noWeight');
+  const performanceLabel = duration !== undefined
+    ? t('setCard.durationSeconds', { duration })
+    : t('setCard.repsCount', { reps: reps || 0 });
+  const accessibilityDetails = [
+    weightLabel,
+    performanceLabel,
+    rir !== null && rir !== undefined ? t('setCard.rir', { rir }) : undefined,
+    isPR ? t('setCard.personalRecord') : undefined,
+    isWarmup ? t('setCard.warmup') : undefined,
+  ].filter(Boolean).join(', ');
+
   const renderRightActions = () => {
 
     if (!onEdit && !onDelete) return null;
@@ -90,7 +102,7 @@ function SetCard({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.7}
-        accessibilityLabel={`Série ${setNumber}, ${weight > 0 ? weight + 'kg' : 'sem carga'} ${duration !== undefined ? duration + 's' : (reps || 0) + ' reps'} ${rir !== null && rir !== undefined ? 'RIR ' + rir : ''} ${isPR ? 'Recorde pessoal' : ''} ${isWarmup ? 'Aquecimento' : ''}`}
+        accessibilityLabel={t('setCard.accessibilityLabel', { setNumber, details: accessibilityDetails })}
         accessibilityHint={onEdit || onDelete ? t('setCard.actionsHint') : undefined}
         accessibilityRole="button"
         accessibilityActions={[
@@ -153,7 +165,7 @@ function SetCard({
              {duration !== undefined ? duration : (reps || 0)}
           </Text>
           <Text className="text-subtext text-xs font-bold uppercase">
-            {duration !== undefined ? 's' : 'reps'}
+            {duration !== undefined ? 's' : t('exercise.reps')}
           </Text>
         </View>
 
