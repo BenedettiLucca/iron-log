@@ -670,6 +670,7 @@ export default function ExerciseScreen() {
               <FlatList
                data={sessionSets}
                keyExtractor={(item) => item.id.toString()}
+               contentContainerStyle={{ paddingBottom: 20 }}
                renderItem={({ item, index }) => (
                  <SetCard
                    key={item.id}
@@ -694,7 +695,10 @@ export default function ExerciseScreen() {
           </View>
 
           {/* Input Area */}
-          <View className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg">
+          <View
+            className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg"
+            style={{ paddingBottom: 12 + insets.bottom }}
+          >
             {/* Warm-Up Mode Toggle */}
             <View className="flex-row items-center justify-between mb-3 py-1.5 bg-background rounded-lg px-3">
               <View className="flex-row items-center gap-2">

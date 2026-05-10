@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Toast } from '../../../components/Toast';
 import { Input } from '../../../components/Input';
 import { Card } from '../../../components/Card';
@@ -14,6 +15,7 @@ const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 export default function CreateProgramScreen() {
   const router = useRouter();
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
   const { createProgram } = usePrograms();
 
   const [name, setName] = useState('');
@@ -106,7 +108,14 @@ export default function CreateProgramScreen() {
         <Text className="text-text text-xl font-bold flex-1">{t('programs.createTitle')}</Text>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, gap: 20 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{
+          padding: 16,
+          paddingBottom: 100 + insets.bottom,
+          gap: 20,
+        }}
+      >
         {/* Program Name */}
         <Input
           label={t('programs.form.nameLabel')}
@@ -215,7 +224,10 @@ export default function CreateProgramScreen() {
       </ScrollView>
 
       {/* Submit Button */}
-      <View className="p-4 border-t border-border bg-card shadow-lg">
+      <View
+        className="p-4 border-t border-border bg-card shadow-lg"
+        style={{ paddingBottom: 16 + insets.bottom }}
+      >
         <Button
           title={t('programs.form.submit')}
           onPress={handleSubmit}

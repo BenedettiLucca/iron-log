@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { db } from '../../src/db/client';
 import { exercises, routineExercises } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -20,6 +21,7 @@ import { resolveScreenState } from '../../src/utils/screen-state';
 export default function HomeScreen() {
   const { t } = useI18n();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { allRoutines: routinesList, fetchRoutines, isLoading: routinesLoading } = useRoutines();
   const { lastSession, incompleteSession, fetchHomeData, isLoading: sessionsLoading } = useSessions();
   const {
@@ -148,10 +150,10 @@ export default function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background px-4 pb-4">
+    <View className="flex-1 bg-background px-4">
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 20 + insets.bottom }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
