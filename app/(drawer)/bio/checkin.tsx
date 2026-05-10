@@ -19,6 +19,7 @@ export default function CheckinScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const [monthlyMetrics, setMonthlyMetrics] = useState<BodyMetric[]>([]);
+  const [selectedMetricId, setSelectedMetricId] = useState<number | null>(null);
   const [showGallery, setShowGallery] = useState(false);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -60,7 +61,13 @@ export default function CheckinScreen() {
     return <ErrorState message={errorMessage} onRetry={loadMetrics} />;
   }
 
-  const { current, previous, hasData } = processCheckinData(monthlyMetrics);
+  const { allMonthly, hasData } = processCheckinData(monthlyMetrics);
+  const selectedIndex = selectedMetricId !== null
+    ? allMonthly.findIndex(metric => metric.id === selectedMetricId)
+    : 0;
+  const currentIndex = selectedIndex >= 0 ? selectedIndex : 0;
+  const current = allMonthly[currentIndex] ?? null;
+  const previous = allMonthly[currentIndex + 1] ?? null;
 
   if (!hasData || !current) {
     return (
@@ -107,7 +114,11 @@ export default function CheckinScreen() {
 
       {showGallery && (
         <View className="px-4 pb-2">
-          <CheckinGallery metrics={monthlyMetrics} onSelectMonth={() => {}} />
+          <CheckinGallery
+            metrics={allMonthly}
+            selectedMetricId={current.id}
+            onSelectMonth={metric => setSelectedMetricId(metric.id)}
+          />
         </View>
       )}
 

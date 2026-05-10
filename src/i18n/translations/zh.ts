@@ -563,6 +563,9 @@ export const zh = {
     takePhotos: '拍摄新照片',
     showGallery: '查看完整相册',
     hideGallery: '隐藏相册',
+    galleryItemLabel: '{month} 打卡',
+    galleryItemHint: '点按即可将本月与上一次打卡进行比较。',
+    galleryItemSelectedHint: '已选择用于比较的月份。',
   },
 
   bioAnalytics: {

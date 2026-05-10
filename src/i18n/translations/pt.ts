@@ -594,6 +594,9 @@ export const pt = {
     takePhotos: 'Tirar novas fotos',
     showGallery: 'Ver galeria completa',
     hideGallery: 'Ocultar galeria',
+    galleryItemLabel: 'Check-in de {month}',
+    galleryItemHint: 'Toque para comparar este mês com o check-in anterior.',
+    galleryItemSelectedHint: 'Mês selecionado para comparação.',
   },
 
   bioAnalytics: {
