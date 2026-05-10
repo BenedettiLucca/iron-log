@@ -207,7 +207,7 @@ export default function SessionScreen() {
         headerRight: () => (
           <TouchableOpacity
             onPress={finishSession}
-            className="bg-danger px-3 py-1.5 rounded-lg shadow-sm"
+            className="bg-danger px-4 min-h-[44px] rounded-lg shadow-sm items-center justify-center"
             {...a11y.endSession}
           >
             <Text className="text-white font-bold uppercase tracking-widest text-xs">{t('session.end')}</Text>

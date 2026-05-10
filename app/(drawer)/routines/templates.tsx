@@ -131,10 +131,17 @@ export default function TemplateLibraryScreen() {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => handleDeleteTemplate(item.id, item.name)}
-          className="text-danger font-bold text-xs uppercase"
+          onPress={(event) => {
+            event.stopPropagation();
+            handleDeleteTemplate(item.id, item.name);
+          }}
+          className="w-11 h-11 rounded-full bg-danger/10 border border-danger/20 items-center justify-center self-start"
+          accessibilityRole="button"
+          accessibilityLabel={t('routines.deleteTemplateTitle')}
+          accessibilityHint={t('routines.deleteTemplateMessage')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          ✕
+          <Text className="text-danger font-bold text-lg">✕</Text>
         </TouchableOpacity>
       </TouchableOpacity>
 

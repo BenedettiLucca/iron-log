@@ -286,7 +286,7 @@ export default function HistoryScreen() {
                 </View>
                 <View className="flex-col gap-1.5 ml-2 justify-center">
                   <TouchableOpacity
-                    className="bg-primary/10 px-2.5 py-1.5 rounded-lg border border-primary/20 items-center min-w-[52px]"
+                    className="bg-primary/10 px-2.5 py-1.5 rounded-lg border border-primary/20 items-center justify-center min-w-[52px] min-h-[44px]"
                     onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
                     accessibilityLabel={`${t('history.view')} ${item.routineName}`}
                     accessibilityRole="button"
@@ -294,7 +294,7 @@ export default function HistoryScreen() {
                     <Text className="text-primary font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center min-w-[52px]"
+                    className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center justify-center min-w-[52px] min-h-[44px]"
                     onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName ?? '' })}
                     accessibilityLabel={`${t('common.delete')} ${item.routineName}`}
                     accessibilityRole="button"

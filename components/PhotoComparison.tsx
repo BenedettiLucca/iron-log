@@ -48,7 +48,13 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-text text-xl font-bold uppercase tracking-widest">Comparação: {label}</Text>
-            <TouchableOpacity onPress={onClose} accessibilityLabel={t("common.closeComparison")} accessibilityRole="button">
+            <TouchableOpacity
+              onPress={onClose}
+              className="w-11 h-11 rounded-full items-center justify-center"
+              accessibilityLabel={t("common.closeComparison")}
+              accessibilityRole="button"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <Text className="text-subtext text-2xl">✕</Text>
             </TouchableOpacity>
           </View>

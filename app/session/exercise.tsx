@@ -794,7 +794,11 @@ export default function ExerciseScreen() {
                 <View className="flex-row justify-between items-center mb-1 px-1">
                   <TouchableOpacity
                     onPress={() => setShowRirExplainer(true)}
-                    className="flex-row items-center gap-1"
+                    className="flex-row items-center gap-1 min-h-[44px]"
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('exercise.rirQuestion')}
+                    accessibilityHint={t('exercise.rirExplainer')}
                   >
                     <Text className="text-subtext font-bold uppercase text-xs">{t('exercise.rir')}</Text>
                     <View className="bg-background rounded-full w-4 h-4 justify-center items-center border border-border">

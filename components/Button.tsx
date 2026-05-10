@@ -71,7 +71,7 @@ export function Button({
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'px-4 py-2 min-h-[40px]';
+        return 'px-4 py-2 min-h-[44px]';
       case 'lg':
         return 'px-8 py-4 min-h-[60px]';
       case 'md':
