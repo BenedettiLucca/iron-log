@@ -8,13 +8,13 @@ import { Card } from '../../../components/Card';
 import { Button } from '../../../components/Button';
 import { DatePicker } from '../../../components/DatePicker';
 import { usePrograms } from '@/hooks/use-programs';
-import { useI18n } from '../../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 
 export default function CreateProgramScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const { createProgram } = usePrograms();
 
@@ -204,7 +204,7 @@ export default function CreateProgramScreen() {
               {t('programs.form.endDateLabel')}
             </Text>
             <Text className="text-text text-sm font-semibold">
-              {endDate.toLocaleDateString()}
+              {endDate.toLocaleDateString(getLocaleForLanguage(language))}
             </Text>
           </View>
         </Card>
@@ -216,7 +216,7 @@ export default function CreateProgramScreen() {
           </Text>
           <Text className="text-text text-sm leading-6">
             {getGoalEmoji(goal)} {name || t('programs.form.untitled')}{'\n'}
-            📅 {startDate.toLocaleDateString()} → {endDate.toLocaleDateString()}{'\n'}
+            📅 {startDate.toLocaleDateString(getLocaleForLanguage(language))} → {endDate.toLocaleDateString(getLocaleForLanguage(language))}{'\n'}
             📊 {weeksDuration || '0'} {t('programs.weeksLabel')}
             {deloadWeek ? ` • 💚 ${t('programs.form.deloadWeek', { week: deloadWeek })}` : ''}
           </Text>

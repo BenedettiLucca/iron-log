@@ -7,11 +7,11 @@ import { EmptyState } from '../../../components/EmptyState';
 import { Button } from '../../../components/Button';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
-import { useI18n } from '../../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 
 export default function ProgramsListScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const {
     allPrograms,
     activeProgram,
@@ -189,7 +189,7 @@ export default function ProgramsListScreen() {
                     </Text>
                   </View>
                   <Text className="text-subtext text-xs">
-                    {new Date(program.startDate).toLocaleDateString()}
+                    {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))}
                   </Text>
                 </View>
               </Card>

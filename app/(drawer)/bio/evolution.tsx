@@ -13,7 +13,7 @@ import { LoadingState, ErrorState } from '../../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 import { Colors } from '@/constants/colors';
-import { useI18n } from '../../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { resolveScreenState } from '../../../src/utils/screen-state';
 
 // Helper to find the best matching photo pair (same pose preferred)
@@ -35,7 +35,7 @@ const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
 };
 
 export default function EvolutionScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [weightData, setWeightData] = useState<any[]>([]);
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
@@ -255,7 +255,7 @@ export default function EvolutionScreen() {
                           <View className="flex-row items-center gap-2 mb-4">
                             <View className="h-[1px] flex-1 bg-border" />
                             <Text className="text-primary font-bold text-sm uppercase tracking-widest">
-                                {new Date(entry.date).toLocaleDateString()}
+                                {new Date(entry.date).toLocaleDateString(getLocaleForLanguage(language))}
                             </Text>
                             <View className="h-[1px] flex-1 bg-border" />
                           </View>

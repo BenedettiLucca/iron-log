@@ -15,11 +15,11 @@ import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useSessions } from '@/hooks/use-sessions';
 import { usePrograms } from '@/hooks/use-programs';
-import { useI18n } from '../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 
 export default function HomeScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { allRoutines: routinesList, fetchRoutines, isLoading: routinesLoading } = useRoutines();
@@ -289,7 +289,7 @@ export default function HomeScreen() {
                       <View className="flex-1 mr-3">
                           <Text className="text-text font-black text-xl mb-1" numberOfLines={2}>{lastSession.routineName}</Text>
                           <Text className="text-subtext text-xs font-medium">
-                              {new Date(lastSession.startTime).toLocaleDateString()} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
+                              {new Date(lastSession.startTime).toLocaleDateString(getLocaleForLanguage(language))} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
                           </Text>
                       </View>
                       <View className="bg-primary/10 w-10 h-10 rounded-full justify-center items-center flex-shrink-0">

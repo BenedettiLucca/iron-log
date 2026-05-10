@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePrograms } from '@/hooks/use-programs';
-import { useI18n } from '@/src/i18n';
+import { getLocaleForLanguage, useI18n } from '@/src/i18n';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingState, ErrorState } from '@/components/ScreenState';
@@ -11,7 +11,7 @@ import { logger } from '@/services/logger';
 import type { Session, WeekCompletionStatus } from '@/src/types';
 
 export default function WeekDetailScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
   const { programId, weekNumber: initialWeek } = useLocalSearchParams<{ programId: string; weekNumber: string }>();
   const { 
@@ -149,7 +149,7 @@ export default function WeekDetailScreen() {
                   <View className="flex-1">
                     <Text className="text-text font-bold text-lg">{session.routineName}</Text>
                     <Text className="text-subtext text-xs mt-0.5">
-                      {new Date(session.startTime).toLocaleDateString()} • {session.durationMinutes} min
+                      {new Date(session.startTime).toLocaleDateString(getLocaleForLanguage(language))} • {session.durationMinutes} min
                     </Text>
                   </View>
                   {session.sRpe && (

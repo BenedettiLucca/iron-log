@@ -17,7 +17,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema } from '@/src/validators/forms';
-import { useI18n } from '../../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { resolveScreenState } from '../../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
@@ -30,7 +30,7 @@ type CheckinPhotos = {
 };
 
 export default function BioScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -361,7 +361,7 @@ export default function BioScreen() {
                           <View className="flex-row items-center gap-3">
                               <View className={`w-2 h-2 rounded-full ${item.type === 'monthly' ? 'bg-secondary' : 'bg-primary'}`} />
                               <Text className="text-subtext text-xs font-mono font-medium">
-                                  {new Date(item.date).toLocaleDateString()}
+                                  {new Date(item.date).toLocaleDateString(getLocaleForLanguage(language))}
                               </Text>
                           </View>
 

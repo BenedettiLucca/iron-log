@@ -7,12 +7,12 @@ import { Button } from '../../../components/Button';
 import { Dialog } from '../../../components/Dialog';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
-import { useI18n } from '../../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { getDetailScreenView, resolveFetchState } from '@/src/utils/program-detail-state';
 
 export default function ProgramDetailScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { programId } = useLocalSearchParams<{ programId: string }>();
   const programIdNum = Number(programId);
 
@@ -187,7 +187,7 @@ export default function ProgramDetailScreen() {
           </View>
           <View className="flex-row justify-between">
             <Text className="text-subtext text-xs">
-              📅 {new Date(program.startDate).toLocaleDateString()} → {new Date(program.endDate).toLocaleDateString()}
+              📅 {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))} → {new Date(program.endDate).toLocaleDateString(getLocaleForLanguage(language))}
             </Text>
             <Text className="text-subtext text-xs">
               {program.weeksDuration} {t('programs.weeksLabel')}
