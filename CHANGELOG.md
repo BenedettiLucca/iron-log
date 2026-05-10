@@ -2,21 +2,39 @@
 
 All notable changes to Iron Log are documented here.
 
-## [Unreleased]
-
-### Added
-- Issue #20: Automated Monthly Check-in Comparison
-  - New `/bio/checkin` screen with side-by-side photo comparison (front/back/side)
-  - Measurement overlays on photos showing weight and waist
-  - Chronological gallery with horizontal scroll of all monthly check-ins
-  - "Before/After" slider per pose via enhanced PhotoComparison
-  - Pure utility functions with full test coverage (processCheckinData, formatMonthYear, calculateChange)
-  - Enhanced monthly notification with deep link to `/bio/checkin`
-  - i18n translations for check-in flow in PT/EN/ES/ZH
+## [3.11.0] - 2026-05-10
 
 ### Fixed
-- `Input.tsx` event handler types (`onFocus`/`onBlur`)
-- `use-body-metrics.ts` Drizzle result type casting
+- **Accessibility: SetCard labels** — Hardcoded Portuguese strings (`Série`, `sem carga`, `Recorde pessoal`, `Aquecimento`) replaced with `t()` keys for full i18n coverage (#46)
+- **Accessibility: touch targets** — `Button.size="sm"` now enforces `min-h-[44px]` for WCAG compliance (#41)
+- **Accessibility: workout sliders** — RIR/sRPE sliders now have proper labels (#40)
+- **Accessibility: supplement checklist** — Exposed checklist actions with explicit buttons and 44px targets (#39)
+- **Accessibility: check-in gallery** — Gallery is now selectable with proper state and accessible labels (#38)
+- **Accessibility: swipe-only actions** — SetCard, Routines, Templates, and Editor now have `accessibilityActions` as discoverable alternatives to swipe gestures (#46)
+- **Haptics standardization** — Card, Dialog, SetEditor, PhotoComparison, ErrorBoundary, Bio quick-actions, Supplements toggle, and Session end now use consistent haptic feedback via `Pressable` (#47)
+- **Themed colors** — Hardcoded hex colors replaced with `getThemeColors()` tokens; `DatePicker` overlay uses inline style to avoid hook-in-StyleSheet issue (#43)
+- **i18n: session/progress copy** — Hardcoded strings in session finish, exercise, summary, and StrengthCurve localized (#44)
+- **i18n: date formatting** — All `toLocaleDateString()` calls now use `getLocaleForLanguage(language)` for proper locale-aware dates (#44, audit)
+- **i18n: SetCard accessibility** — Accessibility label, weight/duration/RIR/PR/warmup descriptions fully localized in all 4 languages (audit)
+- **Safe areas** — Fixed layouts in `programs/create` and `session/exercise` now respect `useSafeAreaInsets` bottom inset (#45)
+- **Secondary flow inconsistencies** — History empty state, exercise history session exclusion, evolution measures null filtering, evolution photo pose matching, finish "Last:" display, save-as-template NaN guard, clipboard import empty toast, JSON hint overflow, drawer hierarchy (#48)
+- **TypeScript: Jest types** — Added `@types/jest` for clean type checking of test files (#49)
+- **TypeScript: Pressable events** — `e: any` replaced with `GestureResponderEvent` in `Pressable.tsx` (audit)
+- **Typography scale** — Aligned `typographyTokens` with `TypographySize` type; replaced arbitrary sizes with named tokens (#42)
+- **Error messages** — `screen-state.ts` fallback `'Unknown error'` replaced with `t('states.errorBody')` pattern across screens
+- **Supplements hook** — `use-supplements.ts` error state now properly propagates i18n error messages
+
+### Added
+- **CI Quality Gate** — GitHub Actions workflow (`.github/workflows/quality.yml`) running typecheck, lint, and tests on every push/PR to master (#50)
+- **Pressable component** — Reusable wrapper around TouchableOpacity with haptics + default `accessibilityRole="button"` (#47)
+- **ScreenState components** — Standardized `LoadingState` and `ErrorState` with i18n support across all screens (#48)
+- **resolveScreenState utility** — Pure helper for consistent screen state resolution (loading > error > empty > content) (#48)
+- **workout-a11y utility** — Centralized accessibility label builders for workout controls (#46)
+- **setCard i18n keys** — Full translation coverage for SetCard accessibility labels in PT/EN/ES/ZH
+
+---
+
+## [3.10.0] - 2026-05-10
 
 ---
 
