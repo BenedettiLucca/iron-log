@@ -122,6 +122,9 @@ export const zh = {
     discardTitle: '放弃更改？',
     discardMessage: '你有未保存的照片或测量数据。现在离开将丢失所有内容。',
     validationError: '测量数据无效。请检查字段',
+    photoPickerLabel: '{{side}} 照片',
+    photoPickerHint: '点击选择或更改本月的 {{side}} 照片。',
+    photoPickerSelectedHint: '照片已选择。',
   },
   bioNav: {
     goals: '目标',
@@ -246,6 +249,18 @@ export const zh = {
     invalidJson: 'JSON格式无效，请检查格式。',
     startRoutine: '开始训练',
     templateLoadedWithExercises: '模板已加载，包含 {count} 个动作！',
+    previewRoutineLabel: '训练计划：{name}',
+    previewRoutineHint: '点击查看计划详情、历史记录和选项。',
+    quickStartLabel: '快速开始 {name}',
+    quickStartHint: '立即使用此计划开始训练。',
+    loadTemplateLabel: '加载模板：{name}',
+    loadTemplateHint: '基于此模板创建新计划。',
+    deleteTemplateLabel: '删除模板：{name}',
+    deleteTemplateHint: '永久删除此模板。',
+    selectExerciseLabel: '选择 {name}',
+    selectExerciseHint: '将此练习添加到计划中。',
+    editExerciseLabel: '编辑 {name} 的目标',
+    editExerciseHint: '打开此练习的目标和备注编辑器。',
 
   },
   history: {
@@ -371,6 +386,13 @@ export const zh = {
 
   },
 
+
+  // Set Card
+  setCard: {
+    actionsHint: '向左滑动进行编辑或删除，或使用辅助功能操作。',
+    editAction: '编辑练习',
+    deleteAction: '删除练习',
+  },
 
   // Set Editor
   setEditor: {

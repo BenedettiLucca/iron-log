@@ -205,6 +205,9 @@ export default function RoutinesListScreen() {
             <TouchableOpacity 
               onPress={() => setPreviewRoutine({ id: item.id, name: item.name })}
               className="p-4 -m-4"
+              accessibilityRole="button"
+              accessibilityLabel={t('routines.previewRoutineLabel', { name: item.name })}
+              accessibilityHint={t('routines.previewRoutineHint')}
             >
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1 mr-4">
@@ -223,7 +226,9 @@ export default function RoutinesListScreen() {
                     e.stopPropagation();
                     handleQuickStart(item.id, item.name);
                   }}
-                  accessibilityLabel={t("routines.startRoutine")}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityLabel={t("routines.quickStartLabel", { name: item.name })}
+                  accessibilityHint={t("routines.quickStartHint")}
                   accessibilityRole="button"
                   className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >

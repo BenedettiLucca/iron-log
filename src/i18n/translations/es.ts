@@ -122,6 +122,9 @@ export const es = {
     discardTitle: '¿Descartar Cambios?',
     discardMessage: 'Tienes fotos o medidas sin guardar. Salir ahora perderá todo.',
     validationError: 'Medidas inválidas. Verifica los campos',
+    photoPickerLabel: 'Foto {{side}}',
+    photoPickerHint: 'Toca para seleccionar o cambiar la foto {{side}} de este mes.',
+    photoPickerSelectedHint: 'Foto ya seleccionada.',
   },
   bioNav: {
     goals: 'Metas',
@@ -246,6 +249,18 @@ export const es = {
     invalidJson: 'JSON inválido. Verifica el formato.',
     startRoutine: 'Iniciar Rutina',
     templateLoadedWithExercises: '¡Plantilla cargada con {count} ejercicios!',
+    previewRoutineLabel: 'Rutina de entrenamiento: {name}',
+    previewRoutineHint: 'Toca para ver detalles, historial y opciones de la rutina.',
+    quickStartLabel: 'Inicio rápido {name}',
+    quickStartHint: 'Inicia una sesión de entrenamiento inmediatamente con esta rutina.',
+    loadTemplateLabel: 'Cargar plantilla: {name}',
+    loadTemplateHint: 'Crea una nueva rutina basada en esta plantilla.',
+    deleteTemplateLabel: 'Eliminar plantilla: {name}',
+    deleteTemplateHint: 'Elimina permanentemente esta plantilla.',
+    selectExerciseLabel: 'Seleccionar {name}',
+    selectExerciseHint: 'Añade este ejercicio a la rutina.',
+    editExerciseLabel: 'Editar objetivos para {name}',
+    editExerciseHint: 'Abre el editor de objetivos y notas para este ejercicio.',
 
   },
   history: {
@@ -371,6 +386,13 @@ export const es = {
 
   },
 
+
+  // Set Card
+  setCard: {
+    actionsHint: 'Desliza a la izquierda para editar o eliminar, o usa acciones de accesibilidad.',
+    editAction: 'Editar ejercicio',
+    deleteAction: 'Eliminar ejercicio',
+  },
 
   // Set Editor
   setEditor: {

@@ -129,6 +129,9 @@ export const pt = {
     discardTitle: 'Descartar Alterações?',
     discardMessage: 'Você tem fotos ou medidas não salvas. Sair agora vai perder tudo.',
     validationError: 'Medidas inválidas. Verifique os campos',
+    photoPickerLabel: 'Foto {{side}}',
+    photoPickerHint: 'Toque para selecionar ou alterar a foto {{side}} deste mês.',
+    photoPickerSelectedHint: 'Foto já selecionada.',
 
   },
 
@@ -261,6 +264,18 @@ export const pt = {
     invalidJson: 'JSON inválido. Verifique o formato.',
     startRoutine: 'Iniciar Rotina',
     templateLoadedWithExercises: 'Template carregado com {count} exercícios!',
+    previewRoutineLabel: 'Rotina de treino: {name}',
+    previewRoutineHint: 'Toque para ver detalhes da rotina, histórico e opções.',
+    quickStartLabel: 'Início rápido {name}',
+    quickStartHint: 'Inicia uma sessão de treino imediatamente com esta rotina.',
+    loadTemplateLabel: 'Carregar template: {name}',
+    loadTemplateHint: 'Cria uma nova rotina baseada neste template.',
+    deleteTemplateLabel: 'Excluir template: {name}',
+    deleteTemplateHint: 'Remove permanentemente este template.',
+    selectExerciseLabel: 'Selecionar {name}',
+    selectExerciseHint: 'Adiciona este exercício à rotina.',
+    editExerciseLabel: 'Editar metas para {name}',
+    editExerciseHint: 'Abre o editor de metas e notas para este exercício.',
 
   },
 
@@ -392,6 +407,13 @@ export const pt = {
     nextExerciseLabel: 'Próximo:',
     readyForNextSet: 'Pronto para a próxima série!',
 
+  },
+
+  // Set Card
+  setCard: {
+    actionsHint: 'Deslize para a esquerda para ações de editar ou excluir, ou use ações de acessibilidade.',
+    editAction: 'Editar exercício',
+    deleteAction: 'Excluir exercício',
   },
 
   // Set Editor

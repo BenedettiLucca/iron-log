@@ -453,6 +453,9 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                 <TouchableOpacity 
                     className="p-4 border-b border-border flex-row justify-between items-center active:bg-black/5"
                     onPress={() => onSelect({ id: item.id, name: item.name })}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('routines.selectExerciseLabel', { name: item.name })}
+                    accessibilityHint={t('routines.selectExerciseHint')}
                 >
                     <View className="flex-1">
                         <Text className="text-text font-bold text-lg">{item.name}</Text>
@@ -462,11 +465,16 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     </View>
                     
                     <TouchableOpacity 
-                        onPress={() => {
+                        onPress={(e) => {
+                            e.stopPropagation();
                             setEditingEx({ id: item.id, name: item.name });
                             setEditName(item.name);
                         }}
                         className="p-2"
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('routines.editExerciseLabel', { name: item.name })}
+                        accessibilityHint={t('routines.editExerciseHint')}
                     >
                         <Text className="text-primary text-xs font-bold uppercase">{t("routines.editExercise")}</Text>
                     </TouchableOpacity>

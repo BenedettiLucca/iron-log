@@ -118,6 +118,9 @@ export default function TemplateLibraryScreen() {
         }}
         activeOpacity={0.8}
         className="p-4"
+        accessibilityRole="button"
+        accessibilityLabel={t('routines.loadTemplateLabel', { name: item.name })}
+        accessibilityHint={t('routines.loadTemplateHint')}
       >
         <View className="flex-row justify-between items-start mb-2">
           <View className="flex-1 mr-4">
@@ -137,8 +140,8 @@ export default function TemplateLibraryScreen() {
           }}
           className="w-11 h-11 rounded-full bg-danger/10 border border-danger/20 items-center justify-center self-start"
           accessibilityRole="button"
-          accessibilityLabel={t('routines.deleteTemplateTitle')}
-          accessibilityHint={t('routines.deleteTemplateMessage')}
+          accessibilityLabel={t('routines.deleteTemplateLabel', { name: item.name })}
+          accessibilityHint={t('routines.deleteTemplateHint')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Text className="text-danger font-bold text-lg">✕</Text>

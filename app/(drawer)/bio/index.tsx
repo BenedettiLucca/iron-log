@@ -423,6 +423,10 @@ export default function BioScreen() {
                             <TouchableOpacity
                                 key={side}
                                 onPress={() => pickImage(side)}
+                                accessibilityRole="button"
+                                accessibilityLabel={t('bio.photoPickerLabel', { side: t(`bio.${side}`) })}
+                                accessibilityHint={photos[side] ? t('bio.photoPickerSelectedHint') : t('bio.photoPickerHint', { side: t(`bio.${side}`) })}
+                                accessibilityState={{ selected: !!photos[side] }}
                                 className="w-[31%] aspect-[3/4] bg-card border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70"
                             >
                                 {photos[side] ? (
@@ -430,7 +434,7 @@ export default function BioScreen() {
                                 ) : (
                                     <View className="items-center">
                                         <Text className="text-2xl mb-1">📷</Text>
-                                        <Text className="text-subtext text-xs uppercase font-bold">{side}</Text>
+                                        <Text className="text-subtext text-xs uppercase font-bold">{t(`bio.${side}`)}</Text>
                                     </View>
                                 )}
                             </TouchableOpacity>

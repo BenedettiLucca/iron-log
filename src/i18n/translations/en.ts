@@ -122,6 +122,9 @@ export const en = {
     discardTitle: 'Discard Changes?',
     discardMessage: 'You have unsaved photos or measurements. Leaving now will lose everything.',
     validationError: 'Invalid measurements. Check the fields',
+    photoPickerLabel: '{{side}} photo',
+    photoPickerHint: 'Tap to select or change the {{side}} photo for this month.',
+    photoPickerSelectedHint: 'Photo already selected.',
   },
   bioNav: {
     goals: 'Goals',
@@ -246,6 +249,18 @@ export const en = {
     invalidJson: 'Invalid JSON. Check the format.',
     startRoutine: 'Start Routine',
     templateLoadedWithExercises: 'Template loaded with {count} exercises!',
+    previewRoutineLabel: 'Workout routine: {name}',
+    previewRoutineHint: 'Tap to view routine details, history and options.',
+    quickStartLabel: 'Quick start {name}',
+    quickStartHint: 'Starts a workout session immediately with this routine.',
+    loadTemplateLabel: 'Load template: {name}',
+    loadTemplateHint: 'Creates a new routine based on this template.',
+    deleteTemplateLabel: 'Delete template: {name}',
+    deleteTemplateHint: 'Permanently removes this template.',
+    selectExerciseLabel: 'Select {name}',
+    selectExerciseHint: 'Adds this exercise to the routine.',
+    editExerciseLabel: 'Edit targets for {name}',
+    editExerciseHint: 'Opens target and notes editor for this exercise.',
 
   },
   history: {
@@ -371,6 +386,13 @@ export const en = {
 
   },
 
+
+  // Set Card
+  setCard: {
+    actionsHint: 'Swipe left for edit or delete actions, or use accessibility actions.',
+    editAction: 'Edit exercise',
+    deleteAction: 'Delete exercise',
+  },
 
   // Set Editor
   setEditor: {

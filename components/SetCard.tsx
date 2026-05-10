@@ -91,7 +91,30 @@ function SetCard({
         onPress={onPress}
         activeOpacity={0.7}
         accessibilityLabel={`Série ${setNumber}, ${weight > 0 ? weight + 'kg' : 'sem carga'} ${duration !== undefined ? duration + 's' : (reps || 0) + ' reps'} ${rir !== null && rir !== undefined ? 'RIR ' + rir : ''} ${isPR ? 'Recorde pessoal' : ''} ${isWarmup ? 'Aquecimento' : ''}`}
+        accessibilityHint={onEdit || onDelete ? t('setCard.actionsHint') : undefined}
         accessibilityRole="button"
+        accessibilityActions={[
+          ...(onEdit ? [{ name: 'edit', label: t('setCard.editAction') }] : []),
+          ...(onDelete ? [{ name: 'delete', label: t('setCard.deleteAction') }] : []),
+        ]}
+        onAccessibilityAction={(event) => {
+          switch (event.nativeEvent.actionName) {
+            case 'edit':
+              if (onEdit) {
+                trigger('medium');
+                swipeableRef.current?.close();
+                onEdit();
+              }
+              break;
+            case 'delete':
+              if (onDelete) {
+                trigger('warning');
+                swipeableRef.current?.close();
+                onDelete();
+              }
+              break;
+          }
+        }}
         className={`p-3 rounded-2xl border flex-row items-center min-h-[52px] shadow-sm ${
           isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
