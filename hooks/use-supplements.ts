@@ -9,6 +9,8 @@ export function useSupplements() {
   const [items, setItems] = useState<Supplement[]>([]);
   const [todayLogs, setTodayLogs] = useState<SupplementLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const getStartOfDay = (date: Date = new Date()) => {
     return new Date(date).setHours(0, 0, 0, 0);
@@ -17,6 +19,7 @@ export function useSupplements() {
   const fetchSupplements = useCallback(async () => {
     try {
       setIsLoading(true);
+      setHasError(false);
       const data = await db
         .select()
         .from(supplements)
@@ -25,6 +28,8 @@ export function useSupplements() {
       setItems(data || []);
     } catch (e) {
       logger.error('Failed to fetch supplements', e);
+      setHasError(true);
+      setErrorMessage('');
       setItems([]);
     } finally {
       setIsLoading(false);
@@ -270,6 +275,8 @@ export function useSupplements() {
     items,
     todayLogs,
     isLoading,
+    hasError,
+    errorMessage,
     fetchSupplements,
     fetchTodayLogs,
     toggleSupplement,

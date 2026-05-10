@@ -654,6 +654,14 @@ export const es = {
     invalidBackup: 'Archivo de backup invalido o vacio.',
     sharingUnavailable: 'Compartir no esta disponible en este dispositivo.',
   },
+  states: {
+    loadingTitle: 'Cargando',
+    loadingBody: 'Por favor espere mientras obtenemos sus datos.',
+    errorTitle: 'Algo salió mal',
+    errorBody: 'Encontramos un error al cargar este contenido.',
+    retry: 'Reintentar',
+    noData: 'No se encontraron datos',
+  },
   // Routine Detail
   routineDetail: {
     exercises: 'Ejercicios',

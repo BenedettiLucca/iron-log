@@ -13,12 +13,14 @@ import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { Toast } from '../../components/Toast';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { safeParseParams, summaryParamsSchema } from '@/src/validators/routes';
 import { CsvExportService } from '../../services/CsvExportService';
 import { useI18n } from '../../src/i18n/index';
 import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
+import { resolveScreenState } from '@/src/utils/screen-state';
 
 export default function SummaryScreen() {
   const { t } = useI18n();
@@ -26,7 +28,7 @@ export default function SummaryScreen() {
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(summaryParamsSchema, rawParams, 'SummaryScreen');
   const sessionId = validated?.sessionId ?? 0;
-  const [report, setReport] = useState(t('summary.generatingReport'));
+  const [report, setReport] = useState('');
   const [sessionData, setSessionData] = useState<Session | null>(null);
   const [stats, setStats] = useState<SessionStats>({
     totalSets: 0,
@@ -34,15 +36,24 @@ export default function SummaryScreen() {
     bestSet: null,
     averageIntensity: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   const generateMarkdown = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setHasError(false);
       // 1. Buscar Sessão
       const sessionDataResult = await db.select().from(sessionsTable).where(eq(sessionsTable.id, Number(sessionId)));
-      if (!sessionDataResult.length) return;
+      if (!sessionDataResult.length) {
+        setHasError(true);
+        setErrorMessage(t('states.noData'));
+        return;
+      }
       const session = sessionDataResult[0];
       setSessionData(session);
 
@@ -77,8 +88,11 @@ export default function SummaryScreen() {
       setReport(summary.report);
 
     } catch (e) {
-      logger.error('Erro inesperado', e);
-      setReport(t('summary.reportError'));
+      logger.error('Erro ao gerar relatório', e);
+      setHasError(true);
+      setErrorMessage(t('states.errorBody'));
+    } finally {
+      setIsLoading(false);
     }
   }, [sessionId, t]);
 
@@ -149,6 +163,21 @@ export default function SummaryScreen() {
     if (srpe <= 8) return t('summary.hardWork');
     return t("summary.herculeanEffort");
   }, [sessionData, t]);
+
+  const { status } = resolveScreenState({
+    isLoading,
+    hasError,
+    hasContent: !!sessionData,
+    errorMessage
+  });
+
+  if (status === 'loading') {
+    return <LoadingState title={t('summary.generatingReport')} />;
+  }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={generateMarkdown} />;
+  }
 
   return (
     <View className="flex-1 bg-background">

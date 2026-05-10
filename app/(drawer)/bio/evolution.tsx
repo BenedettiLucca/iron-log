@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Image, Dimensions } from 'react-native';
 import { Stack } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
 import { asc } from 'drizzle-orm';
@@ -9,10 +9,12 @@ import { Button } from '../../../components/Button';
 import { Card } from '../../../components/Card';
 import { EmptyState } from '../../../components/EmptyState';
 import { PhotoComparison } from '../../../components/PhotoComparison';
+import { LoadingState, ErrorState } from '../../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { useI18n } from '../../../src/i18n/index';
+import { resolveScreenState } from '../../../src/utils/screen-state';
 
 export default function EvolutionScreen() {
   const { t } = useI18n();
@@ -20,6 +22,10 @@ export default function EvolutionScreen() {
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const [comparison, setComparison] = useState({
     visible: false,
     beforeUri: null as string | null,
@@ -34,12 +40,10 @@ export default function EvolutionScreen() {
     lastEntryDate: null as Date | null,
   });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setHasError(false);
       // Carregar em ordem ASCENDENTE para calcular média móvel corretamente
       const data = await db.select().from(bodyMetrics).orderBy(asc(bodyMetrics.date));
 
@@ -104,9 +108,17 @@ export default function EvolutionScreen() {
       }
 
     } catch (e) {
-      logger.error('Erro inesperado', e);
+      logger.error('Erro ao carregar dados de evolução', e);
+      setHasError(true);
+      setErrorMessage(t('states.errorBody'));
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const renderChart = (data: any[], title: string, color: string) => {
       if (!data || data.length < 2) return (
@@ -136,6 +148,21 @@ export default function EvolutionScreen() {
         </Card>
       );
   };
+
+  const { status } = resolveScreenState({
+    isLoading,
+    hasError,
+    hasContent: true, // Layout provides its own empty states per tab
+    errorMessage
+  });
+
+  if (status === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={loadData} />;
+  }
 
   return (
     <View className="flex-1 bg-background">

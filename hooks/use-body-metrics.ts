@@ -8,14 +8,19 @@ import { BodyMetric } from '@/src/types';
 export function useBodyMetrics() {
   const [metrics, setMetrics] = useState<BodyMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchMetrics = useCallback(async () => {
     try {
       setIsLoading(true);
+      setHasError(false);
       const data = await db.select().from(bodyMetrics).orderBy(desc(bodyMetrics.date)) as BodyMetric[];
       setMetrics(data || []);
     } catch (e) {
       logger.error('Failed to fetch body metrics', e);
+      setHasError(true);
+      setErrorMessage('');
       setMetrics([]);
     } finally {
       setIsLoading(false);
@@ -62,6 +67,8 @@ export function useBodyMetrics() {
   return {
     metrics,
     isLoading,
+    hasError,
+    errorMessage,
     fetchMetrics,
     saveDailyWeight,
     getLastWeight,

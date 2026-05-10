@@ -654,6 +654,14 @@ export const zh = {
     invalidBackup: 'bei fen wen jian wu xiao huo wei kong.',
     sharingUnavailable: '此设备不支持分享。',
   },
+  states: {
+    loadingTitle: '加载中',
+    loadingBody: '请稍候，正在获取您的数据。',
+    errorTitle: '出错了',
+    errorBody: '加载内容时遇到错误。',
+    retry: '重试',
+    noData: '未找到数据',
+  },
   // Routine Detail
   routineDetail: {
     exercises: '动作',

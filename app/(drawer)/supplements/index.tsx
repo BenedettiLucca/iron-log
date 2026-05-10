@@ -9,6 +9,8 @@ import { Input } from '@/components/Input';
 import { Toast } from '@/components/Toast';
 import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingState, ErrorState } from '@/components/ScreenState';
+import { resolveScreenState } from '@/src/utils/screen-state';
 import { Supplement, SupplementFrequency } from '@/src/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -18,6 +20,8 @@ export default function SupplementsScreen() {
     items,
     todayLogs,
     isLoading,
+    hasError,
+    errorMessage,
     fetchSupplements,
     fetchTodayLogs,
     toggleSupplement,
@@ -157,6 +161,21 @@ export default function SupplementsScreen() {
     const takenCount = todayLogs.length;
     return Math.round((takenCount / items.length) * 100);
   }, [items, todayLogs]);
+
+  const { status } = resolveScreenState({
+    isLoading: isLoading && !refreshing && items.length === 0,
+    hasError,
+    hasContent: items.length > 0,
+    errorMessage
+  });
+
+  if (status === 'loading') {
+    return <LoadingState type="list" title={t('supplements.title')} />;
+  }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={loadData} />;
+  }
 
   const isTaken = (id: number) => todayLogs.some(log => log.supplementId === id);
 

@@ -654,6 +654,14 @@ export const en = {
     invalidBackup: 'Invalid or empty backup file.',
     sharingUnavailable: 'Sharing is not available on this device.',
   },
+  states: {
+    loadingTitle: 'Loading',
+    loadingBody: 'Please wait while we fetch your data.',
+    errorTitle: 'Something went wrong',
+    errorBody: 'We encountered an error while loading this content.',
+    retry: 'Retry',
+    noData: 'No data found',
+  },
   // Routine Detail
   routineDetail: {
     exercises: 'Exercises',

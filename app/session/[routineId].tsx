@@ -10,6 +10,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { ProgressBar } from '../../components/ProgressBar';
 import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
@@ -17,6 +18,7 @@ import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
+import { resolveScreenState } from '../../src/utils/screen-state';
 
 export default function SessionScreen() {
   const { t } = useI18n();
@@ -45,6 +47,9 @@ export default function SessionScreen() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [exitToast, setExitToast] = useState({ visible: false, message: '' });
   const [sessionRoutineName, setSessionRoutineName] = useState(routineName);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const lastBackPressTime = useRef<number>(0);
 
   // Force refresh when screen comes into focus
@@ -61,12 +66,12 @@ export default function SessionScreen() {
       if (e.data.action.type !== 'GO_BACK' && e.data.action.type !== 'POP') {
         return;
       }
-      
+
       e.preventDefault();
-      
+
       const now = Date.now();
       const timeSinceLastPress = now - lastBackPressTime.current;
-      
+
       if (timeSinceLastPress < 2000) {
         // Second press within 2 seconds - show confirmation dialog
         setPendingNavigation(e.data.action);
@@ -76,7 +81,7 @@ export default function SessionScreen() {
         // First press - show toast
         lastBackPressTime.current = now;
         setExitToast({ visible: true, message: t('session.pressAgain') });
-        
+
         // Hide toast after 2 seconds
         setTimeout(() => {
           setExitToast({ visible: false, message: '' });
@@ -103,50 +108,56 @@ export default function SessionScreen() {
           .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
           .where(eq(routineExercises.routineId, Number(rIdStr)))
           .orderBy(routineExercises.orderIndex);
-          
+
           setRoutineExs(data);
       } catch (e) {
           logger.error('Erro inesperado', e);
       }
   }, [rIdStr]);
 
-  useEffect(() => {
-    const initSession = async () => {
-      try {
-        const now = Date.now();
-        setStartTime(now);
+  const initSession = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setHasError(false);
+      const now = Date.now();
+      setStartTime(now);
 
-        const routeRoutineName = routineName as string;
-        const fetchedRoutine = await db.select({ name: routines.name })
-          .from(routines)
-          .where(eq(routines.id, Number(rIdStr)))
-          .limit(1);
-        const resolvedRoutineName = resolveCanonicalSessionRoutineName(fetchedRoutine?.[0]?.name ?? null, routeRoutineName);
+      const routeRoutineName = routineName as string;
+      const fetchedRoutine = await db.select({ name: routines.name })
+        .from(routines)
+        .where(eq(routines.id, Number(rIdStr)))
+        .limit(1);
+      const resolvedRoutineName = resolveCanonicalSessionRoutineName(fetchedRoutine?.[0]?.name ?? null, routeRoutineName);
 
-        if (!resolvedRoutineName) {
-          throw new Error(`Cannot start session without routineName for routine ${rIdStr}`);
-        }
-
-        setSessionRoutineName(resolvedRoutineName);
-        const result = await db.insert(sessions).values({
-          routineId: Number(rIdStr),
-          routineName: resolvedRoutineName,
-          startTime: now,
-          bodyWeight: 0,
-          sRpe: 0,
-        }).returning();
-        setSessionId(result[0].id);
-      } catch (e) {
-        logger.error('Erro inesperado', e);
-        router.back();
+      if (!resolvedRoutineName) {
+        throw new Error(`Cannot start session without routineName for routine ${rIdStr}`);
       }
-    };
-    
-    if (rIdStr) {
-        initSession();
-        loadExercises();
+
+      setSessionRoutineName(resolvedRoutineName);
+      const result = await db.insert(sessions).values({
+        routineId: Number(rIdStr),
+        routineName: resolvedRoutineName,
+        startTime: now,
+        bodyWeight: 0,
+        sRpe: 0,
+      }).returning();
+
+      await loadExercises();
+      setSessionId(result[0].id);
+    } catch (e) {
+      logger.error('Erro ao iniciar sessão', e);
+      setHasError(true);
+      setErrorMessage(t('states.errorBody'));
+    } finally {
+      setIsLoading(false);
     }
-  }, [rIdStr, loadExercises, routineName, router]);
+  }, [rIdStr, loadExercises, routineName, t]);
+
+  useEffect(() => {
+    if (rIdStr && !sessionId && !hasError) {
+        initSession();
+    }
+  }, [rIdStr, sessionId, hasError, initSession]);
 
   const finishSession = () => {
     if (!sessionId) return;
@@ -161,7 +172,33 @@ export default function SessionScreen() {
     });
   };
 
-  if (!sessionId) return <View className="flex-1 bg-background" />;
+  const { status } = resolveScreenState({
+    isLoading: isLoading && !sessionId,
+    hasError,
+    hasContent: !!sessionId,
+    errorMessage
+  });
+
+  if (status === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (status === 'error') {
+    return (
+      <View className="flex-1 bg-background p-4 justify-center">
+        <ErrorState message={errorMessage} onRetry={initSession} />
+        <Button
+          title={t('common.back')}
+          onPress={() => router.back()}
+          variant="ghost"
+          className="mt-4"
+        />
+      </View>
+    );
+  }
+
+  // At this point status is 'content' (hasContent: !!sessionId) or 'empty' (which shouldn't happen here)
+  if (!sessionId) return null;
 
   return (
     <View className="flex-1 bg-background">

@@ -12,13 +12,16 @@ import { Button } from '../../../components/Button';
 import { Input } from '../../../components/Input';
 import { Card } from '../../../components/Card';
 import { Dialog } from '../../../components/Dialog';
+import { LoadingState, ErrorState } from '../../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../../src/i18n/index';
+import { resolveScreenState } from '../../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
+import { InlineEmptyState } from '../../../components/EmptyState';
 
 type CheckinPhotos = {
   front: string | null;
@@ -36,11 +39,20 @@ export default function BioScreen() {
       setModalVisible(true);
     }
   }, [params.checkin]);
-  const { metrics, fetchMetrics, saveDailyWeight: hookSaveWeight } = useBodyMetrics();
+
+  const {
+    metrics,
+    fetchMetrics,
+    saveDailyWeight: hookSaveWeight,
+    isLoading,
+    hasError,
+    errorMessage
+  } = useBodyMetrics();
+
   const [todayWeight, setTodayWeight] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Estados para o Check-in Mensal
   const [monthlyData, setMonthlyData] = useState<Record<string, string>>({
       waist: '', armRight: '', thighRight: '', chest: '', calf: ''
@@ -106,40 +118,12 @@ export default function BioScreen() {
 
               await FileSystem.copyAsync({ from: manipResult.uri, to: newPath });
               setPhotos(prev => ({ ...prev, [field]: newPath }));
-              
+
               setToast({ visible: true, message: t('bio.photoSelected'), type: 'success' });
           }
       } catch {
           setToast({ visible: true, message: t('bio.photoSelectError'), type: 'error' });
       }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const deletePhoto = (field: 'front' | 'back' | 'side') => {
-      setDialog({
-          visible: true,
-          title: t('bio.deletePhoto'),
-          message: t('bio.deletePhotoConfirm'),
-          onConfirm: async () => {
-              // Delete the physical file to prevent orphaned photos
-              const photoUri = photos[field];
-              if (photoUri) {
-                try {
-                  const fileInfo = await FileSystem.getInfoAsync(photoUri);
-                  if (fileInfo.exists) {
-                    await FileSystem.deleteAsync(photoUri, { idempotent: true });
-                  }
-                } catch (e) {
-                  logger.warn('Failed to delete photo file', e);
-                }
-              }
-              setPhotos(prev => ({ ...prev, [field]: null }));
-              setPhotoNotes(prev => ({ ...prev, [field]: '' }));
-              setDialog({ visible: false, title: '', message: '', onConfirm: () => {}, field: null });
-              setToast({ visible: true, message: t('bio.photoRemoved'), type: 'success' });
-          },
-          field,
-      });
   };
 
   const resetCheckinForm = useCallback(() => {
@@ -167,7 +151,7 @@ export default function BioScreen() {
     }
   }, [photos, monthlyData, photoNotes, t, resetCheckinForm]);
 
-  const saveMonthlyCheckin = async () => {
+  const saveMonthlyCheckin = useCallback(async () => {
       try {
           // Step 1: Validate — block save on failure
           const validation = validateMonthlyCheckin(monthlyData);
@@ -220,7 +204,22 @@ export default function BioScreen() {
           logger.error('Erro inesperado', e);
           setToast({ visible: true, message: t('bio.saveCheckinError'), type: 'error' });
       }
-  };
+  }, [monthlyData, t, todayWeight, photos, photoNotes, resetCheckinForm, fetchMetrics]);
+
+  const { status } = resolveScreenState({
+    isLoading: isLoading && !refreshing && metrics.length === 0,
+    hasError,
+    hasContent: metrics.length > 0,
+    errorMessage
+  });
+
+  if (status === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={fetchMetrics} />;
+  }
 
   return (
     <View className="flex-1 bg-background">
@@ -252,9 +251,9 @@ export default function BioScreen() {
                     />
                 </View>
                 <View className="pt-6">
-                    <Button 
-                        title={t("bio.save")} 
-                        onPress={saveDailyWeight} 
+                    <Button
+                        title={t("bio.save")}
+                        onPress={saveDailyWeight}
                         size="sm"
                     />
                 </View>
@@ -290,7 +289,7 @@ export default function BioScreen() {
         <Card>
             <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-primary font-bold text-xs uppercase tracking-widest">{t("bio.monthlyCheckin")}</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                     onPress={() => setModalVisible(true)}
                     className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
                 >
@@ -352,24 +351,31 @@ export default function BioScreen() {
         {/* Histórico Detalhado */}
         <View>
             <Text className="text-subtext font-bold uppercase text-xs mb-3 tracking-widest pl-1">{t("bio.history")}</Text>
-            <View className="gap-2">
-                {metrics.slice(0, 10).map((item) => (
-                    <View key={item.id} className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
-                        <View className="flex-row items-center gap-3">
-                            <View className={`w-2 h-2 rounded-full ${item.type === 'monthly' ? 'bg-secondary' : 'bg-primary'}`} />
-                            <Text className="text-subtext text-xs font-mono font-medium">
-                                {new Date(item.date).toLocaleDateString()}
-                            </Text>
-                        </View>
-                        
-                        <View className="flex-row items-center gap-2">
-                            {item.type === 'monthly' && (
-                                <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
-                            )}
-                            <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
-                        </View>
-                    </View>
-                ))}
+            <View className="gap-2 pb-8">
+                {metrics.length > 0 ? (
+                  metrics.slice(0, 10).map((item) => (
+                      <View key={item.id} className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
+                          <View className="flex-row items-center gap-3">
+                              <View className={`w-2 h-2 rounded-full ${item.type === 'monthly' ? 'bg-secondary' : 'bg-primary'}`} />
+                              <Text className="text-subtext text-xs font-mono font-medium">
+                                  {new Date(item.date).toLocaleDateString()}
+                              </Text>
+                          </View>
+
+                          <View className="flex-row items-center gap-2">
+                              {item.type === 'monthly' && (
+                                  <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
+                              )}
+                              <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
+                          </View>
+                      </View>
+                  ))
+                ) : (
+                  <InlineEmptyState
+                    icon="📋"
+                    title={t("bio.empty")}
+                  />
+                )}
             </View>
         </View>
       </ScrollView>
@@ -379,11 +385,11 @@ export default function BioScreen() {
           <View className="flex-1 bg-background">
               <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
                   <Text className="text-text text-xl font-bold uppercase tracking-widest">{t("bio.checkin")}</Text>
-                  <Button 
-                    title={t("common.close")} 
-                    onPress={handleCloseModal} 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    title={t("common.close")}
+                    onPress={handleCloseModal}
+                    variant="ghost"
+                    size="sm"
                   />
               </View>
 
@@ -414,8 +420,8 @@ export default function BioScreen() {
                     <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.photos")}</Text>
                     <View className="flex-row justify-between">
                         {(['front', 'back', 'side'] as const).map(side => (
-                            <TouchableOpacity 
-                                key={side} 
+                            <TouchableOpacity
+                                key={side}
                                 onPress={() => pickImage(side)}
                                 className="w-[31%] aspect-[3/4] bg-card border-2 border-border border-dashed rounded-xl justify-center items-center overflow-hidden active:opacity-70"
                             >
@@ -432,10 +438,10 @@ export default function BioScreen() {
                     </View>
                   </View>
 
-                  <Button 
-                    title={t("bio.saveCheckin")} 
-                    onPress={saveMonthlyCheckin} 
-                    variant="success" 
+                  <Button
+                    title={t("bio.saveCheckin")}
+                    onPress={saveMonthlyCheckin}
+                    variant="success"
                     size="lg"
                     fullWidth
                     style={{ marginBottom: 40 }}

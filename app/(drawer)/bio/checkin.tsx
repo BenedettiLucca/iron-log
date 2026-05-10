@@ -9,8 +9,10 @@ import { MonthlyCheckinComparison } from '../../../components/MonthlyCheckinComp
 import { CheckinGallery } from '../../../components/CheckinGallery';
 import { Button } from '../../../components/Button';
 import { EmptyState } from '../../../components/EmptyState';
+import { LoadingState, ErrorState } from '../../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { useI18n } from '../../../src/i18n/index';
+import { resolveScreenState } from '../../../src/utils/screen-state';
 import { processCheckinData } from '@/src/utils/checkin-screen';
 
 export default function CheckinScreen() {
@@ -19,34 +21,46 @@ export default function CheckinScreen() {
   const [monthlyMetrics, setMonthlyMetrics] = useState<BodyMetric[]>([]);
   const [showGallery, setShowGallery] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const loadMetrics = useCallback(async () => {
     try {
       setLoading(true);
+      setHasError(false);
       const data = await db.select().from(bodyMetrics)
         .where(eq(bodyMetrics.type, 'monthly'))
         .orderBy(desc(bodyMetrics.date));
       setMonthlyMetrics((data || []) as BodyMetric[]);
     } catch (e) {
       logger.error('Failed to load monthly metrics', e);
+      setHasError(true);
+      setErrorMessage(t('states.errorBody'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadMetrics();
   }, [loadMetrics]);
 
-  const { current, previous, hasData } = processCheckinData(monthlyMetrics);
+  const { status } = resolveScreenState({
+    isLoading: loading,
+    hasError,
+    hasContent: monthlyMetrics.length > 0,
+    errorMessage
+  });
 
-  if (loading) {
-    return (
-      <View className="flex-1 bg-background justify-center items-center">
-        <Text className="text-subtext">{t('common.loading')}</Text>
-      </View>
-    );
+  if (status === 'loading') {
+    return <LoadingState />;
   }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage} onRetry={loadMetrics} />;
+  }
+
+  const { current, previous, hasData } = processCheckinData(monthlyMetrics);
 
   if (!hasData || !current) {
     return (

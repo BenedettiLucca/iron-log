@@ -5,6 +5,9 @@ import { usePrograms } from '@/hooks/use-programs';
 import { useI18n } from '@/src/i18n';
 import { Card } from '@/components/Card';
 import { EmptyState } from '@/components/EmptyState';
+import { LoadingState, ErrorState } from '@/components/ScreenState';
+import { resolveScreenState } from '@/src/utils/screen-state';
+import { logger } from '@/services/logger';
 import type { Session, WeekCompletionStatus } from '@/src/types';
 
 export default function WeekDetailScreen() {
@@ -17,17 +20,32 @@ export default function WeekDetailScreen() {
     weeks, 
     weekCompletionMap, 
     fetchDashboardData,
-    getSessionsForWeek 
+    getSessionsForWeek,
+    isLoading,
+    detailError
   } = usePrograms();
   
   const [selectedWeek, setSelectedWeek] = useState(parseInt(initialWeek || '1'));
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const loadData = useCallback(async () => {
+    if (programId) {
+      try {
+        setHasError(false);
+        await fetchProgramDetails(parseInt(programId));
+      } catch (e) {
+        logger.error('Failed to load program week detail', e);
+        setHasError(true);
+        setErrorMessage(t('states.errorBody'));
+      }
+    }
+  }, [programId, fetchProgramDetails, t]);
 
   useEffect(() => {
-    if (programId) {
-      fetchProgramDetails(parseInt(programId));
-    }
-  }, [programId, fetchProgramDetails]);
+    loadData();
+  }, [loadData]);
 
   useEffect(() => {
     if (activeProgram) {
@@ -37,13 +55,32 @@ export default function WeekDetailScreen() {
 
   const loadSessions = useCallback(async () => {
     if (!activeProgram) return;
-    const data = await getSessionsForWeek(selectedWeek);
-    setSessions(data);
+    try {
+      const data = await getSessionsForWeek(selectedWeek);
+      setSessions(data);
+    } catch (e) {
+      logger.error('Failed to load sessions for week', e);
+    }
   }, [activeProgram, selectedWeek, getSessionsForWeek]);
 
   useEffect(() => {
     loadSessions();
   }, [loadSessions]);
+
+  const { status } = resolveScreenState({
+    isLoading: isLoading && weeks.length === 0,
+    hasError: hasError || !!detailError,
+    hasContent: weeks.length > 0,
+    errorMessage: errorMessage || detailError || undefined
+  });
+
+  if (status === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (status === 'error') {
+    return <ErrorState message={errorMessage || detailError || undefined} onRetry={loadData} />;
+  }
 
   const getStatusEmoji = (status: WeekCompletionStatus) => {
     switch (status) {

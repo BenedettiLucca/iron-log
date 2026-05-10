@@ -685,6 +685,14 @@ export const pt = {
     invalidBackup: 'Arquivo de backup inválido ou vazio.',
     sharingUnavailable: 'Compartilhamento não disponível neste dispositivo.',
   },
+  states: {
+    loadingTitle: 'Carregando',
+    loadingBody: 'Aguarde enquanto buscamos seus dados.',
+    errorTitle: 'Algo deu errado',
+    errorBody: 'Encontramos um erro ao carregar este conteúdo.',
+    retry: 'Tentar Novamente',
+    noData: 'Nenhum dado encontrado',
+  },
   // Routine Detail
   routineDetail: {
     exercises: 'Exercícios',
