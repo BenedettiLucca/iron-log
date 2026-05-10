@@ -328,6 +328,9 @@ export const en = {
     saveDurationSet: 'Save Set',
     rirModerateDesc: 'Controlled effort, good for hypertrophy',
     rirLightDesc: 'Warmup or technique',
+    rirSliderLabel: 'Reps in reserve',
+    rirSliderHint: 'Adjust from 0, failure, to 5, regenerative.',
+    rirSliderValue: 'RIR {value}, {meaning}',
       enterDuration: 'Enter set duration (in seconds)',
     enterReps: 'Enter number of reps',
     enterWeight: 'Enter the weight used',
@@ -439,6 +442,9 @@ export const en = {
     recovery: 'Recovery',
     confirmDetails: 'Review the data before finishing:\n\n• {sets} sets\n• {exercises} exercises\n• {volume} tons of volume\n• Weight: {weight} kg\n• sRPE: {srpe}',
     finishError: 'Error finishing workout',
+    srpeSliderLabel: 'Session perceived effort',
+    srpeSliderHint: 'Adjust from 1, regenerative, to 10, maximum.',
+    srpeSliderValue: 'sRPE {value}, {meaning}',
 
   },
   a11y: {
@@ -566,6 +572,12 @@ export const en = {
     galleryItemLabel: '{month} check-in',
     galleryItemHint: 'Tap to compare this month with the previous check-in.',
     galleryItemSelectedHint: 'Selected month for comparison.',
+  },
+
+  photoComparison: {
+    sliderLabel: 'Before and after photo comparison',
+    sliderHint: 'Adjust to reveal more of the before or after photo.',
+    sliderValue: '{before}% before, {after}% after',
   },
 
   bioAnalytics: {

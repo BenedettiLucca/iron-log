@@ -17,6 +17,8 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
   const { t } = useI18n();
   const [sliderValue, setSliderValue] = useState(0.5);
   const [containerWidth, setContainerWidth] = useState(0);
+  const afterPercent = Math.round(sliderValue * 100);
+  const beforePercent = 100 - afterPercent;
 
   const onLayout = useCallback((event: any) => {
     setContainerWidth(event.nativeEvent.layout.width);
@@ -110,6 +112,14 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               step={0.01}
               value={sliderValue}
               onValueChange={setSliderValue}
+              accessibilityLabel={t('photoComparison.sliderLabel')}
+              accessibilityHint={t('photoComparison.sliderHint')}
+              accessibilityValue={{
+                min: 0,
+                max: 100,
+                now: afterPercent,
+                text: t('photoComparison.sliderValue', { before: beforePercent, after: afterPercent }),
+              }}
               minimumTrackTintColor={Colors.primary}
               maximumTrackTintColor={Colors.gray300}
               thumbTintColor={Colors.primary}

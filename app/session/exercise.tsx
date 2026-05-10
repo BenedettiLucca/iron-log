@@ -821,6 +821,21 @@ export default function ExerciseScreen() {
                     setRir(value);
                     trigger('light');
                   }}
+                  accessibilityLabel={t('exercise.rirSliderLabel')}
+                  accessibilityHint={t('exercise.rirSliderHint')}
+                  accessibilityValue={{
+                    min: 0,
+                    max: 5,
+                    now: rir,
+                    text: t('exercise.rirSliderValue', {
+                      value: rir,
+                      meaning: rir <= 1
+                        ? t('exercise.rirStrong')
+                        : rir <= 3
+                          ? t('exercise.rirModerate')
+                          : t('exercise.rirLight'),
+                    }),
+                  }}
                   minimumTrackTintColor={Colors.primary}
                   maximumTrackTintColor={Colors.gray300}
                   thumbTintColor={Colors.primary}

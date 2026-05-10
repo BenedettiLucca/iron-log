@@ -328,6 +328,9 @@ export const es = {
     saveDurationSet: 'Guardar Serie',
     rirModerateDesc: 'Esfuerzo controlado, bueno para hipertrofia',
     rirLightDesc: 'Calentamiento o técnica',
+    rirSliderLabel: 'Repeticiones en reserva',
+    rirSliderHint: 'Ajusta de 0, fallo, a 5, regenerativo.',
+    rirSliderValue: 'RIR {value}, {meaning}',
       enterDuration: 'Ingrese la duración de la serie (en segundos)',
     enterReps: 'Ingrese el número de repeticiones',
     enterWeight: 'Ingrese el peso utilizado',
@@ -439,6 +442,9 @@ export const es = {
     recovery: 'Recuperación',
     confirmDetails: 'Revisa los datos antes de finalizar:\n\n• {sets} series\n• {exercises} ejercicios\n• {volume} toneladas de volumen\n• Peso: {weight} kg\n• sRPE: {srpe}',
     finishError: 'Error al finalizar entrenamiento',
+    srpeSliderLabel: 'Esfuerzo percibido de la sesión',
+    srpeSliderHint: 'Ajusta de 1, regenerativo, a 10, máximo.',
+    srpeSliderValue: 'sRPE {value}, {meaning}',
 
   },
   a11y: {
@@ -566,6 +572,12 @@ export const es = {
     galleryItemLabel: 'Check-in de {month}',
     galleryItemHint: 'Toca para comparar este mes con el check-in anterior.',
     galleryItemSelectedHint: 'Mes seleccionado para comparación.',
+  },
+
+  photoComparison: {
+    sliderLabel: 'Comparación de fotos antes y después',
+    sliderHint: 'Ajusta para revelar más de la foto de antes o después.',
+    sliderValue: '{before}% antes, {after}% después',
   },
 
   bioAnalytics: {

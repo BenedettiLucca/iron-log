@@ -334,6 +334,17 @@ export default function FinishSessionScreen() {
             step={1}
             value={sRpe}
             onValueChange={setSRpe}
+            accessibilityLabel={t('finish.srpeSliderLabel')}
+            accessibilityHint={t('finish.srpeSliderHint')}
+            accessibilityValue={{
+              min: 1,
+              max: 10,
+              now: sRpe,
+              text: t('finish.srpeSliderValue', {
+                value: sRpe,
+                meaning: SRPE_DESCRIPTIONS[sRpe] || t('finish.sRPEModerate'),
+              }),
+            }}
             minimumTrackTintColor={Colors.primary}
             maximumTrackTintColor={Colors.gray300}
             thumbTintColor={Colors.primary}

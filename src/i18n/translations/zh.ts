@@ -328,6 +328,9 @@ export const zh = {
     saveDurationSet: '保存组',
     rirModerateDesc: '控制力训练，适合肌肉增长',
     rirLightDesc: '热身或技术练习',
+    rirSliderLabel: '保留次数',
+    rirSliderHint: '从 0（力竭）调整到 5（恢复性）。',
+    rirSliderValue: 'RIR {value}，{meaning}',
       enterDuration: '输入组持续时间（秒）',
     enterReps: '输入重复次数',
     enterWeight: '输入使用的重量',
@@ -439,6 +442,9 @@ export const zh = {
     recovery: '恢复',
     confirmDetails: '结束前请检查数据：\n\n• {sets} 组\n• {exercises} 个动作\n• {volume} 吨训练量\n• 体重：{weight} kg\n• sRPE：{srpe}',
     finishError: '结束训练出错',
+    srpeSliderLabel: '本次训练感知用力程度',
+    srpeSliderHint: '从 1（恢复性）调整到 10（最大）。',
+    srpeSliderValue: 'sRPE {value}，{meaning}',
 
   },
   a11y: {
@@ -566,6 +572,12 @@ export const zh = {
     galleryItemLabel: '{month} 打卡',
     galleryItemHint: '点按即可将本月与上一次打卡进行比较。',
     galleryItemSelectedHint: '已选择用于比较的月份。',
+  },
+
+  photoComparison: {
+    sliderLabel: '前后照片对比',
+    sliderHint: '调整以显示更多之前或之后的照片。',
+    sliderValue: '之前 {before}%，之后 {after}%',
   },
 
   bioAnalytics: {
