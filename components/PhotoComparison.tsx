@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
-import { View, Text, Image, Modal, TouchableOpacity, useColorScheme } from 'react-native';
+import { View, Text, Image, Modal, useColorScheme } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
+import { Pressable } from './Pressable';
 import { getThemeColors } from '@/constants/colors';
 import { useI18n } from '../src/i18n/index';
 
@@ -37,20 +38,22 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
       transparent
       onRequestClose={onClose}
     >
-      <TouchableOpacity
+      <Pressable
         activeOpacity={1}
         className="flex-1 justify-center items-center bg-black/80 p-6"
         onPress={onClose}
+        hapticType="light"
       >
-        <TouchableOpacity
+        <Pressable
           activeOpacity={1}
           className="bg-card rounded-2xl p-6 max-w-lg w-full shadow-xl border border-border"
           onPress={(e) => e.stopPropagation()}
+          hapticType="light"
         >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-text text-xl font-bold uppercase tracking-widest">{t('photoComparison.title', { label })}</Text>
-            <TouchableOpacity
+            <Pressable
               onPress={onClose}
               className="w-11 h-11 rounded-full items-center justify-center"
               accessibilityLabel={t("common.closeComparison")}
@@ -58,7 +61,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Text className="text-subtext text-2xl">✕</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           {/* Comparison View — clip-based before/after */}
@@ -140,24 +143,27 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
 
           {/* Toggle Visibility */}
           <View className="flex-row gap-2 mb-4">
-            <TouchableOpacity
+            <Button
+              title={t('photoComparison.viewBefore')}
               onPress={() => setSliderValue(0)}
-              className="flex-1 py-3 px-4 rounded-xl bg-background border border-border items-center"
-            >
-              <Text className="text-text font-bold text-sm">{t('photoComparison.viewBefore')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+            />
+            <Button
+              title={t('photoComparison.viewAfter')}
               onPress={() => setSliderValue(1)}
-              className="flex-1 py-3 px-4 rounded-xl bg-background border border-border items-center"
-            >
-              <Text className="text-text font-bold text-sm">{t('photoComparison.viewAfter')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+              variant="ghost"
+              size="sm"
+              className="flex-1"
+            />
+            <Button
+              title={t('photoComparison.compare')}
               onPress={() => setSliderValue(0.5)}
-              className="flex-1 py-3 px-4 rounded-xl bg-primary items-center"
-            >
-              <Text className="text-white font-bold text-sm">{t('photoComparison.compare')}</Text>
-            </TouchableOpacity>
+              variant="primary"
+              size="sm"
+              className="flex-1"
+            />
           </View>
 
           {/* Close Button */}
@@ -168,8 +174,8 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
             size="lg"
             fullWidth
           />
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

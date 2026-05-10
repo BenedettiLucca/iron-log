@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, TextInput } from 'react-native';
 import { Card } from './Card';
+import { Button } from './Button';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '@/src/i18n/index';
 
@@ -147,19 +148,21 @@ export function SetEditor({
           </View>
 
           <View className="flex-row gap-3">
-            <TouchableOpacity
+            <Button
+              title={t('common.cancel')}
+              variant="ghost"
+              size="sm"
               onPress={onCancel}
-              className="flex-1 py-3 px-4 rounded-xl items-center bg-background border border-border"
-            >
-              <Text className="text-text font-semibold text-base">{t('common.cancel')}</Text>
-            </TouchableOpacity>
+              className="flex-1"
+            />
 
-            <TouchableOpacity
+            <Button
+              title={t('common.save')}
+              variant="primary"
+              size="sm"
               onPress={handleSave}
-              className="flex-1 py-3 px-4 rounded-xl items-center bg-primary"
-            >
-              <Text className="text-white font-semibold text-base">{t('common.save')}</Text>
-            </TouchableOpacity>
+              className="flex-1"
+            />
           </View>
         </Card>
       </View>

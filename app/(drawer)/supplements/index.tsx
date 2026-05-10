@@ -5,6 +5,7 @@ import { useI18n } from '@/src/i18n';
 import { Colors } from '@/constants/colors';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
+import { Pressable } from '@/components/Pressable';
 import { Input } from '@/components/Input';
 import { Toast } from '@/components/Toast';
 import { Dialog } from '@/components/Dialog';
@@ -232,7 +233,7 @@ export default function SupplementsScreen() {
               return (
                 <Card key={item.id} className={`border-l-4 ${taken ? 'border-primary' : 'border-border'}`}>
                   <View className="flex-row items-center gap-3">
-                    <TouchableOpacity
+                    <Pressable
                       onPress={() => handleToggle(item.id)}
                       onLongPress={() => openEditModal(item)}
                       activeOpacity={0.7}
@@ -246,6 +247,7 @@ export default function SupplementsScreen() {
                         timing: item.timing,
                       })}
                       accessibilityHint={taken ? t('supplements.toggleTakenHint') : t('supplements.togglePendingHint')}
+                      hapticType="selection"
                     >
                       <Text className="text-2xl mr-3">{item.emoji || '💊'}</Text>
                       <View className="flex-1">
@@ -271,7 +273,7 @@ export default function SupplementsScreen() {
                           </View>
                         )}
                       </View>
-                    </TouchableOpacity>
+                    </Pressable>
 
                     <TouchableOpacity
                       onPress={() => openEditModal(item)}

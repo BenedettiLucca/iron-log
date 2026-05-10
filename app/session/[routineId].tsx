@@ -205,13 +205,13 @@ export default function SessionScreen() {
       <Stack.Screen options={{
         headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
         headerRight: () => (
-          <TouchableOpacity
+          <Button
+            title={t('session.end')}
             onPress={finishSession}
-            className="bg-danger px-4 min-h-[44px] rounded-lg shadow-sm items-center justify-center"
-            {...a11y.endSession}
-          >
-            <Text className="text-white font-bold uppercase tracking-widest text-xs">{t('session.end')}</Text>
-          </TouchableOpacity>
+            variant="danger"
+            size="sm"
+            accessibilityLabel={a11y.endSession.accessibilityLabel}
+          />
         ),
         }} />
 

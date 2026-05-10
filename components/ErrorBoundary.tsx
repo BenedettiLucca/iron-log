@@ -1,8 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import { logger } from '@/services/logger';
 import { getNestedValue } from '@/src/i18n/index';
 import { pt } from '@/src/i18n/translations/pt';
+import { Button } from './Button';
 
 interface Props {
   children: ReactNode;
@@ -59,12 +60,11 @@ export class ErrorBoundary extends Component<Props, State> {
               </Text>
             </View>
           )}
-          <TouchableOpacity
-            className="py-3 px-8 rounded-xl bg-primary"
+          <Button
+            title={getNestedValue(pt, 'common.retry') || 'Tentar Novamente'}
             onPress={this.handleRestart}
-          >
-            <Text className="text-white font-bold text-base">{getNestedValue(pt, 'common.retry') || 'Tentar Novamente'}</Text>
-          </TouchableOpacity>
+            variant="primary"
+          />
         </View>
       );
     }

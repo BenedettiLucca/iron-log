@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { View, TouchableOpacity, ViewStyle } from 'react-native';
+import { useHaptics } from '@/hooks/use-haptics';
 
 export type CardVariant = 'default' | 'bordered' | 'elevated' | 'flat';
 
@@ -26,6 +27,8 @@ export function Card({
   accessibilityLabel,
   accessibilityRole,
 }: CardProps) {
+  const { trigger } = useHaptics();
+
   const getVariantClasses = () => {
     switch (variant) {
       case 'bordered':
@@ -40,6 +43,13 @@ export function Card({
     }
   };
 
+  const handlePress = () => {
+    if (onPress) {
+      trigger('medium');
+      onPress();
+    }
+  };
+
   const cardClasses = `${getVariantClasses()} rounded-2xl overflow-hidden ${
     contentPadding ? 'p-4' : ''
   } ${className}`;
@@ -47,7 +57,7 @@ export function Card({
   if (pressable && onPress) {
     return (
       <TouchableOpacity
-        onPress={onPress}
+        onPress={handlePress}
         className={cardClasses}
         activeOpacity={0.7}
         style={style}

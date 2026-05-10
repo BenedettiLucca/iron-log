@@ -262,27 +262,30 @@ export default function BioScreen() {
 
         {/* Botões de Ação Rápida */}
         <View className="flex-row gap-3 mb-4">
-            <TouchableOpacity
+            <Button
+                title={t("bioNav.goals")}
                 onPress={() => router.push('/bio/goals')}
-                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
-            >
-                <Text className="text-lg mr-1.5">🎯</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.goals")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+                variant="primary"
+                size="sm"
+                icon={<Text className="text-lg">🎯</Text>}
+                className="flex-1"
+            />
+            <Button
+                title={t("bioNav.evolution")}
                 onPress={() => router.push('/bio/evolution')}
-                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
-            >
-                <Text className="text-lg mr-1.5">📈</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.evolution")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+                variant="primary"
+                size="sm"
+                icon={<Text className="text-lg">📈</Text>}
+                className="flex-1"
+            />
+            <Button
+                title={t("bioNav.data")}
                 onPress={() => router.push('/bio/analytics')}
-                className="flex-1 bg-primary p-3 rounded-xl items-center justify-center flex-row shadow-sm active:opacity-90"
-            >
-                <Text className="text-lg mr-1.5">📊</Text>
-                <Text className="text-white font-bold text-xs uppercase tracking-wider">{t("bioNav.data")}</Text>
-            </TouchableOpacity>
+                variant="primary"
+                size="sm"
+                icon={<Text className="text-lg">📊</Text>}
+                className="flex-1"
+            />
         </View>
 
         {/* Check-in Mensal */}

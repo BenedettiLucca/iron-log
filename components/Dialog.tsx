@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, Modal } from 'react-native';
 import { useI18n } from '../src/i18n/index';
+import { Button } from './Button';
 
 interface DialogProps {
   visible: boolean;
@@ -48,25 +49,19 @@ export function Dialog({
           <Text className="text-subtext text-base mb-6 leading-6">{message}</Text>
 
           <View className="flex-col gap-3">
-            <TouchableOpacity
-              className={`py-3 px-4 rounded-xl items-center ${
-                type === 'destructive' ? 'bg-danger' : 'bg-primary'
-              }`}
+            <Button
+              title={resolvedConfirmText}
+              variant={type === 'destructive' ? 'danger' : 'primary'}
               onPress={onConfirm}
               accessibilityLabel={resolvedConfirmText}
-              accessibilityRole="button"
-            >
-              <Text className="text-white font-semibold text-base">{resolvedConfirmText}</Text>
-            </TouchableOpacity>
+            />
 
-            <TouchableOpacity
-              className="py-3 px-4 rounded-xl items-center bg-background border border-border"
+            <Button
+              title={resolvedCancelText}
+              variant="ghost"
               onPress={onCancel}
               accessibilityLabel={resolvedCancelText}
-              accessibilityRole="button"
-            >
-              <Text className="text-text font-semibold text-base">{resolvedCancelText}</Text>
-            </TouchableOpacity>
+            />
           </View>
         </TouchableOpacity>
       </TouchableOpacity>
