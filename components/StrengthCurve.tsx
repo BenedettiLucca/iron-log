@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 import { Card } from './Card';
+import { useI18n, getLocaleForLanguage } from '@/src/i18n';
 
 interface StrengthCurveProps {
   currentWeight: number;
@@ -10,26 +11,28 @@ interface StrengthCurveProps {
 }
 
 export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWeight, goalDate }: StrengthCurveProps) {
+  const { t, language } = useI18n();
+  const locale = getLocaleForLanguage(language);
   // Calculate strength curve metrics
   const avgWeight = previousWeights.length > 0 ? previousWeights.reduce((sum, w) => sum + w, 0) / previousWeights.length : currentWeight;
   const minWeight = Math.min(...previousWeights, currentWeight);
 
-  const trend = currentWeight >= avgWeight ? '📈 Crescendo' : '📉 Descendo';
+  const trend = currentWeight >= avgWeight ? t('strengthCurve.trendUp') : t('strengthCurve.trendDown');
   const trendColor = currentWeight >= avgWeight ? 'text-success' : 'text-danger';
 
   return (
     <Card className="border-l border-accent/20 mt-4">
-      <Text className="text-accent text-xs font-bold uppercase mb-3 tracking-widest">Curva de Força</Text>
+      <Text className="text-accent text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.title')}</Text>
 
       {/* Current Stats */}
       <View className="mb-6">
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
-            <Text className="text-subtext text-xs font-bold uppercase">Peso Atual</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.currentWeight')}</Text>
             <Text className="text-2xl font-black text-text">{currentWeight}kg</Text>
           </View>
           <View className="flex-1">
-            <Text className="text-subtext text-xs font-bold uppercase">Média (7 dias)</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.avg7Days')}</Text>
             <Text className="text-2xl font-bold text-text">{avgWeight.toFixed(1)}kg</Text>
           </View>
         </View>
@@ -37,13 +40,13 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
         {/* Trend */}
         <View className="flex-row justify-between items-center mb-4">
           <View className="flex-1">
-            <Text className="text-subtext text-xs font-bold uppercase">Tendência</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.trend')}</Text>
             <Text className={`text-2xl font-bold ${trendColor}`}>
               {trend}
             </Text>
           </View>
           <View className="flex-1">
-            <Text className="text-subtext text-xs font-bold uppercase">Mínimo/Máximo</Text>
+            <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.minMax')}</Text>
             <Text className="text-2xl font-black text-text">{minWeight}kg</Text>
           </View>
         </View>
@@ -52,24 +55,24 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
       {/* Best Performance */}
       {bestSet && (
         <Card className="border-l border-success/20 mt-4">
-          <Text className="text-success text-xs font-bold uppercase mb-3 tracking-widest">Melhor Série</Text>
+          <Text className="text-success text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.bestSet')}</Text>
 
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">Carga</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.weight')}</Text>
                 <Text className="text-2xl font-black text-text">{bestSet.weight}kg</Text>
-                <Text className="text-subtext text-xs font-bold uppercase">x {bestSet.reps} reps</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.reps', { count: bestSet.reps })}</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">Data</Text>
-                <Text className="text-2xl font-black text-text">{bestSet.date ? new Date(bestSet.date).toLocaleDateString() : '-'}</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.date')}</Text>
+                <Text className="text-2xl font-black text-text">{bestSet.date ? new Date(bestSet.date).toLocaleDateString(locale) : '-'}</Text>
               </View>
             </View>
 
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">Volume</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.volume')}</Text>
                 <Text className="text-2xl font-black text-text">{(bestSet.weight * bestSet.reps).toFixed(0)}kg</Text>
               </View>
             </View>
@@ -80,25 +83,25 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
       {/* Goals */}
       {goalWeight && goalDate && new Date(goalDate).getTime() > Date.now() && (
         <Card className="border-l border-warning/20 mt-4">
-          <Text className="text-warning text-xs font-bold uppercase mb-3 tracking-widest">Meta de Peso</Text>
+          <Text className="text-warning text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.weightGoal')}</Text>
 
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">Meta</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.goal')}</Text>
                 <Text className="text-2xl font-black text-text">{goalWeight}kg</Text>
               </View>
               <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">Prazo Meta</Text>
+                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.goalDeadline')}</Text>
                 <Text className="text-2xl font-black text-text">
-                  {Math.ceil((new Date(goalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)).toString()}d
+                  {t('strengthCurve.daysRemaining', { days: Math.ceil((new Date(goalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) })}
                 </Text>
               </View>
             </View>
             <View className="flex-1">
-              <Text className="text-subtext text-sm font-bold uppercase">Data Alvo</Text>
+              <Text className="text-subtext text-sm font-bold uppercase">{t('strengthCurve.targetDate')}</Text>
               <Text className="text-4xl font-black text-text">
-                {new Date(goalDate).toLocaleDateString()}
+                {new Date(goalDate).toLocaleDateString(locale)}
               </Text>
             </View>
           </View>

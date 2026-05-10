@@ -49,7 +49,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
         >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-text text-xl font-bold uppercase tracking-widest">Comparação: {label}</Text>
+            <Text className="text-text text-xl font-bold uppercase tracking-widest">{t('photoComparison.title', { label })}</Text>
             <TouchableOpacity
               onPress={onClose}
               className="w-11 h-11 rounded-full items-center justify-center"
@@ -100,10 +100,10 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
             {/* Labels */}
             <View className="absolute top-2 left-0 right-0 flex-row justify-between px-2">
               <View className="bg-black/50 px-2 py-1 rounded">
-                <Text className="text-white text-xs font-bold uppercase">Antes</Text>
+                <Text className="text-white text-xs font-bold uppercase">{t('photoComparison.before')}</Text>
               </View>
               <View className="bg-black/50 px-2 py-1 rounded">
-                <Text className="text-white text-xs font-bold uppercase">Depois</Text>
+                <Text className="text-white text-xs font-bold uppercase">{t('photoComparison.after')}</Text>
               </View>
             </View>
           </View>
@@ -111,7 +111,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
           {/* Slider Control */}
           <View className="mb-4">
             <Text className="text-subtext text-xs text-center mb-2">
-              Deslize para comparar as fotos
+              {t('photoComparison.slider')}
             </Text>
             <Slider
               style={{ width: '100%', height: 40 }}
@@ -133,8 +133,8 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               thumbTintColor={theme.primary}
             />
             <View className="flex-row justify-between px-2 mt-1">
-              <Text className="text-subtext text-xs">Antes</Text>
-              <Text className="text-subtext text-xs">Depois</Text>
+              <Text className="text-subtext text-xs">{t('photoComparison.before')}</Text>
+              <Text className="text-subtext text-xs">{t('photoComparison.after')}</Text>
             </View>
           </View>
 
@@ -144,25 +144,25 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               onPress={() => setSliderValue(0)}
               className="flex-1 py-3 px-4 rounded-xl bg-background border border-border items-center"
             >
-              <Text className="text-text font-bold text-sm">Ver Antes</Text>
+              <Text className="text-text font-bold text-sm">{t('photoComparison.viewBefore')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setSliderValue(1)}
               className="flex-1 py-3 px-4 rounded-xl bg-background border border-border items-center"
             >
-              <Text className="text-text font-bold text-sm">Ver Depois</Text>
+              <Text className="text-text font-bold text-sm">{t('photoComparison.viewAfter')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setSliderValue(0.5)}
               className="flex-1 py-3 px-4 rounded-xl bg-primary items-center"
             >
-              <Text className="text-white font-bold text-sm">Comparar</Text>
+              <Text className="text-white font-bold text-sm">{t('photoComparison.compare')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Close Button */}
           <Button
-            title="Fechar"
+            title={t('photoComparison.close')}
             onPress={onClose}
             variant="primary"
             size="lg"

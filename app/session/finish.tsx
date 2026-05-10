@@ -19,7 +19,7 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 
 interface NoteTemplate {
   label: string;
@@ -29,7 +29,7 @@ interface NoteTemplate {
 
 
 export default function FinishSessionScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
     2: t('finish.sRPEVeryLight'),
@@ -87,7 +87,7 @@ export default function FinishSessionScreen() {
           setPreviousWeight(lastMetrics[0].weight);
 
           const date = new Date(lastMetrics[0].date);
-          setLastWeightDate(date.toLocaleDateString());
+          setLastWeightDate(date.toLocaleDateString(getLocaleForLanguage(language)));
         }
 
         // Calculate session statistics
@@ -133,7 +133,7 @@ export default function FinishSessionScreen() {
       }
     };
     loadData();
-  }, [sessionId]);
+  }, [sessionId, language]);
 
   const adjustWeight = useCallback((delta: number) => {
     setWeight((prev) => {
@@ -295,7 +295,7 @@ export default function FinishSessionScreen() {
               <TouchableOpacity
                 className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(-0.5)}
-                accessibilityLabel="Diminuir peso 0.5kg"
+                accessibilityLabel={t('finish.decreaseWeight')}
                 accessibilityRole="button"
               >
                 <Text className="text-text text-sm font-semibold">-0.5</Text>
@@ -303,7 +303,7 @@ export default function FinishSessionScreen() {
               <TouchableOpacity
                 className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(0.5)}
-                accessibilityLabel="Aumentar peso 0.5kg"
+                accessibilityLabel={t('finish.increaseWeight')}
                 accessibilityRole="button"
               >
                 <Text className="text-text text-sm font-semibold">+0.5</Text>
@@ -313,7 +313,7 @@ export default function FinishSessionScreen() {
 
           {weightDiff !== null && (
             <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-success' : 'text-danger'}`}>
-              {weightDiff > 0 ? '↑' : '↓'} {Math.abs(weightDiff).toFixed(1)}kg vs. anterior
+              {weightDiff > 0 ? '↑' : '↓'} {t('finish.weightVsPrevious', { weight: Math.abs(weightDiff).toFixed(1) })}
             </Text>
           )}
         </View>
@@ -390,7 +390,7 @@ export default function FinishSessionScreen() {
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.observations')}</Text>
             {notes.length > 0 && (
-              <Text className="text-subtext text-xs">{notes.length} caracteres</Text>
+              <Text className="text-subtext text-xs">{t('finish.characterCount', { count: notes.length })}</Text>
             )}
           </View>
           <TextInput

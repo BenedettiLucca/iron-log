@@ -18,12 +18,12 @@ import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { safeParseParams, summaryParamsSchema } from '@/src/validators/routes';
 import { CsvExportService } from '../../services/CsvExportService';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
 import { resolveScreenState } from '@/src/utils/screen-state';
 
 export default function SummaryScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const router = useRouter();
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(summaryParamsSchema, rawParams, 'SummaryScreen');
@@ -82,6 +82,7 @@ export default function SummaryScreen() {
         setsData,
         targetsMap,
         t,
+        locale: getLocaleForLanguage(language),
       });
 
       setStats(summary.stats);
@@ -94,7 +95,7 @@ export default function SummaryScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, t]);
+  }, [sessionId, t, language]);
 
   useEffect(() => {
     generateMarkdown();
@@ -113,7 +114,7 @@ export default function SummaryScreen() {
     try {
       await Share.share({
         message: report,
-        title: `Treino ${sessionData?.routineName || 'Iron Log'}`,
+        title: t('summary.workoutShareTitle', { name: sessionData?.routineName || 'Iron Log' }),
       });
     } catch (error) {
       logger.error('Erro inesperado', error);
@@ -229,7 +230,7 @@ export default function SummaryScreen() {
 
         {/* Markdown Report */}
         <Card className="mb-5">
-          <Text className="text-text text-sm font-semibold mb-3">📄 Relatório Completo</Text>
+          <Text className="text-text text-sm font-semibold mb-3">📄 {t('summary.fullReport')}</Text>
           <View className="bg-background rounded-xl p-3 border border-border">
             <Text className="text-text text-xs leading-5 font-mono select-text" numberOfLines={20}>
               {report}
@@ -240,7 +241,7 @@ export default function SummaryScreen() {
         {/* Action Buttons */}
         <View className="gap-3">
           <Button
-            title={copied ? '✓ Copiado' : '📋 Copiar Texto'}
+            title={copied ? t('summary.copied') : t('summary.copyText')}
             onPress={copyToClipboard}
             variant="primary"
             size="lg"
@@ -248,7 +249,7 @@ export default function SummaryScreen() {
           />
 
           <Button
-            title="📤 Compartilhar"
+            title={t('summary.share')}
             onPress={nativeShare}
             variant="secondary"
             size="lg"
@@ -256,7 +257,7 @@ export default function SummaryScreen() {
           />
 
           <Button
-            title="📊 Exportar CSV"
+            title={t('summary.exportCsv')}
             onPress={handleExportSessionCsv}
             variant="ghost"
             size="lg"

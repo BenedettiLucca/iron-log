@@ -7,6 +7,17 @@ import { zh } from './translations/zh';
 
 export type Language = 'pt' | 'en' | 'es' | 'zh';
 
+export const LANGUAGE_LOCALES: Record<Language, string> = {
+  pt: 'pt-BR',
+  en: 'en-US',
+  es: 'es-ES',
+  zh: 'zh-CN',
+};
+
+export function getLocaleForLanguage(language: Language): string {
+  return LANGUAGE_LOCALES[language] || 'pt-BR';
+}
+
 export type Translations = typeof pt;
 
 const translations: Record<Language, Translations> = { pt, en, es, zh };

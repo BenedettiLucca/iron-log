@@ -34,13 +34,13 @@ import { Set } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { setInputSchema } from '@/src/validators/forms';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { usePrograms } from '../../hooks/use-programs';
 import type { DoubleProgressionStatus } from '../../src/types';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 
 export default function ExerciseScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
     warmupSwitch: t('a11y.warmupSwitch'),
@@ -889,7 +889,7 @@ export default function ExerciseScreen() {
                 return (
                   <View className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center">
                     <Text className="text-subtext font-mono text-xs">
-                      {date.toLocaleDateString()}
+                      {date.toLocaleDateString(getLocaleForLanguage(language))}
                     </Text>
                     <Text className="text-text font-bold">
                       {item.weight}kg × {item.duration ? `${item.duration}s` : item.reps}

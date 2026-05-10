@@ -507,6 +507,12 @@ export const pt = {
     greatLightWorkout: 'Treino leve e eficiente!',
     workoutShareTitle: 'Treino {name}',
     backToHome: 'Voltar',
+    workoutReport: 'TREINO {name}',
+    reportWeight: 'Peso',
+    reportDuration: 'Duração',
+    reportSrpe: 'sRPE',
+    reportObservations: 'Observações',
+    reportTarget: 'Meta',
   },
 
   // Settings
@@ -609,6 +615,40 @@ export const pt = {
     sliderLabel: 'Comparação de fotos antes e depois',
     sliderHint: 'Ajuste para revelar mais da foto antes ou depois.',
     sliderValue: '{before}% antes, {after}% depois',
+    title: 'Comparação: {label}',
+    before: 'Antes',
+    after: 'Depois',
+    slider: 'Deslize para comparar',
+    viewBefore: 'Ver Antes',
+    viewAfter: 'Ver Depois',
+    compare: 'Comparar',
+    close: 'Fechar',
+  },
+
+  datePicker: {
+    placeholder: 'Selecione uma data',
+    title: 'Selecionar Data',
+    done: 'Concluir',
+  },
+
+  strengthCurve: {
+    title: 'Curva de Força',
+    currentWeight: 'Peso Atual',
+    avg7Days: 'Média (7 dias)',
+    trend: 'Tendência',
+    minMax: 'Mínimo/Máximo',
+    bestSet: 'Melhor Série',
+    weight: 'Carga',
+    date: 'Data',
+    volume: 'Volume',
+    weightGoal: 'Meta de Peso',
+    goal: 'Meta',
+    goalDeadline: 'Prazo Meta',
+    targetDate: 'Data Alvo',
+    trendUp: '📈 Crescendo',
+    trendDown: '📉 Descendo',
+    reps: 'x {count} reps',
+    daysRemaining: '{days}d',
   },
 
   bioAnalytics: {

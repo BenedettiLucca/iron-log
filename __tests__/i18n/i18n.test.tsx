@@ -202,6 +202,10 @@ describe('i18n', () => {
 
       expect(result.current.t('analytics.strengthScore')).toBe(pt.analytics.strengthScore);
       expect(result.current.t('bio.measurements')).toBe(pt.bio.measurements);
+      expect(result.current.t('datePicker.title')).toBe(pt.datePicker.title);
+      expect(result.current.t('photoComparison.title')).toBe(pt.photoComparison.title);
+      expect(result.current.t('strengthCurve.title')).toBe(pt.strengthCurve.title);
+      expect(result.current.t('summary.workoutReport')).toBe(pt.summary.workoutReport);
     });
   });
 

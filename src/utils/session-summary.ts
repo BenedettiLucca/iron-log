@@ -1,4 +1,4 @@
-type TFunction = (key: string) => string;
+type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
 export interface SummarySet {
   exerciseId: number;
@@ -40,6 +40,7 @@ export interface BuildSessionSummaryInput {
   setsData: SummarySet[];
   targetsMap: Map<number, string>;
   t: TFunction;
+  locale: string;
 }
 
 export interface BuildSessionSummaryResult {
@@ -52,6 +53,7 @@ export function buildSessionSummary({
   setsData,
   targetsMap,
   t,
+  locale,
 }: BuildSessionSummaryInput): BuildSessionSummaryResult {
   const activeSets = setsData.filter(set => set.deletedAt == null);
   const exercisesMap = new Map<string, ExerciseSummary>();
@@ -83,7 +85,7 @@ export function buildSessionSummary({
         bestSet = {
           weight: set.weightKg,
           reps: set.reps,
-          exercise: set.exerciseName || 'Unknown',
+          exercise: set.exerciseName || t('reports.md.unknown'),
         };
       }
     }
@@ -97,10 +99,14 @@ export function buildSessionSummary({
   };
 
   const dateObj = new Date(session.startTime);
-  const dateStr = `${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+  const dateStr = dateObj.toLocaleDateString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 
-  let report = `💪 TREINO ${session.routineName} - [${dateStr}]\n\n`;
-  report += `⚖️ Peso: ${session.bodyWeight || 'N/A'} kg | ⏱️ Duração: ${session.durationMinutes} min | 🔥 sRPE: ${session.sRpe}\n\n`;
+  let report = `💪 ${t('summary.workoutReport', { name: session.routineName || 'Iron Log' })} - [${dateStr}]\n\n`;
+  report += `⚖️ ${t('summary.reportWeight')}: ${session.bodyWeight || 'N/A'} kg | ⏱️ ${t('summary.reportDuration')}: ${session.durationMinutes} min | 🔥 ${t('summary.reportSrpe')}: ${session.sRpe}\n\n`;
 
   exercisesMap.forEach((data) => {
     const { sets: setsList, target } = data;
@@ -117,12 +123,12 @@ export function buildSessionSummary({
       return `S${s.setNumber}: ${coreStr}${s.rir !== null ? `xRIR${s.rir}` : ''}`;
     }).join(' | ');
 
-    const header = target ? `[${data.name}] (Meta: ${target})` : `[${data.name}]`;
+    const header = target ? `[${data.name}] (${t('summary.reportTarget')}: ${target})` : `[${data.name}]`;
     report += `${header}: ${setsStr}\n`;
   });
 
   if (session.notes) {
-    report += `\n📝 Observações: ${session.notes}`;
+    report += `\n📝 ${t('summary.reportObservations')}: ${session.notes}`;
   }
 
   return { report, stats };

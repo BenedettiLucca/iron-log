@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Platform, Pressable, Modal, View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getThemeColors } from '@/constants/colors';
+import { useI18n, getLocaleForLanguage } from '@/src/i18n';
 
 interface DatePickerProps {
   label?: string;
@@ -16,13 +17,17 @@ export function DatePicker({
   label,
   value,
   onChange,
-  placeholder = 'Selecione uma data',
+  placeholder,
   minimumDate,
   mode = 'date',
 }: DatePickerProps) {
+  const { t, language } = useI18n();
   const [show, setShow] = useState(false);
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
+
+  const displayPlaceholder = placeholder || t('datePicker.placeholder');
+  const locale = getLocaleForLanguage(language);
 
   const showMode = () => {
     setShow(true);
@@ -39,7 +44,7 @@ export function DatePicker({
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('pt-BR', {
+    return date.toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -65,7 +70,7 @@ export function DatePicker({
             ]}
           >
             <Text className={value ? 'text-text text-base' : 'text-subtext text-base'}>
-              {value ? formatDate(value) : placeholder}
+              {value ? formatDate(value) : displayPlaceholder}
             </Text>
           </Pressable>
 
@@ -78,9 +83,9 @@ export function DatePicker({
             <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
               <View className="bg-background rounded-t-3xl p-4">
                 <View className="flex-row justify-between items-center mb-4">
-                  <Text className="text-text text-lg font-bold uppercase">Selecionar Data</Text>
+                  <Text className="text-text text-lg font-bold uppercase">{t('datePicker.title')}</Text>
                   <TouchableOpacity onPress={() => setShow(false)}>
-                    <Text className="text-primary font-bold text-base">Concluir</Text>
+                    <Text className="text-primary font-bold text-base">{t('datePicker.done')}</Text>
                   </TouchableOpacity>
                 </View>
                 <View className="min-h-[200px]">
@@ -91,7 +96,7 @@ export function DatePicker({
                     onChange={handleChange}
                     minimumDate={minimumDate}
                     style={{ width: '100%' }}
-                    locale="pt-BR"
+                    locale={locale}
                     textColor={theme.primary}
                   />
                 </View>
@@ -110,7 +115,7 @@ export function DatePicker({
             ]}
           >
             <Text className={value ? 'text-text text-base' : 'text-subtext text-base'}>
-              {value ? formatDate(value) : placeholder}
+              {value ? formatDate(value) : displayPlaceholder}
             </Text>
           </Pressable>
 
