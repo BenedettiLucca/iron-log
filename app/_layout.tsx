@@ -21,6 +21,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
 import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
+import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
@@ -58,31 +59,88 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
   setDontShowAgain: (v: boolean) => void;
 }) {
   const { t } = useI18n();
+  const title = t('session.resumeWorkout');
+  const description = t('session.resumeDescription');
+  const dontAskAgainLabel = t('session.dontAskAgain');
+  const resumeLabel = t('session.resume');
+  const saveWorkoutLabel = t('session.saveWorkout');
+  const cancelLabel = t('common.cancel');
+  const a11y = buildSessionRecoveryA11y({
+    title,
+    description,
+    dontAskAgain: dontAskAgainLabel,
+    resume: resumeLabel,
+    saveWorkout: saveWorkoutLabel,
+    cancel: cancelLabel,
+    dismiss: t('session.recoveryDismiss'),
+    dismissHint: t('session.recoveryDismissHint'),
+    checkboxHint: t('session.dontAskAgainHint'),
+  }, dontShowAgain);
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onDismiss}>
-      <TouchableOpacity activeOpacity={1} className="flex-1 justify-center items-center bg-black/40" onPress={onDismiss}>
-        <TouchableOpacity activeOpacity={1} className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl" onPress={(e) => e.stopPropagation()}>
-          <Text className="text-text text-xl font-bold mb-3">{t('session.resumeWorkout')}</Text>
-          <Text className="text-subtext text-base mb-4 leading-6">{t('session.resumeDescription')}</Text>
-          <TouchableOpacity className="flex-row items-center mb-4 py-2" onPress={() => setDontShowAgain(!dontShowAgain)}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onDismiss}
+    >
+      <View
+        className="flex-1 justify-center items-center"
+        accessibilityViewIsModal={a11y.modal.accessibilityViewIsModal}
+        accessibilityLabel={a11y.modal.accessibilityLabel}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          className="absolute inset-0 bg-black/40"
+          onPress={onDismiss}
+          accessibilityRole={a11y.backdrop.accessibilityRole}
+          accessibilityLabel={a11y.backdrop.accessibilityLabel}
+          accessibilityHint={a11y.backdrop.accessibilityHint}
+        />
+        <View className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl">
+          <Text className="text-text text-xl font-bold mb-3" accessibilityRole="header">{title}</Text>
+          <Text className="text-subtext text-base mb-4 leading-6">{description}</Text>
+          <TouchableOpacity
+            className="flex-row items-center mb-4 py-2"
+            onPress={() => setDontShowAgain(!dontShowAgain)}
+            accessibilityRole={a11y.dontAskAgainCheckbox.accessibilityRole}
+            accessibilityLabel={a11y.dontAskAgainCheckbox.accessibilityLabel}
+            accessibilityState={a11y.dontAskAgainCheckbox.accessibilityState}
+            accessibilityHint={a11y.dontAskAgainCheckbox.accessibilityHint}
+          >
             <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'}`}>
               {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
             </View>
-            <Text className="text-subtext text-sm">{t('session.dontAskAgain')}</Text>
+            <Text className="text-subtext text-sm">{dontAskAgainLabel}</Text>
           </TouchableOpacity>
           <View className="flex-col gap-3">
-            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-primary" onPress={onResume}>
-              <Text className="text-white font-semibold text-base">{t('session.resume')}</Text>
+            <TouchableOpacity
+              className="py-3 px-4 rounded-xl items-center bg-primary"
+              onPress={onResume}
+              accessibilityRole={a11y.actions.resume.accessibilityRole}
+              accessibilityLabel={a11y.actions.resume.accessibilityLabel}
+            >
+              <Text className="text-white font-semibold text-base">{resumeLabel}</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-success" onPress={onSave}>
-              <Text className="text-white font-semibold text-base">{t('session.saveWorkout')}</Text>
+            <TouchableOpacity
+              className="py-3 px-4 rounded-xl items-center bg-success"
+              onPress={onSave}
+              accessibilityRole={a11y.actions.save.accessibilityRole}
+              accessibilityLabel={a11y.actions.save.accessibilityLabel}
+            >
+              <Text className="text-white font-semibold text-base">{saveWorkoutLabel}</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="py-3 px-4 rounded-xl items-center bg-background border border-border" onPress={onDismiss}>
-              <Text className="text-text font-semibold text-base">{t('common.cancel')}</Text>
+            <TouchableOpacity
+              className="py-3 px-4 rounded-xl items-center bg-background border border-border"
+              onPress={onDismiss}
+              accessibilityRole={a11y.actions.cancel.accessibilityRole}
+              accessibilityLabel={a11y.actions.cancel.accessibilityLabel}
+            >
+              <Text className="text-text font-semibold text-base">{cancelLabel}</Text>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
