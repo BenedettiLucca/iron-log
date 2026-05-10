@@ -37,9 +37,20 @@ import { setInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { usePrograms } from '../../hooks/use-programs';
 import type { DoubleProgressionStatus } from '../../src/types';
+import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 
 export default function ExerciseScreen() {
   const { t } = useI18n();
+  const a11y = buildWorkoutA11y({
+    endSession: t('a11y.endSession'),
+    warmupSwitch: t('a11y.warmupSwitch'),
+    undoLastSetLabel: t('exercise.undoLastSet'),
+    undoLastSetHint: t('a11y.undoLastSetHint'),
+    durationStart: t('a11y.durationStart'),
+    durationStop: t('a11y.durationStop'),
+    running: t('a11y.running'),
+    history: t('a11y.openHistory'),
+  });
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
@@ -575,6 +586,7 @@ export default function ExerciseScreen() {
                 <TouchableOpacity
                   onPress={() => setHistoryVisible(true)}
                   className="bg-background px-2 py-1 rounded-lg border border-border"
+                  {...a11y.history}
                 >
                   <Text className="text-subtext text-2xs font-bold uppercase">{t("exerciseSession.history")}</Text>
                 </TouchableOpacity>
@@ -617,6 +629,7 @@ export default function ExerciseScreen() {
                <TouchableOpacity
                  onPress={handleUndo}
                  className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
+                 {...a11y.undo}
                >
                  <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
                </TouchableOpacity>
@@ -691,6 +704,7 @@ export default function ExerciseScreen() {
               <TouchableOpacity
                 onPress={() => setIsWarmupMode(!isWarmupMode)}
                 className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
+                {...a11y.warmupSwitch(isWarmupMode)}
               >
                 <View
                   className={`w-5 h-5 rounded-full bg-white shadow-sm transition-all ${isWarmupMode ? 'translate-x-5' : 'translate-x-0'}`}
@@ -728,6 +742,7 @@ export default function ExerciseScreen() {
                   shadowRadius: 8,
                   elevation: 8,
                 }}
+                {...a11y.durationControl(isActiveSetRunning)}
               >
                 <Text className="text-white font-bold text-xl uppercase tracking-widest">
                   {isActiveSetRunning ? t('exercise.stop') : t('exercise.startSet')}

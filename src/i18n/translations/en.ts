@@ -441,6 +441,15 @@ export const en = {
     finishError: 'Error finishing workout',
 
   },
+  a11y: {
+    endSession: 'End session',
+    warmupSwitch: 'Warm-up mode',
+    undoLastSetHint: 'Removes the last registered set',
+    durationStart: 'Start set timer',
+    durationStop: 'Stop set timer',
+    running: 'Running',
+    openHistory: 'Open exercise history',
+  },
   summary: {
     title: 'Workout Summary',
     reportError: 'Error generating report.',

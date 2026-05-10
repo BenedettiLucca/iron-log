@@ -441,6 +441,15 @@ export const zh = {
     finishError: '结束训练出错',
 
   },
+  a11y: {
+    endSession: '结束训练',
+    warmupSwitch: '热身模式',
+    undoLastSetHint: '删除最后一次记录的组数',
+    durationStart: '开始组数计时',
+    durationStop: '停止组数计时',
+    running: '运行中',
+    openHistory: '打开练习历史',
+  },
   summary: {
     title: '训练总结',
     reportError: 'sheng cheng bao gao shi cuo.',

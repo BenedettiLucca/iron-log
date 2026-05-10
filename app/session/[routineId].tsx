@@ -16,9 +16,20 @@ import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
+import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 
 export default function SessionScreen() {
   const { t } = useI18n();
+  const a11y = buildWorkoutA11y({
+    endSession: t('a11y.endSession'),
+    warmupSwitch: t('a11y.warmupSwitch'),
+    undoLastSetLabel: t('exercise.undoLastSet'),
+    undoLastSetHint: t('a11y.undoLastSetHint'),
+    durationStart: t('a11y.durationStart'),
+    durationStop: t('a11y.durationStop'),
+    running: t('a11y.running'),
+    history: t('a11y.openHistory'),
+  });
   const rawParams = useLocalSearchParams();
   const validated = safeParseParams(sessionParamsSchema, rawParams, 'SessionScreen');
   const routineId = validated?.routineId ?? '';
@@ -157,11 +168,15 @@ export default function SessionScreen() {
       <Stack.Screen options={{
         headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
         headerRight: () => (
-          <TouchableOpacity onPress={finishSession} className="bg-danger px-3 py-1.5 rounded-lg shadow-sm">
-            <Text className="text-white font-bold text-xs uppercase tracking-wide">{t('session.end')}</Text>
+          <TouchableOpacity
+            onPress={finishSession}
+            className="bg-danger px-3 py-1.5 rounded-lg shadow-sm"
+            {...a11y.endSession}
+          >
+            <Text className="text-white font-bold uppercase tracking-widest text-xs">{t('session.end')}</Text>
           </TouchableOpacity>
         ),
-      }} />
+        }} />
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
         <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">{t('session.activeWorkout')}</Text>
@@ -267,6 +282,16 @@ export default function SessionScreen() {
 
 function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { t } = useI18n();
+  const a11y = buildWorkoutA11y({
+    endSession: t('a11y.endSession'),
+    warmupSwitch: t('a11y.warmupSwitch'),
+    undoLastSetLabel: t('exercise.undoLastSet'),
+    undoLastSetHint: t('a11y.undoLastSetHint'),
+    durationStart: t('a11y.durationStart'),
+    durationStop: t('a11y.durationStop'),
+    running: t('a11y.running'),
+    history: t('a11y.openHistory'),
+  });
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
@@ -282,6 +307,9 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   // Exercise is "complete" only if target sets are met (or if no target, any sets count as complete)
   const isComplete = targetSets !== null ? doneSets >= targetSets : doneSets > 0;
 
+  const progressLabel = t('session.setsProgress', { done: doneSets, target: targetSets || '?' });
+  const statusLabel = isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart');
+
   return (
     <Animated.View entering={FadeInLeft.delay(index * 100).springify()}>
       <TouchableOpacity
@@ -292,6 +320,13 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
             ? 'bg-card border-primary shadow-md'
             : 'bg-card border-border shadow-sm'
         }`}
+        {...a11y.exerciseCard({
+            name: exercise.name,
+            progress: progressLabel,
+            status: statusLabel,
+            isActive: isActive,
+            isComplete: isComplete
+        })}
       >
         <View className="flex-1">
           <View className="flex-row items-center gap-2 mb-1">

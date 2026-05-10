@@ -464,6 +464,15 @@ export const pt = {
     finishError: 'Erro ao finalizar treino',
 
   },
+  a11y: {
+    endSession: 'Finalizar sessão',
+    warmupSwitch: 'Modo aquecimento',
+    undoLastSetHint: 'Remove a última série registrada',
+    durationStart: 'Iniciar timer da série',
+    durationStop: 'Parar timer da série',
+    running: 'Em execução',
+    openHistory: 'Abrir histórico do exercício',
+  },
 
   // Summary
   summary: {

@@ -441,6 +441,15 @@ export const es = {
     finishError: 'Error al finalizar entrenamiento',
 
   },
+  a11y: {
+    endSession: 'Finalizar sesión',
+    warmupSwitch: 'Modo calentamiento',
+    undoLastSetHint: 'Elimina la última serie registrada',
+    durationStart: 'Iniciar temporizador de la serie',
+    durationStop: 'Detener temporizador de la serie',
+    running: 'En ejecución',
+    openHistory: 'Abrir historial del ejercicio',
+  },
   summary: {
     title: 'Resumen del Entreno',
     reportError: 'Error al generar el informe.',
