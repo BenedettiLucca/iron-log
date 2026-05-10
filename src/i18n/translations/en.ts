@@ -846,6 +846,11 @@ export const en = {
     completedCount: '{taken} of {total} taken',
     deleteConfirm: 'Delete {name}?',
     deleteMessage: 'This supplement will be removed from your list.',
+    toggleLabel: '{name}, {status}. {dosage}, {timing}',
+    toggleTakenHint: 'Tap to mark as pending. Long press or use the edit button to edit.',
+    togglePendingHint: 'Tap to mark as taken. Long press or use the edit button to edit.',
+    editActionLabel: 'Edit {name}',
+    editActionHint: 'Opens edit and delete options for this supplement.',
     },
   reports: {
       title: 'Weekly Report',

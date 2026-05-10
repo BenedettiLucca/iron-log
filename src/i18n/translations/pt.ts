@@ -877,6 +877,11 @@ export const pt = {
     completedCount: '{taken} de {total} tomados',
     deleteConfirm: 'Excluir {name}?',
     deleteMessage: 'Este suplemento será removido da sua lista.',
+    toggleLabel: '{name}, {status}. {dosage}, {timing}',
+    toggleTakenHint: 'Toque para marcar como pendente. Pressione e segure ou use o botão de edição para editar.',
+    togglePendingHint: 'Toque para marcar como tomado. Pressione e segure ou use o botão de edição para editar.',
+    editActionLabel: 'Editar {name}',
+    editActionHint: 'Abre as opções de edição e exclusão deste suplemento.',
     },
   reports: {
       title: 'Relatório Semanal',

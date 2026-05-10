@@ -837,6 +837,11 @@ export const zh = {
     completedCount: '已服用 {taken} / {total}',
     deleteConfirm: '删除 {name}？',
     deleteMessage: '此补剂将从您的列表中移除。',
+    toggleLabel: '{name}，{status}。{dosage}，{timing}',
+    toggleTakenHint: '点按标记为待服用。长按或使用编辑按钮进行编辑。',
+    togglePendingHint: '点按标记为已服用。长按或使用编辑按钮进行编辑。',
+    editActionLabel: '编辑 {name}',
+    editActionHint: '打开此补剂的编辑和删除选项。',
     },
   reports: {
       title: '每周报告',

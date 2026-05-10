@@ -225,43 +225,68 @@ export default function SupplementsScreen() {
           </View>
         ) : (
           <View className="gap-3">
-            {items.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => handleToggle(item.id)}
-                onLongPress={() => openEditModal(item)}
-                activeOpacity={0.7}
-              >
-                <Card className={`border-l-4 ${isTaken(item.id) ? 'border-primary' : 'border-border'}`}>
-                  <View className="flex-row items-center">
-                    <Text className="text-2xl mr-3">{item.emoji || '💊'}</Text>
-                    <View className="flex-1">
-                      <View className="flex-row items-center">
-                        <Text className={`text-lg font-bold ${isTaken(item.id) ? 'text-subtext line-through opacity-60' : 'text-text'}`}>
-                          {item.name}
-                        </Text>
-                        {item.isNighttime && <Text className="ml-2 text-xs">🌙</Text>}
-                      </View>
-                      <Text className="text-subtext text-xs">
-                        {item.dosage} • {item.timing}
-                      </Text>
-                    </View>
-                    
-                    <View className="items-end gap-1">
-                      <View className={`w-6 h-6 rounded-full border-2 items-center justify-center ${isTaken(item.id) ? 'bg-primary border-primary' : 'border-border'}`}>
-                        {isTaken(item.id) && <Text className="text-white text-xs font-bold">✓</Text>}
-                      </View>
-                      {streaks[item.id] > 0 && (
+            {items.map((item) => {
+              const taken = isTaken(item.id);
+              const statusLabel = taken ? t('supplements.taken') : t('supplements.notTaken');
+
+              return (
+                <Card key={item.id} className={`border-l-4 ${taken ? 'border-primary' : 'border-border'}`}>
+                  <View className="flex-row items-center gap-3">
+                    <TouchableOpacity
+                      onPress={() => handleToggle(item.id)}
+                      onLongPress={() => openEditModal(item)}
+                      activeOpacity={0.7}
+                      className="flex-1 flex-row items-center"
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: taken }}
+                      accessibilityLabel={t('supplements.toggleLabel', {
+                        name: item.name,
+                        status: statusLabel,
+                        dosage: item.dosage,
+                        timing: item.timing,
+                      })}
+                      accessibilityHint={taken ? t('supplements.toggleTakenHint') : t('supplements.togglePendingHint')}
+                    >
+                      <Text className="text-2xl mr-3">{item.emoji || '💊'}</Text>
+                      <View className="flex-1">
                         <View className="flex-row items-center">
-                          <Text className="text-xs">🔥</Text>
-                          <Text className="text-primary font-bold text-xs ml-0.5">{streaks[item.id]}</Text>
+                          <Text className={`text-lg font-bold ${taken ? 'text-subtext line-through opacity-60' : 'text-text'}`}>
+                            {item.name}
+                          </Text>
+                          {item.isNighttime && <Text className="ml-2 text-xs">🌙</Text>}
                         </View>
-                      )}
-                    </View>
+                        <Text className="text-subtext text-xs">
+                          {item.dosage} • {item.timing}
+                        </Text>
+                      </View>
+
+                      <View className="items-end gap-1 ml-2">
+                        <View className={`w-7 h-7 rounded-full border-2 items-center justify-center ${taken ? 'bg-primary border-primary' : 'border-border'}`}>
+                          {taken && <Text className="text-white text-xs font-bold">✓</Text>}
+                        </View>
+                        {streaks[item.id] > 0 && (
+                          <View className="flex-row items-center">
+                            <Text className="text-xs">🔥</Text>
+                            <Text className="text-primary font-bold text-xs ml-0.5">{streaks[item.id]}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => openEditModal(item)}
+                      className="w-11 h-11 rounded-full bg-background border border-border items-center justify-center"
+                      accessibilityRole="button"
+                      accessibilityLabel={t('supplements.editActionLabel', { name: item.name })}
+                      accessibilityHint={t('supplements.editActionHint')}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Text className="text-text text-2xl font-bold leading-6">⋯</Text>
+                    </TouchableOpacity>
                   </View>
                 </Card>
-              </TouchableOpacity>
-            ))}
+              );
+            })}
           </View>
         )}
       </ScrollView>

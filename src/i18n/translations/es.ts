@@ -838,6 +838,11 @@ export const es = {
     completedCount: '{taken} de {total} tomados',
     deleteConfirm: '¿Eliminar {name}?',
     deleteMessage: 'Este suplemento será eliminado de tu lista.',
+    toggleLabel: '{name}, {status}. {dosage}, {timing}',
+    toggleTakenHint: 'Toca para marcar como pendiente. Mantén presionado o usa el botón de edición para editar.',
+    togglePendingHint: 'Toca para marcar como tomado. Mantén presionado o usa el botón de edición para editar.',
+    editActionLabel: 'Editar {name}',
+    editActionHint: 'Abre las opciones de edición y eliminación de este suplemento.',
     },
   reports: {
       title: 'Informe Semanal',
