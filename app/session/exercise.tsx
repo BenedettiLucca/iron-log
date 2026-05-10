@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
 import { sets, exercises, sessions, routineExercises, personalRecords } from '../../src/db/schema';
-import { eq, and, desc, isNull } from 'drizzle-orm';
+import { eq, and, desc, isNull, ne } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
 import SetCard from '../../components/SetCard';
@@ -236,7 +236,12 @@ export default function ExerciseScreen() {
       })
         .from(sets)
         .innerJoin(sessions, eq(sets.sessionId, sessions.id))
-        .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt), isNull(sessions.deletedAt)))
+        .where(and(
+          eq(sets.exerciseId, exerciseId),
+          ne(sets.sessionId, sessionId),
+          isNull(sets.deletedAt),
+          isNull(sessions.deletedAt)
+        ))
         .limit(20);
 
       history.sort((a, b) => b.date - a.date);
@@ -244,7 +249,7 @@ export default function ExerciseScreen() {
     } catch (e) {
       logger.error(t("exercise.sqlHistoryError"), e);
     }
-  }, [exerciseId, t]);
+  }, [exerciseId, sessionId, t]);
 
   useEffect(() => {
     loadData();

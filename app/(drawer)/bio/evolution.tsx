@@ -16,6 +16,24 @@ import { Colors } from '@/constants/colors';
 import { useI18n } from '../../../src/i18n/index';
 import { resolveScreenState } from '../../../src/utils/screen-state';
 
+// Helper to find the best matching photo pair (same pose preferred)
+const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
+  if (latest.photoFront && previous.photoFront) {
+    return { before: previous.photoFront, after: latest.photoFront };
+  }
+  if (latest.photoBack && previous.photoBack) {
+    return { before: previous.photoBack, after: latest.photoBack };
+  }
+  if (latest.photoSide && previous.photoSide) {
+    return { before: previous.photoSide, after: latest.photoSide };
+  }
+  // Fallback to any available
+  return {
+    before: previous.photoFront || previous.photoBack || previous.photoSide,
+    after: latest.photoFront || latest.photoBack || latest.photoSide,
+  };
+};
+
 export default function EvolutionScreen() {
   const { t } = useI18n();
   const [weightData, setWeightData] = useState<any[]>([]);
@@ -67,10 +85,12 @@ export default function EvolutionScreen() {
 
       // 2. Processar Medidas
       const measures = data.filter(m => m.type === 'monthly');
-      const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures.map(m => ({
+      const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures
+        .filter(m => m[key] != null)
+        .map(m => ({
           value: m[key] || 0,
           label: new Date(m.date).toLocaleDateString('pt-BR', { month: 'short' })
-      })).slice(-12); // Últimos 12 meses
+        })).slice(-12); // Últimos 12 meses
 
       setMeasuresData({
           waist: processMeasure('waist'),
@@ -209,10 +229,11 @@ export default function EvolutionScreen() {
                                    const latest = photos[0];
                                    const previous = photos[1];
                                    if (latest && previous) {
+                                       const { before, after } = getBestPhotoPair(latest, previous);
                                        setComparison({
                                            visible: true,
-                                           beforeUri: previous.photoFront || previous.photoBack || previous.photoSide,
-                                           afterUri: latest.photoFront || latest.photoBack || latest.photoSide,
+                                           beforeUri: before,
+                                           afterUri: after,
                                            label: t('bio.latestCheckins'),
                                        });
                                    }

@@ -15,6 +15,7 @@ import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Dialog } from '../../components/Dialog';
+import { Toast } from '../../components/Toast';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
@@ -30,6 +31,7 @@ interface NoteTemplate {
 
 export default function FinishSessionScreen() {
   const { t, language } = useI18n();
+  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
     2: t('finish.sRPEVeryLight'),
@@ -173,6 +175,7 @@ export default function FinishSessionScreen() {
       router.replace('/(drawer)' as any);
     } catch (e) {
       logger.error(t('finish.finishError'), e);
+      setToast({ visible: true, message: t('finish.finishError'), type: 'error' });
       setIsFinishing(false);
     }
   };
@@ -217,6 +220,7 @@ export default function FinishSessionScreen() {
 
     } catch (e) {
       logger.error(t('finish.finishError'), e);
+      setToast({ visible: true, message: t('finish.finishError'), type: 'error' });
       setShowConfirmDialog(false);
       setIsFinishing(false);
     }
@@ -275,8 +279,8 @@ export default function FinishSessionScreen() {
         <View className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.bodyWeight')}</Text>
-            {lastWeightDate && (
-              <Text className="text-subtext text-xs">{t('finish.last')}:</Text>
+            {lastWeightDate && previousWeight && (
+              <Text className="text-subtext text-xs">{t('finish.lastWeight', { weight: previousWeight, date: lastWeightDate })}</Text>
             )}
           </View>
 
@@ -440,6 +444,13 @@ export default function FinishSessionScreen() {
         cancelText={t("common.back")}
         onConfirm={confirmFinish}
         onCancel={() => setShowConfirmDialog(false)}
+      />
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
       />
     </View>
   );

@@ -72,7 +72,10 @@ export default function RoutinesListScreen() {
   const handleImportFromClipboard = async () => {
     try {
       const content = await Clipboard.getStringAsync();
-      if (!content) return;
+      if (!content) {
+        setToast({ visible: true, message: t('routines.emptyClipboard'), type: 'error' });
+        return;
+      }
 
       let data;
       try {
@@ -184,7 +187,7 @@ export default function RoutinesListScreen() {
             isLoading ? null : (
             <Card className="mb-6 bg-card/50">
                 <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">{t('routines.jsonImportHint')}</Text>
-                <Text className="text-subtext text-xs leading-5">
+                <Text className="text-subtext text-xs leading-5" numberOfLines={3}>
                     {t('routines.jsonFormatHint')}{"\n"}
                     <Text className="font-mono text-xs text-text">
                         {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}

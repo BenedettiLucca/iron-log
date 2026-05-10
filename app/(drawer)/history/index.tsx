@@ -235,8 +235,12 @@ export default function HistoryScreen() {
   const renderEmpty = () => (
     <View className="justify-center items-center mt-10 opacity-50">
       <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
-      <Text className="text-subtext font-bold text-center">{t('history.noWorkouts')}</Text>
-      <Text className="text-subtext text-xs text-center">{t('history.noWorkoutsDesc')}</Text>
+      <Text className="text-subtext font-bold text-center">
+        {!selectedDate ? t('history.selectDay') : t('history.noWorkouts')}
+      </Text>
+      <Text className="text-subtext text-xs text-center">
+        {!selectedDate ? t('history.selectDayPrompt') : t('history.noWorkoutsDesc')}
+      </Text>
     </View>
   );
 

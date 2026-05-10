@@ -138,10 +138,16 @@ export default function RoutineEditorScreen() {
   };
 
   const handleSaveAsTemplate = async () => {
+    const routineId = Number(id);
+    if (!id || isNaN(routineId)) {
+      setToast({ visible: true, message: t('routines.saveFirstForTemplate'), type: 'error' });
+      return;
+    }
+
     try {
       await db.update(routines)
         .set({ isTemplate: true })
-        .where(eq(routines.id, Number(id)));
+        .where(eq(routines.id, routineId));
 
       setToast({ visible: true, message: t('routines.savedAsTemplate'), type: 'success' });
       router.back();

@@ -42,6 +42,7 @@ export default function DrawerLayout() {
           name="bio/goals"
           options={{
             title: t('goals.title'),
+            drawerItemStyle: { display: 'none' },
             drawerLabel: t('drawer.goals')
           }}
         />
