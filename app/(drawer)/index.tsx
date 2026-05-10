@@ -216,20 +216,20 @@ export default function HomeScreen() {
                       <View className="flex-row items-center justify-between mb-3">
                         <View className="flex-1 mr-6">
                           <View className="flex-row justify-between mb-1">
-                            <Text className="text-subtext text-[10px] font-bold uppercase">{t('programs.dashboard.volume')}</Text>
-                            <Text className="text-text text-[10px] font-bold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
+                            <Text className="text-subtext text-2xs font-bold uppercase">{t('programs.dashboard.volume')}</Text>
+                            <Text className="text-text text-2xs font-bold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
                           </View>
                           <ProgressBar
                             current={weeklyVolume}
                             total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
 
                           />
-                          <Text className="text-subtext text-[9px] mt-1">
+                          <Text className="text-subtext text-2xs mt-1">
                             {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
                           </Text>
                         </View>
                         <View className="items-end">
-                          <Text className="text-subtext text-[10px] font-bold uppercase">{t('programs.dashboard.avgSRPE')}</Text>
+                          <Text className="text-subtext text-2xs font-bold uppercase">{t('programs.dashboard.avgSRPE')}</Text>
                           <Text className="text-text text-base font-bold">{avgSRPE ?? '-'}</Text>
                         </View>
                       </View>
@@ -252,13 +252,13 @@ export default function HomeScreen() {
               {/* Key Lifts Dashboard */}
               {keyLifts.length > 0 && (
                 <View className="mt-3 px-1">
-                  <Text className="text-subtext text-[10px] font-bold uppercase tracking-widest mb-2">{t('programs.dashboard.keyLifts')}</Text>
+                  <Text className="text-subtext text-2xs font-bold uppercase tracking-widest mb-2">{t('programs.dashboard.keyLifts')}</Text>
                   <View className="flex-row flex-wrap gap-2">
                     {keyLifts.slice(0, 3).map((lift) => (
                       <View key={lift.exerciseId} className="bg-card border border-border rounded-xl px-3 py-2 flex-1 min-w-[30%]">
-                        <Text className="text-text text-[11px] font-bold" numberOfLines={1}>{lift.name}</Text>
+                        <Text className="text-text text-xs font-bold" numberOfLines={1}>{lift.name}</Text>
                         <View className="flex-row items-center justify-between mt-0.5">
-                          <Text className="text-subtext text-[10px]">{lift.currentWeight}kg</Text>
+                          <Text className="text-subtext text-2xs">{lift.currentWeight}kg</Text>
                           <Text className="text-xs">{t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}</Text>
                         </View>
                       </View>

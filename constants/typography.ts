@@ -3,16 +3,21 @@
  * Consistent font sizes, line heights, and spacing
  */
 
-export const typography = {
-  // Font Sizes (in px)
-  xs: 12,    // Small labels, metadata (minimum accessible size)
-  sm: 14,    // Body text
+const typographySizes = {
+  '2xs': 10,  // Tiny metadata/labels
+  xs: 12,     // Small labels, metadata (minimum accessible size)
+  sm: 14,     // Body text
   base: 16,   // Subheadings
-  lg: 18,    // Section headers
-  xl: 20,    // Primary headings
+  lg: 18,     // Section headers
+  xl: 20,     // Primary headings
   '2xl': 24,  // Large headings
   '3xl': 30,  // Display numbers
   '4xl': 36,  // Extra large display
+} as const;
+
+export const typography = {
+  // Font Sizes (in px)
+  ...typographySizes,
 
   // Line Heights (ratios)
   leading: {
@@ -41,14 +46,15 @@ export const typography = {
   },
 } as const;
 
-export type TypographySize = keyof typeof typography;
+export type TypographySize = keyof typeof typographySizes;
 export type FontWeight = keyof typeof typography.fontWeight;
 export type LineHeight = keyof typeof typography.leading;
 export type Tracking = keyof typeof typography.tracking;
 
 // Helper to get Tailwind class for font size
 export const getSizeClass = (size: TypographySize): string => {
-  const sizes: Record<string, string> = {
+  const sizes: Record<TypographySize, string> = {
+    '2xs': 'text-2xs',
     xs: 'text-xs',
     sm: 'text-sm',
     base: 'text-base',

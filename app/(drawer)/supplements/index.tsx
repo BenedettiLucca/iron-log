@@ -349,7 +349,7 @@ export default function SupplementsScreen() {
             />
 
             <View>
-              <Text className="text-subtext font-bold uppercase text-[10px] mb-2 tracking-widest ml-1">
+              <Text className="text-subtext font-bold uppercase text-2xs mb-2 tracking-widest ml-1">
                 {t('supplements.frequency')}
               </Text>
               <View className="flex-row bg-card rounded-xl p-1 border border-border">
@@ -359,7 +359,7 @@ export default function SupplementsScreen() {
                     onPress={() => setFrequency(f)}
                     className={`flex-1 py-2 items-center rounded-lg ${frequency === f ? 'bg-primary' : ''}`}
                   >
-                    <Text className={`text-[10px] font-bold uppercase ${frequency === f ? 'text-white' : 'text-subtext'}`}>
+                    <Text className={`text-2xs font-bold uppercase ${frequency === f ? 'text-white' : 'text-subtext'}`}>
                       {f === 'daily' ? t('supplements.daily') : f === 'training_days' ? t('supplements.trainingDays') : t('supplements.restDays')}
                     </Text>
                   </TouchableOpacity>

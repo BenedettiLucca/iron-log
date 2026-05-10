@@ -248,7 +248,7 @@ export default function ProgramDetailScreen() {
                   <Text className={`text-xs font-bold ${isCurrent ? 'text-white' : 'text-text'}`}>
                     {week.weekNumber}
                   </Text>
-                  {emoji ? <Text className="text-[10px] mt-0.5">{emoji}</Text> : null}
+                  {emoji ? <Text className="text-2xs mt-0.5">{emoji}</Text> : null}
                 </TouchableOpacity>
               );
             })}
@@ -276,7 +276,7 @@ export default function ProgramDetailScreen() {
                           ? 'bg-accent/20'
                           : 'bg-background'
                       }`}>
-                        <Text className={`text-[10px] font-semibold ${
+                        <Text className={`text-2xs font-semibold ${
                           week.phase === 'deload' ? 'text-success' : 'text-accent'
                         }`}>
                           {getPhaseLabel(week.phase)}

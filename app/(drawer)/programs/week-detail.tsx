@@ -126,7 +126,7 @@ export default function WeekDetailScreen() {
                 className={`w-12 h-12 rounded-xl justify-center items-center ${getStatusBg(status, isSelected)}`}
               >
                 <Text className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-text'}`}>{w.weekNumber}</Text>
-                {!isSelected && <Text className="text-[10px] mt-0.5">{getStatusEmoji(status)}</Text>}
+                {!isSelected && <Text className="text-2xs mt-0.5">{getStatusEmoji(status)}</Text>}
               </TouchableOpacity>
             );
           })}
