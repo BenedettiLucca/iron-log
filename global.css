@@ -16,6 +16,7 @@
     --accent: 242 204 143;     /* #F2CC8F (Yellow/Cream) */
     
     --success: 129 178 154;    /* #81B29A */
+    --warning: 242 204 143;    /* #F2CC8F (Warm amber) */
     --danger: 230 57 70;       /* #E63946 (Crimson - distinct from primary) */
     
     /* Neutral Color Scale */
@@ -44,6 +45,7 @@
       --accent: 242 204 143;
       
       --success: 129 178 154;
+      --warning: 242 204 143;    /* #F2CC8F (Warm amber) */
       --danger: 230 57 70;       /* #E63946 (Standardized with light mode) */
       
       /* Neutral Color Scale (Dark) */
