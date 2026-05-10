@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl 
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { db } from '../../../src/db/client';
 import { bodyMetrics } from '../../../src/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, and, gte, lt } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -18,7 +18,7 @@ import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../../src/i18n/index';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
-import { validateMonthlyCheckin, buildCheckinEntryData } from '@/src/utils/checkin-validation';
+import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
 
 type CheckinPhotos = {
   front: string | null;
@@ -179,21 +179,21 @@ export default function BioScreen() {
           }
 
           // Step 2: Check for existing monthly entry this month
-          const now = new Date();
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-          const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 0, -1).getTime();
+          const now = Date.now();
+          const { startOfMonth, startOfNextMonth } = getMonthlyCheckinDateRange(now);
 
           const existingMonthly = await db.select().from(bodyMetrics)
-              .where(eq(bodyMetrics.type, 'monthly'))
+              .where(and(
+                eq(bodyMetrics.type, 'monthly'),
+                gte(bodyMetrics.date, startOfMonth),
+                lt(bodyMetrics.date, startOfNextMonth),
+              ))
               .orderBy(desc(bodyMetrics.date))
               .limit(1);
 
-          const existingId = existingMonthly.length > 0 && existingMonthly[0].date >= startOfMonth && existingMonthly[0].date < endOfMonth
-              ? existingMonthly[0].id
-              : null;
-
-          const existingData = existingMonthly.length > 0 ? existingMonthly[0] : undefined;
-          const entryDate = existingId && existingData ? existingData.date : Date.now();
+          const existingData = existingMonthly[0];
+          const existingId = existingData?.id ?? null;
+          const entryDate = existingData?.date ?? now;
 
           // Step 3: Build entry data using validated values + fallbacks
           const entryData = buildCheckinEntryData({

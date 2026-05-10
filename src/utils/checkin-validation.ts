@@ -48,6 +48,38 @@ export interface MonthlyCheckinValidationResult {
   errors?: Record<string, string[]>;
 }
 
+export interface MonthlyCheckinDateRange {
+  startOfMonth: number;
+  startOfNextMonth: number;
+}
+
+/**
+ * Returns the local-month range for monthly check-in lookup.
+ *
+ * Uses [startOfMonth, startOfNextMonth) so every millisecond of the last
+ * calendar day is included. Do NOT use "last day at 00:-01" style math here —
+ * it silently drops the whole last day of the month.
+ */
+export function getMonthlyCheckinDateRange(referenceTime: number = Date.now()): MonthlyCheckinDateRange {
+  const reference = new Date(referenceTime);
+  const startOfMonth = new Date(reference.getFullYear(), reference.getMonth(), 1).getTime();
+  const startOfNextMonth = new Date(reference.getFullYear(), reference.getMonth() + 1, 1).getTime();
+
+  return { startOfMonth, startOfNextMonth };
+}
+
+/**
+ * Finds an existing check-in only if it belongs to the reference local month.
+ * Previous-month entries must not be used as fallbacks for a new month.
+ */
+export function resolveCurrentMonthCheckin<T extends { date: number }>(
+  entries: T[],
+  referenceTime: number = Date.now(),
+): T | undefined {
+  const { startOfMonth, startOfNextMonth } = getMonthlyCheckinDateRange(referenceTime);
+  return entries.find(entry => entry.date >= startOfMonth && entry.date < startOfNextMonth);
+}
+
 /**
  * Validates raw monthly check-in form data.
  * Returns structured result — never throws.

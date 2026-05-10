@@ -2,6 +2,8 @@ import {
   validateMonthlyCheckin,
   buildCheckinEntryData,
   strictMonthlyCheckinSchema,
+  getMonthlyCheckinDateRange,
+  resolveCurrentMonthCheckin,
 } from '../../src/utils/checkin-validation';
 
 describe('validateMonthlyCheckin', () => {
@@ -111,6 +113,65 @@ describe('buildCheckinEntryData', () => {
     expect(entry.waist).toBe(0);
     expect(entry.armRight).toBe(0);
     expect(entry.photoFront).toBeNull();
+  });
+});
+
+describe('monthly check-in current-month resolution', () => {
+  it('includes check-ins saved on the last day of the month', () => {
+    const reference = new Date(2026, 4, 31, 12, 0, 0).getTime(); // May 31 local
+    const lastDayEntry = { id: 31, date: new Date(2026, 4, 31, 23, 59, 59, 999).getTime() };
+
+    const range = getMonthlyCheckinDateRange(reference);
+    const current = resolveCurrentMonthCheckin([lastDayEntry], reference);
+
+    expect(lastDayEntry.date).toBeGreaterThanOrEqual(range.startOfMonth);
+    expect(lastDayEntry.date).toBeLessThan(range.startOfNextMonth);
+    expect(current?.id).toBe(31);
+  });
+
+  it('includes the exact start of month and excludes the exact start of next month', () => {
+    const reference = new Date(2026, 4, 15, 12, 0, 0).getTime(); // May 2026
+    const range = getMonthlyCheckinDateRange(reference);
+    const startEntry = { id: 1, date: range.startOfMonth };
+    const nextMonthEntry = { id: 2, date: range.startOfNextMonth };
+
+    const current = resolveCurrentMonthCheckin([nextMonthEntry, startEntry], reference);
+
+    expect(current?.id).toBe(1);
+  });
+
+  it('does not treat the previous month check-in as existing data for a new month', () => {
+    const reference = new Date(2026, 5, 1, 9, 0, 0).getTime(); // Jun 1 local
+    const previousMonthEntry = {
+      id: 10,
+      date: new Date(2026, 4, 31, 12, 0, 0).getTime(),
+      weight: 96,
+      waist: 90,
+      armRight: 40,
+      thighRight: 62,
+      chest: 110,
+      calf: 43,
+      photoFront: 'may-front.jpg',
+      photoBack: 'may-back.jpg',
+      photoSide: 'may-side.jpg',
+    };
+
+    const currentMonthEntry = resolveCurrentMonthCheckin([previousMonthEntry], reference);
+    const entry = buildCheckinEntryData({
+      validated: { waist: undefined, armRight: undefined, thighRight: undefined, chest: undefined, calf: undefined },
+      existingData: currentMonthEntry,
+      photos: { front: null, back: null, side: null },
+      photoNotes: { front: '', back: '', side: '' },
+      weight: 0,
+      date: reference,
+    });
+
+    expect(currentMonthEntry).toBeUndefined();
+    expect(entry.waist).toBe(0);
+    expect(entry.armRight).toBe(0);
+    expect(entry.photoFront).toBeNull();
+    expect(entry.photoBack).toBeNull();
+    expect(entry.photoSide).toBeNull();
   });
 });
 
