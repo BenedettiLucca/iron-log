@@ -9,6 +9,7 @@ export interface SummarySet {
   durationSeconds: number | null;
   rir: number | null;
   deletedAt?: number | null;
+  isWarmup: boolean;
 }
 
 export interface SummarySession {
@@ -56,6 +57,7 @@ export function buildSessionSummary({
   locale,
 }: BuildSessionSummaryInput): BuildSessionSummaryResult {
   const activeSets = setsData.filter(set => set.deletedAt == null);
+  const workingSets = activeSets.filter(set => !set.isWarmup);
   const exercisesMap = new Map<string, ExerciseSummary>();
 
   activeSets.forEach(set => {
@@ -75,7 +77,7 @@ export function buildSessionSummary({
   let maxVolume = 0;
   let bestSet: SessionStats['bestSet'] = null;
 
-  activeSets.forEach(set => {
+  workingSets.forEach(set => {
     if (set.reps && set.weightKg) {
       const volume = set.reps * set.weightKg;
       totalVolume += volume;
@@ -92,10 +94,10 @@ export function buildSessionSummary({
   });
 
   const stats: SessionStats = {
-    totalSets: activeSets.length,
+    totalSets: workingSets.length,
     totalVolume,
     bestSet,
-    averageIntensity: activeSets.length > 0 ? totalVolume / activeSets.length : 0,
+    averageIntensity: workingSets.length > 0 ? totalVolume / workingSets.length : 0,
   };
 
   const dateObj = new Date(session.startTime);

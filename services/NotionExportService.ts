@@ -27,7 +27,7 @@ export const NotionExportService = {
 
     // 3. Calculate totals
     const totalVolume = computeVolume(sessionSets);
-    const totalSets = sessionSets.length;
+    const totalSets = sessionSets.filter(s => !s.isWarmup).length;
     const dateStr = formatEpochDate(session.startTime) || '';
 
     // 4. Build frontmatter

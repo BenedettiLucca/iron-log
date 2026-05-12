@@ -332,7 +332,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
-      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt)))
+      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt), eq(sets.isWarmup, false)))
   );
 
   const doneSets = setsData?.[0]?.count || 0;

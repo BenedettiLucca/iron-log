@@ -35,34 +35,48 @@ describe('buildSessionSummary', () => {
           exerciseId: 101,
           exerciseName: 'Bench Press',
           setNumber: 1,
-          weightKg: 100,
-          reps: 5,
+          weightKg: 60,
+          reps: 10,
           durationSeconds: null,
-          rir: 2,
+          rir: null,
           deletedAt: null,
+          isWarmup: true,
         },
         {
           exerciseId: 101,
           exerciseName: 'Bench Press',
           setNumber: 2,
+          weightKg: 100,
+          reps: 5,
+          durationSeconds: null,
+          rir: 2,
+          deletedAt: null,
+          isWarmup: false,
+        },
+        {
+          exerciseId: 101,
+          exerciseName: 'Bench Press',
+          setNumber: 3,
           weightKg: 200,
           reps: 10,
           durationSeconds: null,
           rir: 0,
           deletedAt: 999,
+          isWarmup: false,
         },
       ],
     });
 
-    expect(stats.totalSets).toBe(1);
-    expect(stats.totalVolume).toBe(500);
+    expect(stats.totalSets).toBe(1); // Excludes warmup and deleted
+    expect(stats.totalVolume).toBe(500); // Only working set 2: 5 * 100
     expect(stats.averageIntensity).toBe(500);
     expect(stats.bestSet).toEqual({ weight: 100, reps: 5, exercise: 'Bench Press' });
 
     expect(report).toContain('WORKOUT Upper A');
     expect(report).toContain('Weight: 92 kg');
-    expect(report).toContain('[Bench Press] (Target: 3x8): S1: 5x100kgxRIR2');
-    expect(report).not.toContain('S2: 10x200kg');
+    expect(report).toContain('S1: 10x60kg'); // Warmup IS in report
+    expect(report).toContain('S2: 5x100kgxRIR2');
+    expect(report).not.toContain('S3: 10x200kg');
     expect(report).not.toContain('xRIR0');
   });
 });
