@@ -131,8 +131,8 @@ function SetCard({
           isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
       >
-        <View className="mr-4 items-center justify-center w-8">
-          <Text className="text-subtext/50 font-black text-xs uppercase tracking-widest">{t("exercise.set")}</Text>
+        <View className="mr-4 items-center justify-center w-12">
+          <Text className="text-subtext/50 font-black text-xs uppercase tracking-wider">{t("exercise.set")}</Text>
           <Text className="text-text font-black text-xl leading-5">{setNumber}</Text>
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
