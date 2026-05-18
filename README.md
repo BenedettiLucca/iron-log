@@ -214,6 +214,18 @@ iron-log/
    EXPO_PUBLIC_GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
    ```
 
+### Crash Reporting (Sentry)
+
+Para habilitar o monitoramento de erros em produção:
+
+1. Crie um projeto no [Sentry](https://sentry.io/)
+2. Adicione ao `.env`:
+   ```env
+   EXPO_PUBLIC_SENTRY_DSN=seu-sentry-dsn
+   ```
+
+O app inicializa o Sentry apenas se o DSN estiver configurado e o app não estiver em modo de desenvolvimento (`__DEV__`).
+
 ---
 
 ## 📄 Documentação

@@ -1,4 +1,7 @@
+import * as Sentry from '@sentry/react-native';
+import { initCrashReporting } from '@/services/crash-reporting';
 import { Stack, useRouter } from 'expo-router';
+
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { db } from '../src/db/client';
 import migrations from '../drizzle/migrations';
@@ -22,6 +25,9 @@ import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
 import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
 import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
+
+// Initialize Sentry as early as possible
+initCrashReporting();
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
@@ -145,7 +151,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
   );
 }
 
-export default function Layout() {
+function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme() ?? 'light';
   const router = useRouter();
@@ -309,3 +315,5 @@ export default function Layout() {
     </ErrorBoundary>
   );
 }
+
+export default Sentry.wrap(Layout);

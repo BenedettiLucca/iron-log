@@ -9,7 +9,7 @@ module.exports = {
     '^react-native$': '<rootDir>/node_modules/react-native',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?|@expo-google-fonts/|react-navigation|@react-navigation/.*|@unimodules/.*|native-base|react-native-web|@react-native-web|drizzle-orm|drizzle-kit)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?|@expo-google-fonts/|react-navigation|@react-navigation/.*|@unimodules/.*|native-base|react-native-web|@react-native-web|drizzle-orm|drizzle-kit|@sentry/.*)',
   ],
   transform: {
     '^.+\.(ts|tsx)$': ['ts-jest', {

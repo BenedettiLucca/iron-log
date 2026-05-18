@@ -108,3 +108,11 @@ jest.mock('expo-router', () => ({
   Stack: { Screen: jest.fn() },
 }));
 
+// Mock Sentry
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+  wrap: jest.fn((c) => c),
+}));
+

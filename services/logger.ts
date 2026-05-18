@@ -1,8 +1,10 @@
 /**
  * Structured Logger for Iron Log
  * — Debug logs are silenced in production
- * — Errors can be wired to crash reporting (Sentry/etc) later
+ * — Errors are forwarded to crash reporting when configured
  */
+
+import { captureException, captureMessage } from './crash-reporting';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -40,7 +42,12 @@ function createLogger(): Logger {
         // eslint-disable-next-line no-console
         console.error('[IronLog:error]', message, error);
       }
-      // TODO: integrate with Sentry / Crashlytics in production
+      
+      if (error) {
+        captureException(error, { message });
+      } else {
+        captureMessage(message);
+      }
     },
   };
 }
