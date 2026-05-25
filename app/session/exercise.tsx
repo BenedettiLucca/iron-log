@@ -7,14 +7,13 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  AppState,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 import { db } from '../../src/db/client';
-import { sets, exercises, sessions, routineExercises, personalRecords } from '../../src/db/schema';
+import { sets, exercises, sessions, routineExercises } from '../../src/db/schema';
 import { eq, and, desc, isNull, ne } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { ProgressBar } from '../../components/ProgressBar';
@@ -35,7 +34,13 @@ import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { setInputSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
-import { usePrograms } from '../../hooks/use-programs';
+import { 
+  usePrograms, 
+  useSessionTimer, 
+  useSessionUndo, 
+  useSessionPersistence, 
+  checkPersonalRecords 
+} from '../../hooks';
 import type { DoubleProgressionStatus } from '../../src/types';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 
@@ -102,19 +107,38 @@ export default function ExerciseScreen() {
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<{ sessionId: number; date: number; weight: number | null; reps: number | null; duration: number | null; rir: number | null }[]>([]);
 
-  // Rest Timer
-  const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
-  const [timerTarget, setTimerTarget] = useState<number | null>(null);
-  const [timerStatus, setTimerStatus] = useState<'idle' | 'running' | 'finished'>('idle');
+  // Timer Hook
+  const timer = useSessionTimer();
+  const { 
+    timerSeconds, timerStatus, 
+    setTimerSeconds, setTimerTarget, setTimerStatus, 
+    addTime, activeSetTime, 
+    isActiveSetRunning, toggleActiveSet 
+  } = timer;
 
-  // Active Set Timer
-  const [activeSetStart, setActiveSetStart] = useState<number | null>(null);
-  const [activeSetTime, setActiveSetTime] = useState(0);
-  const isActiveSetRunning = activeSetStart !== null;
+  // Undo Hook
+  const { 
+    lastSavedSet, setLastSavedSet, undoTimeoutRef, handleUndo: hookHandleUndo 
+  } = useSessionUndo();
 
-  // Undo state
-  const [lastSavedSet, setLastSavedSet] = useState<Set | null>(null);
-  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // Persistence Hook
+  useSessionPersistence({
+    sessionId,
+    exerciseId,
+    routineId,
+    exerciseName,
+    currentName,
+    exerciseType,
+    weight,
+    reps,
+    duration,
+    rir,
+    isWarmupMode,
+    startTime,
+    target,
+    notes,
+    restSeconds: routineRest,
+  });
 
   // Loading state
   const [isSaving, setIsSaving] = useState(false);
@@ -131,44 +155,6 @@ export default function ExerciseScreen() {
 
   // Total exercises for progress bar
   const totalExercises = allExercises.length;
-
-  // Efeito Active Timer (delta-based for accuracy)
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (activeSetStart !== null) {
-      const tick = () => {
-        const elapsed = Math.floor((Date.now() - activeSetStart) / 1000);
-        setActiveSetTime(elapsed);
-      };
-      tick();
-      interval = setInterval(tick, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [activeSetStart]);
-
-  // Efeito Rest Timer
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
-    if (timerStatus === 'running' && timerTarget) {
-      const tick = () => {
-        const now = Date.now();
-        const left = Math.ceil((timerTarget - now) / 1000);
-        if (left <= 0) {
-          setTimerSeconds(0);
-          setTimerStatus('finished');
-        } else {
-          setTimerSeconds(left);
-        }
-      };
-      tick();
-      interval = setInterval(tick, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [timerStatus, timerTarget]);
 
   const loadData = useCallback(async () => {
     try {
@@ -270,50 +256,6 @@ export default function ExerciseScreen() {
     }
   }, [activeProgram, exerciseId, exerciseName, getDoubleProgressionStatus]);
 
-  // Cleanup undo timeout
-  useEffect(() => {
-    return () => {
-      if (undoTimeoutRef.current) {
-        clearTimeout(undoTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Save session state when app goes to background
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', (nextAppState) => {
-      if (nextAppState === 'background') {
-        // Save current session context for recovery
-        const sessionContext = {
-          sessionId,
-          exerciseId,
-          exerciseName: currentName,
-          routineId,
-          target,
-          notes,
-          restSeconds: routineRest,
-          startTime,
-        };
-        AsyncStorage.setItem('incomplete_session', JSON.stringify(sessionContext));
-      }
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, [sessionId, exerciseId, currentName, routineId, target, notes, routineRest, startTime]);
-
-  const toggleActiveSet = useCallback(() => {
-    if (activeSetStart !== null) {
-      // Stop — keep current time frozen
-      setActiveSetStart(null);
-    } else {
-      // Start fresh
-      setActiveSetTime(0);
-      setActiveSetStart(Date.now());
-    }
-  }, [activeSetStart]);
-
   const handleSaveSet = useCallback(async (overrideDuration?: number) => {
     if (isSaving) return;
 
@@ -381,52 +323,16 @@ export default function ExerciseScreen() {
 
       // Check for Personal Records (only for non-warmup strength sets)
       if (!isWarmupMode && !isDuration && result[0]) {
-        try {
-          const savedSet = result[0];
-          const now = Date.now();
-          const setDetails = JSON.stringify({ weightKg: savedSet.weightKg, reps: savedSet.reps, rir: savedSet.rir });
+        const prResult = await checkPersonalRecords({
+          exerciseId,
+          sessionId,
+          savedSet: result[0],
+          isWarmup: isWarmupMode,
+        });
 
-          // Check weight PR
-          const existingWeightPR = await db.select({ value: personalRecords.value })
-            .from(personalRecords)
-            .where(and(eq(personalRecords.exerciseId, exerciseId), eq(personalRecords.recordType, 'weight')))
-            .limit(1);
-
-          if (!existingWeightPR.length || savedSet.weightKg > existingWeightPR[0].value) {
-            await db.insert(personalRecords).values({
-              exerciseId,
-              sessionId,
-              recordType: 'weight',
-              value: savedSet.weightKg,
-              date: now,
-              setDetails,
-            }).onConflictDoUpdate({
-              target: [personalRecords.exerciseId, personalRecords.recordType],
-              set: { value: savedSet.weightKg, sessionId, date: now, setDetails },
-            });
-          }
-
-          // Check reps PR (at same or higher weight)
-          const existingRepsPR = await db.select({ value: personalRecords.value })
-            .from(personalRecords)
-            .where(and(eq(personalRecords.exerciseId, exerciseId), eq(personalRecords.recordType, 'reps')))
-            .limit(1);
-
-          if (!existingRepsPR.length || savedSet.reps > existingRepsPR[0].value) {
-            await db.insert(personalRecords).values({
-              exerciseId,
-              sessionId,
-              recordType: 'reps',
-              value: savedSet.reps,
-              date: now,
-              setDetails,
-            }).onConflictDoUpdate({
-              target: [personalRecords.exerciseId, personalRecords.recordType],
-              set: { value: savedSet.reps, sessionId, date: now, setDetails },
-            });
-          }
-        } catch (prErr) {
-          logger.warn('Failed to update PR', prErr);
+        if (prResult.isWeightPR || prResult.isRepsPR) {
+          trigger('success');
+          setToast({ visible: true, message: t('finish.prText'), type: 'success' });
         }
       }
 
@@ -445,21 +351,18 @@ export default function ExerciseScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget]);
 
   const handleUndo = useCallback(async () => {
-    if (!lastSavedSet) return;
-
-    try {
-      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id));
-      setLastSavedSet(null);
-      await loadData();
-      setToast({ visible: true, message: t('exercise.lastSetRemoved'), type: 'success' });
-    } catch (e) {
-      logger.error(t('common.operationError'), e);
-      setToast({ visible: true, message: t('exercise.undoError'), type: 'error' });
-    }
-  }, [lastSavedSet, loadData, t]);
+    await hookHandleUndo({
+      exerciseId,
+      sessionId,
+      exerciseType,
+      setSessionSets,
+      setCurrentName,
+      setToast,
+    });
+  }, [hookHandleUndo, exerciseId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
@@ -533,15 +436,6 @@ export default function ExerciseScreen() {
       });
     }
   }, [nextExercise, sessionId, routineId, startTime, router]);
-
-
-  const addTime = useCallback((sec: number) => {
-    if (timerStatus === 'running' && timerTarget) {
-      setTimerTarget(timerTarget + sec * 1000);
-    } else {
-      setTimerSeconds((prev) => (prev || 0) + sec);
-    }
-  }, [timerStatus, timerTarget]);
 
   const getRirColor = useCallback((val: number) => {
     if (val <= 1) return Colors.red400;
