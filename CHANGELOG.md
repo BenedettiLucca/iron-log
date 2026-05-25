@@ -2,6 +2,23 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.12.0] - 2026-05-25
+
+### Changed
+- **ProgramService decomposed** — 680-line monolith split into 6 focused modules: `program/crud.ts`, `program/weeks.ts`, `program/targets.ts`, `progression.ts`, `program/dashboard.ts`. Original file now a thin re-export facade (#53)
+- **Session exercise screen decomposed** — 1025-line screen reduced to 917 lines by extracting 4 hooks: `use-session-timer`, `use-session-undo`, `use-session-persistence`, `use-personal-records` (#53)
+- **Sentry crash reporting** — Optional Sentry integration for error tracking
+
+### Fixed
+- **Set label truncation** — Set cards no longer clip text on narrow screens
+- **Workout progress accuracy** — Warmup sets excluded from exercise completion tracking and session stats
+- **Date formatting** — Remaining hardcoded date formatters localized properly
+
+### Tests
+- 372 passing (27 suites), 0 failures
+
+---
+
 ## [3.11.0] - 2026-05-10
 
 ### Fixed

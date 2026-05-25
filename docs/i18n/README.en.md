@@ -4,7 +4,7 @@
 
 **Iron Log** is a complete local-first fitness monitoring platform. Built for people who take training seriously — fast load logging, body tracking, performance analytics, and data export.
 
-**Version:** 3.9.0 · **Expo SDK:** 54 · **Tests:** 300 passing
+**Version:** 3.12.0 · **Expo SDK:** 54 · **Tests:** 372 passing
 
 ---
 
@@ -165,7 +165,7 @@ iron-log/
 │   ├── utils/              # Pure functions
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # Translation system (pt/en/es/zh)
-├── __tests__/              # 17 suites, 300 tests  
+├── __tests__/              # 27 suites, 372 tests  
 ├── constants/              # Colors and typography
 └── drizzle/                # SQL migrations
 ```
