@@ -8,3 +8,6 @@ export { useSessionTimer } from './use-session-timer';
 export { useSessionUndo } from './use-session-undo';
 export { useSessionPersistence } from './use-session-persistence';
 export { checkPersonalRecords } from './use-personal-records';
+export { useExerciseSets } from './use-exercise-sets';
+export { useProgression } from './use-progression';
+
