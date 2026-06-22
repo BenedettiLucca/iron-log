@@ -21,25 +21,21 @@ function createLogger(): Logger {
   return {
     debug: (...args: unknown[]) => {
       if (isDev) {
-        // eslint-disable-next-line no-console
         console.log('[IronLog:debug]', ...args);
       }
     },
     info: (...args: unknown[]) => {
       if (isDev) {
-        // eslint-disable-next-line no-console
         console.info('[IronLog:info]', ...args);
       }
     },
     warn: (...args: unknown[]) => {
       if (isDev) {
-        // eslint-disable-next-line no-console
         console.warn('[IronLog:warn]', ...args);
       }
     },
     error: (message: string, error?: unknown) => {
       if (isDev) {
-        // eslint-disable-next-line no-console
         console.error('[IronLog:error]', message, error);
       }
       

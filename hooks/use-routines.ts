@@ -5,10 +5,6 @@ import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Routine } from '@/src/types';
 
-interface RoutineWithExerciseCount extends Routine {
-  exerciseCount: number;
-}
-
 export function useRoutines() {
   const [allRoutines, setAllRoutines] = useState<Routine[]>([]);
   const [isLoading, setIsLoading] = useState(true);

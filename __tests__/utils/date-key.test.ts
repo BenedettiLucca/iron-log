@@ -23,8 +23,6 @@ describe('toLocalDateKey', () => {
     // Create a date at 23:00 local time
     const late = new Date(2026, 0, 15, 23, 0, 0).getTime();
     const localKey = toLocalDateKey(late);
-    const utcKey = new Date(late).toISOString().split('T')[0];
-
     // In any timezone behind UTC (like UTC-3), the UTC key will be the next day
     // We just verify that our local key matches what the local date actually is
     expect(localKey).toBe('2026-01-15');

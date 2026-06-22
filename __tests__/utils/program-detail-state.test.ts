@@ -1,4 +1,4 @@
-import { resolveFetchState, getDetailScreenView, ProgramDetailState } from '../../src/utils/program-detail-state';
+import { resolveFetchState, getDetailScreenView } from '../../src/utils/program-detail-state';
 
 describe('resolveFetchState', () => {
   it('returns loading when isLoading is true', () => {

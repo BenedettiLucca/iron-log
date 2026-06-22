@@ -1,3 +1,5 @@
+import { generateSessionVerdicts } from './session-verdicts';
+
 type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
 export interface SummarySet {
@@ -131,6 +133,49 @@ export function buildSessionSummary({
 
   if (session.notes) {
     report += `\n📝 ${t('summary.reportObservations')}: ${session.notes}`;
+  }
+
+  const verdicts = generateSessionVerdicts(setsData, targetsMap, t);
+  if (verdicts.length > 0) {
+    report += `\n\n## ${t('summary.verdicts.title')}\n`;
+    verdicts.forEach(v => {
+      let verdictKey = '';
+      if (v.verdict === 'increase') verdictKey = 'summary.verdicts.verdictIncrease';
+      else if (v.verdict === 'hold') verdictKey = 'summary.verdicts.verdictHold';
+      else if (v.verdict === 'review_fatigue') verdictKey = 'summary.verdicts.verdictReviewFatigue';
+      else if (v.verdict === 'check_logging') verdictKey = 'summary.verdicts.verdictCheckLogging';
+
+      let resultKey = '';
+      if (v.result === 'top') resultKey = 'summary.verdicts.resultTop';
+      else if (v.result === 'within') resultKey = 'summary.verdicts.resultWithin';
+      else if (v.result === 'below') resultKey = 'summary.verdicts.resultBelow';
+      else if (v.result === 'no_target') resultKey = 'summary.verdicts.resultNoTarget';
+
+      const verdictStr = verdictKey ? t(verdictKey) : v.verdict;
+      const resultStr = resultKey ? t(resultKey) : v.result;
+      const showVerdict = v.result !== 'no_target';
+
+      report += `- [${v.exerciseName}] ${t('summary.verdicts.result')}: ${resultStr}`;
+      if (showVerdict) {
+        report += ` | ${t('summary.verdicts.verdict')}: ${verdictStr}`;
+      }
+      if (showVerdict && v.nextLoadSuggestion) {
+        report += ` | ${t('summary.verdicts.nextLoad')}: ${v.nextLoadSuggestion}`;
+      }
+      if (v.flags.length > 0) {
+        const flagLabels = v.flags.map((flag) => {
+          if (flag === 'rir_inversion') return t('summary.verdicts.flagRirInversion');
+          if (flag === 'abrupt_rep_drop') return t('summary.verdicts.flagAbruptRepDrop');
+          if (flag === 'extra_sets') return t('summary.verdicts.flagExtraSets');
+          if (flag === 'repeated_below_range') return t('summary.verdicts.flagRepeatedBelowRange');
+          return flag;
+        }).join(', ');
+
+        report += ` | ${t('summary.verdicts.flags')}: ${flagLabels}`;
+      }
+      report += '\n';
+    });
+    report = report.trimEnd();
   }
 
   return { report, stats };
