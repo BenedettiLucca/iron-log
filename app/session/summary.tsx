@@ -21,6 +21,7 @@ import { CsvExportService } from '../../services/CsvExportService';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
 import { resolveScreenState } from '@/src/utils/screen-state';
+import { generateSessionVerdicts, type ExerciseVerdict } from '@/src/utils/session-verdicts';
 
 export default function SummaryScreen() {
   const { t, language } = useI18n();
@@ -30,6 +31,7 @@ export default function SummaryScreen() {
   const sessionId = validated?.sessionId ?? 0;
   const [report, setReport] = useState('');
   const [sessionData, setSessionData] = useState<Session | null>(null);
+  const [verdicts, setVerdicts] = useState<ExerciseVerdict[]>([]);
   const [stats, setStats] = useState<SessionStats>({
     totalSets: 0,
     totalVolume: 0,
@@ -87,6 +89,10 @@ export default function SummaryScreen() {
 
       setStats(summary.stats);
       setReport(summary.report);
+
+      // Compute and set verdicts
+      const computedVerdicts = generateSessionVerdicts(setsData, targetsMap, t);
+      setVerdicts(computedVerdicts);
 
     } catch (e) {
       logger.error('Erro ao gerar relatório', e);
@@ -225,6 +231,81 @@ export default function SummaryScreen() {
               {stats.bestSet.weight}kg × {stats.bestSet.reps} reps
             </Text>
             <Text className="text-primary text-sm font-medium mt-1">{stats.bestSet.exercise}</Text>
+          </Card>
+        )}
+
+        {/* Coaching Verdicts */}
+        {verdicts.length > 0 && (
+          <Card className="mb-5">
+            <Text className="text-text text-sm font-semibold mb-3">🧠 {t('summary.verdicts.title')}</Text>
+            <View className="gap-3">
+              {verdicts.map((v) => {
+                let verdictKey = '';
+                if (v.verdict === 'increase') verdictKey = 'summary.verdicts.verdictIncrease';
+                else if (v.verdict === 'hold') verdictKey = 'summary.verdicts.verdictHold';
+                else if (v.verdict === 'review_fatigue') verdictKey = 'summary.verdicts.verdictReviewFatigue';
+                else if (v.verdict === 'check_logging') verdictKey = 'summary.verdicts.verdictCheckLogging';
+                const verdictStr = verdictKey ? t(verdictKey) : v.verdict;
+
+                let resultKey = '';
+                if (v.result === 'top') resultKey = 'summary.verdicts.resultTop';
+                else if (v.result === 'within') resultKey = 'summary.verdicts.resultWithin';
+                else if (v.result === 'below') resultKey = 'summary.verdicts.resultBelow';
+                else if (v.result === 'no_target') resultKey = 'summary.verdicts.resultNoTarget';
+                const resultStr = resultKey ? t(resultKey) : v.result;
+                const showVerdict = v.result !== 'no_target';
+
+                let badgeColor = 'bg-subtext/15 text-subtext';
+                if (showVerdict && v.verdict === 'increase') badgeColor = 'bg-success/15 text-success';
+                else if (showVerdict && v.verdict === 'hold') badgeColor = 'bg-primary/15 text-primary';
+                else if (showVerdict && v.verdict === 'review_fatigue') badgeColor = 'bg-warning/15 text-warning';
+                else if (showVerdict && v.verdict === 'check_logging') badgeColor = 'bg-danger/15 text-danger';
+
+                return (
+                  <View key={v.exerciseId} className="border-b border-border/50 pb-3 last:border-b-0 last:pb-0">
+                    <View className="flex-row justify-between items-center mb-1">
+                      <Text className="text-text font-bold text-sm flex-1 mr-2">{v.exerciseName}</Text>
+                      <View className={`px-2 py-0.5 rounded-full ${badgeColor}`}>
+                        <Text className="text-xs font-semibold">{showVerdict ? verdictStr : resultStr}</Text>
+                      </View>
+                    </View>
+
+                    <Text className="text-subtext text-xs mt-1">
+                      📊 {t('summary.verdicts.result')}: <Text className="text-text font-semibold">{resultStr}</Text>
+                    </Text>
+
+                    {showVerdict && (
+                      <Text className="text-subtext text-xs mt-1">
+                        🧠 {t('summary.verdicts.verdict')}: <Text className="text-text font-semibold">{verdictStr}</Text>
+                      </Text>
+                    )}
+
+                    {showVerdict && v.nextLoadSuggestion && (
+                      <Text className="text-subtext text-xs mt-1">
+                        🎯 {t('summary.verdicts.nextLoad')}: <Text className="text-text font-semibold">{v.nextLoadSuggestion}</Text>
+                      </Text>
+                    )}
+
+                    {v.flags.length > 0 && (
+                      <View className="flex-row flex-wrap gap-1 mt-1.5">
+                        {v.flags.map((flag) => {
+                          let flagText = flag;
+                          if (flag === 'rir_inversion') flagText = t('summary.verdicts.flagRirInversion');
+                          else if (flag === 'abrupt_rep_drop') flagText = t('summary.verdicts.flagAbruptRepDrop');
+                          else if (flag === 'extra_sets') flagText = t('summary.verdicts.flagExtraSets');
+                          else if (flag === 'repeated_below_range') flagText = t('summary.verdicts.flagRepeatedBelowRange');
+                          return (
+                            <View key={flag} className="bg-danger/10 border border-danger/20 rounded px-1.5 py-0.5">
+                              <Text className="text-[10px] text-danger font-semibold">⚠️ {flagText}</Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
           </Card>
         )}
 

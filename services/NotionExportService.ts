@@ -1,11 +1,13 @@
 import * as Clipboard from 'expo-clipboard';
 import { db } from '@/src/db/client';
-import { sessions, sets } from '@/src/db/schema';
+import { sessions, sets, routineExercises } from '@/src/db/schema';
 import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
 import { formatEpochDate, computeVolume } from './AlexandriaExportService';
+import { generateSessionVerdicts } from '@/src/utils/session-verdicts';
+import { buildSessionVerdictsMarkdown } from '@/src/utils/session-verdict-markdown';
 import { logger } from '@/services/logger';
 
-type TFunction = (key: string) => string;
+type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
 export const NotionExportService = {
 
@@ -24,6 +26,22 @@ export const NotionExportService = {
       .from(sets)
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
       .orderBy(asc(sets.setNumber));
+
+    const targetsMap = new Map<number, string>();
+    if (session.routineId) {
+      const reData = await db.select({
+        exId: routineExercises.exerciseId,
+        target: routineExercises.target,
+      })
+        .from(routineExercises)
+        .where(eq(routineExercises.routineId, session.routineId));
+
+      reData.forEach((r) => {
+        if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+      });
+    }
+
+    const verdicts = generateSessionVerdicts(sessionSets, targetsMap, t);
 
     // 3. Calculate totals
     const totalVolume = computeVolume(sessionSets);
@@ -61,6 +79,11 @@ export const NotionExportService = {
         md += `| ${s.setNumber} | ${s.weightKg} | ${s.reps} | ${s.rir ?? '-'} | ${s.isWarmup ? '✓' : '-'} |\n`;
       }
       md += `\n`;
+    }
+
+    const verdictsMarkdown = buildSessionVerdictsMarkdown(verdicts, t);
+    if (verdictsMarkdown) {
+      md += verdictsMarkdown;
     }
 
     // 8. Notes
