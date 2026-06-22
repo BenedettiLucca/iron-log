@@ -1,9 +1,8 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { db } from '@/src/db/client';
-import { sessions, sets, bodyMetrics, personalRecords, measurementGoals, exercises, routines } from '@/src/db/schema';
-import { desc, asc, isNull, eq, and, sql } from 'drizzle-orm';
-import { logger } from '@/services/logger';
+import { sessions, sets, bodyMetrics, personalRecords, measurementGoals, exercises } from '@/src/db/schema';
+import { desc, asc, isNull, eq } from 'drizzle-orm';
 
 /**
  * Alexandria Export Service for Iron Log

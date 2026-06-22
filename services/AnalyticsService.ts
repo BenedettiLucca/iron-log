@@ -1,6 +1,6 @@
 import { db } from '@/src/db/client';
-import { sessions, sets, exercises, personalRecords } from '@/src/db/schema';
-import { desc, asc, isNull, eq, and, sql, gt, inArray } from 'drizzle-orm';
+import { sessions, sets, personalRecords } from '@/src/db/schema';
+import { desc, asc, isNull, and, sql, gt, inArray } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 
 /**

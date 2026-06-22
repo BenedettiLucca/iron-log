@@ -22,11 +22,6 @@ function toCsvRow(fields: unknown[]): string {
   return fields.map(escapeCsvField).join(',');
 }
 
-function formatDate(epoch: number | null): string {
-  if (!epoch) return '';
-  return new Date(epoch).toISOString();
-}
-
 function formatDateBR(epoch: number | null): string {
   if (!epoch) return '';
   const d = new Date(epoch);

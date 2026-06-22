@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { db } from '@/src/db/client';
-import { sets, exercises, sessions } from '@/src/db/schema';
+import { sets, exercises } from '@/src/db/schema';
 import { eq, and, isNull, desc } from 'drizzle-orm';
 import { logger } from '@/services/logger';
-import { Set, Exercise } from '@/src/types';
+import { Set } from '@/src/types';
 
 interface ExerciseHistory {
   weight: number;

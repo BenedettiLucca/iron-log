@@ -3,7 +3,6 @@ import {
   sessionParamsSchema,
   summaryParamsSchema,
   finishParamsSchema,
-  routineEditorParamsSchema,
   safeParseParams,
 } from '@/src/validators/routes';
 

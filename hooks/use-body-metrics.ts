@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { db } from '@/src/db/client';
 import { bodyMetrics } from '@/src/db/schema';
-import { desc, asc, eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 

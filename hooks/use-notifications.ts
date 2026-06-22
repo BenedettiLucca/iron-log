@@ -11,14 +11,6 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
   const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    isMountedRef.current = true;
-    loadSettings();
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
   const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
@@ -34,6 +26,14 @@ export function useNotifications() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    loadSettings();
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [loadSettings]);
 
   const updateSettings = useCallback(async (config: Partial<NotificationConfig>) => {
     try {
