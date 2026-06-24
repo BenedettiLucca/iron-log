@@ -19,6 +19,7 @@ import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { useExerciseSets, useProgression } from '../../hooks';
 import { useHaptics } from '../../hooks/use-haptics';
+import { getRirColor } from '@/src/utils/exercise';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { useSessionPersistence } from '../../hooks/use-session-persistence';
 import { ExerciseHeader } from '../../components/session/ExerciseHeader';
@@ -151,11 +152,6 @@ export default function ExerciseScreen() {
     }
   }, [nextExercise, sessionId, routineId, startTime, router]);
 
-  const getRirColor = useCallback((val: number) => {
-    if (val <= 1) return Colors.red400;
-    if (val <= 3) return Colors.success;
-    return Colors.secondary;
-  }, []);
 
   const calculateTarget = useCallback(() => {
     if (!target) return null;

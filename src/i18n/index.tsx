@@ -93,7 +93,7 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
       
       if (vars) {
         Object.entries(vars).forEach(([k, v]) => {
-          value = value!.replace(new RegExp(`{${k}}`, 'g'), String(v));
+          value = value!.replaceAll(`{${k}}`, String(v));
         });
       }
       

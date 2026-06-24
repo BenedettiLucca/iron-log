@@ -17,12 +17,14 @@ import { useRoutines } from '@/hooks/use-routines';
 import { useI18n } from '../../../src/i18n/index';
 import { buildSessionStartRoute } from '../../../src/utils/session-start';
 
+import { useToast } from '../../../hooks/use-toast';
+import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
 export default function RoutinesListScreen() {
   const router = useRouter();
   const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
-  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
+  const { toast, setToast } = useToast();
+  const { dialog, setDialog } = useConfirmDialog();
   const [refreshing, setRefreshing] = useState(false);
   const { t } = useI18n();
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);

@@ -2,6 +2,7 @@ import { db } from '@/src/db/client';
 import { sessions, sets, personalRecords } from '@/src/db/schema';
 import { desc, asc, isNull, and, sql, gt, inArray } from 'drizzle-orm';
 import { logger } from '@/services/logger';
+import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
 
 /**
  * Analytics Service for Iron Log
@@ -66,23 +67,7 @@ export function estimateE1RM(weight: number, reps: number): number {
   return Math.round(weight * (1 + reps / 30) * 10) / 10;
 }
 
-/** Get the ISO week string for a timestamp */
-function getISOWeek(epoch: number): string {
-  const d = new Date(epoch);
-  const dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / MS_PER_DAY) + 1) / 7);
-  return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
-}
 
-/** Get the Monday of the week for a given date */
-function getWeekStart(epoch: number): number {
-  const d = new Date(epoch);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
-  return new Date(d.setDate(diff)).setHours(0, 0, 0, 0);
-}
 
 // ---------------------------------------------------------------------------
 // Constants

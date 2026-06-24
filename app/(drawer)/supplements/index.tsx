@@ -15,6 +15,8 @@ import { resolveScreenState } from '@/src/utils/screen-state';
 import { Supplement, SupplementFrequency } from '@/src/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import { useToast } from '../../../hooks/use-toast';
+import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
 export default function SupplementsScreen() {
   const { t } = useI18n();
   const {
@@ -48,8 +50,8 @@ export default function SupplementsScreen() {
   const [emoji, setEmoji] = useState('💊');
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
-  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
+  const { toast, setToast } = useToast();
+  const { dialog, setDialog } = useConfirmDialog();
 
   const loadData = useCallback(async () => {
     await Promise.all([fetchSupplements(), fetchTodayLogs()]);

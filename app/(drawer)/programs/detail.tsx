@@ -11,6 +11,8 @@ import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { getPhaseLabel, getGoalBadge } from '../../../src/utils/programs';
 import { getDetailScreenView, resolveFetchState } from '@/src/utils/program-detail-state';
 
+import { useToast } from '../../../hooks/use-toast';
+import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
 export default function ProgramDetailScreen() {
   const router = useRouter();
   const { t, language } = useI18n();
@@ -32,8 +34,8 @@ export default function ProgramDetailScreen() {
     fetchDashboardData
   } = usePrograms();
 
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
-  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
+  const { toast, setToast } = useToast();
+  const { dialog, setDialog } = useConfirmDialog();
   const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(

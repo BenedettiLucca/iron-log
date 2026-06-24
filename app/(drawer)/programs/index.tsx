@@ -10,6 +10,7 @@ import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { getPhaseLabel, getGoalBadge } from '../../../src/utils/programs';
 
+import { useToast } from '../../../hooks/use-toast';
 export default function ProgramsListScreen() {
   const router = useRouter();
   const { t, language } = useI18n();
@@ -24,7 +25,7 @@ export default function ProgramsListScreen() {
     getCurrentPhase,
   } = usePrograms();
 
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(

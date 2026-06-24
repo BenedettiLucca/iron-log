@@ -93,11 +93,9 @@ export function formatEpochISO(epoch: number | null): string | null {
   return new Date(epoch).toISOString();
 }
 
-export function formatEpochDate(epoch: number | null): string | null {
-  if (!epoch) return null;
-  const d = new Date(epoch);
-  return d.toISOString().split('T')[0]; // YYYY-MM-DD
-}
+import { formatEpochDate } from '@/src/utils/date-utils';
+export { formatEpochDate };
+
 
 export function computeWorkoutType(
   exerciseTypes: string[]

@@ -4,6 +4,9 @@ import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '../src/i18n/index';
+import { getRirColor } from '@/src/utils/exercise';
+import { Colors } from '@/constants/colors';
+
 
 interface SetCardProps {
   setNumber: number;
@@ -89,8 +92,9 @@ function SetCard({
   };
 
   const getRirColorClass = (rir: number) => {
-    if (rir <= 1) return 'text-danger bg-danger/20 border-danger/30';
-    if (rir <= 3) return 'text-success bg-success/20 border-success/30';
+    const color = getRirColor(rir);
+    if (color === Colors.red400) return 'text-danger bg-danger/20 border-danger/30';
+    if (color === Colors.success) return 'text-success bg-success/20 border-success/30';
     return 'text-secondary bg-secondary/20 border-secondary/30';
   };
 

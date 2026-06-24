@@ -29,6 +29,7 @@ type CheckinPhotos = {
   side: string | null;
 };
 
+import { useToast } from '../../../hooks/use-toast';
 export default function BioScreen() {
   const { t, language } = useI18n();
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function BioScreen() {
   });
   const [photos, setPhotos] = useState<CheckinPhotos>({ front: null, back: null, side: null });
   const [photoNotes, setPhotoNotes] = useState<Record<string, string>>({ front: '', back: '', side: '' });
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {}, field: '' as 'front' | 'back' | 'side' | null });
 
   useEffect(() => {

@@ -6,6 +6,7 @@ import { formatEpochDate, computeVolume } from './AlexandriaExportService';
 import { generateSessionVerdicts } from '@/src/utils/session-verdicts';
 import { buildSessionVerdictsMarkdown } from '@/src/utils/session-verdict-markdown';
 import { logger } from '@/services/logger';
+import { formatDateShort, getWeekNumber } from '@/src/utils/date-utils';
 
 type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -120,22 +121,8 @@ export const NotionExportService = {
     const weekStart = monday.getTime();
     const weekEnd = sunday.getTime();
 
-    // Format week range for title
-    const formatDateShort = (d: Date) => `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
     const weekLabel = `${formatDateShort(monday)} - ${formatDateShort(sunday)}`;
 
-    // Get ISO week number
-    const getWeekNumber = (d: Date) => {
-      const target = new Date(d.valueOf());
-      const dayNr = (d.getDay() + 6) % 7;
-      target.setDate(target.getDate() - dayNr + 3);
-      const firstThursday = target.valueOf();
-      target.setMonth(0, 1);
-      if (target.getDay() !== 4) {
-        target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
-      }
-      return 1 + Math.ceil((firstThursday - target.getTime()) / 604800000);
-    };
     const weekNum = getWeekNumber(now);
 
     // Fetch sessions in range

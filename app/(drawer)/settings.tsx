@@ -17,12 +17,13 @@ import { Colors } from '@/constants/colors';
 
 WebBrowser.maybeCompleteAuthSession();
 
+import { useToast } from '../../hooks/use-toast';
 export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<number | null>(null);
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
 

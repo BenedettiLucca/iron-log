@@ -12,6 +12,7 @@ import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 
+import { useToast } from '../../../hooks/use-toast';
 export default function CreateProgramScreen() {
   const router = useRouter();
   const { t, language } = useI18n();
@@ -26,7 +27,7 @@ export default function CreateProgramScreen() {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nameError, setNameError] = useState('');
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
 
   // Auto-calculate end date
   const endDate = useMemo(() => {

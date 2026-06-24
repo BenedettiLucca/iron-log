@@ -11,12 +11,14 @@ import { Dialog } from '../../../components/Dialog';
 import { Toast } from '../../../components/Toast';
 import { logger } from '@/services/logger';
 
+import { useToast } from '../../../hooks/use-toast';
+import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
 export default function TemplateLibraryScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const [templates, setTemplates] = useState<{ id: number; name: string; description: string; exercises: { id: number; name: string; target: string; notes: string; restSeconds: number | null }[] }[]>([]);
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
-  const [dialog, setDialog] = useState({ visible: false, title: '', message: '', onConfirm: () => {} });
+  const { toast, setToast } = useToast();
+  const { dialog, setDialog } = useConfirmDialog();
 
   useEffect(() => {
     loadTemplates();

@@ -1,3 +1,5 @@
+import { Colors } from '@/constants/colors';
+
 /**
  * Parse target string to extract the target number of sets.
  * Supports patterns like "3x8-12", "4x10", "3x8"
@@ -13,3 +15,13 @@ export function parseTargetSets(target: string | null | undefined): number | nul
   // Duration-based exercises don't have set targets
   return null;
 }
+
+/**
+ * Returns the hex color string associated with a given Reps in Reserve (RiR) value.
+ */
+export function getRirColor(rir: number): string {
+  if (rir <= 1) return Colors.red400;
+  if (rir <= 3) return Colors.success;
+  return Colors.secondary;
+}
+

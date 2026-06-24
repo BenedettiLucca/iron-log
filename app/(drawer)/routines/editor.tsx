@@ -21,6 +21,8 @@ type SelectedExercise = {
   restSeconds?: number;
 };
 
+import { useToast } from '../../../hooks/use-toast';
+
 export default function RoutineEditorScreen() {
   const { t } = useI18n();
   const router = useRouter();
@@ -33,7 +35,7 @@ export default function RoutineEditorScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
 
 
   const loadRoutineData = useCallback(async () => {

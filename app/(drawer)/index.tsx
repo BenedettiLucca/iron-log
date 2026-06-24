@@ -18,6 +18,7 @@ import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 
+import { useToast } from '../../hooks/use-toast';
 export default function HomeScreen() {
   const { t, language } = useI18n();
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function HomeScreen() {
     fetchDashboardData,
     isLoading: programsLoading
   } = usePrograms();
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');

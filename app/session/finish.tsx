@@ -9,7 +9,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
-import { sessions, bodyMetrics, sets, personalRecords } from '../../src/db/schema';
+import { sessions, bodyMetrics, sets, personalRecords, routineExercises } from '../../src/db/schema';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
@@ -21,6 +21,7 @@ import { Colors } from '@/constants/colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
+import { buildSessionSummary } from '@/src/utils/session-summary';
 
 interface NoteTemplate {
   label: string;
@@ -29,9 +30,11 @@ interface NoteTemplate {
 }
 
 
+import { useToast } from '../../hooks/use-toast';
+
 export default function FinishSessionScreen() {
   const { t, language } = useI18n();
-  const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
+  const { toast, setToast } = useToast();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
     2: t('finish.sRPEVeryLight'),
@@ -95,23 +98,38 @@ export default function FinishSessionScreen() {
         // Calculate session statistics
         const sessionIdNum = Number(sessionId);
 
+        // Get the session details
+        const sessionDataResult = await db.select().from(sessions).where(eq(sessions.id, sessionIdNum));
+        const session = sessionDataResult[0];
+        if (!session) return;
+
         // Get all sets for this session
         const sessionSets = await db.select()
           .from(sets)
           .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
 
-        // Calculate total volume (weight × reps for strength exercises, excluding warmups)
-        let totalVolume = 0;
-        let totalSets = 0;
+        // Get targets Map
+        const targetsMap = new Map<number, string>();
+        if (session.routineId) {
+          const reData = await db.select({
+            exId: routineExercises.exerciseId,
+            target: routineExercises.target
+          })
+            .from(routineExercises)
+            .where(eq(routineExercises.routineId, session.routineId));
 
-        for (const set of sessionSets) {
-          if (!set.isWarmup) {
-            totalSets++;
-            if (set.reps && set.weightKg) {
-              totalVolume += set.reps * set.weightKg;
-            }
-          }
+          reData.forEach(r => {
+            if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+          });
         }
+
+        const { stats } = buildSessionSummary({
+          session,
+          setsData: sessionSets,
+          targetsMap,
+          t,
+          locale: getLocaleForLanguage(language),
+        });
 
         // Count unique exercises
         const uniqueExercises = new Set(sessionSets.map(s => s.exerciseId)).size;
@@ -123,8 +141,8 @@ export default function FinishSessionScreen() {
         const prCount = prs[0]?.count ?? 0;
 
         setSessionStats({
-          totalSets,
-          totalVolume,
+          totalSets: stats.totalSets,
+          totalVolume: stats.totalVolume,
           totalExercises: uniqueExercises,
           completedExercises: uniqueExercises,
           prCount,
