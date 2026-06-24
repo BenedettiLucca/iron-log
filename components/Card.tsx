@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { View, TouchableOpacity, ViewStyle } from 'react-native';
 import { useHaptics } from '@/hooks/use-haptics';
 
-export type CardVariant = 'default' | 'bordered' | 'elevated' | 'flat';
+export type CardVariant = 'default' | 'bordered';
 
 interface CardProps {
   children: ReactNode;
@@ -33,10 +33,6 @@ export function Card({
     switch (variant) {
       case 'bordered':
         return 'bg-card border border-border';
-      case 'elevated':
-        return 'bg-card shadow-md';
-      case 'flat':
-        return 'bg-transparent';
       case 'default':
       default:
         return 'bg-card border border-border shadow-sm';

@@ -1,34 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { useI18n } from '../src/i18n/index';
+import { Text } from 'react-native';
 
 interface StopwatchProps {
   startTime: number;
-  paused?: boolean;
-  onTogglePause?: () => void;
-  editable?: boolean;
   className?: string;
 }
 
-export function Stopwatch({
-  startTime, paused = false, onTogglePause, editable = false, className }: StopwatchProps) {
-  const { t } = useI18n();
+export function Stopwatch({ startTime, className }: StopwatchProps) {
   const [seconds, setSeconds] = useState(0);
-  const [isPaused, setIsPaused] = useState(paused);
 
   useEffect(() => {
-    setIsPaused(paused);
-  }, [paused]);
-
-  useEffect(() => {
-    if (isPaused) return;
-
     const interval = setInterval(() => {
       setSeconds(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startTime, isPaused]);
+  }, [startTime]);
 
   const formatTime = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -41,35 +28,9 @@ export function Stopwatch({
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handlePress = () => {
-    if (editable && onTogglePause) {
-      setIsPaused(!isPaused);
-      onTogglePause();
-    }
-  };
-
-  const content = (
+  return (
     <Text className={`font-mono text-xl font-bold tracking-widest ${className || 'text-text'}`}>
       {formatTime(seconds)}
     </Text>
   );
-
-  if (editable) {
-    return (
-      <TouchableOpacity
-        onPress={handlePress}
-        className="flex-row items-center gap-2"
-        activeOpacity={0.7}
-      >
-        {content}
-        {isPaused && (
-          <View className="bg-warning/20 px-2 py-0.5 rounded">
-            <Text className="text-warning text-xs font-bold">{t("common.paused")}</Text>
-          </View>
-        )}
-      </TouchableOpacity>
-    );
-  }
-
-  return content;
 }

@@ -7,7 +7,6 @@ interface ProgressBarProps {
   total: number;
   variant?: 'header' | 'modal' | 'compact';
   showLabel?: boolean;
-  animated?: boolean;
 }
 
 export function ProgressBar({
@@ -15,23 +14,18 @@ export function ProgressBar({
   total,
   variant = 'header',
   showLabel = true,
-  animated = true,
 }: ProgressBarProps) {
   const { t } = useI18n();
   const progressAnim = useRef(new Animated.Value(0)).current;
   const percentage = total > 0 ? Math.min((current / total) * 100, 100) : 0;
 
   useEffect(() => {
-    if (animated) {
-      Animated.timing(progressAnim, {
-        toValue: percentage,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      progressAnim.setValue(percentage);
-    }
-  }, [percentage, animated, progressAnim]);
+    Animated.timing(progressAnim, {
+      toValue: percentage,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [percentage, progressAnim]);
 
   const getVariantClasses = () => {
     switch (variant) {

@@ -34,7 +34,7 @@ export default function RoutineEditorScreen() {
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
-  const [showTemplateOptions, setShowTemplateOptions] = useState(false);
+
 
   const loadRoutineData = useCallback(async () => {
     try {
@@ -257,36 +257,18 @@ export default function RoutineEditorScreen() {
         <View className="h-24" />
       </ScrollView>
 
-      {/* Save Options Menu */}
-      {showTemplateOptions && (
-        <View className="absolute bottom-20 left-4 right-4 z-10">
-          <Card className="border-2 border-primary shadow-xl">
-            <TouchableOpacity
-              onPress={handleSave}
-              onPressOut={() => setShowTemplateOptions(false)}
-              className="p-4"
-            >
-              <Text className="text-text font-bold text-base">{t("common.save")}</Text>
-              <Text className="text-subtext text-xs">{t("routines.saveNormal")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleSaveAsTemplate}
-              onPressOut={() => setShowTemplateOptions(false)}
-              className="p-4 border-t border-border"
-            >
-              <Text className="text-primary font-bold text-base">{t("routines.saveAsTemplate")}</Text>
-              <Text className="text-subtext text-xs">{t("routines.templateLibraryHint")}</Text>
-            </TouchableOpacity>
-          </Card>
-        </View>
-      )}
-
-      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg">
+      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg flex-row gap-3">
         <Button 
           title={t("common.save")}
-          onPress={() => setShowTemplateOptions(true)}
+          onPress={handleSave}
           variant="success"
-          fullWidth
+          className="flex-1"
+        />
+        <Button 
+          title={t("routines.saveAsTemplate")}
+          onPress={handleSaveAsTemplate}
+          variant="primary"
+          className="flex-1"
         />
       </View>
 

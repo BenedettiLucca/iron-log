@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter, type RelativePathString } from 'expo-router';
+
 import { Card } from './Card';
 import { useI18n } from '../src/i18n/index';
 
@@ -8,7 +8,6 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   actionLabel?: string;
-  actionRoute?: RelativePathString;
   onAction?: () => void;
 }
 
@@ -20,17 +19,13 @@ export function EmptyState({
   title,
   description,
   actionLabel,
-  actionRoute,
   onAction,
 }: EmptyStateProps) {
-  const router = useRouter();
   const { t } = useI18n();
 
   const handleAction = () => {
     if (onAction) {
       onAction();
-    } else if (actionRoute) {
-      router.push(actionRoute);
     }
   };
 

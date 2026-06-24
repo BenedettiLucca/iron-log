@@ -1,6 +1,6 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Drawer } from 'expo-router/drawer';
-import { useColorScheme } from '../../hooks/use-color-scheme';
+import { useColorScheme } from 'react-native';
 import { Colors } from '@/constants/colors';
 import { useI18n } from '../../src/i18n/index';
 

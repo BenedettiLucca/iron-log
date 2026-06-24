@@ -6,11 +6,9 @@ interface StrengthCurveProps {
   currentWeight: number;
   previousWeights: number[];
   bestSet: { weight: number; reps: number; date: Date | null };
-  goalWeight?: number;
-  goalDate?: Date;
 }
 
-export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWeight, goalDate }: StrengthCurveProps) {
+export function StrengthCurve({ currentWeight, previousWeights, bestSet }: StrengthCurveProps) {
   const { t, language } = useI18n();
   const locale = getLocaleForLanguage(language);
   // Calculate strength curve metrics
@@ -80,33 +78,7 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet, goalWei
         </Card>
       )}
 
-      {/* Goals */}
-      {goalWeight && goalDate && new Date(goalDate).getTime() > Date.now() && (
-        <Card className="border-l border-warning/20 mt-4">
-          <Text className="text-warning text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.weightGoal')}</Text>
 
-          <View className="mb-6">
-            <View className="flex-row justify-between items-center mb-4">
-              <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.goal')}</Text>
-                <Text className="text-2xl font-black text-text">{goalWeight}kg</Text>
-              </View>
-              <View className="flex-1">
-                <Text className="text-subtext text-xs font-bold uppercase">{t('strengthCurve.goalDeadline')}</Text>
-                <Text className="text-2xl font-black text-text">
-                  {t('strengthCurve.daysRemaining', { days: Math.ceil((new Date(goalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) })}
-                </Text>
-              </View>
-            </View>
-            <View className="flex-1">
-              <Text className="text-subtext text-sm font-bold uppercase">{t('strengthCurve.targetDate')}</Text>
-              <Text className="text-4xl font-black text-text">
-                {new Date(goalDate).toLocaleDateString(locale)}
-              </Text>
-            </View>
-          </View>
-        </Card>
-      )}
     </Card>
   );
 }
