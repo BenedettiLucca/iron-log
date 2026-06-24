@@ -113,11 +113,11 @@ describe('Form Input Schemas', () => {
       expect(result.success).toBe(true);
     });
 
-    it('defaults missing fields to 0', () => {
+    it('treats empty input as undefined (not 0)', () => {
       const result = monthlyCheckinSchema.safeParse({});
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.waist).toBe(0);
+        expect(result.data.waist).toBeUndefined();
       }
     });
   });

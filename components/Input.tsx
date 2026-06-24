@@ -6,7 +6,6 @@ import { getThemeColors } from '@/constants/colors';
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
-  success?: boolean;
   containerStyle?: ViewStyle;
   maxLength?: number;
   showCharacterCount?: boolean;
@@ -15,7 +14,6 @@ interface InputProps extends TextInputProps {
 export function Input({
   label,
   error,
-  success,
   containerStyle,
   style,
   maxLength,
@@ -33,8 +31,6 @@ export function Input({
     ? theme.primary
     : error
     ? theme.danger
-    : success
-    ? theme.success
     : theme.border;
 
   const handleFocus = (e: any) => {
@@ -83,11 +79,6 @@ export function Input({
       {error && (
         <Text className="text-danger text-xs mt-1">
           {error}
-        </Text>
-      )}
-      {success && !error && (
-        <Text className="text-success text-xs mt-1">
-          ✓ Válido
         </Text>
       )}
     </View>

@@ -15,17 +15,28 @@ export const weightInputSchema = z.object({
 
 export type WeightInput = z.infer<typeof weightInputSchema>;
 
-// Monthly check-in input
+// Monthly check-in input (aligned with checkin-validation.ts — empty string = undefined, NOT 0)
 export const monthlyCheckinSchema = z.object({
-  waist: z.coerce.number().min(0).max(300).optional().default(0),
-  armRight: z.coerce.number().min(0).max(100).optional().default(0),
-  thighRight: z.coerce.number().min(0).max(200).optional().default(0),
-  chest: z.coerce.number().min(0).max(300).optional().default(0),
-  calf: z.coerce.number().min(0).max(100).optional().default(0),
-  photoFront: z.string().nullable().optional(),
-  photoBack: z.string().nullable().optional(),
-  photoSide: z.string().nullable().optional(),
-  photoNotes: z.string().optional(),
+  waist: z.preprocess(
+    (v) => v === '' || v == null ? undefined : Number(v),
+    z.number().min(0).max(300).optional(),
+  ),
+  armRight: z.preprocess(
+    (v) => v === '' || v == null ? undefined : Number(v),
+    z.number().min(0).max(100).optional(),
+  ),
+  thighRight: z.preprocess(
+    (v) => v === '' || v == null ? undefined : Number(v),
+    z.number().min(0).max(200).optional(),
+  ),
+  chest: z.preprocess(
+    (v) => v === '' || v == null ? undefined : Number(v),
+    z.number().min(0).max(300).optional(),
+  ),
+  calf: z.preprocess(
+    (v) => v === '' || v == null ? undefined : Number(v),
+    z.number().min(0).max(100).optional(),
+  ),
 });
 
 export type MonthlyCheckinInput = z.infer<typeof monthlyCheckinSchema>;

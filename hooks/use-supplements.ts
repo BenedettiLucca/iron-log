@@ -198,10 +198,11 @@ export function useSupplements() {
       
       items.forEach(item => {
         const itemLogs = logs.filter(l => l.supplementId === item.id).length;
-        // Calculation depends on frequency, but a simple 1 week = 7 days adherence
-        // If frequency is 'daily', total possible is 7.
-        // For simplicity and matching common patterns, we'll return % based on 7 days
-        adherence[item.id] = Math.min(100, Math.round((itemLogs / 7) * 100));
+        const expectedDays = item.frequency === 'daily' ? 7
+          : item.frequency === 'training_days' ? Math.ceil(itemLogs > 0 ? Math.max(itemLogs, 3) : 3)
+          : 7;
+        // ponytail: training_days adherence approximates 3 sessions/week — revisit if user tracks session days
+        adherence[item.id] = Math.min(100, Math.round((itemLogs / expectedDays) * 100));
       });
 
       return adherence;
