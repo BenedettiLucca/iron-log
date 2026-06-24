@@ -8,6 +8,7 @@ import { Button } from '../../../components/Button';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
+import { getPhaseLabel, getGoalBadge } from '../../../src/utils/programs';
 
 export default function ProgramsListScreen() {
   const router = useRouter();
@@ -45,25 +46,6 @@ export default function ProgramsListScreen() {
 
   const archivedPrograms = allPrograms.filter(p => !p.isActive);
   const hasData = activeProgram || archivedPrograms.length > 0;
-
-  const getPhaseLabel = (phase: string | null) => {
-    if (!phase) return '';
-    switch (phase) {
-      case 'accumulation': return t('programs.phases.accumulation');
-      case 'intensification': return t('programs.phases.intensification');
-      case 'deload': return t('programs.phases.deload');
-      default: return phase;
-    }
-  };
-
-  const getGoalBadge = (goal: string) => {
-    switch (goal) {
-      case 'hypertrophy': return { emoji: '💪', label: t('programs.goals.hypertrophy') };
-      case 'strength': return { emoji: '🏋️', label: t('programs.goals.strength') };
-      case 'endurance': return { emoji: '🏃', label: t('programs.goals.endurance') };
-      default: return { emoji: '🎯', label: goal };
-    }
-  };
 
   if (!isLoading && !hasData) {
     return (
@@ -143,7 +125,7 @@ export default function ProgramsListScreen() {
               {currentPhase && (
                 <View className="bg-accent/20 rounded-md px-2 py-0.5">
                   <Text className="text-accent text-xs font-semibold">
-                    {getPhaseLabel(currentPhase)}
+                    {getPhaseLabel(currentPhase, t)}
                   </Text>
                 </View>
               )}
@@ -157,9 +139,9 @@ export default function ProgramsListScreen() {
 
             {activeProgram.goal && (
               <View className="flex-row items-center mt-2">
-                <Text className="text-xs mr-1">{getGoalBadge(activeProgram.goal).emoji}</Text>
+                <Text className="text-xs mr-1">{getGoalBadge(activeProgram.goal, t).emoji}</Text>
                 <Text className="text-subtext text-xs font-medium">
-                  {getGoalBadge(activeProgram.goal).label}
+                  {getGoalBadge(activeProgram.goal, t).label}
                 </Text>
               </View>
             )}
@@ -185,7 +167,7 @@ export default function ProgramsListScreen() {
                       {program.name}
                     </Text>
                     <Text className="text-subtext text-xs mt-0.5">
-                      {program.weeksDuration} {t('programs.weeksLabel')} • {getGoalBadge(program.goal).label}
+                      {program.weeksDuration} {t('programs.weeksLabel')} • {getGoalBadge(program.goal, t).label}
                     </Text>
                   </View>
                   <Text className="text-subtext text-xs">

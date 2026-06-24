@@ -43,7 +43,7 @@ export interface ExerciseProgression {
   currentMaxWeight: number;
   previousMaxWeight: number;
   progress: number;       // percentage change
-  dataPoints: { date: string; maxWeight: number }[];
+
 }
 
 export interface DashboardAnalytics {
@@ -185,7 +185,6 @@ export const AnalyticsService = {
       if (totalScore >= 80) labelKey = 'elite';
       else if (totalScore >= 60) labelKey = 'advanced';
       else if (totalScore >= 35) labelKey = 'intermediate';
-      else if (totalScore >= 15) labelKey = 'beginner';
       else labelKey = 'beginner';
 
       return { totalScore, volumeScore, intensityScore, consistencyScore, labelKey };
@@ -381,7 +380,6 @@ export const AnalyticsService = {
           currentMaxWeight: data.maxWeight,
           previousMaxWeight: prevMax,
           progress,
-          dataPoints: [], // Simplified for performance
         });
       }
 

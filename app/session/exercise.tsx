@@ -23,7 +23,7 @@ import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { useSessionPersistence } from '../../hooks/use-session-persistence';
 import { ExerciseHeader } from '../../components/session/ExerciseHeader';
 import { SetList } from '../../components/session/SetList';
-import { RestTimerBar } from '../../components/session/RestTimerBar';
+import { RestTimer } from '../../components/RestTimer';
 import { ExerciseHistoryModal } from '../../components/session/ExerciseHistoryModal';
 import { RirExplainerModal } from '../../components/session/RirExplainerModal';
 
@@ -432,12 +432,13 @@ export default function ExerciseScreen() {
           language={language}
         />
 
-        <RestTimerBar
-          timerStatus={timerStatus}
-          timerSeconds={timerSeconds}
-          setTimerStatus={setTimerStatus}
-          setTimerSeconds={setTimerSeconds}
-          addTime={addTime}
+        <RestTimer
+          visible={timerStatus !== 'idle'}
+          seconds={timerSeconds || 0}
+          status={timerStatus}
+          onClose={() => { setTimerStatus('idle'); setTimerSeconds(null); }}
+          onSkip={() => { setTimerStatus('idle'); setTimerSeconds(null); }}
+          onAddTime={addTime}
           nextExerciseName={nextExercise?.name}
         />
 

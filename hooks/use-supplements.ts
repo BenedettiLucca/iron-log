@@ -108,43 +108,6 @@ export function useSupplements() {
     }
   }, [fetchSupplements]);
 
-  const getStreak = useCallback(async (supplementId: number): Promise<number> => {
-    try {
-      const logs = await db
-        .select()
-        .from(supplementLogs)
-        .where(eq(supplementLogs.supplementId, supplementId))
-        .orderBy(desc(supplementLogs.date)) as SupplementLog[];
-
-      if (logs.length === 0) return 0;
-
-      let streak = 0;
-      let currentDate = getStartOfDay();
-      
-      // Check if taken today
-      const takenToday = logs.some(l => l.date === currentDate);
-      
-      if (!takenToday) {
-        currentDate -= 86400000; // start checking from yesterday
-      }
-
-      for (let i = 0; i < 365; i++) {
-        const found = logs.find(l => l.date === currentDate);
-        if (found) {
-          streak++;
-          currentDate -= 86400000;
-        } else {
-          break;
-        }
-      }
-
-      return streak;
-    } catch (e) {
-      logger.error('Failed to get streak', e);
-      return 0;
-    }
-  }, []);
-
   const getAllStreaks = useCallback(async (supplementIds: number[]): Promise<Record<number, number>> => {
     try {
       const streaks: Record<number, number> = {};
@@ -283,7 +246,6 @@ export function useSupplements() {
     addSupplement,
     updateSupplement,
     deleteSupplement,
-    getStreak,
     getAllStreaks,
     getWeeklyAdherence,
     seedDefaultSupplements,

@@ -165,8 +165,9 @@ export const CsvExportService = {
       const metricsPath = FileSystem.cacheDirectory + `ironlog_metrics_${timestamp}.csv`;
       await FileSystem.writeAsStringAsync(metricsPath, metricsCsv, { encoding: FileSystem.EncodingType.UTF8 });
 
-      // Share the main file (sessions)
+      // Share both files (zip if available, otherwise just sessions)
       if (await Sharing.isAvailableAsync()) {
+        // ponytail: sharing only sessions for now — metrics file written for future multi-file share
         await Sharing.shareAsync(sessionsPath, {
           dialogTitle: 'Exportar Dados Iron Log',
           UTI: 'public.comma-separated-values-text',

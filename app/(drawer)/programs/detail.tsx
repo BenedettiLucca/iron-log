@@ -8,6 +8,7 @@ import { Dialog } from '../../../components/Dialog';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
+import { getPhaseLabel, getGoalBadge } from '../../../src/utils/programs';
 import { getDetailScreenView, resolveFetchState } from '@/src/utils/program-detail-state';
 
 export default function ProgramDetailScreen() {
@@ -57,25 +58,6 @@ export default function ProgramDetailScreen() {
   const currentWeek = getCurrentWeek();
   const weeksUntilDeload = getWeeksUntilDeload();
   const currentPhase = getCurrentPhase();
-
-  const getPhaseLabel = (phase: string | null) => {
-    if (!phase) return '';
-    switch (phase) {
-      case 'accumulation': return t('programs.phases.accumulation');
-      case 'intensification': return t('programs.phases.intensification');
-      case 'deload': return t('programs.phases.deload');
-      default: return phase;
-    }
-  };
-
-  const getGoalBadge = (goal: string) => {
-    switch (goal) {
-      case 'hypertrophy': return { emoji: '💪', label: t('programs.goals.hypertrophy') };
-      case 'strength': return { emoji: '🏋️', label: t('programs.goals.strength') };
-      case 'endurance': return { emoji: '🏃', label: t('programs.goals.endurance') };
-      default: return { emoji: '🎯', label: goal };
-    }
-  };
 
   const handleDelete = () => {
     if (!program) return;
@@ -143,7 +125,7 @@ export default function ProgramDetailScreen() {
     );
   }
 
-  const goalInfo = getGoalBadge(program.goal);
+  const goalInfo = getGoalBadge(program.goal, t);
 
   return (
     <View className="flex-1 bg-background">
@@ -201,7 +183,7 @@ export default function ProgramDetailScreen() {
                 </Text>
                 {currentPhase && (
                   <View className="bg-accent/20 rounded-md px-2 py-0.5">
-                    <Text className="text-accent text-xs font-semibold">{getPhaseLabel(currentPhase)}</Text>
+                    <Text className="text-accent text-xs font-semibold">{getPhaseLabel(currentPhase, t)}</Text>
                   </View>
                 )}
               </View>
@@ -279,7 +261,7 @@ export default function ProgramDetailScreen() {
                         <Text className={`text-2xs font-semibold ${
                           week.phase === 'deload' ? 'text-success' : 'text-accent'
                         }`}>
-                          {getPhaseLabel(week.phase)}
+                          {getPhaseLabel(week.phase, t)}
                         </Text>
                       </View>
                     </View>

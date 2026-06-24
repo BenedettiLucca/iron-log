@@ -69,12 +69,6 @@ class NotificationService {
     return Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       logger.debug('Notification tapped:', data);
-
-      // Handle deep linking based on notification type
-      if (data.type === 'monthly_checkin') {
-        // The app will handle navigation based on the URL
-        // Navigation logic will be handled by the app's router
-      }
     });
   }
 
