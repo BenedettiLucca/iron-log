@@ -17,169 +17,30 @@ export type ProgramPhase = 'accumulation' | 'intensification' | 'deload';
 export type SupplementFrequency = 'daily' | 'training_days' | 'rest_days';
 
 // ---------------------------------------------------------------------------
-// Core Entities
+// Inferred DB Types (Drizzle)
 // ---------------------------------------------------------------------------
 
-export interface Routine {
-  id: number;
-  name: string;
-  description: string | null;
-  folder: string | null;
-  isTemplate: boolean;
-}
+import type { sessions, sets, exercises, routines, routineExercises, bodyMetrics, userSettings, notificationSettings, measurementGoals, personalRecords, supplements, supplementLogs, programs, programWeeks, programExerciseTargets } from '@/src/db/schema';
 
-export interface Exercise {
-  id: number;
-  name: string;
-  type: ExerciseType;
-  defaultRestSeconds: number | null;
-}
-
-export interface RoutineExercise {
-  routineId: number | null;
-  exerciseId: number | null;
-  orderIndex: number | null;
-  target: string | null;      // e.g. "3x8-12"
-  notes: string | null;
-  restSeconds: number | null;
-}
-
-export interface Session {
-  id: number;
-  routineId: number | null;
-  routineName: string | null;
-  startTime: number;
-  endTime: number | null;
-  bodyWeight: number | null;
-  sRpe: number | null;
-  notes: string | null;
-  durationMinutes: number | null;
-  deletedAt: number | null;
-}
-
-export interface Set {
-  id: number;
-  sessionId: number;
-  exerciseId: number;
-  exerciseName: string | null;
-  setNumber: number;
-  weightKg: number;
-  reps: number;
-  durationSeconds: number | null;
-  rir: number | null;
-  isWarmup: boolean;
-  isEdited: boolean;
-  createdAt: number | null;
-  deletedAt: number | null;
-}
-
-export interface BodyMetric {
-  id: number;
-  date: number;
-  type: BioMetricType | null;
-  weight: number | null;
-  waist: number | null;
-  armRight: number | null;
-  thighRight: number | null;
-  chest: number | null;
-  calf: number | null;
-  photoFront: string | null;
-  photoBack: string | null;
-  photoSide: string | null;
-  photoNotes: string | null;
-}
-
-export interface UserSettings {
-  id: number;
-  defaultWeight: number | null;
-  height: number | null;
-  sex: Sex | null;
-}
-
-export interface NotificationConfig {
-  id: number;
-  checkinDay: number;
-  checkinHour: number;
-  enabled: boolean;
-  lastNotificationDate: number | null;
-}
-
-export interface MeasurementGoal {
-  id: number;
-  type: MeasurementGoalType;
-  targetValue: number;
-  startDate: number;
-  targetDate: number;
-  achieved: boolean;
-  achievedDate: number | null;
-}
-
-export interface PersonalRecord {
-  id: number;
-  exerciseId: number;
-  sessionId: number | null;
-  recordType: RecordType;
-  value: number;
-  date: number;
-  setDetails: string | null; // JSON string
-}
-
-export interface Supplement {
-  id: number;
-  name: string;
-  dosage: string;
-  timing: string;
+export type Session = typeof sessions.$inferSelect;
+export type Set = typeof sets.$inferSelect;
+export type Exercise = typeof exercises.$inferSelect;
+export type Routine = typeof routines.$inferSelect;
+export type RoutineExercise = typeof routineExercises.$inferSelect;
+export type BodyMetric = typeof bodyMetrics.$inferSelect;
+export type UserSettings = typeof userSettings.$inferSelect;
+export type NotificationConfig = typeof notificationSettings.$inferSelect;
+export type MeasurementGoal = typeof measurementGoals.$inferSelect;
+export type PersonalRecord = typeof personalRecords.$inferSelect;
+export type Supplement = Omit<typeof supplements.$inferSelect, 'frequency'> & {
   frequency: SupplementFrequency;
-  reminderTime: string | null;
-  isNighttime: boolean;
-  emoji: string | null;
-  orderIndex: number;
-  isActive: boolean;
-}
-
-export interface SupplementLog {
-  id: number;
-  supplementId: number;
-  date: number;
-  takenAt: number;
-}
-
-// ---------------------------------------------------------------------------
-// Program / Periodization Types
-// ---------------------------------------------------------------------------
-
-export interface Program {
-  id: number;
-  name: string;
-  description: string | null;
-  startDate: number;
-  endDate: number;
-  weeksDuration: number;
-  deloadWeek: number | null;
-  goal: ProgramGoal;
-  isActive: boolean;
-  createdAt: number | null;
-}
-
-export interface ProgramWeek {
-  id: number;
-  programId: number;
-  weekNumber: number;
-  routineId: number | null;
-  phase: ProgramPhase;
-  rirTarget: number | null;
-  intensityMod: number | null;
-}
-
-export interface ProgramExerciseTarget {
-  id: number;
-  programId: number;
-  exerciseId: number;
-  targetRepsMin: number;
-  targetRepsMax: number;
-  targetSets: number;
+};
+export type SupplementLog = typeof supplementLogs.$inferSelect;
+export type Program = typeof programs.$inferSelect;
+export type ProgramWeek = typeof programWeeks.$inferSelect;
+export type ProgramExerciseTarget = Omit<typeof programExerciseTargets.$inferSelect, 'exerciseName'> & {
   exerciseName?: string;
-}
+};
 
 // ---------------------------------------------------------------------------
 // UI / Domain Types
