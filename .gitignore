@@ -104,3 +104,6 @@ android/gradle.properties
 # AI agent context files
 CLAUDE.md
 GEMINI.md
+*.keystore
+*.old.*
+.secrets/
