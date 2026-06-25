@@ -22,6 +22,7 @@ import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
+import { useToast } from '../../hooks/use-toast';
 
 interface NoteTemplate {
   label: string;
@@ -29,8 +30,6 @@ interface NoteTemplate {
   text: string;
 }
 
-
-import { useToast } from '../../hooks/use-toast';
 
 export default function FinishSessionScreen() {
   const { t, language } = useI18n();
@@ -153,7 +152,7 @@ export default function FinishSessionScreen() {
       }
     };
     loadData();
-  }, [sessionId, language]);
+  }, [sessionId, language, t]);
 
   const adjustWeight = useCallback((delta: number) => {
     setWeight((prev) => {

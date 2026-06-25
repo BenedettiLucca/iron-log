@@ -4,7 +4,7 @@
 
 **Iron Log** 是一款完整的本地优先健身监控平台。为认真对待训练的人设计 — 快速记录负重、身体追踪、表现分析和数据导出。
 
-**版本：** 3.12.0 · **Expo SDK：** 54 · **测试：** 300 项通过
+**版本：** 3.13.0 · **Expo SDK：** 54 · **测试：** 385 项通过
 
 ---
 
@@ -156,7 +156,7 @@ iron-log/
 │   │   ├── settings.tsx    # 设置、备份、CSV 导出、语言
 │   │   └── about.tsx       # 关于应用
 │   └── session/            # 训练流程（独立堆栈）
-├── components/             # 20 个可复用 UI 组件
+├── components/             # 22 个可复用 UI 组件
 ├── hooks/                  # 领域 hooks
 ├── services/               # 业务服务
 ├── src/
@@ -165,7 +165,7 @@ iron-log/
 │   ├── utils/              # 纯函数
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # 翻译系统 (pt/en/es/zh)
-├── __tests__/              # 27 套测试，372 项通过
+├── __tests__/              # 29 套测试，385 项通过
 ├── constants/              # 颜色和字体
 └── drizzle/                # SQL 迁移
 ```

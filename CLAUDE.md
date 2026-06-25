@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Iron Log** is a local-first workout tracking application built with React Native and Expo. It tracks workouts, body metrics (weight, measurements, photos), and provides a complete bio-tracking solution with visualization. The app features a "Warm & Earthy" (Terracota/Creme) theme that adapts to system light/dark mode.
 
-**Current Version:** v3.12.0
+**Current Version:** v3.13.0
 
 ## Tech Stack
 
@@ -30,6 +30,8 @@ npm run android        # Run on Android device/emulator
 npm run ios            # Run on iOS simulator
 npm run web            # Run in web browser
 npm run lint           # Run ESLint
+npm run typecheck      # Run TypeScript checks
+npx jest               # Run test suite (29 suites, 385 tests)
 ```
 
 ### Database Management
@@ -103,33 +105,35 @@ The app uses 15 main tables:
 - Deep linking from outside app opens directly to workout session
 - Features consistent save behavior, progress indicators, and undo capability
 
-**Design System Components** (`components/` — 20 total):
+**Design System Components** (`components/` — 22 total):
 - **Button** - Animated pressable button with variants (primary, secondary, danger, ghost, success) and tactile feedback.
 - **Card** - Standardized `rounded-2xl` container with consistent shadows and borders.
 - **CheckinGallery** - Horizontal scroll gallery for monthly check-in photos.
-- **Input** - Styled text input with focus animations, success state, and haptic feedback.
 - **DatePicker** - Native date picker component with theme support for iOS and Android.
+- **Dialog** - Confirmation dialog for destructive actions.
 - **EmptyState** - Consistent empty state component with icons, titles, descriptions, and CTAs.
+- **ErrorBoundary** - React error boundary with visual fallback + dev stack trace.
+- **Input** - Styled text input with focus animations and optional character count.
 - **MonthlyCheckinComparison** - Side-by-side photo comparison with measurement overlays.
 - **PhotoComparison** - Before/after slider for comparing photos.
 - **PhotoOverlay** - Measurement data overlay on check-in photos.
+- **Pressable** - Reusable pressable wrapper with consistent haptics + accessibility defaults.
 - **ProgressBar** - Visual progress indicator with animated fill.
+- **RestTimer** - Bottom sheet rest timer with quick actions.
 - **RoutinePreview** - Preview card for routine details.
+- **ScreenState** - Standardized loading and error state components.
 - **SetCard** - Swipeable card for saved sets with entry animations and color-coded RIR.
 - **SetEditor** - Inline set editor with weight/reps/RPE inputs.
 - **Skeleton** - Animated placeholder components for loading states.
-- **RestTimer** - Bottom sheet rest timer with quick actions.
-- **Stopwatch** - Enhanced timer with pause/resume capability.
+- **Stopwatch** - Lightweight elapsed timer for time-based exercises.
 - **StrengthCurve** - Strength progression visualization component.
 - **Toast** - Animated toast notification component.
-- **Dialog** - Confirmation dialog for destructive actions.
-- **ErrorBoundary** - React error boundary with visual fallback + dev stack trace.
 
-**Color Scheme** (`hooks/use-color-scheme.ts`):
+**Theme System** (`constants/colors.ts` + React Native `useColorScheme()`):
 - Dark mode: `#1D1917` (background)
 - Light mode: `#F4F1DE` (background)
 - Primary: `#E07A5F` (Terracotta)
-- Follows system theme automatically
+- Shared tokens come from `getThemeColors(colorScheme)` in `constants/colors.ts`
 - RIR color coding: Red (0-1), Green (2-3), Blue (4-5)
 
 **Typography** (`constants/typography.ts`):
@@ -139,14 +143,20 @@ The app uses 15 main tables:
 **Domain Hooks** (`hooks/`):
 - **use-routines.ts** - CRUD de rotinas (fetch, delete, duplicate, filter)
 - **use-sessions.ts** - Histórico de sessões e home data
-- **use-session-exercise.ts** - Lógica de séries na tela de exercício (load, add, update, delete)
 - **use-body-metrics.ts** - Métricas corporais (peso, medidas, histórico)
-- **use-haptics.ts** - Unified haptic feedback (light, medium, heavy, success, warning, error, selection)
-- **use-notifications.ts** - Notification settings state and actions
 - **use-programs.ts** - Program CRUD, active program state, dashboard data
 - **use-supplements.ts** - Supplement checklist, streaks, adherence tracking
+- **use-exercise-sets.ts** - Lógica principal de séries na tela de exercício (load, add, update, delete)
+- **use-session-timer.ts** - Timer/rest state orchestration for active sessions
+- **use-session-undo.ts** - Undo buffer for deleted/edited sets
+- **use-session-persistence.ts** - Persists active session state to avoid data loss
+- **use-progression.ts** - Progression insight per exercise during active session
+- **use-haptics.ts** - Unified haptic feedback (light, medium, heavy, success, warning, error, selection)
+- **use-notifications.ts** - Notification settings state and actions
+- **use-toast.ts** - Shared toast state helper for screens
+- **use-confirm-dialog.ts** - Shared confirmation dialog state helper
 
-All hooks export barrel via `hooks/index.ts`.
+Core domain/session hooks export barrel via `hooks/index.ts`; utility hooks are also imported directly where needed.
 
 **Services** (`services/`):
 - **AnalyticsService.ts** - Strength Score (0-100), Consistency metrics, Volume Trends, 1RM Epley, PR tracking
@@ -166,7 +176,7 @@ All services export barrel via `services/index.ts`.
 - All screens validate inputs before submission; invalid params fall back to safe defaults.
 
 **Testing** (`__tests__/`):
-- 17 test suites, 300 tests passing
+- 29 test suites, 385 tests passing
 - Utils: exercise, timer, warmup, calculations
 - Services: analytics (Epley formula, scoring logic), csv-export (escapeCsvField, formatDateBR)
 - Validators: routes (15 tests), forms (32 tests)
@@ -207,7 +217,13 @@ The app supports importing workout routines via JSON. Structure:
 - **strength** - Weight/reps based exercises (requires explicit save)
 - **duration** - Time-based exercises (e.g., plank) with explicit save button (no auto-save)
 
-**Recent Updates (v3.6.0–v3.12.0)**
+**Recent Updates (v3.6.0–v3.13.0)**
+
+**v3.13.0 — Ponytail Audit & Release Prep:**
+- Dead code purge, YAGNI cleanup, and removal of 4 unused dependencies
+- Manual DB entity types replaced with Drizzle `$inferSelect` for tighter schema alignment
+- Shared `useToast` / `useConfirmDialog` hooks extracted across screens
+- Shared date/RIR/session-summary utilities consolidated; tests up to 29 suites / 385 passing
 
 **v3.12.0 — Architecture Refactor:**
 - ProgramService (680 lines) decomposed into 6 focused service modules

@@ -14,10 +14,10 @@ import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useI18n } from '../../src/i18n/index';
 import { Colors } from '@/constants/colors';
+import { useToast } from '../../hooks/use-toast';
 
 WebBrowser.maybeCompleteAuthSession();
 
-import { useToast } from '../../hooks/use-toast';
 export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ export default function SettingsScreen() {
       setTokenExpiresAt(expiresIn ? issuedAt + expiresIn * 1000 : Date.now() + 3600 * 1000);
       setToast({ visible: true, message: t('settings.googleConnected'), type: 'success' });
     }
-  }, [response, t]);
+  }, [response, t, setToast]);
 
   const handleExport = async () => {
     setLoading(true);

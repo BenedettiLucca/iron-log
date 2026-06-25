@@ -22,6 +22,7 @@ import { resolveScreenState } from '../../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
 import { InlineEmptyState } from '../../../components/EmptyState';
+import { useToast } from '../../../hooks/use-toast';
 
 type CheckinPhotos = {
   front: string | null;
@@ -29,7 +30,6 @@ type CheckinPhotos = {
   side: string | null;
 };
 
-import { useToast } from '../../../hooks/use-toast';
 export default function BioScreen() {
   const { t, language } = useI18n();
   const router = useRouter();
@@ -205,7 +205,7 @@ export default function BioScreen() {
           logger.error('Erro inesperado', e);
           setToast({ visible: true, message: t('bio.saveCheckinError'), type: 'error' });
       }
-  }, [monthlyData, t, todayWeight, photos, photoNotes, resetCheckinForm, fetchMetrics]);
+  }, [monthlyData, t, todayWeight, photos, photoNotes, resetCheckinForm, fetchMetrics, setToast]);
 
   const { status } = resolveScreenState({
     isLoading: isLoading && !refreshing && metrics.length === 0,

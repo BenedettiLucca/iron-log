@@ -9,10 +9,9 @@ import { Button } from '../../../components/Button';
 import { DatePicker } from '../../../components/DatePicker';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
+import { useToast } from '../../../hooks/use-toast';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
-
-import { useToast } from '../../../hooks/use-toast';
 export default function CreateProgramScreen() {
   const router = useRouter();
   const { t, language } = useI18n();
@@ -97,7 +96,7 @@ export default function CreateProgramScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t, validate]);
+  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t, validate, setToast]);
 
   return (
     <View className="flex-1 bg-background">

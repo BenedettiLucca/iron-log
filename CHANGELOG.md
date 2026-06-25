@@ -2,6 +2,29 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.13.0] - 2026-06-24
+
+### Changed
+- **Ponytail audit batch applied** — 4-sprint cleanup release across dead code purge, YAGNI removal, and utility consolidation
+- **Type model hardening** — Manual DB entity interfaces replaced with Drizzle `$inferSelect` where appropriate, reducing schema drift risk
+- **Shared screen state hooks** — `useToast()` and `useConfirmDialog()` extracted to replace repeated local state across multiple screens
+- **Shared utility consolidation** — ISO week/date helpers, RiR color logic, session summary calculation, haptics dispatch, and logger implementation standardized
+
+### Fixed
+- **Supplement adherence accuracy** — `getWeeklyAdherence()` now respects supplement frequency instead of assuming a 7-day denominator
+- **Monthly check-in validation** — Empty fields no longer coerce to `0` in `monthlyCheckinSchema`
+- **Input localization leak** — Removed hardcoded Portuguese success label (`✓ Válido`) from `Input.tsx`
+- **Docs drift** — README/PT-EN-ES-ZH docs, about screen, CLAUDE.md, and GEMINI.md synced to current architecture and test counts
+
+### Removed
+- **Dead code and wrappers** — Unused hook/wrapper files removed, duplicate helpers collapsed, and stale props/branches deleted
+- **Unused dependencies** — Removed `@react-navigation/bottom-tabs`, `@react-navigation/elements`, `react-dom`, and `react-native-web`
+
+### Tests
+- 385 passing (29 suites), 0 failures
+
+---
+
 ## [3.12.0] - 2026-05-25
 
 ### Changed

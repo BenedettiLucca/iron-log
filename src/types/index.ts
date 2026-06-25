@@ -3,6 +3,8 @@
  * Derived from src/db/schema.ts
  */
 
+import type { sessions, sets, exercises, routines, routineExercises, bodyMetrics, userSettings, notificationSettings, measurementGoals, personalRecords, supplements, supplementLogs, programs, programWeeks, programExerciseTargets } from '@/src/db/schema';
+
 // ---------------------------------------------------------------------------
 // Enums / Unions
 // ---------------------------------------------------------------------------
@@ -19,8 +21,6 @@ export type SupplementFrequency = 'daily' | 'training_days' | 'rest_days';
 // ---------------------------------------------------------------------------
 // Inferred DB Types (Drizzle)
 // ---------------------------------------------------------------------------
-
-import type { sessions, sets, exercises, routines, routineExercises, bodyMetrics, userSettings, notificationSettings, measurementGoals, personalRecords, supplements, supplementLogs, programs, programWeeks, programExerciseTargets } from '@/src/db/schema';
 
 export type Session = typeof sessions.$inferSelect;
 export type Set = typeof sets.$inferSelect;

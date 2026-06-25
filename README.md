@@ -4,7 +4,7 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão:** 3.12.0 · **Expo SDK:** 54 · **Testes:** 372 passando
+**Versão:** 3.13.0 · **Expo SDK:** 54 · **Testes:** 385 passando
 
 ---
 
@@ -160,7 +160,7 @@ iron-log/
 │       ├── exercise.tsx    # Execução do exercício
 │       ├── finish.tsx      # Finalizar treino (sRPE, peso, notas)
 │       └── summary.tsx     # Resumo + export CSV individual
-├── components/             # 20 componentes de UI reutilizáveis
+├── components/             # 22 componentes de UI reutilizáveis
 ├── hooks/                  # Hooks de domínio
 ├── services/               # Serviços de negócio
 ├── src/
@@ -169,7 +169,7 @@ iron-log/
 │   ├── utils/              # Funções puras
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # Sistema de tradução (pt/en/es/zh)
-├── __tests__/              # 17 suites, 300 testes
+├── __tests__/              # 29 suites, 385 testes
 ├── constants/              # Cores e tipografia
 └── drizzle/                # Migrações SQL
 ```

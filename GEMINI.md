@@ -7,7 +7,7 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **Name:** Iron Log
 *   **Description:** A local-first, friction-free workout and bio-tracking application. Focuses on speed of entry, offline capability, and visual progress tracking.
 *   **Platform:** React Native (Expo SDK 54) targeting Android and iOS.
-*   **Current State:** v3.12.0.
+*   **Current State:** v3.13.0.
 *   **Primary Language:** TypeScript.
 
 ## 2. Technology Stack
@@ -39,10 +39,10 @@ This file provides context and instructions for the Gemini AI agent working on t
 *   **`src/utils/`**: Pure utility functions (exercise, timer, warmup, calculations). Export via `src/utils/index.ts`.
 *   **`drizzle/`**: SQL Migration files.
 *   **`components/`**: Reusable polished UI components.
-*   **`hooks/`**: Domain hooks (routines, sessions, session-exercise, body-metrics) + utility hooks (haptics, notifications, color-scheme). All export via `hooks/index.ts`.
+*   **`hooks/`**: Domain hooks (routines, sessions, body-metrics, programs, supplements), session hooks (`use-exercise-sets`, `use-session-timer`, `use-session-undo`, `use-session-persistence`, `use-progression`), plus the `checkPersonalRecords()` helper in `use-personal-records.ts`, and utility hooks (`use-haptics`, `use-notifications`, `use-toast`, `use-confirm-dialog`). Core domain/session hooks export via `hooks/index.ts`; utility hooks are imported directly where needed.
     *   `use-programs.ts`: Program CRUD, active program state, dashboard data.
     *   `use-supplements.ts`: Supplement checklist, streaks, adherence tracking.
-*   **`services/`**: Business logic services (AnalyticsService, CsvExportService, AlexandriaExportService, DatabaseBackupService, NotificationService, logger). All export via `services/index.ts`.
+*   **`services/`**: Business logic services (AnalyticsService, CsvExportService, AlexandriaExportService, DatabaseBackupService, NotionExportService, NotificationService, ProgramService, crash-reporting, logger). Public service barrel exports live in `services/index.ts`.
     *   `NotionExportService.ts`: Notion Markdown export for sessions and weekly reports.
     *   `ProgramService.ts`: Program CRUD, double progression, dashboard data.
 *   **`assets/`**: Images and static resources.
@@ -82,7 +82,7 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 
 ### Linting & Testing
 *   **Lint:** `npm run lint`
-*   **Tests:** `npx jest` (17 suites, 300 tests)
+*   **Tests:** `npx jest` (29 suites, 385 tests)
 
 ## 5. Coding Conventions & Guidelines
 

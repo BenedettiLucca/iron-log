@@ -12,6 +12,7 @@ import { Card } from '../../../components/Card';
 import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../../src/i18n/index';
+import { useToast } from '../../../hooks/use-toast';
 
 type SelectedExercise = {
   id: number;
@@ -20,8 +21,6 @@ type SelectedExercise = {
   notes?: string;
   restSeconds?: number;
 };
-
-import { useToast } from '../../../hooks/use-toast';
 
 export default function RoutineEditorScreen() {
   const { t } = useI18n();
@@ -69,7 +68,7 @@ export default function RoutineEditorScreen() {
     } catch {
       setToast({ visible: true, message: t('routines.loadError'), type: 'error' });
     }
-  }, [id, t]);
+  }, [id, t, setToast]);
 
   useEffect(() => {
     if (isEditing) {
