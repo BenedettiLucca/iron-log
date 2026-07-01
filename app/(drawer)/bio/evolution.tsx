@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Image, useWindowDimensions } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '../../../src/db/client';
@@ -15,6 +15,13 @@ import { BodyMetric } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
 import { resolveScreenState } from '../../../src/utils/screen-state';
+import {
+  CHART_END_SPACING,
+  CHART_INITIAL_SPACING,
+  MIN_CHART_POINT_SPACING,
+  getChartViewportWidth,
+  getScrollableChartWidth,
+} from '../../../src/utils/chart-layout';
 
 // Helper to find the best matching photo pair (same pose preferred)
 const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
@@ -36,6 +43,7 @@ const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
 
 export default function EvolutionScreen() {
   const { t, language } = useI18n();
+  const { width: screenWidth } = useWindowDimensions();
   const [weightData, setWeightData] = useState<any[]>([]);
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
@@ -147,24 +155,38 @@ export default function EvolutionScreen() {
           </Card>
       );
 
+      const viewportWidth = getChartViewportWidth(screenWidth);
+      const chartWidth = getScrollableChartWidth(data.length, viewportWidth);
+      const hasOverflow = chartWidth > viewportWidth;
+
       return (
         <Card style={{ marginBottom: 24 }}>
             <Text className="text-text font-bold mb-6 uppercase text-xs tracking-widest">{title}</Text>
-            <LineChart 
-                data={data} 
-                color={color} 
-                thickness={3}
-                dataPointsColor={color}
-                textColor={Colors.blue300}
-                hideRules
-                yAxisColor="transparent"
-                xAxisColor="transparent"
-                height={180}
-                width={Dimensions.get('window').width - 80}
-                initialSpacing={20}
-                spacing={40}
-                textFontSize={10}
-            />
+            <ScrollView
+              horizontal
+              nestedScrollEnabled
+              bounces={false}
+              showsHorizontalScrollIndicator={hasOverflow}
+              contentContainerStyle={{ minWidth: viewportWidth }}
+            >
+              <LineChart
+                  data={data}
+                  color={color}
+                  thickness={3}
+                  dataPointsColor={color}
+                  textColor={Colors.blue300}
+                  hideRules
+                  yAxisColor="transparent"
+                  xAxisColor="transparent"
+                  height={180}
+                  width={chartWidth}
+                  disableScroll
+                  initialSpacing={CHART_INITIAL_SPACING}
+                  endSpacing={CHART_END_SPACING}
+                  spacing={MIN_CHART_POINT_SPACING}
+                  textFontSize={10}
+              />
+            </ScrollView>
         </Card>
       );
   };
@@ -202,7 +224,7 @@ export default function EvolutionScreen() {
           ))}
       </View>
 
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView className="flex-1 px-4" nestedScrollEnabled contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
               <>
                 <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverage")}</Text>

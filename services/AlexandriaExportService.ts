@@ -2,6 +2,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { db } from '@/src/db/client';
 import { sessions, sets, bodyMetrics, personalRecords, measurementGoals, exercises } from '@/src/db/schema';
+import { formatEpochDate as sharedFormatEpochDate } from '@/src/utils/date-utils';
 import { desc, asc, isNull, eq } from 'drizzle-orm';
 
 /**
@@ -93,9 +94,7 @@ export function formatEpochISO(epoch: number | null): string | null {
   return new Date(epoch).toISOString();
 }
 
-import { formatEpochDate } from '@/src/utils/date-utils';
-export { formatEpochDate };
-
+export const formatEpochDate = sharedFormatEpochDate;
 
 export function computeWorkoutType(
   exerciseTypes: string[]
