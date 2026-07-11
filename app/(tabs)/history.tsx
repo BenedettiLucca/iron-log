@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, useColorScheme } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useRouter } from 'expo-router';
 import { db } from '../../src/db/client';
@@ -13,6 +13,7 @@ import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { useI18n } from '../../src/i18n/index';
 import { toLocalDateKey } from '@/src/utils/date-key';
+import { SectionHeader } from '@/components/SectionHeader';
 
 // Configuração de Locale multilíngue
 const localeConfigs = {
@@ -168,19 +169,25 @@ export default function HistoryScreen() {
     setDaySessions(enriched);
   }, [allSessions]);
 
+  const colorScheme = useColorScheme();
+  const cardBg = colorScheme === 'dark' ? Colors.darkCard : Colors.lightCard;
+  const textPrimary = colorScheme === 'dark' ? Colors.darkText : Colors.lightText;
+  const textMuted = colorScheme === 'dark' ? Colors.darkSubtext : Colors.lightSubtext;
+  const borderBg = colorScheme === 'dark' ? Colors.darkBorder : Colors.lightBorder;
+
   const calendarTheme = {
-    backgroundColor: Colors.darkCard,
-    calendarBackground: Colors.darkCard,
-    textSectionTitleColor: Colors.darkSubtext,
+    backgroundColor: cardBg,
+    calendarBackground: cardBg,
+    textSectionTitleColor: textMuted,
     selectedDayBackgroundColor: Colors.primary,
     selectedDayTextColor: Colors.white,
     todayTextColor: Colors.primary,
-    dayTextColor: Colors.darkText,
-    textDisabledColor: Colors.darkSubtext,
+    dayTextColor: textPrimary,
+    textDisabledColor: textMuted,
     dotColor: Colors.primary,
     selectedDotColor: Colors.white,
     arrowColor: Colors.primary,
-    monthTextColor: Colors.darkText,
+    monthTextColor: textPrimary,
     indicatorColor: Colors.primary,
     textDayFontWeight: '600' as const,
     textMonthFontWeight: '900' as const,
@@ -195,7 +202,7 @@ export default function HistoryScreen() {
         justifyContent: 'space-between' as const,
         paddingHorizontal: 10,
         borderTopWidth: 1,
-        borderTopColor: Colors.darkBorder,
+        borderTopColor: borderBg,
         paddingTop: 10,
       }
     }
@@ -225,22 +232,25 @@ export default function HistoryScreen() {
       </View>
 
       <View className="px-4 pt-4">
-        <Text className="text-subtext font-black uppercase text-xs mb-3 tracking-widest pl-1">
-          {selectedDate ? `${t('history.workoutsOn')} ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
-        </Text>
+        <SectionHeader
+          label={selectedDate ? `${t('history.workoutsOn')} ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
+          className="mb-3"
+        />
       </View>
     </View>
   );
 
   const renderEmpty = () => (
-    <View className="justify-center items-center mt-10 opacity-50">
-      <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
-      <Text className="text-subtext font-bold text-center">
-        {!selectedDate ? t('history.selectDay') : t('history.noWorkouts')}
-      </Text>
-      <Text className="text-subtext text-xs text-center">
-        {!selectedDate ? t('history.selectDayPrompt') : t('history.noWorkoutsDesc')}
-      </Text>
+    <View className="p-4">
+      <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
+        <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
+        <Text className="text-subtext font-bold text-center">
+          {!selectedDate ? t('history.selectDay') : t('history.noWorkouts')}
+        </Text>
+        <Text className="text-subtext text-xs text-center mt-1">
+          {!selectedDate ? t('history.selectDayPrompt') : t('history.noWorkoutsDesc')}
+        </Text>
+      </View>
     </View>
   );
 
@@ -269,8 +279,8 @@ export default function HistoryScreen() {
             <Card>
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
-                  <Text className="text-text font-black text-lg mb-1 tracking-tight">{item.routineName}</Text>
-                  <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">
+                  <Text className="text-lg font-extrabold text-text tracking-tight mb-1">{item.routineName}</Text>
+                  <Text className="text-xs font-bold uppercase tracking-wider text-subtext mb-2">
                     {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} {t('session.series')}
                   </Text>
                   {item.exerciseNames.length > 0 && (

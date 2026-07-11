@@ -16,9 +16,10 @@ import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useI18n } from '../../src/i18n/index';
 import { buildSessionStartRoute } from '../../src/utils/session-start';
-
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
+import { SectionHeader } from '@/components/SectionHeader';
+import Svg, { Path } from 'react-native-svg';
 export default function RoutinesListScreen() {
   const router = useRouter();
   const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
@@ -148,33 +149,38 @@ export default function RoutinesListScreen() {
     <View className="flex-1 bg-background">
       <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
-          <Button
-            title={`📅 ${t('programs.title')}`}
+          <TouchableOpacity
             onPress={() => router.push('/programs')}
-            size="sm"
-            variant="secondary"
-            style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
-          />
-          <Button
-            title={`💾 ${t('routines.tabTemplates')}`}
+            activeOpacity={0.7}
+            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+          >
+            <Text className="text-subtext text-sm font-semibold">{t('programs.title')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => router.push('/routines/templates')}
-            size="sm"
-            variant="secondary"
-            style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
-          />
+            activeOpacity={0.7}
+            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+          >
+            <Text className="text-subtext text-sm font-semibold">{t('routines.tabTemplates')}</Text>
+          </TouchableOpacity>
           {folders.map(folder => {
             const displayFolder = folder === 'Todos' ? t('routines.tabAll')
               : folder === 'Geral' ? t('routines.tabGeneral')
               : folder;
+            const isActive = selectedFolder === folder;
             return (
-            <Button
-              key={folder}
-              title={displayFolder}
-              onPress={() => setSelectedFolder(folder)}
-              size="sm"
-              variant={selectedFolder === folder ? 'primary' : 'ghost'}
-              style={{ borderRadius: 9999, borderWidth: 1, borderColor: selectedFolder === folder ? 'transparent' : 'rgba(156, 163, 175, 0.2)' }}
-            />
+              <TouchableOpacity
+                key={folder}
+                onPress={() => setSelectedFolder(folder)}
+                activeOpacity={0.7}
+                className={`rounded-full py-1.5 px-3.5 border ${
+                  isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
+                }`}
+              >
+                <Text className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-subtext'}`}>
+                  {displayFolder}
+                </Text>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -194,14 +200,16 @@ export default function RoutinesListScreen() {
         }
         ListHeaderComponent={
             isLoading ? null : (
-            <Card className="mb-6 bg-card/50">
-                <Text className="text-primary font-bold mb-2 text-xs uppercase tracking-widest">{t('routines.jsonImportHint')}</Text>
+            <Card contentPadding={false} className="mb-6" style={{ backgroundColor: 'rgba(224,122,95,0.03)' }}>
+              <View className="p-3 gap-2">
+                <SectionHeader label={t('routines.jsonImportHint')} />
                 <Text className="text-subtext text-xs leading-5" numberOfLines={3}>
                     {t('routines.jsonFormatHint')}{"\n"}
                     <Text className="font-mono text-xs text-text">
                         {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}
                     </Text>
                 </Text>
+              </View>
             </Card>
             )
         }
@@ -223,12 +231,12 @@ export default function RoutinesListScreen() {
             >
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1 mr-4">
-                  <View className="flex-row items-center gap-2 mb-1">
+                  <View className="flex-row items-center gap-2 mb-1 flex-wrap">
                     <Text className="text-text text-lg font-bold">{item.name}</Text>
                     {item.folder && item.folder !== 'Geral' && (
-                      <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded-full border border-border">
-                          {item.folder}
-                      </Text>
+                      <View className="bg-background px-2.5 py-0.5 rounded-full border border-border">
+                        <Text className="text-2xs text-subtext font-semibold">{item.folder}</Text>
+                      </View>
                     )}
                   </View>
                   <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
@@ -245,11 +253,13 @@ export default function RoutinesListScreen() {
                   className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >
                   <Text className="text-success text-xs font-bold uppercase">{t("routines.start")}</Text>
-                  <Text className="text-success text-sm">▶</Text>
+                  <Svg width="10" height="10" viewBox="0 0 24 24">
+                    <Path d="M8 5v14l11-7z" fill={Colors.success} />
+                  </Svg>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-            <View className="flex-row gap-2 border-t border-border pt-3 mt-2">
+            <View className="flex-row gap-2 border-t border-border/50 pt-3 mt-2">
               <Button 
                 title={t("routines.duplicate")}
                 onPress={() => handleDuplicate(item.id, item.name)}

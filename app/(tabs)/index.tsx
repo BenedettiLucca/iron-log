@@ -17,8 +17,9 @@ import { useSessions } from '@/hooks/use-sessions';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
-
 import { useToast } from '../../hooks/use-toast';
+import { SectionHeader } from '@/components/SectionHeader';
+import Svg, { Path, Polyline } from 'react-native-svg';
 export default function HomeScreen() {
   const { t, language } = useI18n();
   const router = useRouter();
@@ -168,18 +169,29 @@ export default function HomeScreen() {
         {/* Incomplete Session Banner */}
         {incompleteSession && (
           <View className="mt-4">
+            <SectionHeader label={t("home.activeWorkout")} className="mb-2" />
             <TouchableOpacity
               onPress={handleResumeSession}
               activeOpacity={0.8}
             >
-              <Card className="bg-primary/5 border-2 border-primary/20">
+              <Card className="bg-primary/8 border border-primary/20">
                 <View className="flex-row justify-between items-center">
-                  <View className="flex-1">
-                    <Text className="text-primary font-bold text-sm uppercase tracking-wider mb-1">{t("home.activeWorkout")}</Text>
-                    <Text className="text-text text-lg font-bold">{incompleteSession.routineName}</Text>
-                    <Text className="text-subtext text-xs mt-0.5">
-                      {incompleteSession.exerciseName} • {t("home.tapToContinue")}
-                    </Text>
+                  <View className="flex-1 flex-row items-center gap-3">
+                    <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
+                      <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                        <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                        <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                        <Path d="M17 8h-1v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                        <Path d="M9 12h6" />
+                      </Svg>
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-text text-lg font-bold">{incompleteSession.routineName}</Text>
+                      <Text className="text-subtext text-xs mt-0.5">
+                        {incompleteSession.exerciseName} • {t("home.tapToContinue")}
+                      </Text>
+                    </View>
                   </View>
                   <View className="bg-primary px-3 py-2 rounded-lg">
                     <Text className="text-white font-bold text-sm uppercase">{t("home.continue")}</Text>
@@ -202,70 +214,85 @@ export default function HomeScreen() {
 
           return (
             <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
+              <SectionHeader label={t('programs.active')} className="mb-2" />
               <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
                 <Card className={isDeloadWeek ? 'bg-green-500/10 border border-green-500/30' : isNearDeload ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-primary/5 border border-primary/20'}>
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1 mr-3">
-                      <View className="flex-row items-center gap-2 mb-1">
-                        <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t('programs.active')}</Text>
-                        <Text className="text-subtext text-xs">•</Text>
-                        <Text className="text-subtext text-xs font-medium">
-                          {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
+                  <View className="flex-row justify-between items-center mb-3">
+                    <View className="flex-1 mr-2">
+                      <Text className="text-text font-bold text-lg mb-0.5">{activeProgram.name}</Text>
+                      <Text className="text-subtext text-xs font-medium">
+                        {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      <View className="bg-success/15 px-2.5 py-1 rounded-full">
+                        <Text className="text-success text-xs font-semibold capitalize">
+                          {isDeloadWeek ? t('programs.phases.deload') : t(`programs.phases.${phase}`)}
                         </Text>
                       </View>
-                      <Text className="text-text font-bold text-lg mb-3">{activeProgram.name}</Text>
-
-                      {/* Dashboard Stats */}
-                      <View className="flex-row items-center justify-between mb-3">
-                        <View className="flex-1 mr-6">
-                          <View className="flex-row justify-between mb-1">
-                            <Text className="text-subtext text-2xs font-bold uppercase">{t('programs.dashboard.volume')}</Text>
-                            <Text className="text-text text-2xs font-bold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
-                          </View>
-                          <ProgressBar
-                            current={weeklyVolume}
-                            total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
-
-                          />
-                          <Text className="text-subtext text-2xs mt-1">
-                            {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
-                          </Text>
-                        </View>
-                        <View className="items-end">
-                          <Text className="text-subtext text-2xs font-bold uppercase">{t('programs.dashboard.avgSRPE')}</Text>
-                          <Text className="text-text text-base font-bold">{avgSRPE ?? '-'}</Text>
-                        </View>
-                      </View>
-
-                      {isDeloadWeek ? (
-                        <Text className="text-green-500 text-xs font-medium">{t('programs.deloadNow')}</Text>
-                      ) : isNearDeload && weeksUntilDeload !== null ? (
-                        <Text className="text-yellow-600 text-xs font-medium">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
-                      ) : (
-                        <Text className="text-subtext text-xs">{t(`programs.phases.${phase}`)}</Text>
-                      )}
-                    </View>
-                    <View className="w-8 h-8 bg-primary/10 rounded-full justify-center items-center flex-shrink-0">
-                      <Text className="text-primary text-lg">{'>'}</Text>
+                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <Polyline points="9 18 15 12 9 6" />
+                      </Svg>
                     </View>
                   </View>
+
+                  {/* Stats Row */}
+                  <View className="flex-row gap-3 mb-3">
+                    <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center">
+                      <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.volume')}</Text>
+                      <Text className="text-text text-base font-extrabold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
+                      <Text className="text-subtext text-3xs mt-0.5">
+                        {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
+                      </Text>
+                    </View>
+                    <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center justify-center">
+                      <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.avgSRPE')}</Text>
+                      <Text className="text-text text-base font-extrabold">{avgSRPE ?? '-'}</Text>
+                    </View>
+                  </View>
+
+                  {/* Progress Row */}
+                  <View className="mt-1">
+                    <ProgressBar
+                      current={weeklyVolume}
+                      total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
+                    />
+                  </View>
+
+                  {isDeloadWeek ? (
+                    <Text className="text-green-500 text-xs font-semibold mt-2">{t('programs.deloadNow')}</Text>
+                  ) : isNearDeload && weeksUntilDeload !== null ? (
+                    <Text className="text-yellow-600 text-xs font-semibold mt-2">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
+                  ) : null}
                 </Card>
               </TouchableOpacity>
 
               {/* Key Lifts Dashboard */}
               {keyLifts.length > 0 && (
                 <View className="mt-3 px-1">
-                  <Text className="text-subtext text-2xs font-bold uppercase tracking-widest mb-2">{t('programs.dashboard.keyLifts')}</Text>
+                  <SectionHeader label={t('programs.dashboard.keyLifts')} className="mb-2" />
                   <View className="flex-row flex-wrap gap-2">
-                    {keyLifts.slice(0, 3).map((lift) => (
-                      <View key={lift.exerciseId} className="bg-card border border-border rounded-xl px-3 py-2 flex-1 min-w-[30%]">
-                        <Text className="text-text text-xs font-bold" numberOfLines={1}>{lift.name}</Text>
-                        <View className="flex-row items-center justify-between mt-0.5">
-                          <Text className="text-subtext text-2xs">{lift.currentWeight}kg</Text>
-                          <Text className="text-xs">{t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}</Text>
+                    {keyLifts.slice(0, 3).map((lift) => {
+                      const getTrendColor = (trend: string) => {
+                        if (trend === 'up') return 'text-success';
+                        if (trend === 'down') return 'text-danger';
+                        return 'text-subtext';
+                      };
+                      return (
+                        <View key={lift.exerciseId} className="bg-card border border-border rounded-xl p-3 flex-1 min-w-[30%]">
+                          <Text className="text-xs font-bold text-subtext uppercase mb-1" numberOfLines={1}>{lift.name}</Text>
+                          <View className="flex-row items-baseline justify-between">
+                            <Text className="text-lg font-extrabold text-text">
+                              {lift.currentWeight}
+                              <Text className="text-xs text-subtext font-medium"> kg</Text>
+                            </Text>
+                            <Text className={`text-2xs font-semibold ${getTrendColor(lift.trend)}`}>
+                              {t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}
+                            </Text>
+                          </View>
                         </View>
-                      </View>
-                    ))}
+                      );
+                    })}
                   </View>
                 </View>
               )}
@@ -275,7 +302,7 @@ export default function HomeScreen() {
 
         <View className={`mt-4 ${incompleteSession ? 'mb-4' : 'mb-8'}`}>
           <View className="flex-row justify-between items-center mb-2 px-1">
-              <Text className="text-subtext text-xs font-bold uppercase tracking-widest">{t("home.lastSession")}</Text>
+              <SectionHeader label={t("home.lastSession")} />
               <TouchableOpacity onPress={() => router.push('/history')}>
                   <Text className="text-secondary text-xs font-bold uppercase tracking-wider">{t("home.viewCalendar")}</Text>
               </TouchableOpacity>
@@ -293,9 +320,9 @@ export default function HomeScreen() {
                               {new Date(lastSession.startTime).toLocaleDateString(getLocaleForLanguage(language))} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
                           </Text>
                       </View>
-                      <View className="bg-primary/10 w-10 h-10 rounded-full justify-center items-center flex-shrink-0">
-                          <Text className="text-primary text-xl">{'>'}</Text>
-                      </View>
+                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <Polyline points="9 18 15 12 9 6" />
+                      </Svg>
                   </View>
               </Card>
           ) : (
@@ -307,7 +334,7 @@ export default function HomeScreen() {
         </View>
 
         <View className="flex-row justify-between items-end mb-3 px-1">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest">{t("home.availableRoutines")}</Text>
+          <SectionHeader label={t("home.availableRoutines")} />
           <TouchableOpacity onPress={() => router.push('/routines')}>
             <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t("home.manage")}</Text>
           </TouchableOpacity>
@@ -334,9 +361,9 @@ export default function HomeScreen() {
                     <Text className="text-text text-xl font-bold mb-1">{routine.name}</Text>
                     <Text className="text-subtext text-sm" numberOfLines={1}>{routine.description}</Text>
                   </View>
-                  <View className="w-10 h-10 bg-primary rounded-full justify-center items-center shadow-sm">
-                    <Text className="text-white font-bold text-xl">{'>'}</Text>
-                  </View>
+                  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Polyline points="9 18 15 12 9 6" />
+                  </Svg>
                 </View>
               </Card>
             ))
