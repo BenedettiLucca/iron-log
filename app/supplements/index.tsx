@@ -17,8 +17,48 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
+import Svg, { Path, Polyline, Line } from 'react-native-svg';
+import { SectionHeader } from '@/components/SectionHeader';
+import { SegmentedControl } from '@/components/SegmentedControl';
+const MoonIcon = ({ color }: { color: string }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </Svg>
+);
+
+const CheckIcon = ({ color }: { color: string }) => (
+  <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <Polyline points="20 6 9 17 4 12" />
+  </Svg>
+);
+
+const FlameIcon = ({ color }: { color: string }) => (
+  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+  </Svg>
+);
+
+const PlusIcon = ({ color = Colors.white }: { color?: string }) => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <Line x1="12" y1="5" x2="12" y2="19" />
+    <Line x1="5" y1="12" x2="19" y2="12" />
+  </Svg>
+);
+
 export default function SupplementsScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const listLabel = useMemo(() => {
+    switch (language) {
+      case 'pt':
+        return 'Seus Suplementos';
+      case 'es':
+        return 'Sus Suplementos';
+      case 'zh':
+        return '您的补充剂';
+      default:
+        return 'Your Supplements';
+    }
+  }, [language]);
   const {
     items,
     todayLogs,
@@ -200,16 +240,14 @@ export default function SupplementsScreen() {
         {items.length > 0 && (
           <Card className="mb-4">
             <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-primary font-bold text-xs uppercase tracking-widest">
-                {t('supplements.todayProgress')}
-              </Text>
+              <SectionHeader label={t('supplements.todayProgress')} />
               <Text className="text-subtext text-xs font-bold">
                 {t('supplements.completedCount', { taken: todayLogs.length, total: items.length })}
               </Text>
             </View>
-            <View className="h-2 bg-border rounded-full overflow-hidden">
+            <View className="h-2 bg-primary/5 rounded-full overflow-hidden">
               <View 
-                className="h-full bg-primary" 
+                className="h-full bg-primary rounded-full"
                 style={{ width: `${todayProgress}%` }} 
               />
             </View>
@@ -228,6 +266,7 @@ export default function SupplementsScreen() {
           </View>
         ) : (
           <View className="gap-3">
+            <SectionHeader label={listLabel} className="mb-1" />
             {items.map((item) => {
               const taken = isTaken(item.id);
               const statusLabel = taken ? t('supplements.taken') : t('supplements.notTaken');
@@ -251,27 +290,34 @@ export default function SupplementsScreen() {
                       accessibilityHint={taken ? t('supplements.toggleTakenHint') : t('supplements.togglePendingHint')}
                       hapticType="selection"
                     >
-                      <Text className="text-2xl mr-3">{item.emoji || '💊'}</Text>
+                      <View className="w-10 h-10 rounded-full bg-primary/8 justify-center items-center mr-3">
+                        <Text className="text-xl">{item.emoji || '💊'}</Text>
+                      </View>
+
                       <View className="flex-1">
                         <View className="flex-row items-center">
-                          <Text className={`text-lg font-bold ${taken ? 'text-subtext line-through opacity-60' : 'text-text'}`}>
+                          <Text className={`text-base font-bold ${taken ? 'text-subtext line-through opacity-60' : 'text-text'}`}>
                             {item.name}
                           </Text>
-                          {item.isNighttime && <Text className="ml-2 text-xs">🌙</Text>}
+                          {item.isNighttime && (
+                            <View className="ml-2">
+                              <MoonIcon color={Colors.secondary} />
+                            </View>
+                          )}
                         </View>
-                        <Text className="text-subtext text-xs">
+                        <Text className="text-xs text-subtext mt-0.5">
                           {item.dosage} • {item.timing}
                         </Text>
                       </View>
 
-                      <View className="items-end gap-1 ml-2">
+                      <View className="items-end gap-1.5 ml-2">
                         <View className={`w-7 h-7 rounded-full border-2 items-center justify-center ${taken ? 'bg-primary border-primary' : 'border-border'}`}>
-                          {taken && <Text className="text-white text-xs font-bold">✓</Text>}
+                          {taken && <CheckIcon color={Colors.white} />}
                         </View>
                         {streaks[item.id] > 0 && (
-                          <View className="flex-row items-center">
-                            <Text className="text-xs">🔥</Text>
-                            <Text className="text-primary font-bold text-xs ml-0.5">{streaks[item.id]}</Text>
+                          <View className="flex-row items-center bg-primary/8 rounded-full px-2 py-0.5 gap-1">
+                            <FlameIcon color={Colors.primary} />
+                            <Text className="text-primary font-bold text-xs">{streaks[item.id]}</Text>
                           </View>
                         )}
                       </View>
@@ -299,17 +345,17 @@ export default function SupplementsScreen() {
       <TouchableOpacity
         onPress={openAddModal}
         className="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/30"
+        accessibilityRole="button"
+        accessibilityLabel={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')}
       >
-        <Text className="text-white text-3xl font-light">+</Text>
+        <PlusIcon />
       </TouchableOpacity>
 
       {/* Add/Edit Modal */}
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
         <View className="flex-1 bg-background">
           <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
-            <Text className="text-text text-xl font-bold uppercase tracking-widest">
-              {editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')}
-            </Text>
+            <SectionHeader label={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')} />
             <Button 
               title={t('common.close')} 
               onPress={() => setModalVisible(false)} 
@@ -356,19 +402,15 @@ export default function SupplementsScreen() {
               <Text className="text-subtext font-bold uppercase text-2xs mb-2 tracking-widest ml-1">
                 {t('supplements.frequency')}
               </Text>
-              <View className="flex-row bg-card rounded-xl p-1 border border-border">
-                {(['daily', 'training_days', 'rest_days'] as SupplementFrequency[]).map((f) => (
-                  <TouchableOpacity
-                    key={f}
-                    onPress={() => setFrequency(f)}
-                    className={`flex-1 py-2 items-center rounded-lg ${frequency === f ? 'bg-primary' : ''}`}
-                  >
-                    <Text className={`text-2xs font-bold uppercase ${frequency === f ? 'text-white' : 'text-subtext'}`}>
-                      {f === 'daily' ? t('supplements.daily') : f === 'training_days' ? t('supplements.trainingDays') : t('supplements.restDays')}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <SegmentedControl
+                segments={[
+                  { key: 'daily', label: t('supplements.daily') },
+                  { key: 'training_days', label: t('supplements.trainingDays') },
+                  { key: 'rest_days', label: t('supplements.restDays') },
+                ]}
+                activeKey={frequency}
+                onSelect={(key) => setFrequency(key as SupplementFrequency)}
+              />
             </View>
 
             <View className="flex-row items-center justify-between bg-card p-4 rounded-2xl border border-border">

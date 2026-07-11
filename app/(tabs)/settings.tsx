@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
@@ -15,8 +15,113 @@ import { useNotifications } from '@/hooks/use-notifications';
 import { useI18n } from '../../src/i18n/index';
 import { Colors } from '@/constants/colors';
 import { useToast } from '../../hooks/use-toast';
+import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
+import { SectionHeader } from '@/components/SectionHeader';
 
 WebBrowser.maybeCompleteAuthSession();
+
+const ChevronRight = () => (
+  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.lightSubtext} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+    <Polyline points="9 18 15 12 9 6" />
+  </Svg>
+);
+
+const DownloadIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <Polyline points="7 10 12 15 17 10" />
+    <Line x1="12" y1="15" x2="12" y2="3" />
+  </Svg>
+);
+
+const UploadIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <Polyline points="17 8 12 3 7 8" />
+    <Line x1="12" y1="3" x2="12" y2="15" />
+  </Svg>
+);
+
+const CloudIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+  </Svg>
+);
+
+const DriveIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M12 2L2 18h20L12 2z" />
+  </Svg>
+);
+
+const BellIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+    <Path d="M13.73 21a2 2 0 0 1-3.46 0" />
+  </Svg>
+);
+
+const InfoIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Circle cx="12" cy="12" r="10" />
+    <Line x1="12" y1="16" x2="12" y2="12" />
+    <Line x1="12" y1="8" x2="12.01" y2="8" />
+  </Svg>
+);
+
+const FileIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <Polyline points="14 2 14 8 20 8" />
+    <Line x1="16" y1="13" x2="8" y2="13" />
+    <Line x1="16" y1="17" x2="8" y2="17" />
+  </Svg>
+);
+
+const ExportIcon = ({ color }: { color: string }) => (
+  <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    <Polyline points="15 3 21 3 21 9" />
+    <Line x1="10" y1="14" x2="21" y2="3" />
+  </Svg>
+);
+
+const SuccessIcon = ({ color }: { color: string }) => (
+  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <Polyline points="20 6 9 17 4 12" />
+  </Svg>
+);
+
+interface RowButtonProps {
+  label: string;
+  onPress: () => void;
+  icon: React.ReactNode;
+  loading?: boolean;
+  disabled?: boolean;
+}
+
+function RowButton({ label, onPress, icon, loading = false, disabled = false }: RowButtonProps) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled || loading}
+      activeOpacity={0.7}
+      className="flex-row items-center justify-between bg-card rounded-xl p-3 border border-border"
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <View className="flex-row items-center gap-3">
+        {icon}
+        <Text className="text-text text-sm font-semibold">{label}</Text>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="small" color={Colors.primary} />
+      ) : (
+        <ChevronRight />
+      )}
+    </TouchableOpacity>
+  );
+}
 
 export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
@@ -163,7 +268,7 @@ export default function SettingsScreen() {
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("settings.checkinReminders")}</Text>
+          <SectionHeader label={t("settings.checkinReminders")} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-4 leading-5">
             {t("settings.reminderDescription")}
           </Text>
@@ -192,6 +297,7 @@ export default function SettingsScreen() {
               size="sm"
               loading={loading}
               fullWidth
+              icon={<BellIcon color={Colors.secondary} />}
             />
           )}
         </View>
@@ -199,26 +305,22 @@ export default function SettingsScreen() {
 
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("settings.localBackup")}</Text>
+          <SectionHeader label={t("settings.localBackup")} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.localBackupDesc')}</Text>
 
           <View className="gap-2">
-            <Button
-              title={t("settings.exportData")}
+            <RowButton
+              label={t("settings.exportData")}
               onPress={handleExport}
-              variant="secondary"
-              size="sm"
+              icon={<DownloadIcon color={Colors.primary} />}
               loading={loading}
-              fullWidth
             />
             
-            <Button
-              title={t("settings.importData")}
+            <RowButton
+              label={t("settings.importData")}
               onPress={handleImport}
-              variant="danger"
-              size="sm"
+              icon={<UploadIcon color={Colors.primary} />}
               loading={loading}
-              fullWidth
             />
           </View>
         </View>
@@ -226,30 +328,27 @@ export default function SettingsScreen() {
 
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("settings.cloudBackup")}</Text>
+          <SectionHeader label={t("settings.cloudBackup")} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.cloudBackupDesc')}</Text>
 
           {!accessToken ? (
-            <Button
-              title={t("settings.connectGoogle")}
+            <RowButton
+              label={t("settings.connectGoogle")}
               onPress={initiateGoogleAuth}
-              variant="primary"
-              size="sm"
-              fullWidth
+              icon={<DriveIcon color={Colors.primary} />}
               disabled={!request}
             />
           ) : (
             <View className="gap-2">
-              <View className="bg-success/10 p-2.5 rounded-xl border border-success/20">
-                <Text className="text-success text-center font-bold text-sm">{t("settings.connectedGoogle")}</Text>
+              <View className="flex-row items-center gap-3 bg-success/10 p-3 rounded-lg border border-success/20">
+                <SuccessIcon color={Colors.success} />
+                <Text className="text-success text-sm font-semibold">{t("settings.connectedGoogle")}</Text>
               </View>
-              <Button
-                title={t("settings.backupNow")}
+              <RowButton
+                label={t("settings.backupNow")}
                 onPress={handleCloudBackup}
-                variant="success"
-                size="sm"
+                icon={<CloudIcon color={Colors.primary} />}
                 loading={loading}
-                fullWidth
               />
             </View>
           )}
@@ -258,26 +357,32 @@ export default function SettingsScreen() {
 
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("settings.exportAlexandria")}</Text>
+          <SectionHeader label={t("settings.exportData")} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-4 leading-5">
-            {t("settings.alexandriaDesc")}
-            {t("settings.includesWorkouts")}
+            {t("settings.csvDesc")}
           </Text>
-          <Button
-            title={t("settings.exportAlexandriaJson")}
-            onPress={handleAlexandriaExport}
-            variant="primary"
-            size="sm"
-            loading={loading}
-            fullWidth
-          />
+
+          <View className="gap-2">
+            <RowButton
+              label={t("settings.exportCsvBtn")}
+              onPress={handleCsvExport}
+              icon={<FileIcon color={Colors.primary} />}
+              loading={loading}
+            />
+            <RowButton
+              label={t("settings.exportAlexandriaJson")}
+              onPress={handleAlexandriaExport}
+              icon={<ExportIcon color={Colors.primary} />}
+              loading={loading}
+            />
+          </View>
         </View>
       </Card>
 
       {/* Language Selector */}
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t('settings.language')}</Text>
+          <SectionHeader label={t('settings.language')} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-3 leading-5">
             {t('settings.languageDesc')}
           </Text>
@@ -286,10 +391,10 @@ export default function SettingsScreen() {
               <TouchableOpacity
                 key={lang}
                 onPress={() => setLanguage(lang)}
-                className={`px-3 py-2 rounded-lg border ${
+                className={`px-3 py-2 rounded-full border ${
                   language === lang
-                    ? 'bg-primary border-primary'
-                    : 'bg-background border-border'
+                    ? 'bg-primary border-transparent'
+                    : 'bg-card border-border'
                 }`}
               >
                 <Text
@@ -307,34 +412,14 @@ export default function SettingsScreen() {
 
       <Card contentPadding={false}>
         <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("drawer.about")}</Text>
+          <SectionHeader label={t("settings.about") !== "settings.about" ? t("settings.about") : t("drawer.about")} className="mb-1.5" />
           <Text className="text-subtext text-sm mb-4 leading-5">
             {t("about.philosophyText")}
           </Text>
-          <Button
-            title={t("common.view")}
+          <RowButton
+            label={t("common.view")}
             onPress={() => router.push('/about')}
-            variant="secondary"
-            size="sm"
-            fullWidth
-          />
-        </View>
-      </Card>
-
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <Text className="text-text font-bold text-base mb-1.5">{t("settings.exportCsv")}</Text>
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            {t("settings.csvDesc")}
-            {t("settings.includesHistory")}
-          </Text>
-          <Button
-            title={t("settings.exportCsvBtn")}
-            onPress={handleCsvExport}
-            variant="secondary"
-            size="sm"
-            loading={loading}
-            fullWidth
+            icon={<InfoIcon color={Colors.primary} />}
           />
         </View>
       </Card>
