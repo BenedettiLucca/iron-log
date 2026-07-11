@@ -14,6 +14,10 @@ import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
 import { SectionHeader } from '@/components/SectionHeader';
+import {
+  buildRoutineExerciseRows,
+  buildSaveAsTemplateValues,
+} from '@/src/utils/routine-template-integrity';
 
 type SelectedExercise = {
   id: number;
@@ -35,6 +39,7 @@ export default function RoutineEditorScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const { toast, setToast } = useToast();
 
 
@@ -77,46 +82,49 @@ export default function RoutineEditorScreen() {
     }
   }, [id, isEditing, loadRoutineData]);
 
-  const handleSave = async () => {
+  const validateForm = (): boolean => {
     const nameValidation = routineNameSchema.safeParse({ name, description });
     if (!nameValidation.success) {
       setToast({ visible: true, message: nameValidation.error.issues[0]?.message || t('common.invalidName'), type: 'error' });
-      return;
+      return false;
     }
     if (selectedExercises.length === 0) {
       setToast({ visible: true, message: t('common.addAtLeastOneExercise'), type: 'error' });
-      return;
+      return false;
     }
+    return true;
+  };
 
+  const handleSave = async () => {
+    if (isSaving) return;
+    if (!validateForm()) return;
+
+    setIsSaving(true);
     try {
       let routineId = Number(id);
 
-      if (isEditing) {
-        await db.update(routines)
-          .set({ name, description })
-          .where(eq(routines.id, routineId));
-        await db.delete(routineExercises).where(eq(routineExercises.routineId, routineId));
-      } else {
-        const res = await db.insert(routines).values({ name, description }).returning();
-        routineId = res[0].id;
-      }
+      await db.transaction(async (tx) => {
+        if (isEditing) {
+          await tx.update(routines)
+            .set({ name, description })
+            .where(eq(routines.id, routineId));
+          await tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId));
+        } else {
+          const res = await tx.insert(routines).values({ name, description }).returning();
+          routineId = res[0].id;
+        }
 
-      if (selectedExercises.length > 0) {
-        const rows = selectedExercises.map((ex, index) => ({
-          routineId,
-          exerciseId: ex.id,
-          orderIndex: index + 1,
-          target: ex.target,
-          notes: ex.notes,
-          restSeconds: ex.restSeconds
-        }));
-        await db.insert(routineExercises).values(rows);
-      }
+        await tx.insert(routineExercises).values(
+          buildRoutineExerciseRows(routineId, selectedExercises),
+        );
+      });
 
       router.back();
     } catch (e) {
       logger.error('Erro inesperado', e);
       setToast({ visible: true, message: t('routines.saveError'), type: 'error' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -140,22 +148,35 @@ export default function RoutineEditorScreen() {
   };
 
   const handleSaveAsTemplate = async () => {
+    if (isSaving) return;
+
     const routineId = Number(id);
     if (!id || isNaN(routineId)) {
       setToast({ visible: true, message: t('routines.saveFirstForTemplate'), type: 'error' });
       return;
     }
 
+    if (!validateForm()) return;
+
+    setIsSaving(true);
     try {
-      await db.update(routines)
-        .set({ isTemplate: true })
-        .where(eq(routines.id, routineId));
+      await db.transaction(async (tx) => {
+        await tx.update(routines)
+          .set(buildSaveAsTemplateValues(name, description))
+          .where(eq(routines.id, routineId));
+        await tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId));
+        await tx.insert(routineExercises).values(
+          buildRoutineExerciseRows(routineId, selectedExercises),
+        );
+      });
 
       setToast({ visible: true, message: t('routines.savedAsTemplate'), type: 'success' });
       router.back();
     } catch (e) {
       logger.error('Erro inesperado', e);
       setToast({ visible: true, message: t('routines.saveTemplateError'), type: 'error' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -266,6 +287,8 @@ export default function RoutineEditorScreen() {
           variant="primary"
           size="lg"
           fullWidth
+          loading={isSaving}
+          disabled={isSaving}
         />
         <Button 
           title={t("routines.saveAsTemplate")}
@@ -273,6 +296,8 @@ export default function RoutineEditorScreen() {
           variant="secondary"
           size="lg"
           fullWidth
+          loading={isSaving}
+          disabled={isSaving}
         />
       </View>
 

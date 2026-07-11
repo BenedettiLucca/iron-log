@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../src/i18n/index';
 import { db } from '../../src/db/client';
-import { routines, routineExercises } from '../../src/db/schema';
+import { routines, routineExercises, exercises } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
@@ -15,12 +15,26 @@ import { SectionHeader } from '@/components/SectionHeader';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
+import {
+  buildRoutineRowsFromTemplate,
+  mapTemplateExercise,
+  type TemplateExercise,
+} from '@/src/utils/routine-template-integrity';
+
+type Template = {
+  id: number;
+  name: string;
+  description: string;
+  exercises: TemplateExercise[];
+};
+
 export default function TemplateLibraryScreen() {
   const router = useRouter();
   const { t } = useI18n();
-  const [templates, setTemplates] = useState<{ id: number; name: string; description: string; exercises: { id: number; name: string; target: string; notes: string; restSeconds: number | null }[] }[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const { toast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     loadTemplates();
@@ -30,24 +44,25 @@ export default function TemplateLibraryScreen() {
     try {
       const routineData = await db.select().from(routines).where(eq(routines.isTemplate, true));
       
-      const templatesWithExercises: any[] = [];
+      const templatesWithExercises: Template[] = [];
 
       for (const routine of routineData) {
         try {
-          const exercisesData = await db.select()
+          const exercisesData = await db
+            .select({
+              exerciseId: exercises.id,
+              name: exercises.name,
+              target: routineExercises.target,
+              notes: routineExercises.notes,
+              restSeconds: routineExercises.restSeconds,
+              orderIndex: routineExercises.orderIndex,
+            })
             .from(routineExercises)
+            .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
             .where(eq(routineExercises.routineId, routine.id))
             .orderBy(routineExercises.orderIndex);
 
-          const exercisesList: any[] = exercisesData.map((ex: any) => {
-            return {
-              id: ex.exerciseId,
-              name: typeof ex.name === 'string' ? ex.name : '',
-              target: typeof ex.target === 'string' ? ex.target : '',
-              notes: typeof ex.notes === 'string' ? ex.notes : '',
-              restSeconds: typeof ex.restSeconds === 'number' ? ex.restSeconds : null,
-            };
-          }) || [];
+          const exercisesList = exercisesData.map(mapTemplateExercise);
 
           templatesWithExercises.push({
             id: routine.id,
@@ -66,33 +81,31 @@ export default function TemplateLibraryScreen() {
     }
   };
 
-  const handleLoadFromTemplate = async (template: any) => {
+  const handleLoadFromTemplate = async (template: Template) => {
+    if (isCreating) return;
+
+    setIsCreating(true);
     try {
-      const newRoutine = await db.insert(routines).values({
-        name: `${template.name} (Cópia)`,
-        description: template.description || '',
-        isTemplate: false,
-      }).returning();
+      await db.transaction(async (tx) => {
+        const newRoutine = await tx.insert(routines).values({
+          name: `${template.name} (Cópia)`,
+          description: template.description || '',
+          isTemplate: false,
+        }).returning();
 
-      const newRoutineId = newRoutine[0].id;
-
-      for (let i = 0; i < template.exercises.length; i++) {
-        const ex = template.exercises[i];
-        await db.insert(routineExercises).values({
-          routineId: newRoutineId,
-          exerciseId: ex.id,
-          orderIndex: i,
-          target: typeof ex.target === 'string' ? ex.target : null,
-          notes: typeof ex.notes === 'string' ? ex.notes : null,
-          restSeconds: typeof ex.restSeconds === 'number' ? ex.restSeconds : null,
-        });
-      }
+        const rows = buildRoutineRowsFromTemplate(newRoutine[0].id, template.exercises);
+        if (rows.length > 0) {
+          await tx.insert(routineExercises).values(rows);
+        }
+      });
 
       setToast({ visible: true, message: t('routines.templateLoadedWithExercises', { name: template.name, count: template.exercises.length }), type: 'success' });
       router.back();
     } catch (e) {
       logger.error('Error loading from template', e);
       setToast({ visible: true, message: t('routines.loadTemplateError'), type: 'error' });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -114,7 +127,7 @@ export default function TemplateLibraryScreen() {
     });
   };
 
-  const renderTemplateCard = ({ item }: { item: any }) => (
+  const renderTemplateCard = ({ item }: { item: Template }) => (
     <Card className="mx-4 mb-1">
       <View className="mb-3">
         <View className="flex-row justify-between items-start mb-1">
@@ -132,8 +145,8 @@ export default function TemplateLibraryScreen() {
       <View className="border-t border-border pt-3 mt-1 mb-4">
         <Text className="text-subtext text-2xs font-bold uppercase mb-2 tracking-wider">{t('routines.exercises')}:</Text>
         <View className="flex-row flex-wrap gap-1.5">
-          {item.exercises.slice(0, 4).map((ex: any) => (
-            <View key={ex.id} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
+          {item.exercises.slice(0, 4).map((ex) => (
+            <View key={ex.exerciseId} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
               <Text className="text-text text-xs font-medium">
                 {ex.name}{ex.target ? ` • ${ex.target}` : ''}
               </Text>
@@ -161,6 +174,8 @@ export default function TemplateLibraryScreen() {
           onPress={() => handleLoadFromTemplate(item)}
           variant="primary"
           size="sm"
+          loading={isCreating}
+          disabled={isCreating}
         />
       </View>
     </Card>
