@@ -56,7 +56,8 @@ Also required:
    - finish + summary;
    - modal/form keyboard behavior.
 7. Decide tablet support: design it or disable the promise.
-8. Decide Web support: implement and validate it, or remove the stale script/configuration.
+8. Decide Web support: QA-only for now. Dependencies are installed, but Metro currently aborts at 0% with no artifact; diagnose separately without blocking UX hardening.
+9. Resolve Expo Doctor baseline deliberately: duplicate `react-native-safe-area-context`, Sentry/Jest major mismatches and Expo SDK patch drift. Do not use a blanket force-upgrade.
 
 ### Acceptance
 
@@ -395,7 +396,8 @@ If Expo's supported dependency model expects the direct package, keep it. Ponyta
 - All master-audit gates checked.
 - No P0/P1 open.
 - P2 deferrals documented with owner/reason.
-- Typecheck, lint, tests, Expo doctor and Android build green.
+- Typecheck, lint, tests and Android build green.
+- Expo Doctor is either green or every remaining exception has an explicit owner/rationale. Current baseline: 16/18 due to duplicate `react-native-safe-area-context` and Expo SDK version drift.
 - Lucca approves screenshot board and critical-flow recordings.
 
 ---
@@ -437,14 +439,15 @@ Do not parallelize sprints that touch the same primitives. Antigravity can handl
 9. `refactor: remove dead and redundant code`
 10. `fix(ui): close final device QA findings`
 
-## First decision checkpoint
+## First decision checkpoint — locked
 
-Before Sprint 1 implementation, debate and lock:
+Lucca locked the product direction on 2026-07-11:
 
-1. system font vs actual custom display font;
-2. contrast strategy for terracotta primary;
-3. flat cards vs shadowed cards;
-4. tablet support vs disabling it temporarily;
-5. real Web support vs removing the stale web script/configuration.
+1. use the native system font; remove fake `font-display` usage rather than adding a custom typeface;
+2. replace pure-white light surfaces/foregrounds with cream; start visual validation with `#FFFCF2`;
+3. darken terracotta; initial AA-safe candidate is `#B9553F` against cream (4.61:1), subject to screenshot approval;
+4. retain shadows, but apply them through an intentional elevation hierarchy rather than making every surface equally elevated;
+5. tablet is out of scope; `supportsTablet` should be disabled;
+6. Web may be installed and used as a secondary QA baseline, but does not become a supported product target without a separate decision.
 
-Those are product decisions, not implementation details, and should not be delegated blindly to Antigravity.
+These are now implementation constraints for Antigravity. The exact terracotta candidate remains subject to visual comparison before rollout.

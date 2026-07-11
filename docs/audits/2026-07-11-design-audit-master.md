@@ -395,23 +395,13 @@ Run Home → Routine → Active Session → Exercise → Finish → Summary on:
 
 Use pairwise coverage for non-critical screens, but every screen must be seen in both themes and at least one non-PT language.
 
-### Tablet decision
+### Tablet decision — resolved
 
-`ios.supportsTablet` is true. Either:
+Tablet support is out of scope. `ios.supportsTablet` must remain disabled until a deliberate tablet experience is designed.
 
-1. validate a deliberate max-width/two-column tablet layout; or
-2. explicitly disable tablet support until designed.
+### Web support decision — QA-only for now
 
-Leaving phone UI stretched across tablet is not acceptable polish.
-
-### Web support decision
-
-`package.json` exposes `npm run web` and `app.json` contains a web configuration, but Expo fails immediately because `react-native-web` is absent. Either:
-
-1. support Web deliberately and install/validate the required Expo-compatible dependencies; or
-2. remove the stale web script/configuration and stop advertising an unsupported target.
-
-Do not add Web dependencies solely to generate screenshots for a mobile-only product.
+Web dependencies were installed as a QA prerequisite, but both `expo start --web` and `expo export --platform web` currently abort before the first module is bundled (0%, no artifact, no reported exception). Web is therefore **not yet a usable baseline**. This does **not** make Web a supported product target. Native-only behavior — safe areas, keyboard, SVG rendering, gestures, haptics and TalkBack — remains blocked until Android device validation.
 
 ---
 
