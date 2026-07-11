@@ -417,6 +417,7 @@ export const en = {
     description: 'Description',
     duration: 'Duration (s)',
     extraWeight: 'Extra Weight',
+    invalidRir: 'Invalid RIR (0-10)',
     repetitions: 'Repetitions',
     title: 'Edit Set',
   },

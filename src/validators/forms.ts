@@ -58,6 +58,108 @@ export const setInputSchema = z.object({
 
 export type SetInput = z.infer<typeof setInputSchema>;
 
+/** Raw string inputs from the SetEditor modal */
+export interface EditedSetRawInput {
+  weight: string;
+  reps?: string;
+  duration?: string;
+  rir?: string;
+  isDuration: boolean;
+}
+
+/** Field-level errors returned when validation fails */
+export interface EditedSetFieldErrors {
+  weight?: string;
+  reps?: string;
+  duration?: string;
+  rir?: string;
+}
+
+/** Success result from parseEditedSetInput */
+export interface EditedSetParsedOk {
+  ok: true;
+  weightKg: number;
+  reps?: number;
+  durationSeconds?: number;
+  rir?: number;
+}
+
+/** Failure result from parseEditedSetInput */
+export interface EditedSetParsedErr {
+  ok: false;
+  errors: EditedSetFieldErrors;
+  /** The first field that has an error, for focus management */
+  firstErrorField: keyof EditedSetFieldErrors;
+}
+
+export type ParseEditedSetResult = EditedSetParsedOk | EditedSetParsedErr;
+
+/**
+ * Validates and parses raw SetEditor inputs.
+ * Returns typed values on success or field-level errors on failure.
+ * Reuses setInputSchema to stay aligned with the DB write contract.
+ */
+export function parseEditedSetInput(input: EditedSetRawInput): ParseEditedSetResult {
+  const errors: EditedSetFieldErrors = {};
+
+  const weightKg = Number(input.weight);
+  if (!Number.isFinite(weightKg) || weightKg < 0) {
+    errors.weight = 'invalid';
+  }
+
+  if (input.isDuration) {
+    const durationSeconds = Number(input.duration ?? '');
+    if (!Number.isInteger(durationSeconds) || durationSeconds <= 0) {
+      errors.duration = 'invalid';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return { ok: false, errors, firstErrorField: (Object.keys(errors)[0] as keyof EditedSetFieldErrors) };
+    }
+
+    // Cross-validate with schema
+    const schema = setInputSchema.safeParse({ weightKg, reps: 0, durationSeconds });
+    if (!schema.success) {
+      const issue = schema.error.issues[0];
+      const field: keyof EditedSetFieldErrors = issue?.path[0] === 'durationSeconds' ? 'duration' : 'weight';
+      return { ok: false, errors: { [field]: 'invalid' }, firstErrorField: field };
+    }
+
+    return { ok: true, weightKg, durationSeconds };
+  } else {
+    const reps = Number(input.reps ?? '');
+    if (!Number.isInteger(reps) || reps <= 0) {
+      errors.reps = 'invalid';
+    }
+
+    // RIR: null/undefined means no-RIR; empty string = no-RIR; valid integer 0..10 is OK
+    let rir: number | undefined;
+    if (input.rir !== undefined && input.rir !== '') {
+      const rirParsed = Number(input.rir);
+      if (!Number.isInteger(rirParsed) || rirParsed < 0 || rirParsed > 10) {
+        errors.rir = 'invalid';
+      } else {
+        rir = rirParsed;
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return { ok: false, errors, firstErrorField: (Object.keys(errors)[0] as keyof EditedSetFieldErrors) };
+    }
+
+    // Cross-validate with schema
+    const schema = setInputSchema.safeParse({ weightKg, reps, rir: rir ?? null });
+    if (!schema.success) {
+      const issue = schema.error.issues[0];
+      const path = issue?.path[0];
+      const field: keyof EditedSetFieldErrors = path === 'reps' ? 'reps' : path === 'rir' ? 'rir' : 'weight';
+      return { ok: false, errors: { [field]: 'invalid' }, firstErrorField: field };
+    }
+
+    return { ok: true, weightKg, reps, rir };
+  }
+}
+
 // Goal input
 export const goalInputSchema = z.object({
   type: z.enum(['weight', 'waist', 'armRight', 'thighRight', 'chest', 'calf']),

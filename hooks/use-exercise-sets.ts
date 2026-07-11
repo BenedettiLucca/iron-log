@@ -16,6 +16,7 @@ import { useSessionUndo } from './use-session-undo';
 export interface RoutineExerciseListItem {
   id: number;
   name: string;
+  type: string;
   target: string | null;
   notes: string | null;
   restSeconds: number | null;
@@ -49,6 +50,9 @@ export function useExerciseSets({
   const [nextExercise, setNextExercise] = useState<RoutineExerciseListItem | null>(null);
   const [allExercises, setAllExercises] = useState<RoutineExerciseListItem[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
+
+  /** True once the user has manually edited any strength input field. */
+  const [isDirty, setIsDirty] = useState(false);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<{ sessionId: number; date: number; weight: number | null; reps: number | null; duration: number | null; rir: number | null }[]>([]);
@@ -119,6 +123,7 @@ export function useExerciseSets({
           .limit(1);
 
         if (lastSet.length > 0 && lastSet[0].weight) {
+          // Pre-fill from history: does NOT mark dirty
           setWeight(lastSet[0].weight.toString());
         }
       }
@@ -127,6 +132,7 @@ export function useExerciseSets({
         const routineList = await db.select({
           id: exercises.id,
           name: exercises.name,
+          type: exercises.type,
           target: routineExercises.target,
           notes: routineExercises.notes,
           restSeconds: routineExercises.restSeconds
@@ -181,8 +187,8 @@ export function useExerciseSets({
     loadHistory();
   }, [loadData, loadHistory]);
 
-  const handleSaveSet = useCallback(async (overrideDuration?: number) => {
-    if (isSaving) return;
+  const handleSaveSet = useCallback(async (overrideDuration?: number): Promise<boolean> => {
+    if (isSaving) return false;
 
     const isDuration = exerciseType === 'duration';
 
@@ -191,7 +197,7 @@ export function useExerciseSets({
 
     // Validate with Zod
     const setValidation = setInputSchema.safeParse({
-      weightKg: Number(weight) || 0,
+      weightKg: Number(weight),
       reps: isDuration ? 0 : finalReps,
       durationSeconds: isDuration ? finalDuration : null,
       rir: isDuration ? null : Number(rir),
@@ -200,20 +206,20 @@ export function useExerciseSets({
     if (!setValidation.success) {
       const msg = setValidation.error.issues[0]?.message || t('common.invalidData');
       setToast({ visible: true, message: msg, type: 'error' });
-      return;
+      return false;
     }
     // Extra business logic validation
     if (isDuration && finalDuration <= 0) {
       setToast({ visible: true, message: t('exercise.enterDuration'), type: 'error' });
-      return;
+      return false;
     }
     if (!isDuration && finalReps <= 0) {
       setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
-      return;
+      return false;
     }
     if (!isDuration && !weight) {
       setToast({ visible: true, message: t('exercise.enterWeight'), type: 'error' });
-      return;
+      return false;
     }
 
     setIsSaving(true);
@@ -263,6 +269,8 @@ export function useExerciseSets({
 
       setReps('');
       setDuration('');
+      // Clear dirty after successful save
+      setIsDirty(false);
 
       if (!isDuration) {
         const restTime = routineRest || 90;
@@ -270,9 +278,11 @@ export function useExerciseSets({
         setTimerStatus('running');
       }
 
+      return true;
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.saveSetError'), type: 'error' });
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -313,16 +323,17 @@ export function useExerciseSets({
     }
   }, [t]);
 
-  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number) => {
-    if (!editingSet) return;
+  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number): Promise<boolean> => {
+    if (!editingSet) return false;
     
     try {
       await db.update(sets)
         .set({
           weightKg: weight,
-          reps: reps || editingSet.reps,
-          durationSeconds: duration || editingSet.durationSeconds,
-          rir: rir || editingSet.rir,
+          // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
+          reps: reps ?? editingSet.reps,
+          durationSeconds: duration ?? editingSet.durationSeconds,
+          rir: rir ?? editingSet.rir,
           isEdited: true,
         })
         .where(eq(sets.id, editingSet.id));
@@ -331,13 +342,17 @@ export function useExerciseSets({
       setShowSetEditor(false);
       setEditingSet(null);
       setToast({ visible: true, message: t('exercise.setEdited'), type: 'success' });
+      return true;
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
+      return false;
     }
   }, [editingSet, loadData, t]);
 
   return {
+    isDirty,
+    setIsDirty,
     exerciseType,
     setExerciseType,
     currentName,

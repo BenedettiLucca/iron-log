@@ -417,6 +417,7 @@ export const zh = {
     description: '描述',
     duration: '时长 (秒)',
     extraWeight: '额外重量',
+    invalidRir: 'RIR 无效 (0-10)',
     repetitions: '次数',
     title: '编辑组',
   },

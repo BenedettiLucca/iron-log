@@ -417,6 +417,7 @@ export const es = {
     description: 'Descripción',
     duration: 'Duración (s)',
     extraWeight: 'Peso Extra',
+    invalidRir: 'RIR inválido (0-10)',
     repetitions: 'Repeticiones',
     title: 'Editar Serie',
   },

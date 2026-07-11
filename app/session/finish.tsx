@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
@@ -26,6 +27,7 @@ import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
+import { canActOnFinishStats } from '@/src/utils/session-trust';
 
 interface NoteTemplate {
   label: string;
@@ -75,12 +77,16 @@ export default function FinishSessionScreen() {
     prCount: 0,
   });
   const [isFinishing, setIsFinishing] = useState(false);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [statsLoadError, setStatsLoadError] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
     const loadData = async () => {
+      setIsStatsLoading(true);
+      setStatsLoadError(false);
       try {
         // Load last weight
         const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
@@ -103,7 +109,7 @@ export default function FinishSessionScreen() {
         // Get the session details
         const sessionDataResult = await db.select().from(sessions).where(eq(sessions.id, sessionIdNum));
         const session = sessionDataResult[0];
-        if (!session) return;
+        if (!session) throw new Error('Session not found');
 
         // Get all sets for this session
         const sessionSets = await db.select()
@@ -152,6 +158,9 @@ export default function FinishSessionScreen() {
 
       } catch (e) {
         logger.error('Erro ao carregar dados do finish', e);
+        setStatsLoadError(true);
+      } finally {
+        setIsStatsLoading(false);
       }
     };
     loadData();
@@ -172,7 +181,7 @@ export default function FinishSessionScreen() {
   }, []);
 
   const handleFinish = () => {
-    if (isFinishing) return;
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     if (sessionStats.totalSets === 0) {
       setShowDiscardDialog(true);
       return;
@@ -181,6 +190,7 @@ export default function FinishSessionScreen() {
   };
 
   const confirmDiscard = async () => {
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setShowDiscardDialog(false);
     setIsFinishing(true);
     try {
@@ -201,6 +211,7 @@ export default function FinishSessionScreen() {
   };
 
   const confirmFinish = async () => {
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setIsFinishing(true);
     setShowConfirmDialog(false);
 
@@ -263,36 +274,49 @@ export default function FinishSessionScreen() {
         <Text className="text-subtext mb-6">{t('finish.review')}</Text>
 
         {/* Session Statistics Header */}
-        <View className="flex-row flex-wrap gap-3 mb-6">
-          <StatTile
-            value={sessionStats.totalSets}
-            label={t('finish.sets')}
-            accentColor="primary"
-            className="flex-1 min-w-[45%]"
-          />
-          <StatTile
-            value={
-              sessionStats.totalVolume >= 1000
-                ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
-                : sessionStats.totalVolume
-            }
-            label={t('finish.volumeKg')}
-            accentColor="secondary"
-            className="flex-1 min-w-[45%]"
-          />
-          <StatTile
-            value={sessionStats.totalExercises}
-            label={t('routineDetail.exercises')}
-            accentColor="success"
-            className="flex-1 min-w-[45%]"
-          />
-          <StatTile
-            value={sessionStats.prCount}
-            label="PRs"
-            accentColor="warning"
-            className="flex-1 min-w-[45%]"
-          />
-        </View>
+        {isStatsLoading ? (
+          <View className="items-center justify-center py-10 mb-6" accessibilityRole="progressbar">
+            <ActivityIndicator color={Colors.primary} size="large" />
+            <Text className="text-subtext text-sm mt-3">{t('common.loading')}</Text>
+          </View>
+        ) : statsLoadError ? (
+          <Card className="mb-6 border-danger/30">
+            <Text className="text-danger text-sm font-semibold text-center">
+              {t('common.operationError')}
+            </Text>
+          </Card>
+        ) : (
+          <View className="flex-row flex-wrap gap-3 mb-6">
+            <StatTile
+              value={sessionStats.totalSets}
+              label={t('finish.sets')}
+              accentColor="primary"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={
+                sessionStats.totalVolume >= 1000
+                  ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
+                  : sessionStats.totalVolume
+              }
+              label={t('finish.volumeKg')}
+              accentColor="secondary"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={sessionStats.totalExercises}
+              label={t('routineDetail.exercises')}
+              accentColor="success"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={sessionStats.prCount}
+              label="PRs"
+              accentColor="warning"
+              className="flex-1 min-w-[45%]"
+            />
+          </View>
+        )}
 
         {/* Session Duration */}
         <Card className="mb-6 flex-row items-center justify-between">
@@ -444,15 +468,20 @@ export default function FinishSessionScreen() {
             variant="primary"
             size="lg"
             fullWidth
-            disabled={isFinishing}
+            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+            loading={isFinishing}
           />
           <Button
             title={t('finish.discardButton')}
-            onPress={() => setShowDiscardDialog(true)}
+            onPress={() => {
+              if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                setShowDiscardDialog(true);
+              }
+            }}
             variant="danger"
             size="md"
             fullWidth
-            disabled={isFinishing}
+            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
           />
         </View>
 

@@ -3,7 +3,25 @@ import { AppState } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface UseSessionPersistenceReturn {
-  saveSessionContext: () => void;
+  /** Awaitable: resolves after AsyncStorage write completes (or rejects on error). */
+  saveSessionContext: (overrides?: Partial<SessionContext>) => Promise<void>;
+}
+
+interface SessionContext {
+  sessionId: number;
+  exerciseId: number;
+  exerciseName: string;
+  routineId: number | null;
+  target?: string;
+  notes?: string;
+  restSeconds?: number | null;
+  startTime: number;
+  exerciseType: string;
+  weight: string;
+  reps: string;
+  duration: string;
+  rir: number;
+  isWarmupMode: boolean;
 }
 
 export function useSessionPersistence(opts: {
@@ -23,8 +41,8 @@ export function useSessionPersistence(opts: {
   notes?: string;
   restSeconds?: number | null;
 }): UseSessionPersistenceReturn {
-  const saveSessionContext = useCallback(() => {
-    const sessionContext = {
+  const saveSessionContext = useCallback(async (overrides: Partial<SessionContext> = {}): Promise<void> => {
+    const sessionContext: SessionContext = {
       sessionId: opts.sessionId,
       exerciseId: opts.exerciseId,
       exerciseName: opts.currentName,
@@ -40,8 +58,9 @@ export function useSessionPersistence(opts: {
       duration: opts.duration,
       rir: opts.rir,
       isWarmupMode: opts.isWarmupMode,
+      ...overrides,
     };
-    AsyncStorage.setItem('incomplete_session', JSON.stringify(sessionContext));
+    await AsyncStorage.setItem('incomplete_session', JSON.stringify(sessionContext));
   }, [opts]);
 
   useEffect(() => {

@@ -27,6 +27,10 @@ import { SetList } from '../../components/session/SetList';
 import { RestTimer } from '../../components/RestTimer';
 import { ExerciseHistoryModal } from '../../components/session/ExerciseHistoryModal';
 import { RirExplainerModal } from '../../components/session/RirExplainerModal';
+import {
+  canNavigateAfterPendingSave,
+  shouldSavePendingSet,
+} from '@/src/utils/session-trust';
 
 export default function ExerciseScreen() {
   const router = useRouter();
@@ -46,6 +50,8 @@ export default function ExerciseScreen() {
   const startTime = validated?.startTime ?? Date.now();
 
   const {
+    isDirty,
+    setIsDirty,
     exerciseType,
     currentName,
     weight,
@@ -109,7 +115,7 @@ export default function ExerciseScreen() {
   const { activeProgram, progressionStatus } = useProgression(exerciseId, exerciseName);
 
   // Persistence Hook
-  useSessionPersistence({
+  const { saveSessionContext } = useSessionPersistence({
     sessionId,
     exerciseId,
     routineId,
@@ -128,7 +134,34 @@ export default function ExerciseScreen() {
   });
 
   const goToNextOrFinish = useCallback(async () => {
+    if (isSaving || isActiveSetRunning) return;
+
+    const needsSave = shouldSavePendingSet({
+      isDirty,
+      exerciseType,
+      activeSetTime,
+      isActiveSetRunning,
+    });
+    const saveSucceeded = needsSave
+      ? await handleSaveSet(exerciseType === 'duration' ? activeSetTime : undefined)
+      : true;
+
+    if (!canNavigateAfterPendingSave(needsSave, saveSucceeded)) return;
+
     if (nextExercise) {
+      await saveSessionContext({
+        exerciseId: nextExercise.id,
+        exerciseName: nextExercise.name,
+        target: nextExercise.target ?? undefined,
+        notes: nextExercise.notes ?? undefined,
+        restSeconds: nextExercise.restSeconds,
+        exerciseType: nextExercise.type,
+        weight: '',
+        reps: '',
+        duration: '',
+        rir: 2,
+        isWarmupMode: false,
+      });
       router.replace({
         pathname: '/session/exercise',
         params: {
@@ -150,7 +183,20 @@ export default function ExerciseScreen() {
         params: { sessionId, startTime: startTime.toString() }
       });
     }
-  }, [nextExercise, sessionId, routineId, startTime, router]);
+  }, [
+    activeSetTime,
+    exerciseType,
+    handleSaveSet,
+    isActiveSetRunning,
+    isDirty,
+    isSaving,
+    nextExercise,
+    routineId,
+    router,
+    saveSessionContext,
+    sessionId,
+    startTime,
+  ]);
 
 
   const calculateTarget = useCallback(() => {
@@ -250,7 +296,10 @@ export default function ExerciseScreen() {
               <Text className="text-text font-bold text-xs">{t('exerciseSession.warmup')}</Text>
             </View>
             <TouchableOpacity
-              onPress={() => setIsWarmupMode(!isWarmupMode)}
+              onPress={() => {
+                setIsWarmupMode(!isWarmupMode);
+                setIsDirty(true);
+              }}
               className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
               {...a11y.warmupSwitch(isWarmupMode)}
             >
@@ -272,7 +321,10 @@ export default function ExerciseScreen() {
                     className="bg-background text-text p-2 rounded border border-border w-20 text-center"
                     keyboardType="numeric"
                     value={weight}
-                    onChangeText={setWeight}
+                    onChangeText={(value) => {
+                      setWeight(value);
+                      setIsDirty(true);
+                    }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
                   />
@@ -302,7 +354,10 @@ export default function ExerciseScreen() {
                 <View className="mt-4">
                   <Button
                     title={t("exercise.saveSet")}
-                    onPress={() => handleSaveSet(activeSetTime)}
+                    onPress={async () => {
+                      const saved = await handleSaveSet(activeSetTime);
+                      if (saved) setIsDirty(false);
+                    }}
                     variant="primary"
                     size="lg"
                     fullWidth
@@ -319,7 +374,10 @@ export default function ExerciseScreen() {
                     className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={weight}
-                    onChangeText={setWeight}
+                    onChangeText={(value) => {
+                      setWeight(value);
+                      setIsDirty(true);
+                    }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
                   />
@@ -331,7 +389,10 @@ export default function ExerciseScreen() {
                     className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={reps}
-                    onChangeText={setReps}
+                    onChangeText={(value) => {
+                      setReps(value);
+                      setIsDirty(true);
+                    }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
                   />
@@ -371,6 +432,7 @@ export default function ExerciseScreen() {
                   value={rir}
                   onValueChange={(value) => {
                     setRir(value);
+                    setIsDirty(true);
                     trigger('light');
                   }}
                   accessibilityLabel={t('exercise.rirSliderLabel')}
@@ -400,7 +462,10 @@ export default function ExerciseScreen() {
 
               <Button
                 title={isSaving ? t('exercise.saving') : t('exercise.saveBtn')}
-                onPress={() => handleSaveSet()}
+                onPress={async () => {
+                  const saved = await handleSaveSet();
+                  if (saved) setIsDirty(false);
+                }}
                 variant="primary"
                 size="md"
                 fullWidth
@@ -416,6 +481,7 @@ export default function ExerciseScreen() {
               variant="primary"
               size="lg"
               fullWidth
+              disabled={isSaving || isActiveSetRunning}
             />
           </View>
         </View>

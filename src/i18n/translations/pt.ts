@@ -439,6 +439,7 @@ export const pt = {
     title: 'Editar Série',
     description: 'Descrição',
     duration: 'Duração (s)',
+    invalidRir: 'RIR inválido (0-10)',
     repetitions: 'Repetições',
     extraWeight: 'Peso Extra',
   },
