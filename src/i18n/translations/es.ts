@@ -646,6 +646,17 @@ export const es = {
     galleryItemLabel: 'Check-in de {month}',
     galleryItemHint: 'Toca para comparar este mes con el check-in anterior.',
     galleryItemSelectedHint: 'Mes seleccionado para comparación.',
+    newCheckin: 'Nuevo Check-in',
+    progressPhotos: 'Fotos de Progreso',
+    bodyMeasurements: 'Medidas Corporales',
+    measurementsTab: 'Medidas',
+    photosTab: 'Fotos',
+    weight: 'Peso',
+    waist: 'Cintura',
+    chest: 'Pecho',
+    armRight: 'Brazo Der.',
+    thighRight: 'Muslo Der.',
+    calf: 'Pantorrilla',
   },
 
   photoComparison: {
@@ -767,9 +778,12 @@ export const es = {
     waist: 'Cintura (cm)',
     thighRight: 'Muslo Derecho (cm)',
     calf: 'Pantorrilla (cm)',
-    goalStatus: 'Meta: {target} • {days} días restantes',
+    goalStatus: 'Meta: {target} • {days} dias restantes',
     targetValue: 'Valor Objetivo',
     targetDate: 'Fecha Objetivo',
+    editGoal: 'Editar Meta',
+    remaining: 'Faltan',
+    completed: 'completado',
   },
 
   services: {

@@ -646,6 +646,17 @@ export const zh = {
     galleryItemLabel: '{month} 打卡',
     galleryItemHint: '点按即可将本月与上一次打卡进行比较。',
     galleryItemSelectedHint: '已选择用于比较的月份。',
+    newCheckin: '新签到',
+    progressPhotos: '对比照片',
+    bodyMeasurements: '身体测量',
+    measurementsTab: '尺寸',
+    photosTab: '照片',
+    weight: '体重',
+    waist: '腰围',
+    chest: '胸围',
+    armRight: '右臂围',
+    thighRight: '右大腿围',
+    calf: '小腿围',
   },
 
   photoComparison: {
@@ -770,6 +781,9 @@ export const zh = {
     goalStatus: '目标：{target} • 剩余 {days} 天',
     targetValue: '目标值',
     targetDate: '目标日期',
+    editGoal: '编辑目标',
+    remaining: '还差',
+    completed: '已完成',
   },
 
   services: {

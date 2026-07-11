@@ -677,6 +677,17 @@ export const pt = {
     galleryItemLabel: 'Check-in de {month}',
     galleryItemHint: 'Toque para comparar este mês com o check-in anterior.',
     galleryItemSelectedHint: 'Mês selecionado para comparação.',
+    newCheckin: 'Novo Check-in',
+    progressPhotos: 'Fotos de Progresso',
+    bodyMeasurements: 'Medidas Corporais',
+    measurementsTab: 'Medidas',
+    photosTab: 'Fotos',
+    weight: 'Peso',
+    waist: 'Cintura',
+    chest: 'Peito',
+    armRight: 'Braço Dir.',
+    thighRight: 'Coxa Dir.',
+    calf: 'Panturrilha',
   },
 
   photoComparison: {
@@ -801,6 +812,9 @@ export const pt = {
     goalStatus: 'Meta: {target} • {days} dias restantes',
     targetValue: 'Valor Alvo',
     targetDate: 'Data Alvo',
+    editGoal: 'Editar Meta',
+    remaining: 'Faltam',
+    completed: 'concluído',
   },
 
   services: {

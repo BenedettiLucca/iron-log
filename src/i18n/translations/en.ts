@@ -646,6 +646,17 @@ export const en = {
     galleryItemLabel: '{month} check-in',
     galleryItemHint: 'Tap to compare this month with the previous check-in.',
     galleryItemSelectedHint: 'Selected month for comparison.',
+    newCheckin: 'New Check-in',
+    progressPhotos: 'Progress Photos',
+    bodyMeasurements: 'Body Measurements',
+    measurementsTab: 'Measurements',
+    photosTab: 'Photos',
+    weight: 'Weight',
+    waist: 'Waist',
+    chest: 'Chest',
+    armRight: 'Right Arm',
+    thighRight: 'Right Thigh',
+    calf: 'Calf',
   },
 
   photoComparison: {
@@ -770,6 +781,9 @@ export const en = {
     goalStatus: 'Goal: {target} • {days} days remaining',
     targetValue: 'Target Value',
     targetDate: 'Target Date',
+    editGoal: 'Edit Goal',
+    remaining: 'Remaining',
+    completed: 'completed',
   },
 
   services: {
