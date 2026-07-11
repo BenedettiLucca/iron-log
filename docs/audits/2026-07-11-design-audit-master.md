@@ -31,7 +31,7 @@ The codebase remains functionally healthy: typecheck, lint and all 390 tests pas
 
 ### Not yet verified
 
-No Android device/emulator is connected. Expo Web cannot run because `react-native-web` is intentionally absent. Therefore the following remain mandatory device-validation items:
+No Android device/emulator is connected. Expo Web also cannot run: the project exposes a `web` script/configuration, but the required `react-native-web` dependency is absent. Therefore the following remain mandatory device-validation items:
 
 - pixel-level layout and clipping;
 - keyboard behavior;
@@ -403,6 +403,15 @@ Use pairwise coverage for non-critical screens, but every screen must be seen in
 2. explicitly disable tablet support until designed.
 
 Leaving phone UI stretched across tablet is not acceptable polish.
+
+### Web support decision
+
+`package.json` exposes `npm run web` and `app.json` contains a web configuration, but Expo fails immediately because `react-native-web` is absent. Either:
+
+1. support Web deliberately and install/validate the required Expo-compatible dependencies; or
+2. remove the stale web script/configuration and stop advertising an unsupported target.
+
+Do not add Web dependencies solely to generate screenshots for a mobile-only product.
 
 ---
 

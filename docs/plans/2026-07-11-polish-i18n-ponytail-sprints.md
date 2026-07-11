@@ -56,6 +56,7 @@ Also required:
    - finish + summary;
    - modal/form keyboard behavior.
 7. Decide tablet support: design it or disable the promise.
+8. Decide Web support: implement and validate it, or remove the stale script/configuration.
 
 ### Acceptance
 
@@ -443,6 +444,7 @@ Before Sprint 1 implementation, debate and lock:
 1. system font vs actual custom display font;
 2. contrast strategy for terracotta primary;
 3. flat cards vs shadowed cards;
-4. tablet support vs disabling it temporarily.
+4. tablet support vs disabling it temporarily;
+5. real Web support vs removing the stale web script/configuration.
 
 Those are product decisions, not implementation details, and should not be delegated blindly to Antigravity.
