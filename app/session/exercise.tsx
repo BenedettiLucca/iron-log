@@ -413,8 +413,8 @@ export default function ExerciseScreen() {
             <Button
               title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
               onPress={goToNextOrFinish}
-              variant={nextExercise ? 'secondary' : 'danger'}
-              size="md"
+              variant="primary"
+              size="lg"
               fullWidth
             />
           </View>

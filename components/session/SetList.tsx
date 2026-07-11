@@ -1,4 +1,5 @@
 import { View, Text, FlatList } from 'react-native';
+import { SectionHeader } from '@/components/SectionHeader';
 import SetCard from '../SetCard';
 import { Set } from '../../src/types';
 
@@ -19,9 +20,10 @@ export function SetList({
 }: SetListProps) {
   return (
     <View className="flex-1 px-4">
-      <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2 mt-2">
-        {t('exercise.registeredSetsCount', { count: sessionSets?.length || 0 })}
-      </Text>
+      <SectionHeader
+        label={t('exercise.registeredSetsCount', { count: sessionSets?.length || 0 })}
+        className="mb-2 mt-2"
+      />
       <FlatList
         data={sessionSets}
         keyExtractor={(item) => item.id.toString()}

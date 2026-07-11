@@ -6,6 +6,7 @@ import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '../src/i18n/index';
 import { getRirColor } from '@/src/utils/exercise';
 import { Colors } from '@/constants/colors';
+import Svg from 'react-native-svg';
 
 
 interface SetCardProps {
@@ -135,9 +136,10 @@ function SetCard({
           isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
         }`}
       >
-        <View className="mr-4 items-center justify-center w-12">
-          <Text className="text-subtext/50 font-black text-xs uppercase tracking-wider">{t("exercise.set")}</Text>
-          <Text className="text-text font-black text-xl leading-5">{setNumber}</Text>
+        <View className="mr-4 items-center justify-center">
+          <View className="w-8 h-8 rounded-full bg-primary items-center justify-center">
+            <Text className="text-white font-bold text-sm">{setNumber}</Text>
+          </View>
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
               <Text className="text-text text-2xs font-bold">PR</Text>
@@ -155,8 +157,6 @@ function SetCard({
           )}
         </View>
 
-        <View className="h-8 w-[1px] bg-border mr-4" />
-
         <View className="flex-1 flex-row items-baseline gap-1">
           <Text className="text-text text-2xl font-black tracking-tight">
             {weight > 0 ? weight : '-'}
@@ -173,7 +173,7 @@ function SetCard({
           </Text>
         </View>
 
-        <View className="ml-3">
+        <View className="ml-3 flex-row items-center gap-2">
           {rir !== null && rir !== undefined && (
             <View className={`px-2.5 py-1 rounded-lg border ${getRirColorClass(rir)}`}>
               <Text className={`text-xs font-bold uppercase ${getRirColorClass(rir).split(' ')[0]}`}>
@@ -181,6 +181,11 @@ function SetCard({
               </Text>
             </View>
           )}
+          <View className="w-8 h-8 rounded-full bg-success items-center justify-center">
+            <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </Svg>
+          </View>
         </View>
       </TouchableOpacity>
     </Animated.View>

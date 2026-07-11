@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
@@ -19,6 +19,10 @@ import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-star
 import { useI18n } from '../../src/i18n/index';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { resolveScreenState } from '../../src/utils/screen-state';
+import { SectionHeader } from '../../components/SectionHeader';
+import { Card } from '../../components/Card';
+import { Colors } from '../../constants/colors';
+import Svg from 'react-native-svg';
 
 export default function SessionScreen() {
   const { t } = useI18n();
@@ -204,20 +208,37 @@ export default function SessionScreen() {
     <View className="flex-1 bg-background">
       <Stack.Screen options={{
         headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
+        headerLeft: () => (
+          <Button
+            title=""
+            onPress={() => {
+              setShowExitDialog(true);
+            }}
+            variant="ghost"
+            icon={
+              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </Svg>
+            }
+            accessibilityLabel={t('common.exit')}
+          />
+        ),
         headerRight: () => (
           <Button
             title={t('session.end')}
             onPress={finishSession}
-            variant="danger"
+            variant="primary"
             size="sm"
+            style={{ borderRadius: 8 }}
             accessibilityLabel={a11y.endSession.accessibilityLabel}
           />
         ),
         }} />
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
-        <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">{t('session.activeWorkout')}</Text>
-        <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{sessionRoutineName}</Text>
+        <SectionHeader label={t('session.activeWorkout')} className="mb-1 pl-0" />
+        <Text className="text-text text-xl font-extrabold mb-3 tracking-tight" numberOfLines={2}>{sessionRoutineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
       </View>
@@ -288,6 +309,8 @@ export default function SessionScreen() {
           }
           if (pendingNavigation) {
             navigation.dispatch(pendingNavigation);
+          } else {
+            router.replace('/(tabs)');
           }
         }}
         onCancel={() => {
@@ -349,64 +372,75 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
 
   return (
     <Animated.View entering={FadeInLeft.delay(index * 100).springify()}>
-      <TouchableOpacity
+      <Card
+        pressable={true}
         onPress={onPress}
-        activeOpacity={0.7}
-        className={`p-5 rounded-2xl border flex-row justify-between items-center transition-all ${
+        variant={isActive ? 'default' : 'bordered'}
+        className={`transition-all ${
           isActive
-            ? 'bg-card border-primary shadow-md'
-            : 'bg-card border-border shadow-sm'
+            ? 'border-primary shadow-md'
+            : 'border-border shadow-sm'
         }`}
-        {...a11y.exerciseCard({
+        contentPadding={true}
+        accessibilityLabel={
+          a11y.exerciseCard({
             name: exercise.name,
             progress: progressLabel,
             status: statusLabel,
             isActive: isActive,
             isComplete: isComplete
-        })}
+          }).accessibilityLabel
+        }
+        accessibilityRole="button"
       >
-        <View className="flex-1">
-          <View className="flex-row items-center gap-2 mb-1">
-            <Text className={`flex-1 text-base font-black tracking-tight ${isActive ? 'text-text' : 'text-subtext'}`} numberOfLines={2}>
-              {exercise.name}
-            </Text>
-            {isActive && (
-              <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
-                <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
-                  {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
-                </Text>
+        <View className="flex-row justify-between items-center w-full">
+          <View className="flex-1">
+            <View className="flex-row items-center gap-2 mb-1">
+              <Text className="flex-1 text-base font-bold text-text" numberOfLines={2}>
+                {exercise.name}
+              </Text>
+              {isActive && (
+                <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
+                  <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
+                    {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {(exercise.target || exercise.notes) && (
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                {exercise.target && (
+                  <Text className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-bold">
+                    {exercise.target}
+                  </Text>
+                )}
+                {exercise.notes && (
+                  <Text className="text-subtext text-xs italic" numberOfLines={1}>
+                    📝 {exercise.notes}
+                  </Text>
+                )}
               </View>
             )}
+
+            <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
+              {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
+            </Text>
           </View>
 
-          {(exercise.target || exercise.notes) && (
-              <View className="mt-2 flex-row flex-wrap gap-2">
-                  {exercise.target && (
-                      <Text className="text-primary text-xs bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
-                          {t('session.goal')}: {exercise.target}
-                      </Text>
-                  )}
-                  {exercise.notes && (
-                      <Text className="text-subtext text-xs italic" numberOfLines={1}>
-                        📝 {exercise.notes}
-                      </Text>
-                  )}
-              </View>
-          )}
-
-          <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
-            {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
-          </Text>
-        </View>
-
-        {isComplete && (
           <View className="ml-4">
-              <View className="w-6 h-6 bg-success rounded-full border-[3px] border-white shadow-sm items-center justify-center">
-                <Text className="text-white text-2xs font-bold">✓</Text>
+            {isComplete ? (
+              <View className="w-6 h-6 bg-success/10 rounded-full items-center justify-center">
+                <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={Colors.success} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </Svg>
               </View>
+            ) : (
+              <View className="w-6 h-6 border border-border rounded-full" />
+            )}
           </View>
-        )}
-      </TouchableOpacity>
+        </View>
+      </Card>
     </Animated.View>
   );
 }
@@ -445,11 +479,12 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
 
   return (
     <View className="mt-4">
+      <SectionHeader label={`${completedCount} de ${totalCount} concluídos`} className="mb-2 pl-0" />
       <ProgressBar
         current={completedCount}
         total={totalCount}
         variant="header"
-        showLabel={true}
+        showLabel={false}
       />
     </View>
   );
