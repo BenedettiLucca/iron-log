@@ -5,12 +5,15 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useEffect, useState, useCallback } from 'react';
-import { Button } from '../../components/Button';
-import { Card } from '../../components/Card';
-import { Toast } from '../../components/Toast';
-import { NotionExportService } from '../../services/NotionExportService';
-import { useI18n } from '../../src/i18n/index';
+import { Button } from '@/components/Button';
+import { Card } from '@/components/Card';
+import { Toast } from '@/components/Toast';
+import { StatTile } from '@/components/StatTile';
+import { Colors } from '@/constants/colors';
+import { NotionExportService } from '@/services/NotionExportService';
+import { useI18n } from '@/src/i18n/index';
 import { logger } from '@/services/logger';
+import { formatDateShort, getWeekNumber } from '@/src/utils/date-utils';
 
 export default function WeeklyReportScreen() {
   const { t } = useI18n();
@@ -58,41 +61,67 @@ export default function WeeklyReportScreen() {
   if (loading) {
     return (
       <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color="#E07A5F" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(monday.getDate() + mondayOffset);
+
+  const sunday = new Date(monday);
+  sunday.setDate(sunday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+
+  const dateRange = `${formatDateShort(monday)} - ${formatDateShort(sunday)}`;
+  const weekNum = getWeekNumber(now);
+  const periodLabel = `${t('reports.md.week') || 'Semana'} ${weekNum}`;
+
+  const volumeDisplay = totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume;
+
   return (
     <View className="flex-1 bg-background">
-      <ScrollView contentContainerClassName="p-5">
+      <ScrollView contentContainerClassName="p-5 gap-4">
         {/* Header */}
-        <Text className="text-text text-2xl font-bold mb-4">{t('reports.title')}</Text>
+        <Text className="text-text text-2xl font-bold">{t('reports.title')}</Text>
 
-        {/* Summary Cards */}
+        {/* Period Banner */}
+        <Card
+          contentPadding={false}
+          className="overflow-hidden"
+          style={{ borderTopWidth: 3, borderTopColor: Colors.primary }}
+        >
+          <View className="p-3.5 flex-row justify-between items-center">
+            <View>
+              <Text className="text-2xs font-extrabold text-primary uppercase tracking-wider">{periodLabel}</Text>
+              <Text className="text-sm font-bold text-text mt-0.5">{dateRange}</Text>
+            </View>
+            {sessionCount > 0 && (
+              <View className="flex-row items-center gap-1.5 bg-success/10 px-2.5 py-1 rounded-full border border-success/15">
+                <View className="w-1.5 h-1.5 rounded-full bg-success" />
+                <Text className="text-2xs font-bold text-success">{t('reports.completed') || 'Concluído'}</Text>
+              </View>
+            )}
+          </View>
+        </Card>
+
+        {/* Stats Grid */}
         {sessionCount > 0 && (
-          <View className="flex-row flex-wrap gap-3 mb-5">
-            <Card className="flex-1 min-w-[45%] items-center py-5">
-              <Text className="text-text text-3xl font-bold">{sessionCount}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('reports.sessions')}</Text>
-            </Card>
-            <Card className="flex-1 min-w-[45%] items-center py-5">
-              <Text className="text-text text-3xl font-bold">
-                {totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume}
-              </Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('reports.volume')}</Text>
-            </Card>
-            <Card className="flex-1 min-w-[45%] items-center py-5">
-              <Text className="text-text text-3xl font-bold">{avgSRPE || '-'}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('reports.avgSrpe')}</Text>
-            </Card>
+          <View className="flex-row gap-2.5">
+            <StatTile value={sessionCount} label={t('reports.sessions')} accentColor="secondary" className="flex-1" />
+            <StatTile value={volumeDisplay} label={t('reports.volume')} accentColor="primary" className="flex-1" />
+            <StatTile value={avgSRPE || '—'} label={t('reports.avgSrpe')} accentColor="warning" className="flex-1" />
           </View>
         )}
 
         {/* Markdown Preview */}
-        <Card className="mb-5">
-          <Text className="text-text text-sm font-semibold mb-3">📄 {t('reports.summary')}</Text>
-          <View className="bg-background rounded-xl p-3 border border-border">
+        <Card>
+          <Text className="text-sm font-bold text-text mb-3">📄 {t('reports.summary')}</Text>
+          <View className="bg-primary/5 rounded-xl p-3 border border-border/50">
             <Text className="text-text text-xs leading-5 font-mono select-text">
               {markdown}
             </Text>
