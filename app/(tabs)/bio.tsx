@@ -23,6 +23,7 @@ import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
 import { InlineEmptyState } from '../../components/EmptyState';
 import { useToast } from '../../hooks/use-toast';
+import { SectionHeader } from '../../components/SectionHeader';
 
 type CheckinPhotos = {
   front: string | null;
@@ -238,82 +239,62 @@ export default function BioScreen() {
         }
       >
         {/* Card de Peso Diário */}
-        <Card>
-            <View className="flex-row items-center gap-4">
-                <View className="flex-1">
-                    <Input
-                        label={t('bio.registerWeight')}
-                        keyboardType="numeric"
-                        value={todayWeight}
-                        onChangeText={setTodayWeight}
-                        placeholder="00.0"
-                        returnKeyType="done"
-                        onSubmitEditing={saveDailyWeight}
-                    />
-                </View>
-                <View className="pt-6">
-                    <Button
-                        title={t("bio.save")}
-                        onPress={saveDailyWeight}
-                        size="sm"
-                    />
-                </View>
+        <Card contentPadding={false}>
+          <View className="p-3 gap-3">
+            <SectionHeader label={t('bio.registerWeight')} />
+            <View className="flex-row items-center gap-3">
+              <View className="flex-1">
+                <Input
+                  keyboardType="numeric"
+                  value={todayWeight}
+                  onChangeText={setTodayWeight}
+                  placeholder="00.0"
+                  returnKeyType="done"
+                  onSubmitEditing={saveDailyWeight}
+                />
+              </View>
+              <Button
+                title={t("bio.save")}
+                onPress={saveDailyWeight}
+                size="sm"
+              />
             </View>
+          </View>
         </Card>
 
         {/* Botões de Ação Rápida */}
-        <View className="flex-row gap-3 mb-2">
-            <Button
-                title={t("bioNav.goals")}
-                onPress={() => router.push('/bio/goals')}
-                variant="primary"
-                size="sm"
-                icon={<Text className="text-lg">🎯</Text>}
-                className="flex-1"
-            />
-            <Button
-                title={t("bioNav.evolution")}
-                onPress={() => router.push('/bio/evolution')}
-                variant="primary"
-                size="sm"
-                icon={<Text className="text-lg">📈</Text>}
-                className="flex-1"
-            />
-            <Button
-                title={t("bioNav.data")}
-                onPress={() => router.push('/bio/analytics')}
-                variant="primary"
-                size="sm"
-                icon={<Text className="text-lg">📊</Text>}
-                className="flex-1"
-            />
-        </View>
-        <View className="flex-row gap-3 mb-4">
-            <Button
-                title={t("drawer.supplements")}
-                onPress={() => router.push('/supplements')}
-                variant="primary"
-                size="sm"
-                icon={<Text className="text-lg">💊</Text>}
-                className="flex-1"
-            />
-            <Button
-                title={t("reports.title")}
-                onPress={() => router.push('/reports/weekly')}
-                variant="primary"
-                size="sm"
-                icon={<Text className="text-lg">📝</Text>}
-                className="flex-1"
-            />
+        <View className="flex-row flex-wrap gap-2 mb-2">
+          {[
+            { title: t("bioNav.goals"), route: '/bio/goals', icon: '🎯' },
+            { title: t("bioNav.evolution"), route: '/bio/evolution', icon: '📈' },
+            { title: t("bioNav.data"), route: '/bio/analytics', icon: '📊' },
+            { title: t("drawer.supplements"), route: '/supplements', icon: '💊' },
+            { title: t("reports.title"), route: '/reports/weekly', icon: '📝' }
+          ].map((item) => (
+            <TouchableOpacity
+              key={item.route}
+              onPress={() => router.push(item.route as any)}
+              className="flex-1 min-w-[30%] bg-card border border-border rounded-xl p-3 items-center active:opacity-75"
+              accessibilityRole="button"
+              accessibilityLabel={item.title}
+            >
+              <View className="w-9 h-9 rounded-full bg-primary/10 justify-center items-center mb-1">
+                <Text className="text-sm">{item.icon}</Text>
+              </View>
+              <Text className="text-2xs font-bold uppercase text-subtext text-center mt-1" numberOfLines={1}>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Check-in Mensal */}
         <Card>
             <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-primary font-bold text-xs uppercase tracking-widest">{t("bio.monthlyCheckin")}</Text>
+                <SectionHeader label={t("bio.monthlyCheckin")} />
                 <TouchableOpacity
                     onPress={() => setModalVisible(true)}
-                    className="bg-primary px-4 py-2 rounded-xl active:opacity-80"
+                    className="bg-primary px-3 py-1.5 rounded-lg active:opacity-80"
                 >
                     <Text className="text-white font-bold text-xs uppercase">{t("bio.open")}</Text>
                 </TouchableOpacity>
@@ -327,7 +308,7 @@ export default function BioScreen() {
                         const uri = latestMonthly ? latestMonthly[p] : undefined;
                         const labelKey = p === 'photoFront' ? 'bio.front' : p === 'photoBack' ? 'bio.back' : 'bio.side';
                         return (
-                            <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-lg border border-border overflow-hidden">
+                            <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-xl border border-border overflow-hidden">
                                 {uri ? (
                                     <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
@@ -349,13 +330,13 @@ export default function BioScreen() {
         {/* Galeria Recente (Último Monthly) */}
         {metrics.find(m => m.type === 'monthly') && (
             <Card>
-                <Text className="text-subtext font-bold uppercase text-xs mb-4 tracking-widest">{t("bio.recentPhotos")}</Text>
+                <SectionHeader label={t("bio.recentPhotos")} className="mb-4" />
                 <View className="flex-row justify-between">
                     {(['photoFront', 'photoBack', 'photoSide'] as const).map((p) => {
                         const latestMonthly = metrics.find(m => m.type === 'monthly' && m[p]);
                         const uri = latestMonthly ? latestMonthly[p] : undefined;
                         return (
-                            <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-lg border border-border overflow-hidden">
+                            <View key={p} className="w-[31%] aspect-[3/4] bg-background rounded-xl border border-border overflow-hidden">
                                 {uri ? (
                                     <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                                 ) : (
@@ -372,14 +353,14 @@ export default function BioScreen() {
 
         {/* Histórico Detalhado */}
         <View>
-            <Text className="text-subtext font-bold uppercase text-xs mb-3 tracking-widest pl-1">{t("bio.history")}</Text>
+            <SectionHeader label={t("bio.history")} className="mb-3" />
             <View className="gap-2 pb-8">
                 {metrics.length > 0 ? (
                   metrics.slice(0, 10).map((item) => (
-                      <View key={item.id} className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
+                      <View key={item.id} className="bg-card border border-border rounded-2xl p-3 flex-row justify-between items-center">
                           <View className="flex-row items-center gap-3">
                               <View className={`w-2 h-2 rounded-full ${item.type === 'monthly' ? 'bg-secondary' : 'bg-primary'}`} />
-                              <Text className="text-subtext text-xs font-mono font-medium">
+                              <Text className="font-mono text-xs text-subtext">
                                   {new Date(item.date).toLocaleDateString(getLocaleForLanguage(language))}
                               </Text>
                           </View>
@@ -388,7 +369,7 @@ export default function BioScreen() {
                               {item.type === 'monthly' && (
                                   <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
                               )}
-                              <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
+                              <Text className="text-text font-bold text-lg font-display">{item.weight}kg</Text>
                           </View>
                       </View>
                   ))

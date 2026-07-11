@@ -8,6 +8,8 @@ interface StatTileProps {
   accentColor?: 'primary' | 'secondary' | 'warning' | 'success';
   icon?: ReactNode;
   className?: string;
+  delta?: string;
+  deltaType?: 'positive' | 'negative' | 'neutral';
 }
 
 export function StatTile({
@@ -16,6 +18,8 @@ export function StatTile({
   accentColor,
   icon,
   className = '',
+  delta,
+  deltaType = 'neutral',
 }: StatTileProps) {
   const getAccentColorHex = () => {
     switch (accentColor) {
@@ -55,6 +59,13 @@ export function StatTile({
       <Text className="text-2xs font-bold uppercase text-subtext tracking-wider mt-0.5 text-center">
         {label}
       </Text>
+      {delta && (
+        <Text className={`text-2xs font-bold mt-1.5 ${
+          deltaType === 'positive' ? 'text-success' : deltaType === 'negative' ? 'text-danger' : 'text-subtext'
+        }`}>
+          {delta}
+        </Text>
+      )}
     </View>
   );
 }
