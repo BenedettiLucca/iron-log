@@ -1,0 +1,448 @@
+# Iron Log — Polish, i18n & Ponytail Execution Plan
+
+**Date:** 2026-07-11
+**Source audit:** `docs/audits/2026-07-11-design-audit-master.md`
+**Branch base:** `feat/open-design-redesign`
+
+## Operating model
+
+- **Antigravity:** bulk implementation within a tightly scoped sprint spec.
+- **Hermes:** prepares specs, reviews every diff, rejects slop/overengineering, fixes focused issues and runs verification.
+- **Lucca:** approves product-level decisions (palette foreground strategy, tablet support and any meaningful visual departure).
+- Every sprint ends with a real Android verification when device access is required.
+- Do not combine broad visual refactors with business-logic changes.
+
+## Quality gates shared by every sprint
+
+```bash
+npm run typecheck
+npm run lint
+npm test -- --runInBand
+npx expo-doctor
+```
+
+Also required:
+
+- `git diff --check` clean;
+- no new hardcoded user-facing strings;
+- no new undefined NativeWind utility;
+- visual before/after evidence for touched screens;
+- light/dark and at least one non-PT language;
+- no hook/service behavior changes unless explicitly scoped.
+
+---
+
+## Sprint 0 — Visual QA harness and baseline
+
+**Goal:** make visual quality measurable before changing more UI.
+
+### Scope
+
+1. Connect Android device or boot emulator.
+2. Create deterministic seed scenarios:
+   - fresh/empty;
+   - normal training history;
+   - active program;
+   - incomplete session;
+   - long names/descriptions;
+   - dense analytics/check-in history.
+3. Define screenshot routes and capture naming convention.
+4. Capture baseline at 360 and 390dp, light/dark, PT/EN.
+5. Add targeted captures for 320/430dp, ES/ZH, font scale 1.3/1.5.
+6. Record short videos for:
+   - bottom tabs;
+   - start/resume session;
+   - log set + rest timer;
+   - finish + summary;
+   - modal/form keyboard behavior.
+7. Decide tablet support: design it or disable the promise.
+
+### Acceptance
+
+- Every redesigned screen has baseline screenshots.
+- Critical flow has motion recordings.
+- Each later sprint can compare before/after with identical data.
+- No “looks fine on my phone” sign-off.
+
+### Dependency
+
+Requires a connected device/emulator. No broad visual refactor should precede the baseline; only targeted native-rendering fixes may be applied if they block capture.
+
+---
+
+## Sprint 0A — UX trust hardening
+
+**Goal:** eliminate silent data loss, false success and error-as-empty behavior before visual polish makes broken flows look trustworthy.
+
+### Scope
+
+1. Persist the complete current routine state before marking it as a template.
+2. Join exercise names when loading routine templates.
+3. Make SetEditor validation explicit; validate RIR, focus the first invalid field and never fire success haptic before success.
+4. Protect dirty set input when moving to the next exercise or finishing.
+5. Block finish/discard decisions until session stats finish loading.
+6. Give goals explicit validation, saving and persistence-error states.
+7. Make supplement hooks return/throw explicit outcomes; show success only after durable persistence and roll back failed toggles.
+8. Reject empty monthly check-ins unless at least one meaningful datum exists.
+9. Reject soft-deleted sessions in summary routes.
+10. Add confirmation or dedicated undo for set deletion.
+11. Separate loading/error/not-found/empty in History, Reports, Programs week detail, Routine detail, Analytics and Templates.
+12. Validate route params so missing routine/week IDs cannot spin forever or render partial emptiness.
+
+### Acceptance
+
+- A regression test reproduces and closes each defect.
+- No operation can show success after swallowed failure.
+- No dirty input can disappear without save or explicit discard.
+- Empty states only render after successful zero-result queries.
+- Loading blocks destructive/finalizing decisions that depend on loaded data.
+- Typecheck, lint and 390+ tests pass.
+
+### Execution
+
+Antigravity handles the bulk in small flow-specific commits. Hermes reviews persistence semantics, test quality and any hook/service changes before merge.
+
+---
+
+## Sprint 1 — Design-system correctness
+
+**Goal:** repair the foundation so screens stop fighting invalid tokens and contrast.
+
+### Scope
+
+1. Fix lowercase SVG primitives (`Line`, `Polyline`).
+2. Define contrast-safe semantic pairs per theme:
+   - `primary` / `onPrimary` / `primaryText` / `primarySurface`;
+   - same for success, danger, warning, secondary;
+   - stronger light-mode muted foreground.
+3. Decide header treatment in light mode.
+4. Remove/replace invalid classes:
+   - `text-3xs`;
+   - `font-display` unless a real font is chosen;
+   - `text-[10px]`;
+   - `/3`, `/8`, `/15` opacities;
+   - malformed classes such as `border purple-500/20`;
+   - default Tailwind palette colors inside product screens;
+   - web-only transition classes.
+5. Add static tests/check script for project utility conventions.
+6. Define typography, radius, elevation and spacing roles in one short design-system document.
+
+### Product decisions for Lucca
+
+- Keep system font (recommended) vs introduce a real display font.
+- Preserve terracotta fill and use dark `onPrimary` vs darken the primary fill for white text.
+- Flat-card direction (recommended) vs keeping shadows on every card.
+
+### Acceptance
+
+- All measured text/control combinations pass WCAG gates.
+- Zero invalid utility occurrences.
+- Light/dark headers and tabs have equivalent hierarchy.
+- No business logic touched.
+
+---
+
+## Sprint 2 — Core components and motion grammar
+
+**Goal:** make polish systemic instead of handcrafted per screen.
+
+### Scope
+
+1. `Button`
+   - sentence-case default;
+   - contrast-safe foregrounds;
+   - restrained press motion;
+   - haptic semantics by action;
+   - reduced-motion path.
+2. `Card`
+   - flat default;
+   - elevation only for interactive/floating variants;
+   - consistent pressed state;
+   - remove medium haptic from ordinary navigation cards.
+3. `Input` / `DatePicker`
+   - ≥44dp targets;
+   - consistent focus/error/disabled states;
+   - accessible error association;
+   - keyboard-safe behavior.
+4. `SegmentedControl`
+   - long-label strategy: scroll/wrap/adaptive layout;
+   - selected indicator motion;
+   - tab semantics.
+5. `ProgressBar`
+   - remove hardcoded Portuguese;
+   - expose accessibility value;
+   - reduced-motion path.
+6. `Skeleton`
+   - move animation lifecycle into effect;
+   - honor numeric and percentage widths used by callers;
+   - stop/unmount cleanly;
+   - static under Reduce Motion.
+7. `Dialog`, `Toast`, `RestTimer`
+   - real safe areas;
+   - focus/focus restoration;
+   - accessible announcements;
+   - shared modal/sheet motion timings.
+8. Document motion tokens and haptic mapping.
+
+### Acceptance
+
+- Component gallery/sample states reviewed in light/dark.
+- Reduce Motion disables continuous/entrance motion.
+- No hardcoded status-bar/bottom inset in shared overlays.
+- Components pass TalkBack smoke tests.
+
+---
+
+## Sprint 3 — Information hierarchy and surface cleanup
+
+**Goal:** remove card soup and visual shouting from reading-heavy screens.
+
+### Screens
+
+- Home
+- Programs list/detail/week detail
+- Routine detail
+- History
+- Settings
+- About/report
+
+### Scope
+
+1. Identify one visual anchor per screen.
+2. Flatten non-interactive nested cards into sections/dividers.
+3. Reduce badges to meaningful status only.
+4. Restrict uppercase to section eyebrows/status.
+5. Normalize title/body/caption hierarchy.
+6. Make user-created names two-line where needed.
+7. Simplify icon and chevron treatment.
+8. Ensure primary CTA wins without competing accents.
+9. Choose exactly one header strategy per route; remove native/custom header duplication and manual `pt-16` compensation.
+
+### Acceptance
+
+- At 2-second glance, context/primary information/CTA are obvious.
+- No generic card nested inside generic card.
+- Shadows indicate elevation, not decoration.
+- 320dp + 1.3 font scale passes PT/ES.
+
+---
+
+## Sprint 4 — Analytics, biometrics and dense-data polish
+
+**Goal:** make data screens useful rather than dashboard-like decoration.
+
+### Screens
+
+- Bio tab
+- Analytics
+- Evolution
+- Check-in
+- Goals
+
+### Scope
+
+1. Reduce tile/card density and competing accent colors.
+2. Standardize chart axes, labels, legends and empty states.
+3. Ensure graph color contrast in both themes.
+4. Separate headline metric, trend and supporting detail.
+5. Use icons/text in addition to positive/negative color.
+6. Fix three-column photo/metric layouts at narrow widths.
+7. Preserve null/insufficient-data honesty; no fake progress.
+8. Validate large/outlier values and long history.
+
+### Acceptance
+
+- Charts readable at 320dp without horizontal mystery scrolling unless intentionally signposted.
+- Every metric has clear unit/time window.
+- Positive/negative meaning survives grayscale/color-blind interpretation.
+- Empty and partial data states look intentional.
+
+---
+
+## Sprint 5 — Forms, keyboard and workout-critical UX
+
+**Goal:** optimize input and active workout flows for native, one-handed use.
+
+### Screens/components
+
+- Routine editor/templates
+- Program create
+- Supplements modal
+- Goals modal
+- Active session
+- Exercise logger
+- SetCard/SetEditor/SetList
+- Rest timer
+- Finish/summary
+
+### Scope
+
+1. Keyboard avoidance and scroll-to-focused/error across all forms.
+2. Replace absolute/hardcoded footers with inset-aware containers.
+3. Restore ≥44dp inputs/actions in routine editor.
+4. Prevent accidental dismissal with dirty state.
+5. Make swipe actions discoverable via visible alternative.
+6. Reduce SetCard badge overload.
+7. Animate only newly inserted/changed set, not replayed lists.
+8. Implement real animated warm-up toggle.
+9. Tune rest timer for arm's-length readability and one-hand reach.
+10. Validate interruption/recovery and session-loss dialogs visually.
+11. Expose slider/progress values to TalkBack.
+
+### Acceptance
+
+- Full workout completed one-handed without clipped controls.
+- Keyboard never obscures focused field or submit CTA.
+- 20-set session remains smooth.
+- Reduce Motion and TalkBack passes critical flow.
+- No session behavior/hook regression.
+
+---
+
+## Sprint 6 — i18n, content fit and accessibility completion
+
+**Goal:** all four languages are real product experiences, not key parity theater.
+
+### i18n scope
+
+1. Replace ZH pinyin placeholders with Chinese characters.
+2. Fix `summary.duration` (`市场` → `时长`).
+3. Fix ES accents and terminology consistency.
+4. Remove hardcoded PT/manual language branches.
+5. Remove `t(...) || 'Portuguese fallback'` where keys are guaranteed.
+6. Add translation-quality regression tests for known placeholder patterns.
+7. Test dynamic labels, pluralization, dates and units.
+
+### Accessibility scope
+
+1. Resolve 39 validated unlabeled/untyped touchable windows.
+2. Decorative SVGs hidden from accessibility tree.
+3. Correct roles/states for chips, toggles, expandable rows and progress.
+4. Modal focus trap/restoration and backdrop labels.
+5. TalkBack traversal order on tabs, forms and workout.
+6. Font scale 1.3 full pass; 1.5 critical flow.
+
+### Acceptance
+
+- 937/937 parity remains.
+- No pinyin placeholders or hardcoded runtime language switches.
+- Critical screens pass all four languages at 320dp.
+- All interactive controls have accessible name/role/state as applicable.
+
+---
+
+## Sprint 7 — Ponytail cleanup
+
+**Goal:** remove dead and ornamental complexity after the UI architecture stabilizes.
+
+### Zero-risk deletes
+
+- `constants/typography.ts`
+- `services/index.ts`
+- `hooks/index.ts`
+- `src/validators/index.ts`
+- `src/utils/index.ts`
+- `services/program/index.ts`
+
+### Validate then simplify
+
+- `src/utils/program-detail-state.ts`
+- `hooks/use-progression.ts`
+- `src/utils/calculations.ts`
+- `src/utils/session-verdict-markdown.ts`
+- repeated icons only where extraction is a net reduction.
+
+### Dependency check
+
+Test removal of direct `@react-navigation/bottom-tabs` with:
+
+- clean install;
+- Expo doctor;
+- typecheck/lint/tests;
+- native Android build;
+- tabs runtime smoke test.
+
+If Expo's supported dependency model expects the direct package, keep it. Ponytail is not an excuse to create hidden dependency fragility.
+
+### Acceptance
+
+- Net code reduction.
+- No abstraction introduced solely to appear “clean”.
+- Full behavior and native-build verification.
+
+---
+
+## Sprint 8 — Final visual QA and release hardening
+
+**Goal:** prove the polish rather than assert it.
+
+### Scope
+
+1. Re-run full screenshot and motion matrix.
+2. Compare against Sprint 0 baseline.
+3. Review every screen in light/dark.
+4. Critical flow in PT/EN/ES/ZH.
+5. 320/360/390/430dp + tablet decision.
+6. Font scale and Reduce Motion.
+7. TalkBack critical flow.
+8. Performance smoke: long lists, charts, 20-set workout.
+9. Fix only validated final polish defects; no new redesign ideas.
+10. Final Ponytail review of changed code.
+
+### Release acceptance
+
+- All master-audit gates checked.
+- No P0/P1 open.
+- P2 deferrals documented with owner/reason.
+- Typecheck, lint, tests, Expo doctor and Android build green.
+- Lucca approves screenshot board and critical-flow recordings.
+
+---
+
+## Recommended execution order
+
+```text
+Sprint 0   visual baseline
+   ↓
+Sprint 0A  UX trust hardening
+   ↓
+Sprint 1   tokens/contrast/native correctness
+   ↓
+Sprint 2   components/motion
+   ↓
+Sprint 3   reading screens ─┐
+Sprint 4   data screens    ├─ sequential preferred to keep review focused
+Sprint 5   forms/session   ┘
+   ↓
+Sprint 6   i18n/a11y/content fit
+   ↓
+Sprint 7   Ponytail
+   ↓
+Sprint 8   final device QA
+```
+
+Do not parallelize sprints that touch the same primitives. Antigravity can handle the bulk inside each sprint, but each sprint remains small enough for a human-quality diff review.
+
+## Suggested commit boundaries
+
+1. `fix(ux): prevent silent data loss and false-success states`
+2. `fix(ui): repair semantic contrast and invalid native styles`
+3. `refactor(ui): establish component and motion grammar`
+4. `style(ui): simplify primary screen hierarchy`
+5. `style(ui): polish analytics and biometrics`
+6. `style(ui): polish forms and workout flow`
+7. `fix(i18n): complete translations and responsive content`
+8. `refactor(a11y): complete accessible interaction semantics`
+9. `refactor: remove dead and redundant code`
+10. `fix(ui): close final device QA findings`
+
+## First decision checkpoint
+
+Before Sprint 1 implementation, debate and lock:
+
+1. system font vs actual custom display font;
+2. contrast strategy for terracotta primary;
+3. flat cards vs shadowed cards;
+4. tablet support vs disabling it temporarily.
+
+Those are product decisions, not implementation details, and should not be delegated blindly to Antigravity.
