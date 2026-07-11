@@ -1,14 +1,14 @@
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
-import { AnalyticsService } from '../../../services/AnalyticsService';
-import type { DashboardAnalytics } from '../../../services/AnalyticsService';
-import { Card } from '../../../components/Card';
-import { SkeletonList, SkeletonCard } from '../../../components/Skeleton';
-import { EmptyState } from '../../../components/EmptyState';
+import { AnalyticsService } from '../../services/AnalyticsService';
+import type { DashboardAnalytics } from '../../services/AnalyticsService';
+import { Card } from '../../components/Card';
+import { SkeletonList, SkeletonCard } from '../../components/Skeleton';
+import { EmptyState } from '../../components/EmptyState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
-import { useI18n } from '../../../src/i18n/index';
+import { useI18n } from '../../src/i18n/index';
 
 export default function AnalyticsScreen() {
   const { t } = useI18n();

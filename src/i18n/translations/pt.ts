@@ -12,6 +12,14 @@ export const pt = {
     supplements: 'Suplementos',
   },
 
+  tabs: {
+    home: 'Início',
+    routines: 'Treinos',
+    history: 'Histórico',
+    bio: 'Biometria',
+    settings: 'Ajustes',
+  },
+
   // Common
   common: {
     save: 'Salvar',

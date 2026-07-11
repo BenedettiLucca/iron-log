@@ -1,27 +1,27 @@
 import { View, Text, ScrollView, Image, useWindowDimensions } from 'react-native';
 import { Stack } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
-import { db } from '../../../src/db/client';
-import { bodyMetrics } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { bodyMetrics } from '../../src/db/schema';
 import { asc } from 'drizzle-orm';
 import { LineChart } from 'react-native-gifted-charts';
-import { Button } from '../../../components/Button';
-import { Card } from '../../../components/Card';
-import { EmptyState } from '../../../components/EmptyState';
-import { PhotoComparison } from '../../../components/PhotoComparison';
-import { LoadingState, ErrorState } from '../../../components/ScreenState';
+import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { EmptyState } from '../../components/EmptyState';
+import { PhotoComparison } from '../../components/PhotoComparison';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 import { Colors } from '@/constants/colors';
-import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
-import { resolveScreenState } from '../../../src/utils/screen-state';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
+import { resolveScreenState } from '../../src/utils/screen-state';
 import {
   CHART_END_SPACING,
   CHART_INITIAL_SPACING,
   MIN_CHART_POINT_SPACING,
   getChartViewportWidth,
   getScrollableChartWidth,
-} from '../../../src/utils/chart-layout';
+} from '../../src/utils/chart-layout';
 
 // Helper to find the best matching photo pair (same pose preferred)
 const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {

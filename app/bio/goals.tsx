@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Stack } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { measurementGoals } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { measurementGoals } from '../../src/db/schema';
 import { desc, eq, InferSelectModel } from 'drizzle-orm';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { DatePicker } from '@/components/DatePicker';
 import { logger } from '@/services/logger';
 import { goalInputSchema } from '@/src/validators/forms';
-import { useI18n } from '../../../src/i18n/index';
+import { useI18n } from '../../src/i18n/index';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 

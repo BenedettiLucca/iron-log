@@ -10,6 +10,14 @@ export const zh = {
     editorTitle: '训练编辑器',
     supplements: '补剂',
   },
+
+  tabs: {
+    home: '首页',
+    routines: '训练',
+    history: '历史',
+    bio: '生物特征',
+    settings: '设置',
+  },
   common: {
     save: '保存',
     cancel: '取消',

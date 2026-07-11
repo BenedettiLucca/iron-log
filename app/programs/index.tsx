@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { Toast } from '../../../components/Toast';
-import { Card } from '../../../components/Card';
-import { EmptyState } from '../../../components/EmptyState';
-import { Button } from '../../../components/Button';
+import { Toast } from '../../components/Toast';
+import { Card } from '../../components/Card';
+import { EmptyState } from '../../components/EmptyState';
+import { Button } from '../../components/Button';
 import { Colors } from '@/constants/colors';
 import { usePrograms } from '@/hooks/use-programs';
-import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
-import { getPhaseLabel, getGoalBadge } from '../../../src/utils/programs';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
+import { getPhaseLabel, getGoalBadge } from '../../src/utils/programs';
 
-import { useToast } from '../../../hooks/use-toast';
+import { useToast } from '../../hooks/use-toast';
 export default function ProgramsListScreen() {
   const router = useRouter();
   const { t, language } = useI18n();

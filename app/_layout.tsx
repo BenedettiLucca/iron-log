@@ -45,7 +45,20 @@ function AppStack({ colorScheme }: { colorScheme: string }) {
         animation: 'default',
       }}
     >
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="routines/editor" options={{ title: t('drawer.editorTitle') }} />
+      <Stack.Screen name="routines/templates" options={{ title: t('routines.templateLibrary') }} />
+      <Stack.Screen name="programs/index" options={{ title: t('programs.title') }} />
+      <Stack.Screen name="programs/create" options={{ title: t('programs.createTitle') }} />
+      <Stack.Screen name="programs/detail" options={{ title: t('programs.detail') }} />
+      <Stack.Screen name="programs/week-detail" options={{ title: t('programs.weekDetail') }} />
+      <Stack.Screen name="bio/evolution" options={{ title: t('bioNav.evolution') }} />
+      <Stack.Screen name="bio/goals" options={{ title: t('goals.title') }} />
+      <Stack.Screen name="bio/analytics" options={{ title: t('analytics.title') }} />
+      <Stack.Screen name="bio/checkin" options={{ title: t('bio.checkin') }} />
+      <Stack.Screen name="supplements/index" options={{ title: t('supplements.title') }} />
+      <Stack.Screen name="reports/weekly" options={{ title: t('reports.title') }} />
+      <Stack.Screen name="about" options={{ title: t('drawer.about') }} />
       <Stack.Screen name="routine/[routineId]" options={{ title: t('routineDetail.title') }} />
       <Stack.Screen name="session/[routineId]" options={{ title: t('session.activeWorkout') }} />
       <Stack.Screen name="session/exercise" options={{ title: 'Exercise', headerShown: false }} />

@@ -1,24 +1,24 @@
 import { useState, useCallback } from 'react';
 import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { exercises, routines as routinesTable, routineExercises } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { exercises, routines as routinesTable, routineExercises } from '../../src/db/schema';
 import { eq, like } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
-import { Toast } from '../../../components/Toast';
-import { Dialog } from '../../../components/Dialog';
-import { Card } from '../../../components/Card';
-import { Button } from '../../../components/Button';
-import { RoutinePreview } from '../../../components/RoutinePreview';
-import { SkeletonList } from '../../../components/Skeleton';
+import { Toast } from '../../components/Toast';
+import { Dialog } from '../../components/Dialog';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { RoutinePreview } from '../../components/RoutinePreview';
+import { SkeletonList } from '../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useRoutines } from '@/hooks/use-routines';
-import { useI18n } from '../../../src/i18n/index';
-import { buildSessionStartRoute } from '../../../src/utils/session-start';
+import { useI18n } from '../../src/i18n/index';
+import { buildSessionStartRoute } from '../../src/utils/session-start';
 
-import { useToast } from '../../../hooks/use-toast';
-import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
+import { useToast } from '../../hooks/use-toast';
+import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 export default function RoutinesListScreen() {
   const router = useRouter();
   const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
@@ -148,6 +148,13 @@ export default function RoutinesListScreen() {
     <View className="flex-1 bg-background">
       <View className="px-4 pb-0 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
+          <Button
+            title={`📅 ${t('programs.title')}`}
+            onPress={() => router.push('/programs')}
+            size="sm"
+            variant="secondary"
+            style={{ borderRadius: 9999, borderWidth: 1, borderColor: 'rgba(156, 163, 175, 0.2)' }}
+          />
           <Button
             title={`💾 ${t('routines.tabTemplates')}`}
             onPress={() => router.push('/routines/templates')}

@@ -52,23 +52,27 @@ npm install                       # Install dependencies
 
 The app uses two distinct navigation contexts:
 
-1. **Drawer Layout** (`app/(drawer)/`) - Main app navigation
+1. **Bottom Tabs** (`app/(tabs)/`) - Main app navigation (5 tabs: Home, Treinos, Histórico, Biometria, Ajustes)
    - `index.tsx` - Dashboard/Home
-   - `bio/index.tsx` - Bio metrics entry (daily weight) + Goals/Evolution buttons
+   - `routines.tsx` - Routine list and management + entry points for Programs/Templates
+   - `history.tsx` - Calendar view of past sessions
+   - `bio.tsx` - Bio metrics entry (daily weight) + Goals/Evolution/Analytics/Supplements/Reports buttons
+   - `settings.tsx` - App settings, backup, notification preferences + About entry point
+
+   Secondary screens live in the root Stack (full-screen with native back):
    - `bio/evolution.tsx` - Visualization of progress (charts, photos, analytics)
-   - `bio/goals.tsx` - Goal setting for measurements (hidden from drawer)
+   - `bio/goals.tsx` - Goal setting for measurements
    - `bio/analytics.tsx` - Strength Score, Volume Trends, PRs, 1RM
    - `bio/checkin.tsx` - Monthly check-in with side-by-side photo comparison
    - `programs/index.tsx` - Program list and management
    - `programs/create.tsx` - Program creation wizard
    - `programs/detail.tsx` - Program detail with week grid and key lifts
    - `programs/week-detail.tsx` - Sessions for a specific program week
+   - `routines/editor.tsx` - Create/edit routines
+   - `routines/templates.tsx` - Template library
    - `supplements/index.tsx` - Daily supplement checklist and management
    - `reports/weekly.tsx` - Weekly report with Markdown export
-   - `routines/index.tsx` - Routine list and management
-   - `routines/editor.tsx` - Create/edit routines
-   - `history/index.tsx` - Calendar view of past sessions
-   - `settings.tsx` - App settings, backup, and notification preferences
+   - `about.tsx` - About the app
 
 2. **Session Flow** (`app/session/`) - Isolated stack for active workouts
    - `[routineId].tsx` - Exercise selection with progress bar and session stats

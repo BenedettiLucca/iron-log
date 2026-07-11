@@ -134,27 +134,30 @@ For Google Drive Backup to work in release, set `EXPO_PUBLIC_GOOGLE_CLIENT_ID` i
 ```
 iron-log/
 ├── app/
-│   ├── (drawer)/           # Side drawer menu
-│   │   ├── index.tsx       # Home
-│   │   ├── bio/            # Bio-Tracking + Analytics
-│   │   │   ├── index.tsx   # Weight & measurements
-│   │   │   ├── evolution.tsx # Charts
-│   │   │   ├── goals.tsx   # Goals
-│   │   │   ├── analytics.tsx # Strength Score, Volume, PRs
-│   │   │   └── checkin.tsx # Monthly check-in photo comparison
-│   │   ├── programs/       # Training programs
-│   │   │   ├── index.tsx   # Program list
-│   │   │   ├── create.tsx  # Creation wizard
-│   │   │   ├── detail.tsx  # Detail + week grid
-│   │   │   └── week-detail.tsx # Sessions for the week
-│   │   ├── supplements/    # Supplement checklist
-│   │   │   └── index.tsx   # Daily checklist + management
-│   │   ├── reports/        # Reports
-│   │   │   └── weekly.tsx  # Weekly Markdown report
-│   │   ├── routines/       # Routine CRUD + editor + templates
-│   │   ├── history/        # Calendar + session history
-│   │   ├── settings.tsx    # Config, backup, CSV export, language
-│   │   └── about.tsx       # About the app
+│   ├── (tabs)/             # Main navigation (bottom tabs)
+│   │   ├── index.tsx       # Home / Dashboard
+│   │   ├── routines.tsx    # Routine CRUD + shortcuts (programs/templates)
+│   │   ├── history.tsx     # Calendar + session history
+│   │   ├── bio.tsx         # Bio-Tracking (weight/measurements/photos)
+│   │   └── settings.tsx    # Config, backup, CSV export, language
+│   ├── bio/                # Biometrics (root Stack)
+│   │   ├── evolution.tsx   # Charts
+│   │   ├── goals.tsx       # Goals
+│   │   ├── analytics.tsx   # Strength Score, Volume, PRs
+│   │   └── checkin.tsx     # Monthly check-in photo comparison
+│   ├── programs/           # Training programs (root Stack)
+│   │   ├── index.tsx       # Program list
+│   │   ├── create.tsx      # Creation wizard
+│   │   ├── detail.tsx      # Detail + week grid
+│   │   └── week-detail.tsx # Sessions for the week
+│   ├── routines/           # Editor and templates (root Stack)
+│   │   ├── editor.tsx      # Create/edit routines
+│   │   └── templates.tsx   # Template library
+│   ├── supplements/        # Supplement checklist
+│   │   └── index.tsx       # Daily checklist + management
+│   ├── reports/            # Reports
+│   │   └── weekly.tsx      # Weekly Markdown report
+│   ├── about.tsx           # About the app
 │   └── session/            # Workout flow (isolated Stack)
 ├── components/             # 22 reusable UI components
 ├── hooks/                  # Domain hooks

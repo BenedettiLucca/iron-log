@@ -1,17 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useRouter, Stack } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { sessions, sets } from '../../../src/db/schema';
+import { useRouter } from 'expo-router';
+import { db } from '../../src/db/client';
+import { sessions, sets } from '../../src/db/schema';
 import { desc, isNull, eq, and, inArray } from 'drizzle-orm';
-import { Card } from '../../../components/Card';
-import { Dialog } from '../../../components/Dialog';
-import { SkeletonList } from '../../../components/Skeleton';
+import { Card } from '../../components/Card';
+import { Dialog } from '../../components/Dialog';
+import { SkeletonList } from '../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
-import { useI18n } from '../../../src/i18n/index';
+import { useI18n } from '../../src/i18n/index';
 import { toLocalDateKey } from '@/src/utils/date-key';
 
 // Configuração de Locale multilíngue
@@ -246,8 +246,6 @@ export default function HistoryScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: t('history.title') }} />
-
       {isLoading ? (
         <View className="flex-1 p-4">
           <SkeletonList count={3} />

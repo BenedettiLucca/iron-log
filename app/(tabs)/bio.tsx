@@ -1,28 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { bodyMetrics } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { bodyMetrics } from '../../src/db/schema';
 import { desc, eq, and, gte, lt } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { Toast } from '../../../components/Toast';
-import { Button } from '../../../components/Button';
-import { Input } from '../../../components/Input';
-import { Card } from '../../../components/Card';
-import { Dialog } from '../../../components/Dialog';
-import { LoadingState, ErrorState } from '../../../components/ScreenState';
+import { Toast } from '../../components/Toast';
+import { Button } from '../../components/Button';
+import { Input } from '../../components/Input';
+import { Card } from '../../components/Card';
+import { Dialog } from '../../components/Dialog';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema } from '@/src/validators/forms';
-import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
-import { resolveScreenState } from '../../../src/utils/screen-state';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
+import { resolveScreenState } from '../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
-import { InlineEmptyState } from '../../../components/EmptyState';
-import { useToast } from '../../../hooks/use-toast';
+import { InlineEmptyState } from '../../components/EmptyState';
+import { useToast } from '../../hooks/use-toast';
 
 type CheckinPhotos = {
   front: string | null;
@@ -262,7 +262,7 @@ export default function BioScreen() {
         </Card>
 
         {/* Botões de Ação Rápida */}
-        <View className="flex-row gap-3 mb-4">
+        <View className="flex-row gap-3 mb-2">
             <Button
                 title={t("bioNav.goals")}
                 onPress={() => router.push('/bio/goals')}
@@ -285,6 +285,24 @@ export default function BioScreen() {
                 variant="primary"
                 size="sm"
                 icon={<Text className="text-lg">📊</Text>}
+                className="flex-1"
+            />
+        </View>
+        <View className="flex-row gap-3 mb-4">
+            <Button
+                title={t("drawer.supplements")}
+                onPress={() => router.push('/supplements')}
+                variant="primary"
+                size="sm"
+                icon={<Text className="text-lg">💊</Text>}
+                className="flex-1"
+            />
+            <Button
+                title={t("reports.title")}
+                onPress={() => router.push('/reports/weekly')}
+                variant="primary"
+                size="sm"
+                icon={<Text className="text-lg">📝</Text>}
                 className="flex-1"
             />
         </View>

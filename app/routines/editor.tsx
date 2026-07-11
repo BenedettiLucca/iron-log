@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { routines, routineExercises, exercises } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { routines, routineExercises, exercises } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { Toast } from '../../../components/Toast';
-import { Input } from '../../../components/Input';
-import { Button } from '../../../components/Button';
-import { Card } from '../../../components/Card';
+import { Toast } from '../../components/Toast';
+import { Input } from '../../components/Input';
+import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
-import { useI18n } from '../../../src/i18n/index';
-import { useToast } from '../../../hooks/use-toast';
+import { useI18n } from '../../src/i18n/index';
+import { useToast } from '../../hooks/use-toast';
 
 type SelectedExercise = {
   id: number;

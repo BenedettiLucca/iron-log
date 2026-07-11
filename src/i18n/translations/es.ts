@@ -10,6 +10,14 @@ export const es = {
     editorTitle: 'Editor de Rutina',
     supplements: 'Suplementos',
   },
+
+  tabs: {
+    home: 'Inicio',
+    routines: 'Entrenamientos',
+    history: 'Historial',
+    bio: 'Biometría',
+    settings: 'Ajustes',
+  },
   common: {
     save: 'Guardar',
     cancel: 'Cancelar',

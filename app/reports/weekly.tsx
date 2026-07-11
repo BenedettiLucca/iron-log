@@ -5,11 +5,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useEffect, useState, useCallback } from 'react';
-import { Button } from '../../../components/Button';
-import { Card } from '../../../components/Card';
-import { Toast } from '../../../components/Toast';
-import { NotionExportService } from '../../../services/NotionExportService';
-import { useI18n } from '../../../src/i18n/index';
+import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
+import { Toast } from '../../components/Toast';
+import { NotionExportService } from '../../services/NotionExportService';
+import { useI18n } from '../../src/i18n/index';
 import { logger } from '@/services/logger';
 
 export default function WeeklyReportScreen() {

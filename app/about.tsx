@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Image } from 'react-native';
 import { Stack } from 'expo-router';
-import { Card } from '../../components/Card';
-import { useI18n } from '../../src/i18n/index';
+import { Card } from '../components/Card';
+import { useI18n } from '../src/i18n/index';
 
 export default function AboutScreen() {
   const { t } = useI18n();
@@ -19,7 +19,7 @@ export default function AboutScreen() {
       
       <View className="items-center py-6">
         <Image 
-            source={require('../../assets/images/icon.png')} 
+            source={require('../assets/images/icon.png')} 
             style={{ width: 100, height: 100, borderRadius: 20 }}
         />
         <Text className="text-text text-3xl font-black mt-4 tracking-tight">{t("drawer.dashboard")}</Text>

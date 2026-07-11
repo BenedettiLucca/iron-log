@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useI18n } from '../../../src/i18n/index';
-import { db } from '../../../src/db/client';
-import { routines, routineExercises } from '../../../src/db/schema';
+import { useI18n } from '../../src/i18n/index';
+import { db } from '../../src/db/client';
+import { routines, routineExercises } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
-import { Card } from '../../../components/Card';
-import { EmptyState } from '../../../components/EmptyState';
-import { Dialog } from '../../../components/Dialog';
-import { Toast } from '../../../components/Toast';
+import { Card } from '../../components/Card';
+import { EmptyState } from '../../components/EmptyState';
+import { Dialog } from '../../components/Dialog';
+import { Toast } from '../../components/Toast';
 import { logger } from '@/services/logger';
 
-import { useToast } from '../../../hooks/use-toast';
-import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
+import { useToast } from '../../hooks/use-toast';
+import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 export default function TemplateLibraryScreen() {
   const router = useRouter();
   const { t } = useI18n();

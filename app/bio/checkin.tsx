@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { db } from '../../../src/db/client';
-import { bodyMetrics } from '../../../src/db/schema';
+import { db } from '../../src/db/client';
+import { bodyMetrics } from '../../src/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { BodyMetric } from '@/src/types';
-import { MonthlyCheckinComparison } from '../../../components/MonthlyCheckinComparison';
-import { CheckinGallery } from '../../../components/CheckinGallery';
-import { Button } from '../../../components/Button';
-import { EmptyState } from '../../../components/EmptyState';
-import { LoadingState, ErrorState } from '../../../components/ScreenState';
+import { MonthlyCheckinComparison } from '../../components/MonthlyCheckinComparison';
+import { CheckinGallery } from '../../components/CheckinGallery';
+import { Button } from '../../components/Button';
+import { EmptyState } from '../../components/EmptyState';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { useI18n } from '../../../src/i18n/index';
-import { resolveScreenState } from '../../../src/utils/screen-state';
+import { useI18n } from '../../src/i18n/index';
+import { resolveScreenState } from '../../src/utils/screen-state';
 import { processCheckinData } from '@/src/utils/checkin-screen';
 
 export default function CheckinScreen() {

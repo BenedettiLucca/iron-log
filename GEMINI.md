@@ -24,12 +24,8 @@ This file provides context and instructions for the Gemini AI agent working on t
 
 ### Directory Map
 *   **`app/`**: Application screens and routes (Expo Router).
-    *   `app/(drawer)/`: Main navigation (Home, Bio, Routines, History).
-        *   `programs/`: Program list, creation, detail, week detail.
-        *   `supplements/`: Daily supplement checklist and management.
-        *   `reports/`: Weekly report with Markdown export.
-        *   `bio/checkin.tsx`: Monthly check-in photo comparison.
-        *   `bio/analytics.tsx`: Strength Score, Volume, PRs, 1RM.
+    *   `app/(tabs)/`: Main navigation — bottom tabs (Home, Bio, Treinos, Histórico, Ajustes).
+    *   Secondary screens live in the root Stack: `programs/`, `routines/editor`, `routines/templates`, `bio/checkin`, `bio/analytics`, `bio/evolution`, `bio/goals`, `supplements/`, `reports/weekly`, `about`.
     *   `app/session/`: **Isolated Stack** for active workout sessions. *Critical logic here.*
 *   **`src/db/`**: Database layer.
     *   `schema.ts`: **Source of Truth** for the data model.
@@ -108,7 +104,7 @@ When modifying `src/db/schema.ts`, you **MUST** generate a migration file:
 *   The app supports JSON import for routines. When generating routine data, strictly follow the JSON structure defined in `README.md` or `CLAUDE.md`.
 
 ### Data & Backup
-*   **Export/Import:** Located in `app/(drawer)/settings.tsx`. Uses `services/DatabaseBackupService.ts`.
+*   **Export/Import:** Located in `app/(tabs)/settings.tsx`. Uses `services/DatabaseBackupService.ts`.
 *   **Google Drive Backup:** Requires `EXPO_PUBLIC_GOOGLE_CLIENT_ID` in `.env`. Uses `expo-auth-session` and Google Drive API (v3).
 
 ## 6. Important Files to Reference

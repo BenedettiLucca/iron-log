@@ -15,8 +15,8 @@ import { resolveScreenState } from '@/src/utils/screen-state';
 import { Supplement, SupplementFrequency } from '@/src/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { useToast } from '../../../hooks/use-toast';
-import { useConfirmDialog } from '../../../hooks/use-confirm-dialog';
+import { useToast } from '../../hooks/use-toast';
+import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 export default function SupplementsScreen() {
   const { t } = useI18n();
   const {

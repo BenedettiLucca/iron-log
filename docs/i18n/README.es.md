@@ -134,27 +134,30 @@ Para que Google Drive Backup funcione en release, configura `EXPO_PUBLIC_GOOGLE_
 ```
 iron-log/
 ├── app/
-│   ├── (drawer)/           # Menú lateral
-│   │   ├── index.tsx       # Home
-│   │   ├── bio/            # Bio-Tracking + Analytics
-│   │   │   ├── index.tsx   # Peso y medidas
-│   │   │   ├── evolution.tsx # Gráficos
-│   │   │   ├── goals.tsx   # Metas
-│   │   │   ├── analytics.tsx # Strength Score, Volumen, PRs
-│   │   │   └── checkin.tsx # Check-in mensual con comparación de fotos
-│   │   ├── programs/       # Programas de entrenamiento
-│   │   │   ├── index.tsx   # Lista de programas
-│   │   │   ├── create.tsx  # Asistente de creación
-│   │   │   ├── detail.tsx  # Detalle + grade semanal
-│   │   │   └── week-detail.tsx # Sesiones de la semana
-│   │   ├── supplements/    # Checklist de suplementos
-│   │   │   └── index.tsx   # Checklist diario + gestión
-│   │   ├── reports/        # Reportes
-│   │   │   └── weekly.tsx  # Reporte semanal Markdown
-│   │   ├── routines/       # CRUD de rutinas + editor + templates
-│   │   ├── history/        # Calendario + historial de sesiones
-│   │   ├── settings.tsx    # Config, backup, export CSV, idioma
-│   │   └── about.tsx       # Sobre la app
+│   ├── (tabs)/             # Navegación principal (bottom tabs)
+│   │   ├── index.tsx       # Home / Dashboard
+│   │   ├── routines.tsx    # CRUD de rutinas + atajos (programas/plantillas)
+│   │   ├── history.tsx     # Calendario + historial de sesiones
+│   │   ├── bio.tsx         # Bio-Tracking (peso/medidas/fotos)
+│   │   └── settings.tsx    # Config, backup, export CSV, idioma
+│   ├── bio/                # Biometría (Stack raíz)
+│   │   ├── evolution.tsx   # Gráficos
+│   │   ├── goals.tsx       # Metas
+│   │   ├── analytics.tsx   # Strength Score, Volumen, PRs
+│   │   └── checkin.tsx     # Check-in mensual con comparación de fotos
+│   ├── programs/           # Programas de entrenamiento (Stack raíz)
+│   │   ├── index.tsx       # Lista de programas
+│   │   ├── create.tsx      # Asistente de creación
+│   │   ├── detail.tsx      # Detalle + grade semanal
+│   │   └── week-detail.tsx # Sesiones de la semana
+│   ├── routines/           # Editor y plantillas (Stack raíz)
+│   │   ├── editor.tsx      # Crear/editar rutinas
+│   │   └── templates.tsx   # Biblioteca de plantillas
+│   ├── supplements/        # Checklist de suplementos
+│   │   └── index.tsx       # Checklist diario + gestión
+│   ├── reports/            # Reportes
+│   │   └── weekly.tsx      # Reporte semanal Markdown
+│   ├── about.tsx           # Sobre la app
 │   └── session/            # Flujo de entrenamiento (Stack aislada)
 ├── components/             # 22 componentes de UI reutilizables
 ├── hooks/                  # Hooks de dominio

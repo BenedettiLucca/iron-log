@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
-import { Stack } from 'expo-router';
+import { useRouter } from 'expo-router';
 import * as Updates from 'expo-updates';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -20,6 +20,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<number | null>(null);
@@ -160,8 +161,6 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
-      <Stack.Screen options={{ title: t('settings.title') }} />
-
       <Card contentPadding={false}>
         <View className="p-3">
           <Text className="text-text font-bold text-base mb-1.5">{t("settings.checkinReminders")}</Text>
@@ -303,6 +302,22 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+      </Card>
+
+      <Card contentPadding={false}>
+        <View className="p-3">
+          <Text className="text-text font-bold text-base mb-1.5">{t("drawer.about")}</Text>
+          <Text className="text-subtext text-sm mb-4 leading-5">
+            {t("about.philosophyText")}
+          </Text>
+          <Button
+            title={t("common.view")}
+            onPress={() => router.push('/about')}
+            variant="secondary"
+            size="sm"
+            fullWidth
+          />
         </View>
       </Card>
 

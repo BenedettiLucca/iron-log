@@ -2,14 +2,14 @@ import { useState, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Toast } from '../../../components/Toast';
-import { Input } from '../../../components/Input';
-import { Card } from '../../../components/Card';
-import { Button } from '../../../components/Button';
-import { DatePicker } from '../../../components/DatePicker';
+import { Toast } from '../../components/Toast';
+import { Input } from '../../components/Input';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { DatePicker } from '../../components/DatePicker';
 import { usePrograms } from '@/hooks/use-programs';
-import { getLocaleForLanguage, useI18n } from '../../../src/i18n/index';
-import { useToast } from '../../../hooks/use-toast';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
+import { useToast } from '../../hooks/use-toast';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 export default function CreateProgramScreen() {
