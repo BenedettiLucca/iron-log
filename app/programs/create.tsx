@@ -10,6 +10,7 @@ import { DatePicker } from '../../components/DatePicker';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
+import { SectionHeader } from '@/components/SectionHeader';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 export default function CreateProgramScreen() {
@@ -34,15 +35,6 @@ export default function CreateProgramScreen() {
     date.setDate(date.getDate() + parseInt(weeksDuration || '0', 10) * 7);
     return date;
   }, [startDate, weeksDuration]);
-
-  const getGoalEmoji = (g: string) => {
-    switch (g) {
-      case 'hypertrophy': return '💪';
-      case 'strength': return '🏋️';
-      case 'endurance': return '🏃';
-      default: return '🎯';
-    }
-  };
 
   const validate = useCallback((): boolean => {
     if (!name.trim()) {
@@ -144,28 +136,28 @@ export default function CreateProgramScreen() {
 
         {/* Goal Picker */}
         <View>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            {t('programs.form.goalLabel')}
-          </Text>
+          <SectionHeader label={t('programs.form.goalLabel')} className="mb-3" />
           <View className="flex-row gap-2">
-            {GOALS.map(g => (
-              <TouchableOpacity
-                key={g}
-                onPress={() => setGoal(g)}
-                className={`flex-1 py-3 px-2 rounded-xl items-center border-2 ${
-                  goal === g
-                    ? 'bg-primary/10 border-primary'
-                    : 'bg-card border-border'
-                }`}
-              >
-                <Text className="text-lg mb-1">{getGoalEmoji(g)}</Text>
-                <Text className={`text-xs font-semibold ${
-                  goal === g ? 'text-primary' : 'text-subtext'
-                }`}>
-                  {t(`programs.goals.${g}`)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {GOALS.map(g => {
+              const isActive = goal === g;
+              return (
+                <TouchableOpacity
+                  key={g}
+                  onPress={() => setGoal(g)}
+                  className={`flex-1 py-2.5 px-3 rounded-full items-center border-2 justify-center ${
+                    isActive
+                      ? 'bg-primary border-primary'
+                      : 'bg-card border-border'
+                  }`}
+                >
+                  <Text className={`text-xs font-bold uppercase tracking-wider ${
+                    isActive ? 'text-white' : 'text-subtext'
+                  }`}>
+                    {t(`programs.goals.${g}`)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -198,16 +190,12 @@ export default function CreateProgramScreen() {
         />
 
         {/* End Date (auto-calculated) */}
-        <Card variant="bordered">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-xs font-bold uppercase tracking-widest">
-              {t('programs.form.endDateLabel')}
-            </Text>
-            <Text className="text-text text-sm font-semibold">
-              {endDate.toLocaleDateString(getLocaleForLanguage(language))}
-            </Text>
-          </View>
-        </Card>
+        <View className="bg-primary/5 rounded-xl p-3 flex-row justify-between items-center border border-primary/10">
+          <SectionHeader label={t('programs.form.endDateLabel')} />
+          <Text className="text-text text-sm font-semibold">
+            {endDate.toLocaleDateString(getLocaleForLanguage(language))}
+          </Text>
+        </View>
 
         {/* Summary Preview */}
         <Card className="bg-primary/5">
@@ -215,10 +203,10 @@ export default function CreateProgramScreen() {
             {t('programs.form.preview')}
           </Text>
           <Text className="text-text text-sm leading-6">
-            {getGoalEmoji(goal)} {name || t('programs.form.untitled')}{'\n'}
-            📅 {startDate.toLocaleDateString(getLocaleForLanguage(language))} → {endDate.toLocaleDateString(getLocaleForLanguage(language))}{'\n'}
-            📊 {weeksDuration || '0'} {t('programs.weeksLabel')}
-            {deloadWeek ? ` • 💚 ${t('programs.form.deloadWeek', { week: deloadWeek })}` : ''}
+            {name || t('programs.form.untitled')}{'\n'}
+            {t('programs.form.startDateLabel')}: {startDate.toLocaleDateString(getLocaleForLanguage(language))} → {endDate.toLocaleDateString(getLocaleForLanguage(language))}{'\n'}
+            {weeksDuration || '0'} {t('programs.weeksLabel')}
+            {deloadWeek ? ` • ${t('programs.form.deloadWeek', { week: deloadWeek })}` : ''}
           </Text>
         </Card>
       </ScrollView>

@@ -13,6 +13,7 @@ import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
+import { SectionHeader } from '@/components/SectionHeader';
 
 type SelectedExercise = {
   id: number;
@@ -193,7 +194,7 @@ export default function RoutineEditorScreen() {
         />
 
         <View className="flex-row justify-between items-center mt-2">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-wider">{t("routines.exercisesCount", { count: selectedExercises.length })}</Text>
+          <SectionHeader label={t("routines.exercisesCount", { count: selectedExercises.length })} />
           <Button 
             title={t("routines.addExercise")}
             onPress={() => setModalVisible(true)}
@@ -211,7 +212,7 @@ export default function RoutineEditorScreen() {
                         setNewName(ex.name);
                     }}
                 >
-                    <Text className="text-text font-bold text-lg underline decoration-dashed decoration-subtext"><Text className="text-subtext mr-2 no-underline font-normal text-sm">#{index+1}</Text> {ex.name} ✎</Text>
+                    <Text className="text-base font-bold text-text underline decoration-dashed decoration-subtext"><Text className="text-subtext mr-2 no-underline font-normal text-sm">#{index+1}</Text> {ex.name}</Text>
                 </TouchableOpacity>
                 
                 <Button 
@@ -242,7 +243,7 @@ export default function RoutineEditorScreen() {
                 </View>
             </View>
             <View className="mt-3 flex-row items-center gap-3">
-                <Text className="text-subtext text-xs font-bold uppercase">{t("routines.restSeconds")}</Text>
+                <Text className="text-xs text-subtext font-bold uppercase">{t("routines.restSeconds")}</Text>
                 <Input 
                     placeholder="90"
                     keyboardType="numeric"
@@ -255,21 +256,23 @@ export default function RoutineEditorScreen() {
           </Card>
         ))}
 
-        <View className="h-24" />
+        <View className="h-40" />
       </ScrollView>
 
-      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg flex-row gap-3">
+      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg gap-2">
         <Button 
           title={t("common.save")}
           onPress={handleSave}
-          variant="success"
-          className="flex-1"
+          variant="primary"
+          size="lg"
+          fullWidth
         />
         <Button 
           title={t("routines.saveAsTemplate")}
           onPress={handleSaveAsTemplate}
-          variant="primary"
-          className="flex-1"
+          variant="secondary"
+          size="lg"
+          fullWidth
         />
       </View>
 
@@ -369,7 +372,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <View className="flex-1 bg-background">
         <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
-          <Text className="text-text text-xl font-bold uppercase tracking-wide">{t("routines.selectExercise")}</Text>
+          <SectionHeader label={t("routines.selectExercise")} />
           <Button 
             title={t("common.close")}
             onPress={onClose}

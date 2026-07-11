@@ -6,10 +6,12 @@ import { db } from '../../src/db/client';
 import { routines, routineExercises } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { Card } from '../../components/Card';
-import { EmptyState } from '../../components/EmptyState';
+import { Button } from '../../components/Button';
 import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
 import { logger } from '@/services/logger';
+import { Colors } from '@/constants/colors';
+import { SectionHeader } from '@/components/SectionHeader';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
@@ -113,82 +115,80 @@ export default function TemplateLibraryScreen() {
   };
 
   const renderTemplateCard = ({ item }: { item: any }) => (
-    <Card className="overflow-hidden">
-      <TouchableOpacity
-        onPress={() => {
-          handleLoadFromTemplate(item);
-        }}
-        activeOpacity={0.8}
-        className="p-4"
-        accessibilityRole="button"
-        accessibilityLabel={t('routines.loadTemplateLabel', { name: item.name })}
-        accessibilityHint={t('routines.loadTemplateHint')}
-      >
-        <View className="flex-row justify-between items-start mb-2">
-          <View className="flex-1 mr-4">
-            <Text className="text-text text-lg font-bold">{item.name}</Text>
-            {item.description && (
-              <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
-            )}
-          </View>
+    <Card className="mx-4 mb-1">
+      <View className="mb-3">
+        <View className="flex-row justify-between items-start mb-1">
+          <Text className="text-text text-lg font-bold flex-1 mr-2">{item.name}</Text>
           <Text className="text-subtext text-xs font-bold bg-primary/10 px-2 py-1 rounded">
             {t('routines.exerciseCount', { count: item.exercises.length })}
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={(event) => {
-            event.stopPropagation();
-            handleDeleteTemplate(item.id, item.name);
-          }}
-          className="w-11 h-11 rounded-full bg-danger/10 border border-danger/20 items-center justify-center self-start"
-          accessibilityRole="button"
-          accessibilityLabel={t('routines.deleteTemplateLabel', { name: item.name })}
-          accessibilityHint={t('routines.deleteTemplateHint')}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text className="text-danger font-bold text-lg">✕</Text>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        {item.description && (
+          <Text className="text-subtext text-sm" numberOfLines={2}>{item.description}</Text>
+        )}
+      </View>
 
       {/* Exercise Summary */}
-      <View className="border-t border-border pt-2 mt-2">
-        <Text className="text-subtext text-xs font-bold uppercase mb-1">{t('routines.exercises')}:</Text>
-        <View className="flex-row flex-wrap gap-1">
-          {item.exercises.slice(0, 4).map((ex: any, idx: number) => (
-            <View key={ex.id} className="bg-background border border-border rounded px-2 py-1">
-              <Text className="text-text text-xs font-medium">{ex.name}</Text>
-              {ex.target && (
-                <Text className="text-primary text-xs">• {ex.target}</Text>
-              )}
+      <View className="border-t border-border pt-3 mt-1 mb-4">
+        <Text className="text-subtext text-2xs font-bold uppercase mb-2 tracking-wider">{t('routines.exercises')}:</Text>
+        <View className="flex-row flex-wrap gap-1.5">
+          {item.exercises.slice(0, 4).map((ex: any) => (
+            <View key={ex.id} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
+              <Text className="text-text text-xs font-medium">
+                {ex.name}{ex.target ? ` • ${ex.target}` : ''}
+              </Text>
             </View>
           ))}
           {item.exercises.length > 4 && (
-            <Text className="text-subtext text-xs italic">{t('routines.moreExercises', { count: item.exercises.length - 4 })}</Text>
+            <Text className="text-subtext text-xs italic self-center pl-1">
+              {t('routines.moreExercises', { count: item.exercises.length - 4 })}
+            </Text>
           )}
         </View>
+      </View>
+
+      {/* Card Actions */}
+      <View className="flex-row justify-between items-center mt-auto pt-2 border-t border-border/50">
+        <Button
+          title={t('common.delete') || 'Excluir'}
+          onPress={() => handleDeleteTemplate(item.id, item.name)}
+          variant="ghost"
+          textStyle={{ color: Colors.danger }}
+          size="sm"
+        />
+        <Button
+          title="Usar"
+          onPress={() => handleLoadFromTemplate(item)}
+          variant="primary"
+          size="sm"
+        />
       </View>
     </Card>
   );
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 py-4">
-        <Text className="text-text text-2xl font-bold uppercase tracking-wider">{t('routines.templateLibrary')}</Text>
+      <View className="px-4 pt-16 pb-4">
+        <SectionHeader label={t('routines.templateLibrary')} className="mb-1" />
         <Text className="text-subtext text-sm mb-4">{t('routines.templateLibraryDesc')}</Text>
       </View>
 
       <FlatList
         data={templates}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ gap: 12 }}
+        contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
         ListEmptyComponent={
-          <EmptyState
-            icon="💾"
-            title={t('routines.noTemplates')}
-            description={t('routines.noTemplatesDesc')}
-            actionLabel={t('routines.createTemplate')}
-            onAction={() => router.back()}
-          />
+          <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center justify-center mx-4 my-8">
+            <Text className="text-4xl mb-3">💾</Text>
+            <Text className="text-text text-base font-bold text-center mb-1">{t('routines.noTemplates')}</Text>
+            <Text className="text-subtext text-xs text-center mb-4">{t('routines.noTemplatesDesc')}</Text>
+            <Button
+              title={t('routines.createTemplate')}
+              onPress={() => router.back()}
+              variant="primary"
+              size="sm"
+            />
+          </View>
         }
         renderItem={renderTemplateCard}
       />

@@ -4,11 +4,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '@/src/i18n';
 import { Card } from '@/components/Card';
-import { EmptyState } from '@/components/EmptyState';
 import { LoadingState, ErrorState } from '@/components/ScreenState';
 import { resolveScreenState } from '@/src/utils/screen-state';
 import { logger } from '@/services/logger';
 import type { Session, WeekCompletionStatus } from '@/src/types';
+import { SectionHeader } from '@/components/SectionHeader';
+import { StatTile } from '@/components/StatTile';
+import { db } from '@/src/db/client';
+import { routineExercises, exercises } from '@/src/db/schema';
+import { eq } from 'drizzle-orm';
 
 export default function WeekDetailScreen() {
   const { t, language } = useI18n();
@@ -22,11 +26,13 @@ export default function WeekDetailScreen() {
     fetchDashboardData,
     getSessionsForWeek,
     isLoading,
-    detailError
+    detailError,
+    getCurrentWeek,
   } = usePrograms();
   
   const [selectedWeek, setSelectedWeek] = useState(parseInt(initialWeek || '1'));
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [weekExercises, setWeekExercises] = useState<{ id: number; name: string; target: string | null; notes: string | null; restSeconds: number | null }[]>([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -67,6 +73,36 @@ export default function WeekDetailScreen() {
     loadSessions();
   }, [loadSessions]);
 
+  const loadWeekExercises = useCallback(async () => {
+    const currentWeekData = weeks.find(w => w.weekNumber === selectedWeek);
+    if (currentWeekData?.routineId) {
+      try {
+        const data = await db
+          .select({
+            id: exercises.id,
+            name: exercises.name,
+            target: routineExercises.target,
+            notes: routineExercises.notes,
+            restSeconds: routineExercises.restSeconds,
+          })
+          .from(routineExercises)
+          .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
+          .where(eq(routineExercises.routineId, currentWeekData.routineId))
+          .orderBy(routineExercises.orderIndex);
+        setWeekExercises(data);
+      } catch (e) {
+        logger.error('Failed to load week exercises', e);
+        setWeekExercises([]);
+      }
+    } else {
+      setWeekExercises([]);
+    }
+  }, [selectedWeek, weeks]);
+
+  useEffect(() => {
+    loadWeekExercises();
+  }, [loadWeekExercises]);
+
   const { status } = resolveScreenState({
     isLoading: isLoading && weeks.length === 0,
     hasError: hasError || !!detailError,
@@ -91,41 +127,85 @@ export default function WeekDetailScreen() {
     }
   };
 
-  const getStatusBg = (status: WeekCompletionStatus, isSelected: boolean) => {
-    if (isSelected) return 'bg-primary border-2 border-primary';
-    switch (status) {
-      case 'done': return 'bg-green-500/10 border border-green-500/30';
-      case 'missed': return 'bg-red-500/10 border border-red-500/30';
-      case 'deload': return 'bg-green-500/20 border border-green-500/50';
-      case 'future': return 'bg-card border border-border opacity-50';
-      default: return 'bg-card border border-border';
-    }
-  };
-
   const selectedWeekData = weeks.find(w => w.weekNumber === selectedWeek);
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 pt-4 pb-2">
-        <Text className="text-text font-black text-2xl">
+      <View className="px-4 pt-16 pb-2">
+        <View className="flex-row items-center gap-3">
+          <SectionHeader label={t('programs.weekDetail') || 'Semana'} />
+          {selectedWeekData && (
+            <View className={`rounded-full px-2.5 py-0.5 ${
+              selectedWeek === getCurrentWeek() ? 'bg-primary/10' :
+              weekCompletionMap.get(selectedWeek) === 'done' ? 'bg-success/10' :
+              weekCompletionMap.get(selectedWeek) === 'missed' ? 'bg-danger/10' :
+              weekCompletionMap.get(selectedWeek) === 'deload' ? 'bg-accent/10' :
+              'bg-card border border-border/50'
+            }`}>
+              <Text className={`text-2xs font-extrabold uppercase tracking-wider ${
+                selectedWeek === getCurrentWeek() ? 'text-primary' :
+                weekCompletionMap.get(selectedWeek) === 'done' ? 'text-success' :
+                weekCompletionMap.get(selectedWeek) === 'missed' ? 'text-danger' :
+                weekCompletionMap.get(selectedWeek) === 'deload' ? 'text-accent' :
+                'text-subtext'
+              }`}>
+                {selectedWeek === getCurrentWeek() ? 'Atual' :
+                 weekCompletionMap.get(selectedWeek) === 'done' ? 'Concluída' :
+                 weekCompletionMap.get(selectedWeek) === 'missed' ? 'Perdida' :
+                 weekCompletionMap.get(selectedWeek) === 'deload' ? 'Deload' :
+                 'Pendente'}
+              </Text>
+            </View>
+          )}
+        </View>
+        <Text className="text-text font-black text-2xl mt-1">
           {t('programs.weekNumber', { num: selectedWeek })}
           {selectedWeekData ? ` — ${t(`programs.phases.${selectedWeekData.phase}`)}` : ''}
         </Text>
       </View>
 
       {/* Week Grid */}
-      <View className="px-4 mb-6">
+      <View className="px-4 mb-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 8, gap: 8 }}>
           {weeks.map((w) => {
             const status = weekCompletionMap.get(w.weekNumber) || 'future';
             const isSelected = selectedWeek === w.weekNumber;
+            
+            let bgClass = 'bg-card border border-border opacity-50';
+            let textClass = 'text-subtext';
+            
+            if (isSelected) {
+              bgClass = 'bg-primary border-2 border-primary';
+              textClass = 'text-white';
+            } else {
+              switch (status) {
+                case 'done':
+                  bgClass = 'bg-success/10 border border-success/20';
+                  textClass = 'text-success';
+                  break;
+                case 'missed':
+                  bgClass = 'bg-danger/10 border border-danger/20';
+                  textClass = 'text-danger';
+                  break;
+                case 'deload':
+                  bgClass = 'bg-accent/10 border border-accent/20';
+                  textClass = 'text-accent';
+                  break;
+                case 'future':
+                default:
+                  bgClass = 'bg-card border border-border/50';
+                  textClass = 'text-subtext';
+                  break;
+              }
+            }
+
             return (
               <TouchableOpacity
                 key={w.id}
                 onPress={() => setSelectedWeek(w.weekNumber)}
-                className={`w-12 h-12 rounded-xl justify-center items-center ${getStatusBg(status, isSelected)}`}
+                className={`w-12 h-12 rounded-xl justify-center items-center ${bgClass}`}
               >
-                <Text className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-text'}`}>{w.weekNumber}</Text>
+                <Text className={`text-xs font-bold ${textClass}`}>{w.weekNumber}</Text>
                 {!isSelected && <Text className="text-2xs mt-0.5">{getStatusEmoji(status)}</Text>}
               </TouchableOpacity>
             );
@@ -133,10 +213,73 @@ export default function WeekDetailScreen() {
         </ScrollView>
       </View>
 
-      <ScrollView className="flex-1 px-4">
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-          {t('programs.dashboard.sessions')}
-        </Text>
+      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 32 }}>
+        {selectedWeekData && (
+          <View className="mb-4">
+            <SectionHeader label="Metas da Semana" className="mb-3" />
+            <View className="flex-row gap-2.5">
+              <StatTile
+                value={selectedWeekData.rirTarget !== null ? `RIR ${selectedWeekData.rirTarget}` : 'N/A'}
+                label="RIR Alvo"
+                accentColor="primary"
+                className="flex-1"
+              />
+              <StatTile
+                value={selectedWeekData.intensityMod !== null ? `${Math.round(selectedWeekData.intensityMod * 100)}%` : '100%'}
+                label="Intensidade"
+                accentColor="secondary"
+                className="flex-1"
+              />
+              <StatTile
+                value={t(`programs.phases.${selectedWeekData.phase}`) || 'Acumulação'}
+                label="Fase do Bloco"
+                accentColor="warning"
+                className="flex-1"
+              />
+            </View>
+          </View>
+        )}
+
+        {/* Exercise List */}
+        <View className="mb-4">
+          <SectionHeader label="Exercícios Planejados" className="mb-3" />
+          {weekExercises.length > 0 ? (
+            weekExercises.map((ex, idx) => (
+              <Card key={`${ex.id}-${idx}`} className="mb-2">
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-1">
+                    <Text className="text-text font-bold text-base">{ex.name}</Text>
+                    <View className="flex-row gap-3 mt-1">
+                      {ex.target && (
+                        <Text className="text-subtext text-xs">
+                          Meta: {ex.target}
+                        </Text>
+                      )}
+                      {ex.restSeconds && (
+                        <Text className="text-subtext text-xs">
+                          Rest: {ex.restSeconds}s
+                        </Text>
+                      )}
+                    </View>
+                    {ex.notes && (
+                      <Text className="text-subtext text-xs italic mt-0.5">
+                        Obs: {ex.notes}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <Text className="text-subtext text-sm text-center py-4">
+                Nenhuma rotina ou exercício planejado para esta semana
+              </Text>
+            </Card>
+          )}
+        </View>
+
+        <SectionHeader label={t('programs.dashboard.sessions')} className="mb-3" />
 
         {sessions.length > 0 ? (
           sessions.map((session) => (
@@ -162,12 +305,12 @@ export default function WeekDetailScreen() {
             </View>
           ))
         ) : (
-          <View className="mt-8">
-            <EmptyState
-              icon="∅"
-              title={t('programs.dashboard.noSessions')}
-              description={t('programs.dashboard.weekStatus.' + (weekCompletionMap.get(selectedWeek) || 'future'))}
-            />
+          <View className="my-2">
+            <Card>
+              <Text className="text-subtext text-sm text-center py-4">
+                {t('programs.dashboard.noSessions') || 'Nenhum treino realizado nesta semana'}
+              </Text>
+            </Card>
           </View>
         )}
       </ScrollView>

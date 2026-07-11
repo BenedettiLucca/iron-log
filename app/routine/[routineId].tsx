@@ -12,6 +12,9 @@ import { Colors } from '@/constants/colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { useI18n } from '../../src/i18n/index';
+import { SectionHeader } from '@/components/SectionHeader';
+import { StatTile } from '@/components/StatTile';
+import Svg, { Polyline } from 'react-native-svg';
 
 interface ExerciseWithStats {
   id: number;
@@ -222,41 +225,34 @@ export default function RoutinePreviewScreen() {
     }, 0) / 60
   );
 
-  const exercisesWithPRs = exercisesData.filter(e => e.prWeight !== null).length;
-
   return (
     <View className="flex-1 bg-background">
     <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
       <Stack.Screen options={{ title: routineName || t('routineDetail.title') }} />
 
-      {/* Quick Stats Row */}
-      <View className="flex-row gap-3">
-        <View className="flex-1 gap-3">
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.exercises')}</Text>
-          </Card>
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.min')}</Text>
-          </Card>
+      {/* Summary Card */}
+      <Card>
+        <SectionHeader label="Resumo da Rotina" className="mb-2" />
+        <Text className="text-text text-xl font-extrabold mb-1">{routineName || t('routineDetail.title')}</Text>
+        <View className="flex-row items-center gap-4 mt-2 flex-wrap">
+          <View className="bg-primary/10 rounded-full px-3 py-1">
+            <Text className="text-primary text-xs font-bold uppercase">{totalExercises} {t('routineDetail.exercises')}</Text>
+          </View>
+          <View className="bg-success/10 rounded-full px-3 py-1">
+            <Text className="text-success text-xs font-bold uppercase">{stats.totalSessions} {t('routineDetail.workouts')}</Text>
+          </View>
+          {estimatedDuration > 0 && (
+            <View className="bg-secondary/10 rounded-full px-3 py-1">
+              <Text className="text-secondary text-xs font-bold uppercase">~{estimatedDuration} {t('routineDetail.min')}</Text>
+            </View>
+          )}
         </View>
-        <View className="flex-1 gap-3">
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.workouts')}</Text>
-          </Card>
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.prs')}</Text>
-          </Card>
-        </View>
-      </View>
+      </Card>
 
       {/* Last Session */}
       {stats.lastSessionDate && (
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t('routineDetail.lastWorkout')}</Text>
+          <SectionHeader label={t('routineDetail.lastWorkout')} className="mb-2" />
           <View className="flex-row justify-between items-center">
             <View>
               <Text className="text-text text-lg font-bold">{formatDate(stats.lastSessionDate)}</Text>
@@ -268,9 +264,28 @@ export default function RoutinePreviewScreen() {
         </Card>
       )}
 
+      {/* PRs Section */}
+      {exercisesData.some(e => e.prWeight !== null) && (
+        <View>
+          <SectionHeader label="Recordes Pessoais" className="mb-3" />
+          <View className="flex-row flex-wrap gap-2.5">
+            {exercisesData.filter(e => e.prWeight !== null).slice(0, 4).map(ex => (
+              <StatTile
+                key={ex.id}
+                value={`${ex.prWeight}kg`}
+                label={ex.name}
+                accentColor="warning"
+                className="w-[calc(50%-5px)]"
+                delta={ex.lastDate ? formatDate(ex.lastDate) : undefined}
+              />
+            ))}
+          </View>
+        </View>
+      )}
+
       {/* Exercise List */}
       <View>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('routineDetail.exercises')}</Text>
+        <SectionHeader label={t('routineDetail.exercises')} className="mb-3" />
 
         {exercisesData.length === 0 ? (
           <EmptyState
@@ -312,15 +327,22 @@ export default function RoutinePreviewScreen() {
 
                     {/* Last Performance */}
                     {ex.lastWeight !== null ? (
-                      <View className="items-end min-w-[50px]">
+                      <View className="items-end min-w-[50px] mr-2">
                         <Text className="text-text font-bold text-sm">{ex.lastWeight}kg</Text>
                         <Text className="text-subtext text-xs">{ex.lastReps} reps</Text>
                       </View>
                     ) : (
-                      <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center">
+                      <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center mr-2">
                         <Text className="text-subtext/70 text-xs font-bold">{t('routineDetail.new')}</Text>
                       </View>
                     )}
+
+                    {/* Chevron SVG */}
+                    <View className="justify-center h-8">
+                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedExercise === ex.id ? '90deg' : '0deg' }] }}>
+                        <Polyline points="9 18 15 12 9 6" />
+                      </Svg>
+                    </View>
                   </View>
 
                   {/* PR & Stats Badges */}
@@ -332,12 +354,12 @@ export default function RoutinePreviewScreen() {
                         </View>
                       )}
                       {ex.estimated1RM !== null && (
-                        <View className="bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                        <View className="bg-purple-500/10 px-2 py-0.5 rounded-full border purple-500/20">
                           <Text className="text-purple-500 text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
                         </View>
                       )}
                       <View className="bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
-                        <Text className="text-blue-500 text-xs font-bold">{t('routineDetail.timesTrained', { count: ex.sessionCount })}</Text>
+                        <Text className="text-blue-500 text-xs font-bold">{t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}</Text>
                       </View>
                     </View>
                   )}
@@ -350,7 +372,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: Weight Evolution Chart */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 1 && (
                     <View className="mt-3 pt-3 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">{t('routineDetail.weightEvolution')}</Text>
+                      <SectionHeader label={t('routineDetail.weightEvolution')} className="mb-2" />
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
                         {(() => {
                           const maxW = Math.max(...ex.weightHistory.map(w => w.weight));
@@ -378,7 +400,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: History Table */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 0 && (
                     <View className="mt-2 pt-2 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-1">{t('routineDetail.recentHistory')}</Text>
+                      <SectionHeader label={t('routineDetail.recentHistory')} className="mb-1" />
                       {ex.weightHistory.slice(-5).reverse().map((h, i) => (
                         <View key={i} className="flex-row justify-between py-0.5">
                           <Text className="text-subtext text-xs">{h.date}</Text>

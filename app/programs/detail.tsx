@@ -10,6 +10,9 @@ import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { getPhaseLabel, getGoalBadge } from '../../src/utils/programs';
 import { getDetailScreenView, resolveFetchState } from '@/src/utils/program-detail-state';
+import { SectionHeader } from '@/components/SectionHeader';
+import { StatTile } from '@/components/StatTile';
+import Svg, { Polyline } from 'react-native-svg';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
@@ -160,129 +163,111 @@ export default function ProgramDetailScreen() {
       >
         {/* Program Info Card */}
         <Card>
+          <SectionHeader label={t('programs.title') || 'Programa'} className="mb-2" />
+          <Text className="text-text text-xl font-extrabold mb-3">{program.name}</Text>
           {program.description ? (
-            <Text className="text-subtext text-sm mb-3">{program.description}</Text>
+            <Text className="text-subtext text-sm mb-4">{program.description}</Text>
           ) : null}
-          <View className="flex-row items-center gap-2 mb-2">
-            <Text className="text-xs">{goalInfo.emoji}</Text>
-            <View className="bg-accent/20 rounded-md px-2 py-0.5">
-              <Text className="text-accent text-xs font-semibold">{goalInfo.label}</Text>
+          <View className="flex-row flex-wrap items-center gap-2 mb-3">
+            {program.isActive && (
+              <View className="bg-success/15 rounded-full px-3 py-1">
+                <Text className="text-success text-xs font-bold uppercase">{t('programs.active')}</Text>
+              </View>
+            )}
+            {currentPhase && (
+              <View className="bg-accent/20 rounded-full px-3 py-1">
+                <Text className="text-accent text-xs font-bold uppercase">{getPhaseLabel(currentPhase, t)}</Text>
+              </View>
+            )}
+            <View className="bg-card border border-border rounded-full px-3 py-1">
+              <Text className="text-subtext text-xs font-bold uppercase">{goalInfo.label}</Text>
             </View>
           </View>
-          <View className="flex-row justify-between">
+          <View className="flex-row justify-between pt-3 border-t border-border/50">
             <Text className="text-subtext text-xs">
-              📅 {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))} → {new Date(program.endDate).toLocaleDateString(getLocaleForLanguage(language))}
+              {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))} → {new Date(program.endDate).toLocaleDateString(getLocaleForLanguage(language))}
             </Text>
-            <Text className="text-subtext text-xs">
+            <Text className="text-subtext text-xs font-semibold">
               {program.weeksDuration} {t('programs.weeksLabel')}
             </Text>
           </View>
           {currentWeek && (
-            <View className="mt-2 pt-2 border-t border-border">
-              <View className="flex-row items-center gap-3">
-                <Text className="text-text text-sm font-semibold">
-                  {t('programs.weekOf', { current: currentWeek, total: program.weeksDuration })}
-                </Text>
-                {currentPhase && (
-                  <View className="bg-accent/20 rounded-md px-2 py-0.5">
-                    <Text className="text-accent text-xs font-semibold">{getPhaseLabel(currentPhase, t)}</Text>
-                  </View>
-                )}
-              </View>
+            <View className="mt-2 pt-2 border-t border-border/50 flex-row justify-between items-center">
+              <Text className="text-text text-xs font-bold uppercase">
+                {t('programs.weekOf', { current: currentWeek, total: program.weeksDuration })}
+              </Text>
               {weeksUntilDeload !== null && weeksUntilDeload > 0 && (
-                <Text className="text-subtext text-xs mt-1">
-                  ⏰ {t('programs.deloadIn', { weeks: weeksUntilDeload })}
+                <Text className="text-subtext text-xs font-semibold">
+                  {t('programs.deloadIn', { weeks: weeksUntilDeload })}
                 </Text>
               )}
             </View>
           )}
         </Card>
 
-        {/* Weekly Grid */}
+        {/* Weeks List */}
         <View>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            {t('programs.dashboard.weekGrid')}
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {weeks.map(week => {
+          <SectionHeader label="Semanas" className="mb-3" />
+          {weeks.length > 0 ? (
+            weeks.map(week => {
               const status = weekCompletionMap.get(week.weekNumber) || 'future';
               const isCurrent = currentWeek === week.weekNumber;
-              
-              let emoji = '';
-              if (isCurrent) emoji = '🏋️';
-              else if (status === 'done') emoji = '✅';
-              else if (status === 'missed') emoji = '❌';
-              else if (status === 'deload') emoji = '💚';
+
+              let badgeStyle = 'bg-card border border-border text-subtext';
+              let statusText = 'Pendente';
+
+              if (isCurrent) {
+                badgeStyle = 'bg-primary/10 text-primary';
+                statusText = 'Atual';
+              } else if (status === 'done') {
+                badgeStyle = 'bg-success/10 text-success';
+                statusText = 'Concluída';
+              } else if (status === 'missed') {
+                badgeStyle = 'bg-danger/10 text-danger';
+                statusText = 'Perdida';
+              } else if (status === 'deload') {
+                badgeStyle = 'bg-accent/10 text-accent';
+                statusText = 'Deload';
+              }
+
+              const badgeBg = badgeStyle.split(' ')[0];
+              const badgeText = badgeStyle.split(' ').slice(1).join(' ');
 
               return (
-                <TouchableOpacity
+                <Card
                   key={week.id}
+                  className="mb-2"
+                  pressable
                   onPress={() => router.push({
                     pathname: '/programs/week-detail',
                     params: { programId: program.id, weekNumber: week.weekNumber }
                   } as any)}
-                  className={`w-[calc(20%-7px)] aspect-square rounded-xl border-2 items-center justify-center ${
-                    isCurrent ? 'bg-primary border-primary' : 
-                    status === 'done' ? 'bg-green-500/10 border-green-500/30' :
-                    status === 'missed' ? 'bg-red-500/10 border-red-500/30' :
-                    status === 'deload' ? 'bg-green-500/20 border-green-500/50' :
-                    'bg-card border-border'
-                  }`}
                 >
-                  <Text className={`text-xs font-bold ${isCurrent ? 'text-white' : 'text-text'}`}>
-                    {week.weekNumber}
-                  </Text>
-                  {emoji ? <Text className="text-2xs mt-0.5">{emoji}</Text> : null}
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
-
-        {/* Assigned Routines Per Week */}
-        <View>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            {t('programs.weekAssignments')}
-          </Text>
-          {weeks.length > 0 ? (
-            weeks.map(week => (
-              <Card key={week.id} className="mb-2">
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1">
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-text text-sm font-semibold">
+                  <View className="flex-row justify-between items-center">
+                    <View className="flex-row items-center gap-3">
+                      <Text className="text-text font-bold text-base">
                         {t('programs.weekNumber', { num: week.weekNumber })}
                       </Text>
-                      <View className={`rounded-md px-1.5 py-0.5 ${
-                        week.phase === 'deload'
-                          ? 'bg-success/20'
-                          : week.phase === 'intensification'
-                          ? 'bg-accent/20'
-                          : 'bg-background'
-                      }`}>
-                        <Text className={`text-2xs font-semibold ${
-                          week.phase === 'deload' ? 'text-success' : 'text-accent'
-                        }`}>
-                          {getPhaseLabel(week.phase, t)}
+                      <View className={`rounded-full px-2.5 py-0.5 ${badgeBg}`}>
+                        <Text className={`text-2xs font-extrabold uppercase tracking-wider ${badgeText}`}>
+                          {statusText}
                         </Text>
                       </View>
+                      {week.phase && week.phase !== 'accumulation' && (
+                        <View className="bg-accent/10 rounded-full px-2.5 py-0.5">
+                          <Text className="text-accent text-2xs font-bold uppercase">
+                            {getPhaseLabel(week.phase, t)}
+                          </Text>
+                        </View>
+                      )}
                     </View>
-                    {week.routineId ? (
-                      <Text className="text-subtext text-xs mt-0.5">
-                        {t('programs.routineAssigned')}
-                      </Text>
-                    ) : (
-                      <Text className="text-subtext text-xs mt-0.5 italic">
-                        {t('programs.noRoutine')}
-                      </Text>
-                    )}
+                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Polyline points="9 18 15 12 9 6" />
+                    </Svg>
                   </View>
-                  {week.rirTarget !== null && week.rirTarget !== undefined && (
-                    <Text className="text-subtext text-xs">RIR {week.rirTarget}</Text>
-                  )}
-                </View>
-              </Card>
-            ))
+                </Card>
+              );
+            })
           ) : (
             <Card>
               <Text className="text-subtext text-sm text-center py-4">
@@ -294,29 +279,20 @@ export default function ProgramDetailScreen() {
 
         {/* Exercise Targets */}
         <View>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">
-            {t('programs.exerciseTargets')}
-          </Text>
+          <SectionHeader label={t('programs.exerciseTargets')} className="mb-3" />
           {targets.length > 0 ? (
-            targets.map(target => (
-              <Card key={target.id} className="mb-2">
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1">
-                    <Text className="text-text text-sm font-semibold">
-                      {target.exerciseName || t('programs.exerciseId', { id: target.exerciseId })}
-                    </Text>
-                    <Text className="text-subtext text-xs mt-0.5">
-                      {target.targetSets}×{target.targetRepsMin}–{target.targetRepsMax}
-                    </Text>
-                  </View>
-                  <View className="bg-primary/10 rounded-md px-2 py-0.5">
-                    <Text className="text-primary text-xs font-bold">
-                      {target.targetSets}×{target.targetRepsMin}–{target.targetRepsMax}
-                    </Text>
-                  </View>
-                </View>
-              </Card>
-            ))
+            <View className="flex-row flex-wrap gap-2.5">
+              {targets.map(target => (
+                <StatTile
+                  key={target.id}
+                  value={`${target.targetSets}×${target.targetRepsMin}`}
+                  label={target.exerciseName || t('programs.exerciseId', { id: target.exerciseId })}
+                  accentColor="primary"
+                  className="w-[calc(50%-5px)]"
+                  delta={target.targetRepsMax ? `Até ${target.targetRepsMax} reps` : undefined}
+                />
+              ))}
+            </View>
           ) : (
             <Card>
               <Text className="text-subtext text-sm text-center py-4">
