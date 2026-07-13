@@ -130,6 +130,7 @@ export const en = {
     discardTitle: 'Discard Changes?',
     discardMessage: 'You have unsaved photos or measurements. Leaving now will lose everything.',
     validationError: 'Invalid measurements. Check the fields',
+    emptyCheckinError: 'Add at least one measurement, photo, or note before saving.',
     photoPickerLabel: '{{side}} photo',
     photoPickerHint: 'Tap to select or change the {{side}} photo for this month.',
     photoPickerSelectedHint: 'Photo already selected.',
@@ -369,6 +370,9 @@ export const en = {
     setEdited: 'Set edited successfully',
     editSetError: 'Failed to edit set',
     undoLastSet: '↩ Undo last set (10s)',
+    undoDeletedSet: '↩ Restore deleted set (10s)',
+    setRestored: 'Set restored',
+    restoreSetError: 'Failed to restore set',
     registeredSetsCount: 'Registered Sets ({count})',
     extraWeight: 'Extra Weight (kg):',
     failure: 'FAILURE',
@@ -785,6 +789,7 @@ export const en = {
     editGoal: 'Edit Goal',
     remaining: 'Remaining',
     completed: 'completed',
+    dateRequired: 'Target date is required',
   },
 
   services: {

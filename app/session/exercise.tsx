@@ -79,6 +79,8 @@ export default function ExerciseScreen() {
     toggleActiveSet,
     lastSavedSet,
     handleUndo,
+    lastDeletedSet,
+    handleRestoreDeletedSet,
     isSaving,
     toast,
     setToast,
@@ -247,6 +249,19 @@ export default function ExerciseScreen() {
               {...a11y.undo}
             >
               <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {lastDeletedSet && (
+          <View className="mx-4 mt-2">
+            <TouchableOpacity
+              onPress={handleRestoreDeletedSet}
+              className="bg-danger/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
+              accessibilityRole="button"
+              accessibilityLabel={t('exercise.undoDeletedSet')}
+            >
+              <Text className="text-white font-bold text-sm">{t('exercise.undoDeletedSet')}</Text>
             </TouchableOpacity>
           </View>
         )}

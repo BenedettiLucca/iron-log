@@ -20,7 +20,7 @@ import { weightInputSchema } from '@/src/validators/forms';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
-import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange } from '@/src/utils/checkin-validation';
+import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange, hasMonthlyCheckinContent } from '@/src/utils/checkin-validation';
 import { InlineEmptyState } from '../../components/EmptyState';
 import { useToast } from '../../hooks/use-toast';
 import { SectionHeader } from '../../components/SectionHeader';
@@ -161,6 +161,11 @@ export default function BioScreen() {
               logger.warn('Monthly checkin validation blocked save:', validation.errors);
               const fields = validation.errors ? Object.keys(validation.errors).join(', ') : '';
               setToast({ visible: true, message: `${t('bio.validationError')}${fields ? ` (${fields})` : ''}`, type: 'error' });
+              return;
+          }
+
+          if (!hasMonthlyCheckinContent({ validated: validation.data!, photos, photoNotes })) {
+              setToast({ visible: true, message: t('bio.emptyCheckinError'), type: 'error' });
               return;
           }
 

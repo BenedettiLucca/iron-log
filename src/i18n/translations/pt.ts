@@ -137,6 +137,7 @@ export const pt = {
     discardTitle: 'Descartar Alterações?',
     discardMessage: 'Você tem fotos ou medidas não salvas. Sair agora vai perder tudo.',
     validationError: 'Medidas inválidas. Verifique os campos',
+    emptyCheckinError: 'Adicione ao menos uma medida, foto ou nota antes de salvar.',
     photoPickerLabel: 'Foto {{side}}',
     photoPickerHint: 'Toque para selecionar ou alterar a foto {{side}} deste mês.',
     photoPickerSelectedHint: 'Foto já selecionada.',
@@ -390,6 +391,9 @@ export const pt = {
     setEdited: 'Série editada com sucesso',
     editSetError: 'Falha ao editar série',
     undoLastSet: '↩ Desfazer última série (10s)',
+    undoDeletedSet: '↩ Restaurar série apagada (10s)',
+    setRestored: 'Série restaurada',
+    restoreSetError: 'Falha ao restaurar série',
     registeredSetsCount: 'Séries Registradas ({count})',
     extraWeight: 'Carga Extra (kg):',
     failure: 'FALHA',
@@ -816,6 +820,7 @@ export const pt = {
     editGoal: 'Editar Meta',
     remaining: 'Faltam',
     completed: 'concluído',
+    dateRequired: 'A data alvo é obrigatória',
   },
 
   services: {

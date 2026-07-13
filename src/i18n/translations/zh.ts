@@ -130,6 +130,7 @@ export const zh = {
     discardTitle: '放弃更改？',
     discardMessage: '你有未保存的照片或测量数据。现在离开将丢失所有内容。',
     validationError: '测量数据无效。请检查字段',
+    emptyCheckinError: '保存前请至少添加一项测量、照片或备注。',
     photoPickerLabel: '{{side}} 照片',
     photoPickerHint: '点击选择或更改本月的 {{side}} 照片。',
     photoPickerSelectedHint: '照片已选择。',
@@ -369,6 +370,9 @@ export const zh = {
     setEdited: '组数编辑成功',
     editSetError: '编辑组数失败',
     undoLastSet: '↩ 撤销最后一组（10秒）',
+    undoDeletedSet: '↩ 恢复已删除组（10秒）',
+    setRestored: '组数已恢复',
+    restoreSetError: '恢复组数失败',
     registeredSetsCount: '已记录组数 ({count})',
     extraWeight: '额外重量（kg）：',
     failure: '力竭',
@@ -785,6 +789,7 @@ export const zh = {
     editGoal: '编辑目标',
     remaining: '还差',
     completed: '已完成',
+    dateRequired: '目标日期为必填项',
   },
 
   services: {

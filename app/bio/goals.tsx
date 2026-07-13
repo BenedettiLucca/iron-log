@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Stack } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
@@ -14,6 +14,8 @@ import { DatePicker } from '@/components/DatePicker';
 import { logger } from '@/services/logger';
 import { goalInputSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
+import { Toast } from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
@@ -41,6 +43,10 @@ export default function GoalsScreen() {
   const [latestMetrics, setLatestMetrics] = useState<Record<string, number | null>>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const operationLockRef = useRef(false);
+  const { toast, showToast, setToast } = useToast();
 
   const [newGoal, setNewGoal] = useState({
     type: 'weight' as MeasurementType,
@@ -91,23 +97,28 @@ export default function GoalsScreen() {
   };
 
   const saveGoal = async () => {
+    if (operationLockRef.current || isSaving) return;
+
+    if (!newGoal.targetDate) {
+      showToast(t('bioGoals.dateRequired'), 'error');
+      return;
+    }
+
+    const validation = goalInputSchema.safeParse({
+      type: newGoal.type,
+      targetValue: newGoal.targetValue,
+      targetDate: newGoal.targetDate,
+    });
+    if (!validation.success) {
+      const msg = validation.error.issues[0]?.message || t('common.invalidData');
+      logger.warn('Goal validation failed:', msg);
+      showToast(t('common.invalidData'), 'error');
+      return;
+    }
+
+    operationLockRef.current = true;
+    setIsSaving(true);
     try {
-      if (!newGoal.targetDate) {
-        return;
-      }
-
-      // Validate with Zod
-      const validation = goalInputSchema.safeParse({
-        type: newGoal.type,
-        targetValue: newGoal.targetValue,
-        targetDate: newGoal.targetDate,
-      });
-      if (!validation.success) {
-        const msg = validation.error.issues[0]?.message || t('common.invalidData');
-        logger.warn('Goal validation failed:', msg);
-        return;
-      }
-
       const targetDate = validation.data.targetDate.getTime();
 
       if (editingGoalId !== null) {
@@ -119,36 +130,49 @@ export default function GoalsScreen() {
           })
           .where(eq(measurementGoals.id, editingGoalId));
       } else {
-        const startDate = Date.now();
         await db.insert(measurementGoals).values({
           type: validation.data.type,
           targetValue: validation.data.targetValue,
-          startDate,
+          startDate: Date.now(),
           targetDate,
           achieved: false,
         });
       }
 
+      await loadGoals();
       setModalVisible(false);
       setEditingGoalId(null);
       setNewGoal({ type: 'weight', targetValue: '', targetDate: null });
-      loadGoals();
+      showToast(t('common.saveSuccess'), 'success');
     } catch (error) {
       logger.error('Error saving goal', error);
+      showToast(t('common.operationError'), 'error');
+    } finally {
+      operationLockRef.current = false;
+      setIsSaving(false);
     }
   };
 
-  const deleteGoal = async (id: number) => {
+  const deleteGoal = (id: number) => {
     setDialog({
       visible: true,
       title: t('bioGoals.deleteGoal'),
       message: t('bioGoals.deleteGoalConfirm'),
       onConfirm: async () => {
+        if (operationLockRef.current) return;
+        operationLockRef.current = true;
+        setIsDeleting(true);
         try {
           await db.delete(measurementGoals).where(eq(measurementGoals.id, id));
-          loadGoals();
+          await loadGoals();
+          showToast(t('common.deleteSuccess'), 'success');
         } catch (error) {
           logger.error('Error deleting goal', error);
+          showToast(t('common.operationError'), 'error');
+        } finally {
+          operationLockRef.current = false;
+          setIsDeleting(false);
+          setDialog(prev => ({ ...prev, visible: false }));
         }
       },
     });
@@ -306,6 +330,7 @@ export default function GoalsScreen() {
                       variant="ghost"
                       size="sm"
                       fullWidth
+                      disabled={isSaving || isDeleting}
                     />
                   </View>
                   <View className="flex-1">
@@ -315,6 +340,7 @@ export default function GoalsScreen() {
                       variant="danger"
                       size="sm"
                       fullWidth
+                      disabled={isSaving || isDeleting}
                     />
                   </View>
                 </View>
@@ -332,6 +358,7 @@ export default function GoalsScreen() {
           variant="primary"
           size="lg"
           fullWidth
+          disabled={isSaving || isDeleting}
         />
       </View>
 
@@ -342,7 +369,7 @@ export default function GoalsScreen() {
             <Text className="text-text text-xl font-bold uppercase">
               {editingGoalId !== null ? (t("bioGoals.editGoal") || 'Editar Meta') : (t("bioGoals.newGoal") || 'Nova Meta')}
             </Text>
-            <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" />
+            <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" disabled={isSaving} />
           </View>
 
           <ScrollView contentContainerStyle={{ gap: 16 }}>
@@ -398,19 +425,25 @@ export default function GoalsScreen() {
               size="lg"
               fullWidth
               style={{ marginTop: 20 }}
+              loading={isSaving}
+              disabled={isSaving}
             />
           </ScrollView>
         </View>
       </Modal>
 
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast(prev => ({ ...prev, visible: false }))}
+      />
+
       <Dialog
         visible={dialog.visible}
         title={dialog.title}
         message={dialog.message}
-        onConfirm={() => {
-          dialog.onConfirm();
-          setDialog({ ...dialog, visible: false });
-        }}
+        onConfirm={dialog.onConfirm}
         onCancel={() => setDialog({ ...dialog, visible: false })}
       />
     </View>

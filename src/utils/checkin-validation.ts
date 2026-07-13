@@ -105,6 +105,16 @@ export function validateMonthlyCheckin(
   return { success: false, errors };
 }
 
+export function hasMonthlyCheckinContent(params: {
+  validated: StrictMonthlyCheckin;
+  photos: { front: string | null; back: string | null; side: string | null };
+  photoNotes: Record<string, string>;
+}): boolean {
+  return Object.values(params.validated).some(value => value !== undefined)
+    || Object.values(params.photos).some(Boolean)
+    || Object.values(params.photoNotes).some(note => note.trim().length > 0);
+}
+
 /**
  * Builds the entry data object for DB insertion/update.
  * Only includes provided (non-undefined) measurement values.

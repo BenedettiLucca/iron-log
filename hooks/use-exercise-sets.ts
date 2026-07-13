@@ -68,7 +68,8 @@ export function useExerciseSets({
 
   // Undo Hook
   const { 
-    lastSavedSet, setLastSavedSet, undoTimeoutRef, handleUndo: hookHandleUndo 
+    lastSavedSet, setLastSavedSet, lastDeletedSet, registerDeletedSet,
+    undoTimeoutRef, handleUndo: hookHandleUndo, handleRestoreDeleted,
   } = useSessionUndo();
 
   // Loading state
@@ -301,14 +302,20 @@ export function useExerciseSets({
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
+      const deletedSet = sessionSets.find(set => set.id === setId);
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
+      if (deletedSet) registerDeletedSet(deletedSet);
       await loadData();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [loadData, t]);
+  }, [loadData, registerDeletedSet, sessionSets, t]);
+
+  const handleRestoreDeletedSet = useCallback(async () => {
+    await handleRestoreDeleted({ exerciseId, sessionId, setSessionSets, setToast });
+  }, [exerciseId, handleRestoreDeleted, sessionId]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {
@@ -387,6 +394,8 @@ export function useExerciseSets({
     toggleActiveSet,
     lastSavedSet,
     handleUndo,
+    lastDeletedSet,
+    handleRestoreDeletedSet,
     isSaving,
     toast,
     setToast,

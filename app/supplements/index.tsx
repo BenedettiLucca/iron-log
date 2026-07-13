@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform } from 'react-native';
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
@@ -79,7 +79,15 @@ export default function SupplementsScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingSupplement, setEditingSupplement] = useState<Supplement | null>(null);
   const [streaks, setStreaks] = useState<Record<number, number>>({});
-  
+
+  // Operation state
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [togglingIds, setTogglingIds] = useState<Set<number>>(new Set());
+  const operationLockRef = useRef(false);
+  const togglingIdsRef = useRef<Set<number>>(new Set());
+
   // Form state
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('');
@@ -90,7 +98,7 @@ export default function SupplementsScreen() {
   const [emoji, setEmoji] = useState('💊');
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const { toast, setToast } = useToast();
+  const { toast, showToast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
 
   const loadData = useCallback(async () => {
@@ -118,7 +126,20 @@ export default function SupplementsScreen() {
   }, [loadData]);
 
   const handleToggle = async (id: number) => {
-    await toggleSupplement(id);
+    if (togglingIdsRef.current.has(id)) return;
+    togglingIdsRef.current.add(id);
+    setTogglingIds(prev => new Set(prev).add(id));
+    try {
+      const ok = await toggleSupplement(id);
+      if (!ok) showToast(t('common.operationError'), 'error');
+    } finally {
+      togglingIdsRef.current.delete(id);
+      setTogglingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   const openAddModal = () => {
@@ -147,14 +168,14 @@ export default function SupplementsScreen() {
 
   const handleSave = async () => {
     if (!name || !dosage || !timing) {
-      setToast({
-        visible: true,
-        message: !name ? t('supplements.nameRequired') : !dosage ? t('supplements.dosageRequired') : t('supplements.timingRequired'),
-        type: 'error'
-      });
+      showToast(
+        !name ? t('supplements.nameRequired') : !dosage ? t('supplements.dosageRequired') : t('supplements.timingRequired'),
+        'error'
+      );
       return;
     }
 
+    if (operationLockRef.current || isSaving) return;
     const supplementData = {
       name,
       dosage,
@@ -167,14 +188,23 @@ export default function SupplementsScreen() {
       isActive: true,
     };
 
-    if (editingSupplement) {
-      await updateSupplement(editingSupplement.id, supplementData);
-      setToast({ visible: true, message: t('common.saveSuccess'), type: 'success' });
-    } else {
-      await addSupplement(supplementData);
-      setToast({ visible: true, message: t('common.saveSuccess'), type: 'success' });
+    operationLockRef.current = true;
+    setIsSaving(true);
+    try {
+      const ok = editingSupplement
+        ? await updateSupplement(editingSupplement.id, supplementData)
+        : await addSupplement(supplementData);
+
+      if (ok) {
+        showToast(t('common.saveSuccess'), 'success');
+        setModalVisible(false);
+      } else {
+        showToast(t('common.operationError'), 'error');
+      }
+    } finally {
+      operationLockRef.current = false;
+      setIsSaving(false);
     }
-    setModalVisible(false);
   };
 
   const handleDelete = (item: Supplement) => {
@@ -183,11 +213,37 @@ export default function SupplementsScreen() {
       title: t('supplements.deleteConfirm', { name: item.name }),
       message: t('supplements.deleteMessage'),
       onConfirm: async () => {
-        await deleteSupplement(item.id);
-        setDialog({ ...dialog, visible: false });
-        setToast({ visible: true, message: t('common.deleteSuccess'), type: 'success' });
+        if (operationLockRef.current || isDeleting) return;
+        operationLockRef.current = true;
+        setIsDeleting(true);
+        try {
+          const ok = await deleteSupplement(item.id);
+          if (ok) {
+            showToast(t('common.deleteSuccess'), 'success');
+            setModalVisible(false);
+          } else {
+            showToast(t('common.operationError'), 'error');
+          }
+        } finally {
+          operationLockRef.current = false;
+          setDialog(prev => ({ ...prev, visible: false }));
+          setIsDeleting(false);
+        }
       }
     });
+  };
+
+  const handleSeedStack = async () => {
+    if (operationLockRef.current || isSeeding) return;
+    operationLockRef.current = true;
+    setIsSeeding(true);
+    try {
+      const ok = await seedDefaultSupplements();
+      if (!ok) showToast(t('common.operationError'), 'error');
+    } finally {
+      operationLockRef.current = false;
+      setIsSeeding(false);
+    }
   };
 
   const handleTimeChange = (event: any, selectedDate?: Date) => {
@@ -261,7 +317,7 @@ export default function SupplementsScreen() {
               title={t('supplements.empty')}
               description={t('supplements.emptyDesc')}
               actionLabel={t('supplements.seedStack')}
-              onAction={seedDefaultSupplements}
+              onAction={handleSeedStack}
             />
           </View>
         ) : (
@@ -269,6 +325,7 @@ export default function SupplementsScreen() {
             <SectionHeader label={listLabel} className="mb-1" />
             {items.map((item) => {
               const taken = isTaken(item.id);
+              const toggling = togglingIds.has(item.id);
               const statusLabel = taken ? t('supplements.taken') : t('supplements.notTaken');
 
               return (
@@ -278,9 +335,10 @@ export default function SupplementsScreen() {
                       onPress={() => handleToggle(item.id)}
                       onLongPress={() => openEditModal(item)}
                       activeOpacity={0.7}
+                      disabled={toggling}
                       className="flex-1 flex-row items-center"
                       accessibilityRole="checkbox"
-                      accessibilityState={{ checked: taken }}
+                      accessibilityState={{ checked: taken, busy: toggling }}
                       accessibilityLabel={t('supplements.toggleLabel', {
                         name: item.name,
                         status: statusLabel,
@@ -361,6 +419,7 @@ export default function SupplementsScreen() {
               onPress={() => setModalVisible(false)} 
               variant="ghost" 
               size="sm" 
+              disabled={isSaving || isDeleting}
             />
           </View>
 
@@ -453,6 +512,8 @@ export default function SupplementsScreen() {
                 variant="primary" 
                 size="lg"
                 fullWidth
+                loading={isSaving}
+                disabled={isSaving || isDeleting}
               />
               
               {editingSupplement && (
@@ -462,6 +523,8 @@ export default function SupplementsScreen() {
                   variant="ghost" 
                   size="sm"
                   fullWidth
+                  loading={isDeleting}
+                  disabled={isSaving || isDeleting}
                   textStyle={{ color: Colors.danger }}
                 />
               )}

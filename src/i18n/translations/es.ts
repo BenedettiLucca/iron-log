@@ -130,6 +130,7 @@ export const es = {
     discardTitle: '¿Descartar Cambios?',
     discardMessage: 'Tienes fotos o medidas sin guardar. Salir ahora perderá todo.',
     validationError: 'Medidas inválidas. Verifica los campos',
+    emptyCheckinError: 'Añade al menos una medida, foto o nota antes de guardar.',
     photoPickerLabel: 'Foto {{side}}',
     photoPickerHint: 'Toca para seleccionar o cambiar la foto {{side}} de este mes.',
     photoPickerSelectedHint: 'Foto ya seleccionada.',
@@ -369,6 +370,9 @@ export const es = {
     setEdited: 'Serie editada con éxito',
     editSetError: 'Error al editar serie',
     undoLastSet: '↩ Deshacer última serie (10s)',
+    undoDeletedSet: '↩ Restaurar serie eliminada (10s)',
+    setRestored: 'Serie restaurada',
+    restoreSetError: 'Error al restaurar la serie',
     registeredSetsCount: 'Series Registradas ({count})',
     extraWeight: 'Peso Extra (kg):',
     failure: 'FALLO',
@@ -785,6 +789,7 @@ export const es = {
     editGoal: 'Editar Meta',
     remaining: 'Faltan',
     completed: 'completado',
+    dateRequired: 'La fecha objetivo es obligatoria',
   },
 
   services: {
