@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../src/i18n/index';
@@ -12,6 +12,7 @@ import { Toast } from '../../components/Toast';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { SectionHeader } from '@/components/SectionHeader';
+import { LoadingState, ErrorState } from '@/components/ScreenState';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
@@ -28,58 +29,64 @@ type Template = {
   exercises: TemplateExercise[];
 };
 
+type LoadState = 'loading' | 'error' | 'empty' | 'content';
+
 export default function TemplateLibraryScreen() {
   const router = useRouter();
   const { t } = useI18n();
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [loadState, setLoadState] = useState<LoadState>('loading');
+  const [loadError, setLoadError] = useState<string | null>(null);
   const { toast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
   const [isCreating, setIsCreating] = useState(false);
 
-  useEffect(() => {
-    loadTemplates();
-  }, []);
-
-  const loadTemplates = async () => {
+  const loadTemplates = useCallback(async () => {
+    setLoadState('loading');
+    setLoadError(null);
     try {
       const routineData = await db.select().from(routines).where(eq(routines.isTemplate, true));
-      
+
       const templatesWithExercises: Template[] = [];
 
       for (const routine of routineData) {
-        try {
-          const exercisesData = await db
-            .select({
-              exerciseId: exercises.id,
-              name: exercises.name,
-              target: routineExercises.target,
-              notes: routineExercises.notes,
-              restSeconds: routineExercises.restSeconds,
-              orderIndex: routineExercises.orderIndex,
-            })
-            .from(routineExercises)
-            .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
-            .where(eq(routineExercises.routineId, routine.id))
-            .orderBy(routineExercises.orderIndex);
+        // Any per-template exercise query failure fails the whole load
+        const exercisesData = await db
+          .select({
+            exerciseId: exercises.id,
+            name: exercises.name,
+            target: routineExercises.target,
+            notes: routineExercises.notes,
+            restSeconds: routineExercises.restSeconds,
+            orderIndex: routineExercises.orderIndex,
+          })
+          .from(routineExercises)
+          .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
+          .where(eq(routineExercises.routineId, routine.id))
+          .orderBy(routineExercises.orderIndex);
 
-          const exercisesList = exercisesData.map(mapTemplateExercise);
+        const exercisesList = exercisesData.map(mapTemplateExercise);
 
-          templatesWithExercises.push({
-            id: routine.id,
-            name: typeof routine.name === 'string' ? routine.name : '',
-            description: typeof routine.description === 'string' ? routine.description : '',
-            exercises: exercisesList,
-          });
-        } catch (e) {
-          logger.error('Error loading exercises for template', e);
-        }
+        templatesWithExercises.push({
+          id: routine.id,
+          name: typeof routine.name === 'string' ? routine.name : '',
+          description: typeof routine.description === 'string' ? routine.description : '',
+          exercises: exercisesList,
+        });
       }
 
       setTemplates(templatesWithExercises);
+      setLoadState(templatesWithExercises.length === 0 ? 'empty' : 'content');
     } catch (e) {
       logger.error('Error loading templates', e);
+      setLoadError(t('states.errorBody'));
+      setLoadState('error');
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadTemplates();
+  }, [loadTemplates]);
 
   const handleLoadFromTemplate = async (template: Template) => {
     if (isCreating) return;
@@ -188,25 +195,34 @@ export default function TemplateLibraryScreen() {
         <Text className="text-subtext text-sm mb-4">{t('routines.templateLibraryDesc')}</Text>
       </View>
 
-      <FlatList
-        data={templates}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
-        ListEmptyComponent={
-          <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center justify-center mx-4 my-8">
-            <Text className="text-4xl mb-3">💾</Text>
-            <Text className="text-text text-base font-bold text-center mb-1">{t('routines.noTemplates')}</Text>
-            <Text className="text-subtext text-xs text-center mb-4">{t('routines.noTemplatesDesc')}</Text>
-            <Button
-              title={t('routines.createTemplate')}
-              onPress={() => router.back()}
-              variant="primary"
-              size="sm"
-            />
-          </View>
-        }
-        renderItem={renderTemplateCard}
-      />
+      {loadState === 'loading' && <LoadingState />}
+
+      {loadState === 'error' && (
+        <ErrorState message={loadError ?? undefined} onRetry={loadTemplates} />
+      )}
+
+      {(loadState === 'empty' || loadState === 'content') && (
+        <FlatList
+          data={templates}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
+          ListEmptyComponent={
+            /* True zero-template empty state */
+            <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center justify-center mx-4 my-8">
+              <Text className="text-4xl mb-3">💾</Text>
+              <Text className="text-text text-base font-bold text-center mb-1">{t('routines.noTemplates')}</Text>
+              <Text className="text-subtext text-xs text-center mb-4">{t('routines.noTemplatesDesc')}</Text>
+              <Button
+                title={t('routines.createTemplate')}
+                onPress={() => router.back()}
+                variant="primary"
+                size="sm"
+              />
+            </View>
+          }
+          renderItem={renderTemplateCard}
+        />
+      )}
 
       <TouchableOpacity
         onPress={() => router.back()}

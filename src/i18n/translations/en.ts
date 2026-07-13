@@ -260,6 +260,7 @@ export const en = {
     invalidJson: 'Invalid JSON. Check the format.',
     startRoutine: 'Start Routine',
     templateLoadedWithExercises: 'Template loaded with {count} exercises!',
+
     previewRoutineLabel: 'Workout routine: {name}',
     previewRoutineHint: 'Tap to view routine details, history and options.',
     quickStartLabel: 'Quick start {name}',
@@ -823,6 +824,9 @@ export const en = {
     avgDuration: 'Avg duration',
     timesTrained: 'trained',
     title: 'Routine Detail',
+    notFound: 'Routine not found',
+    invalidRoute: 'Invalid route',
+    queryError: 'Failed to load routine data.',
 
   },
 
@@ -935,6 +939,9 @@ export const en = {
       invalidWeeks: 'Duration must be between 1 and 16 weeks',
       invalidDeload: 'Deload week must be less than total duration',
     },
+    weekNotFound: 'Week not found',
+    invalidRoute: 'Invalid route parameters',
+
     dashboard: {
       volume: 'Weekly volume',
       volumeAvg: '4-week avg',

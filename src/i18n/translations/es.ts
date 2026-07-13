@@ -260,6 +260,7 @@ export const es = {
     invalidJson: 'JSON inválido. Verifica el formato.',
     startRoutine: 'Iniciar Rutina',
     templateLoadedWithExercises: '¡Plantilla cargada con {count} ejercicios!',
+
     previewRoutineLabel: 'Rutina de entrenamiento: {name}',
     previewRoutineHint: 'Toca para ver detalles, historial y opciones de la rutina.',
     quickStartLabel: 'Inicio rápido {name}',
@@ -823,6 +824,9 @@ export const es = {
     avgDuration: 'Duración promedio',
     timesTrained: 'entrenado',
     title: 'Detalle de Rutina',
+    notFound: 'Rutina no encontrada',
+    invalidRoute: 'Ruta inválida',
+    queryError: 'Error al cargar datos de rutina.',
 
   },
 
@@ -926,6 +930,9 @@ export const es = {
       invalidWeeks: 'La duración debe ser entre 1 y 16 semanas',
       invalidDeload: 'La semana de deload debe ser menor que la duración total',
       },
+    weekNotFound: 'Semana no encontrada',
+    invalidRoute: 'Parámetros de ruta inválidos',
+
       dashboard: {
       volume: 'Volumen semanal',
       volumeAvg: 'Media 4 sem',

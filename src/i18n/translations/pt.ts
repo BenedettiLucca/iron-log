@@ -275,6 +275,7 @@ export const pt = {
     invalidJson: 'JSON inválido. Verifique o formato.',
     startRoutine: 'Iniciar Rotina',
     templateLoadedWithExercises: 'Template carregado com {count} exercícios!',
+
     previewRoutineLabel: 'Rotina de treino: {name}',
     previewRoutineHint: 'Toque para ver detalhes da rotina, histórico e opções.',
     quickStartLabel: 'Início rápido {name}',
@@ -854,6 +855,9 @@ export const pt = {
     avgDuration: 'Duração média',
     timesTrained: 'treinado',
     title: 'Detalhe da Rotina',
+    notFound: 'Rotina não encontrada',
+    invalidRoute: 'Rota inválida',
+    queryError: 'Falha ao carregar dados da rotina.',
 
   },
 
@@ -966,6 +970,9 @@ export const pt = {
       invalidWeeks: 'Duração deve ser entre 1 e 16 semanas',
       invalidDeload: 'Semana de deload deve ser menor que a duração total',
     },
+    weekNotFound: 'Semana não encontrada',
+    invalidRoute: 'Parâmetros de rota inválidos',
+
     dashboard: {
       volume: 'Volume semanal',
       volumeAvg: 'Média 4 sem',

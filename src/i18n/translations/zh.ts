@@ -260,6 +260,7 @@ export const zh = {
     invalidJson: 'JSON格式无效，请检查格式。',
     startRoutine: '开始训练',
     templateLoadedWithExercises: '模板已加载，包含 {count} 个动作！',
+
     previewRoutineLabel: '训练计划：{name}',
     previewRoutineHint: '点击查看计划详情、历史记录和选项。',
     quickStartLabel: '快速开始 {name}',
@@ -823,6 +824,9 @@ export const zh = {
     avgDuration: '平均时长',
     timesTrained: '已训练',
     title: '训练详情',
+    notFound: '未找到训练计划',
+    invalidRoute: '无效路由',
+    queryError: '加载训练计划数据失败。',
 
   },
 
@@ -926,6 +930,9 @@ export const zh = {
       invalidWeeks: '持续周数必须在1到16之间',
       invalidDeload: '减载周必须小于总持续周数',
     },
+    weekNotFound: '未找到该周',
+    invalidRoute: '无效路由参数',
+
     dashboard: {
       volume: '每周训练量',
       volumeAvg: '4周平均',

@@ -63,6 +63,14 @@ export const routinePreviewParamsSchema = z.object({
 
 export type RoutinePreviewParams = z.infer<typeof routinePreviewParamsSchema>;
 
+// Week detail screen params
+export const weekDetailParamsSchema = z.object({
+  programId: numericParam,
+  weekNumber: numericParam,
+});
+
+export type WeekDetailParams = z.infer<typeof weekDetailParamsSchema>;
+
 /**
  * Safe parse helper — returns parsed data or null with error log
  */

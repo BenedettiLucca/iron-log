@@ -1,12 +1,13 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useFocusEffect } from 'expo-router';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { db } from '../../src/db/client';
-import { routineExercises, exercises, personalRecords, sets, sessions } from '../../src/db/schema';
+import { routineExercises, exercises, personalRecords, sets, sessions, routines } from '../../src/db/schema';
 import { eq, desc, and, sql, isNull, max } from 'drizzle-orm';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
@@ -14,6 +15,7 @@ import { parseTargetSets } from '../../src/utils/exercise';
 import { useI18n } from '../../src/i18n/index';
 import { SectionHeader } from '@/components/SectionHeader';
 import { StatTile } from '@/components/StatTile';
+import { safeParseParams, routinePreviewParamsSchema } from '@/src/validators/routes';
 import Svg, { Polyline } from 'react-native-svg';
 
 interface ExerciseWithStats {
@@ -42,23 +44,55 @@ interface RoutineStats {
   bestSession: { date: number; volume: number } | null;
 }
 
+type ScreenState = 'loading' | 'invalid' | 'not-found' | 'error' | 'empty' | 'content';
+
 export default function RoutinePreviewScreen() {
   const { t } = useI18n();
-  const { routineId, routineName } = useLocalSearchParams<{ routineId: string; routineName: string }>();
+  const rawParams = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
+  const rawRoutineId = rawParams.routineId;
+  const rawRoutineName = rawParams.routineName;
+
+  const params = useMemo(
+    () => safeParseParams(
+      routinePreviewParamsSchema,
+      { routineId: rawRoutineId, routineName: rawRoutineName },
+      'RoutinePreview',
+    ),
+    [rawRoutineId, rawRoutineName],
+  );
+
+  const [screenState, setScreenState] = useState<ScreenState>('loading');
+  const [routineName, setRoutineName] = useState(rawRoutineName || '');
   const [exercisesData, setExercisesData] = useState<ExerciseWithStats[]>([]);
   const [stats, setStats] = useState<RoutineStats>({
     totalSessions: 0, lastSessionDate: null, avgDuration: 0, avgVolume: 0, bestSession: null,
   });
-  const [loading, setLoading] = useState(true);
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!routineId) return;
-    const rId = Number(routineId);
+    if (!params) {
+      setScreenState('invalid');
+      return;
+    }
+    const rId = params.routineId;
 
+    setScreenState('loading');
     try {
-      // 1. Load exercises for this routine
+      // Verify routine exists
+      const routineRow = await db.select({ id: routines.id, name: routines.name })
+        .from(routines)
+        .where(eq(routines.id, rId))
+        .limit(1);
+
+      if (routineRow.length === 0) {
+        setScreenState('not-found');
+        return;
+      }
+
+      setRoutineName(routineRow[0].name ?? rawRoutineName ?? '');
+
+      // Load exercises for this routine
       const exData = await db.select({
         id: exercises.id,
         name: exercises.name,
@@ -73,10 +107,9 @@ export default function RoutinePreviewScreen() {
         .where(eq(routineExercises.routineId, rId))
         .orderBy(routineExercises.orderIndex);
 
-      // 2. For each exercise, load stats
+      // For each exercise, load stats
       const exercisesWithStats = await Promise.all(
         exData.map(async (ex) => {
-          // Last performed set
           const lastSets = await db.select({
             weightKg: sets.weightKg,
             reps: sets.reps,
@@ -89,7 +122,6 @@ export default function RoutinePreviewScreen() {
 
           const lastSet = lastSets[0];
 
-          // PRs
           const prWeightResult = await db.select({ value: personalRecords.value })
             .from(personalRecords)
             .where(and(eq(personalRecords.exerciseId, ex.id), eq(personalRecords.recordType, 'weight')))
@@ -100,12 +132,10 @@ export default function RoutinePreviewScreen() {
             .where(and(eq(personalRecords.exerciseId, ex.id), eq(personalRecords.recordType, 'reps')))
             .limit(1);
 
-          // Session count (how many times this exercise was performed)
           const sessionCountResult = await db.select({ count: sql<number>`COUNT(DISTINCT ${sets.sessionId})` })
             .from(sets)
             .where(and(eq(sets.exerciseId, ex.id), isNull(sets.deletedAt), sql`NOT ${sets.isWarmup}`));
 
-          // Weight history (last 10 sessions)
           const weightHistory = await db.select({
             startTime: sessions.startTime,
             weightKg: max(sets.weightKg),
@@ -143,7 +173,7 @@ export default function RoutinePreviewScreen() {
 
       setExercisesData(exercisesWithStats);
 
-      // 3. Load routine stats
+      // Load routine stats
       const sessionStats = await db.select({
         id: sessions.id,
         startTime: sessions.startTime,
@@ -160,25 +190,27 @@ export default function RoutinePreviewScreen() {
         : 0;
 
       setStats({ totalSessions, lastSessionDate, avgDuration, avgVolume: 0, bestSession: null });
-
+      setScreenState(exData.length === 0 ? 'empty' : 'content');
     } catch (e) {
       logger.error('Failed to load routine preview', e);
-    } finally {
-      setLoading(false);
+      setScreenState('error');
     }
-  }, [routineId]);
+  }, [params, rawRoutineName]);
 
   useFocusEffect(
     useCallback(() => {
+      setScreenState('loading');
+      setExpandedExercise(null);
       loadData();
     }, [loadData])
   );
 
   const handleStartWorkout = () => {
+    if (!params) return;
     router.push({
       pathname: '/session/[routineId]',
       params: {
-        routineId,
+        routineId: String(params.routineId),
         routineName: routineName || '',
         _ts: Date.now().toString(),
       },
@@ -186,9 +218,10 @@ export default function RoutinePreviewScreen() {
   };
 
   const handleEdit = () => {
+    if (!params) return;
     router.push({
       pathname: '/routines/editor',
-      params: { id: routineId },
+      params: { id: String(params.routineId) },
     });
   };
 
@@ -203,25 +236,46 @@ export default function RoutinePreviewScreen() {
     return `${Math.floor(seconds / 60)}m`;
   };
 
-  if (loading) {
+  if (screenState === 'invalid') {
     return (
-      <View className="flex-1 bg-background justify-center items-center">
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      <ErrorState
+        title={t('routineDetail.invalidRoute')}
+        message={t('states.errorBody')}
+      />
+    );
+  }
+
+  if (screenState === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (screenState === 'not-found') {
+    return (
+      <ErrorState
+        icon="🔍"
+        title={t('routineDetail.notFound')}
+      />
+    );
+  }
+
+  if (screenState === 'error') {
+    return (
+      <ErrorState
+        message={t('routineDetail.queryError')}
+        onRetry={loadData}
+      />
     );
   }
 
   const totalExercises = exercisesData.length;
 
-  // Estimate workout duration including rest periods between sets
   const estimatedDuration = Math.round(
     exercisesData.reduce((total, ex) => {
-      const sets = parseTargetSets(ex.target) || 3;
+      const numSets = parseTargetSets(ex.target) || 3;
       const restSeconds = ex.restSeconds || 90;
-      const setDuration = 30; // ~30s per set
-      const setupTime = 60; // ~1min setup between exercises
-      // Time for this exercise: all sets + rest between sets + setup
-      return total + (sets * setDuration) + ((sets - 1) * restSeconds) + setupTime;
+      const setDuration = 30;
+      const setupTime = 60;
+      return total + (numSets * setDuration) + ((numSets - 1) * restSeconds) + setupTime;
     }, 0) / 60
   );
 
@@ -287,11 +341,11 @@ export default function RoutinePreviewScreen() {
       <View>
         <SectionHeader label={t('routineDetail.exercises')} className="mb-3" />
 
-        {exercisesData.length === 0 ? (
+        {screenState === 'empty' ? (
           <EmptyState
             icon="📋"
-            title={t("routines.noExercises")}
-            description={t("routines.addExercisesHint")}
+            title={t('routines.noExercises')}
+            description={t('routines.addExercisesHint')}
           />
         ) : (
           <View className="gap-3">
@@ -423,19 +477,19 @@ export default function RoutinePreviewScreen() {
     <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: 24 }}>
       <View className="flex-row gap-3">
         <Button
-          title={t("common.edit")}
+          title={t('common.edit')}
           onPress={handleEdit}
           variant="secondary"
           size="lg"
           className="flex-1"
         />
         <Button
-          title={t("routineDetail.startWorkout")}
+          title={t('routineDetail.startWorkout')}
           onPress={handleStartWorkout}
           variant="primary"
           size="lg"
           className="flex-[2]"
-          disabled={exercisesData.length === 0}
+          disabled={!params || screenState !== 'content'}
         />
       </View>
     </View>
