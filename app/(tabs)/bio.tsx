@@ -14,7 +14,7 @@ import { Card } from '../../components/Card';
 import { Dialog } from '../../components/Dialog';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useBodyMetrics } from '@/hooks/use-body-metrics';
 import { weightInputSchema } from '@/src/validators/forms';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
@@ -33,6 +33,7 @@ type CheckinPhotos = {
 
 export default function BioScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -238,8 +239,8 @@ export default function BioScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
       >
@@ -283,7 +284,7 @@ export default function BioScreen() {
               accessibilityRole="button"
               accessibilityLabel={item.title}
             >
-              <View className="w-9 h-9 rounded-full bg-primary/10 justify-center items-center mb-1">
+              <View className="w-9 h-9 rounded-full bg-primarySurface justify-center items-center mb-1">
                 <Text className="text-sm">{item.icon}</Text>
               </View>
               <Text className="text-2xs font-bold uppercase text-subtext text-center mt-1" numberOfLines={1}>
@@ -301,7 +302,7 @@ export default function BioScreen() {
                     onPress={() => setModalVisible(true)}
                     className="bg-primary px-3 py-1.5 rounded-lg active:opacity-80"
                 >
-                    <Text className="text-white font-bold text-xs uppercase">{t("bio.open")}</Text>
+                    <Text className="text-onPrimary font-bold text-xs uppercase">{t("bio.open")}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -372,7 +373,7 @@ export default function BioScreen() {
 
                           <View className="flex-row items-center gap-2">
                               {item.type === 'monthly' && (
-                                  <Text className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
+                                  <Text className="text-xs bg-secondarySurface text-secondaryText px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
                               )}
                               <Text className="text-text font-bold text-lg font-display">{item.weight}kg</Text>
                           </View>
@@ -403,7 +404,7 @@ export default function BioScreen() {
 
               <ScrollView className="p-5" contentContainerStyle={{ gap: 24 }}>
                   <View>
-                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.measurements")}</Text>
+                    <Text className="text-primaryText font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.measurements")}</Text>
                     <View className="flex-row flex-wrap justify-between gap-y-4">
                         {[
                             { label: t('bio.waist'), key: 'waist' },
@@ -425,7 +426,7 @@ export default function BioScreen() {
                   </View>
 
                   <View>
-                    <Text className="text-primary font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.photos")}</Text>
+                    <Text className="text-primaryText font-bold text-xs uppercase mb-4 tracking-widest">{t("bio.photos")}</Text>
                     <View className="flex-row justify-between">
                         {(['front', 'back', 'side'] as const).map(side => (
                             <TouchableOpacity

@@ -39,9 +39,9 @@ export function EmptyState({
       {(actionLabel || onAction) && (
         <TouchableOpacity
           onPress={handleAction}
-          className="bg-primary/10 border-2 border-primary/30 rounded-2xl px-6 py-3"
+          className="bg-primarySurface border-2 border-primary/30 rounded-2xl px-6 py-3"
         >
-          <Text className="text-primary font-bold text-sm uppercase tracking-wider">
+          <Text className="text-primaryText font-bold text-sm uppercase tracking-wider">
             {actionLabel || t('common.add')}
           </Text>
         </TouchableOpacity>

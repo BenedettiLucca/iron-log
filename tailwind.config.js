@@ -24,12 +24,34 @@ module.exports = {
         border: 'rgb(var(--border) / <alpha-value>)',
         
         primary: 'rgb(var(--primary) / <alpha-value>)',
+        onPrimary: 'rgb(var(--on-primary) / <alpha-value>)',
+        primaryText: 'rgb(var(--primary-text) / <alpha-value>)',
+        primarySurface: 'rgb(var(--primary-surface) / <alpha-value>)',
+
         secondary: 'rgb(var(--secondary) / <alpha-value>)',
+        onSecondary: 'rgb(var(--on-secondary) / <alpha-value>)',
+        secondaryText: 'rgb(var(--secondary-text) / <alpha-value>)',
+        secondarySurface: 'rgb(var(--secondary-surface) / <alpha-value>)',
+
         accent: 'rgb(var(--accent) / <alpha-value>)',
+        onAccent: 'rgb(var(--on-accent) / <alpha-value>)',
+        accentText: 'rgb(var(--accent-text) / <alpha-value>)',
+        accentSurface: 'rgb(var(--accent-surface) / <alpha-value>)',
         
         success: 'rgb(var(--success) / <alpha-value>)',
+        onSuccess: 'rgb(var(--on-success) / <alpha-value>)',
+        successText: 'rgb(var(--success-text) / <alpha-value>)',
+        successSurface: 'rgb(var(--success-surface) / <alpha-value>)',
+
         warning: 'rgb(var(--warning) / <alpha-value>)',
+        onWarning: 'rgb(var(--on-warning) / <alpha-value>)',
+        warningText: 'rgb(var(--warning-text) / <alpha-value>)',
+        warningSurface: 'rgb(var(--warning-surface) / <alpha-value>)',
+
         danger: 'rgb(var(--danger) / <alpha-value>)',
+        onDanger: 'rgb(var(--on-danger) / <alpha-value>)',
+        dangerText: 'rgb(var(--danger-text) / <alpha-value>)',
+        dangerSurface: 'rgb(var(--danger-surface) / <alpha-value>)',
       },
       boxShadow: {
         'xs': {

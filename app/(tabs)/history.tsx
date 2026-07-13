@@ -12,6 +12,7 @@ import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useI18n } from '../../src/i18n/index';
 import { toLocalDateKey } from '@/src/utils/date-key';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -62,6 +63,7 @@ interface SessionWithExercises extends Session {
 
 export default function HistoryScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const router = useRouter();
 
   // Update calendar locale when language changes
@@ -81,7 +83,7 @@ export default function HistoryScreen() {
   const [dayError, setDayError] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState({ visible: false, sessionId: 0, sessionName: '' });
 
-  const loadSessions = useCallback(async () => {
+  const loadSessions = useCallback(async (dotColor: string = theme.primaryText) => {
     setPageError(null);
     try {
       setIsLoading(true);
@@ -93,7 +95,7 @@ export default function HistoryScreen() {
         const dateStr = toLocalDateKey(s.startTime);
         marks[dateStr] = {
           marked: true,
-          dotColor: Colors.primary,
+          dotColor,
         };
       });
       setMarkedDates(marks);
@@ -103,7 +105,7 @@ export default function HistoryScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, [t, theme.primaryText]);
 
   useEffect(() => {
     loadSessions();
@@ -196,15 +198,15 @@ export default function HistoryScreen() {
     calendarBackground: cardBg,
     textSectionTitleColor: textMuted,
     selectedDayBackgroundColor: Colors.primary,
-    selectedDayTextColor: Colors.white,
-    todayTextColor: Colors.primary,
+    selectedDayTextColor: Colors.onPrimary,
+    todayTextColor: theme.primaryText,
     dayTextColor: textPrimary,
     textDisabledColor: textMuted,
-    dotColor: Colors.primary,
-    selectedDotColor: Colors.white,
-    arrowColor: Colors.primary,
+    dotColor: theme.primaryText,
+    selectedDotColor: Colors.onPrimary,
+    arrowColor: theme.primaryText,
     monthTextColor: textPrimary,
-    indicatorColor: Colors.primary,
+    indicatorColor: theme.primaryText,
     textDayFontWeight: '600' as const,
     textMonthFontWeight: '900' as const,
     textDayHeaderFontWeight: '800' as const,
@@ -236,9 +238,9 @@ export default function HistoryScreen() {
                 selected: true,
                 disableTouchEvent: true,
                 selectedColor: Colors.primary,
-                selectedTextColor: Colors.white,
+                selectedTextColor: Colors.onPrimary,
                 marked: markedDates[selectedDate]?.marked,
-                dotColor: Colors.white,
+                dotColor: Colors.onPrimary,
               }
             }}
             enableSwipeMonths={true}
@@ -272,11 +274,11 @@ export default function HistoryScreen() {
             <Text className="text-subtext font-bold text-center">{t('states.errorTitle')}</Text>
             <Text className="text-subtext text-xs text-center mt-1">{dayError}</Text>
             <TouchableOpacity
-              className="mt-4 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20"
+              className="mt-4 bg-primarySurface px-4 py-2 rounded-xl border border-primary/20"
               onPress={() => selectedDate && handleDayPress({ dateString: selectedDate })}
               accessibilityRole="button"
             >
-              <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t('states.retry')}</Text>
+              <Text className="text-primaryText font-bold text-xs uppercase tracking-wider">{t('states.retry')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -321,8 +323,8 @@ export default function HistoryScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor={Colors.primary}
-              colors={[Colors.primary]}
+              tintColor={theme.primaryText}
+              colors={[theme.primaryText]}
             />
           }
           ListHeaderComponent={renderHeader}
@@ -338,8 +340,8 @@ export default function HistoryScreen() {
                   {item.exerciseNames.length > 0 && (
                     <View className="flex-row flex-wrap gap-1">
                       {item.exerciseNames.slice(0, 3).map((name, idx) => (
-                        <View key={idx} className="bg-primary/10 px-2 py-0.5 rounded-md">
-                          <Text className="text-primary text-xs font-semibold">{name}</Text>
+                        <View key={idx} className="bg-primarySurface px-2 py-0.5 rounded-md">
+                          <Text className="text-primaryText text-xs font-semibold">{name}</Text>
                         </View>
                       ))}
                       {item.exerciseNames.length > 3 && (
@@ -350,20 +352,20 @@ export default function HistoryScreen() {
                 </View>
                 <View className="flex-col gap-1.5 ml-2 justify-center">
                   <TouchableOpacity
-                    className="bg-primary/10 px-2.5 py-1.5 rounded-lg border border-primary/20 items-center justify-center min-w-[52px] min-h-[44px]"
+                    className="bg-primarySurface px-2.5 py-1.5 rounded-lg border border-primary/20 items-center justify-center min-w-[52px] min-h-[44px]"
                     onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: item.id } })}
                     accessibilityLabel={`${t('history.view')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-primary font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
+                    <Text className="text-primaryText font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    className="bg-danger/10 px-2.5 py-1.5 rounded-lg border border-danger/20 items-center justify-center min-w-[52px] min-h-[44px]"
+                    className="bg-dangerSurface px-2.5 py-1.5 rounded-lg border border-danger/20 items-center justify-center min-w-[52px] min-h-[44px]"
                     onPress={() => setDeleteDialog({ visible: true, sessionId: item.id, sessionName: item.routineName ?? '' })}
                     accessibilityLabel={`${t('common.delete')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-danger font-black text-2xs uppercase tracking-wider">{t("common.delete")}</Text>
+                    <Text className="text-dangerText font-black text-2xs uppercase tracking-wider">{t("common.delete")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>

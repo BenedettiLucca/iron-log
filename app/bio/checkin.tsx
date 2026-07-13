@@ -18,8 +18,9 @@ import { Card } from '../../components/Card';
 import { SectionHeader } from '../../components/SectionHeader';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { formatMonthYear } from '../../src/utils/checkin';
+import { Colors } from '../../constants/colors';
 
-function PlusIcon({ color = '#FFFFFF', size = 16 }: { color?: string; size?: number }) {
+function PlusIcon({ color = Colors.onPrimary, size = 16 }: { color?: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <Path d="M12 5v14M5 12h14" />
@@ -141,7 +142,7 @@ export default function CheckinScreen() {
         const sign = diff > 0 ? '↑' : '↓';
         deltaText = `${sign} ${Math.abs(diff).toFixed(1)} ${unit}`;
         const isGood = isDecreaseGood ? (diff < 0) : (diff > 0);
-        deltaColor = isGood ? 'text-success' : 'text-danger';
+        deltaColor = isGood ? 'text-successText' : 'text-dangerText';
       } else {
         deltaText = `— 0.0 ${unit}`;
       }
@@ -189,8 +190,8 @@ export default function CheckinScreen() {
             className="bg-primary py-2.5 px-4 rounded-xl flex-row items-center gap-1.5"
             activeOpacity={0.7}
           >
-            <PlusIcon color="white" size={16} />
-            <Text className="text-white font-bold text-sm">
+            <PlusIcon size={16} />
+            <Text className="text-onPrimary font-bold text-sm">
               {t('checkin.newCheckin') || 'Novo Check-in'}
             </Text>
           </TouchableOpacity>

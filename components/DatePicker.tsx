@@ -51,7 +51,7 @@ export function DatePicker({
     });
   };
 
-  const borderColor = value ? theme.primary : theme.border;
+  const borderColor = value ? theme.primaryText : theme.border;
 
   return (
     <View className="mb-4">
@@ -85,7 +85,7 @@ export function DatePicker({
                 <View className="flex-row justify-between items-center mb-4">
                   <Text className="text-text text-lg font-bold uppercase">{t('datePicker.title')}</Text>
                   <TouchableOpacity onPress={() => setShow(false)}>
-                    <Text className="text-primary font-bold text-base">{t('datePicker.done')}</Text>
+                    <Text className="text-primaryText font-bold text-base">{t('datePicker.done')}</Text>
                   </TouchableOpacity>
                 </View>
                 <View className="min-h-[200px]">
@@ -97,7 +97,7 @@ export function DatePicker({
                     minimumDate={minimumDate}
                     style={{ width: '100%' }}
                     locale={locale}
-                    textColor={theme.primary}
+                    textColor={theme.primaryText}
                   />
                 </View>
               </View>

@@ -143,7 +143,7 @@ export function SetEditor({
                     placeholder="0"
                   />
                   {weightError && (
-                    <Text className="text-danger text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
                   )}
                 </View>
 
@@ -158,7 +158,7 @@ export function SetEditor({
                     placeholder="0"
                   />
                   {repsError && (
-                    <Text className="text-danger text-xs mt-1">{repsError}</Text>
+                    <Text className="text-dangerText text-xs mt-1">{repsError}</Text>
                   )}
                 </View>
 
@@ -173,7 +173,7 @@ export function SetEditor({
                     placeholder="2"
                   />
                   {rirError && (
-                    <Text className="text-danger text-xs mt-1">{rirError}</Text>
+                    <Text className="text-dangerText text-xs mt-1">{rirError}</Text>
                   )}
                 </View>
               </>
@@ -190,7 +190,7 @@ export function SetEditor({
                     placeholder="0"
                   />
                   {weightError && (
-                    <Text className="text-danger text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
                   )}
                 </View>
 
@@ -205,7 +205,7 @@ export function SetEditor({
                     placeholder="0"
                   />
                   {durationError && (
-                    <Text className="text-danger text-xs mt-1">{durationError}</Text>
+                    <Text className="text-dangerText text-xs mt-1">{durationError}</Text>
                   )}
                 </View>
               </>

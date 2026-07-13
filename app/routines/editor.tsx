@@ -493,7 +493,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                         accessibilityLabel={t('routines.editExerciseLabel', { name: item.name })}
                         accessibilityHint={t('routines.editExerciseHint')}
                     >
-                        <Text className="text-primary text-xs font-bold uppercase">{t("routines.editExercise")}</Text>
+                        <Text className="text-primaryText text-xs font-bold uppercase">{t("routines.editExercise")}</Text>
                     </TouchableOpacity>
                 </TouchableOpacity>
             )}

@@ -107,11 +107,11 @@ export function RestTimer({
         <View className="items-center">
           <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">{t('restTimer.rest')}</Text>
 
-          <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-success' : 'text-primary'}`}>
+          <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-successText' : 'text-primaryText'}`}>
             {formatTimer(seconds)}
           </Text>
 
-          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-success' : 'text-text'}`}>
+          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-successText' : 'text-text'}`}>
             {status === 'finished' ? t('restTimer.readyForNextSet') : t('restTimer.resting')}
           </Text>
 
@@ -141,7 +141,9 @@ export function RestTimer({
               accessibilityLabel={status === 'finished' ? t('restTimer.continueAccessibility') : t('restTimer.skipAccessibility')}
               accessibilityRole="button"
             >
-              <Text className="text-white font-bold text-base">{status === 'finished' ? t('restTimer.continue') : t('restTimer.skip')}</Text>
+              <Text className={`font-bold text-base ${status === 'finished' ? 'text-onSuccess' : 'text-onPrimary'}`}>
+                {status === 'finished' ? t('restTimer.continue') : t('restTimer.skip')}
+              </Text>
             </TouchableOpacity>
           </View>
 

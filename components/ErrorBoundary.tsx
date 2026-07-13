@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </Text>
           {__DEV__ && this.state.error && (
             <View className="bg-card rounded-lg p-3 mb-4 w-full max-w-sm">
-              <Text className="text-danger text-xs font-mono" numberOfLines={5}>
+              <Text className="text-dangerText text-xs font-mono" numberOfLines={5}>
                 {this.state.error.message}
               </Text>
             </View>

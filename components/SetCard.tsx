@@ -71,7 +71,7 @@ function SetCard({
             accessibilityLabel={t("session.editSet")}
             accessibilityRole="button"
           >
-            <Text className="text-white text-xs font-bold uppercase">{t('common.edit')}</Text>
+            <Text className="text-onSecondary text-xs font-bold uppercase">{t('common.edit')}</Text>
           </TouchableOpacity>
         )}
         {onDelete && (
@@ -85,7 +85,7 @@ function SetCard({
             accessibilityLabel={t("session.deleteSet")}
             accessibilityRole="button"
           >
-            <Text className="text-white text-xs font-bold uppercase">{t('common.delete')}</Text>
+            <Text className="text-onDanger text-xs font-bold uppercase">{t('common.delete')}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -94,9 +94,9 @@ function SetCard({
 
   const getRirColorClass = (rir: number) => {
     const color = getRirColor(rir);
-    if (color === Colors.red400) return 'text-danger bg-danger/20 border-danger/30';
-    if (color === Colors.success) return 'text-success bg-success/20 border-success/30';
-    return 'text-secondary bg-secondary/20 border-secondary/30';
+    if (color === Colors.red400) return 'text-dangerText bg-dangerSurface border-dangerText/30';
+    if (color === Colors.success) return 'text-successText bg-successSurface border-successText/30';
+    return 'text-secondaryText bg-secondarySurface border-secondaryText/30';
   };
 
   const content = (
@@ -133,26 +133,26 @@ function SetCard({
           }
         }}
         className={`p-3 rounded-2xl border flex-row items-center min-h-[52px] shadow-sm ${
-          isPR ? 'bg-accent/10 border-accent' : isWarmup ? 'bg-warning/5 border-warning/30 border-dashed' : 'bg-card border-border'
+          isPR ? 'bg-accentSurface border-accentText' : isWarmup ? 'bg-warningSurface border-warningText/30 border-dashed' : 'bg-card border-border'
         }`}
       >
         <View className="mr-4 items-center justify-center">
           <View className="w-8 h-8 rounded-full bg-primary items-center justify-center">
-            <Text className="text-white font-bold text-sm">{setNumber}</Text>
+            <Text className="text-onPrimary font-bold text-sm">{setNumber}</Text>
           </View>
           {isPR && (
             <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
-              <Text className="text-text text-2xs font-bold">PR</Text>
+              <Text className="text-onAccent text-2xs font-bold">PR</Text>
             </View>
           )}
           {isWarmup && (
             <View className="bg-warning/80 px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 shadow-sm">
-              <Text className="text-white text-2xs font-bold uppercase">🔥</Text>
+              <Text className="text-onWarning text-2xs font-bold uppercase">🔥</Text>
             </View>
           )}
           {isEdited && (
             <View className="bg-secondary px-1 py-0.5 rounded mt-1">
-              <Text className="text-white text-2xs font-bold">{t("common.edit")}</Text>
+              <Text className="text-onSecondary text-2xs font-bold">{t("common.edit")}</Text>
             </View>
           )}
         </View>
@@ -182,7 +182,7 @@ function SetCard({
             </View>
           )}
           <View className="w-8 h-8 rounded-full bg-success items-center justify-center">
-            <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.onSuccess} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
               <Polyline points="20 6 9 17 4 12" />
             </Svg>
           </View>

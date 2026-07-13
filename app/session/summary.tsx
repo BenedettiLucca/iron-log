@@ -195,7 +195,7 @@ export default function SummaryScreen() {
         <Card className="mb-5 items-center">
           <Text className="text-6xl mb-2">🎉</Text>
           <Text className="text-text text-3xl font-bold">{t("summary.workoutComplete")}</Text>
-          <Text className="text-primary text-base font-semibold mt-1 mb-4">{getMotivationalMessage()}</Text>
+          <Text className="text-primaryText text-base font-semibold mt-1 mb-4">{getMotivationalMessage()}</Text>
           
           <View className="border-t border-border/50 pt-4 w-full items-center">
             <Text className="text-text text-xl font-extrabold text-center mb-1">
@@ -254,20 +254,20 @@ export default function SummaryScreen() {
               const getBadgeStyles = (verdict: typeof v) => {
                 if (verdict.verdict === 'increase') {
                   return {
-                    bgClass: 'bg-primary/10',
-                    textClass: 'text-primary',
+                    bgClass: 'bg-primarySurface',
+                    textClass: 'text-primaryText',
                     label: t('summary.verdicts.verdictIncrease')
                   };
                 } else if (verdict.verdict === 'review_fatigue' || verdict.result === 'below') {
                   return {
-                    bgClass: 'bg-warning/10',
-                    textClass: 'text-warning',
+                    bgClass: 'bg-warningSurface',
+                    textClass: 'text-warningText',
                     label: verdict.verdict === 'review_fatigue' ? t('summary.verdicts.verdictReviewFatigue') : t('summary.verdicts.resultBelow')
                   };
                 } else {
                   return {
-                    bgClass: 'bg-success/10',
-                    textClass: 'text-success',
+                    bgClass: 'bg-successSurface',
+                    textClass: 'text-successText',
                     label: verdict.result === 'no_target' ? t('summary.verdicts.resultNoTarget') : t('summary.verdicts.verdictHold')
                   };
                 }
@@ -303,8 +303,8 @@ export default function SummaryScreen() {
                         else if (flag === 'extra_sets') flagText = t('summary.verdicts.flagExtraSets');
                         else if (flag === 'repeated_below_range') flagText = t('summary.verdicts.flagRepeatedBelowRange');
                         return (
-                          <View key={flag} className="bg-danger/10 border border-danger/20 rounded px-1.5 py-0.5">
-                            <Text className="text-[10px] text-danger font-semibold">⚠️ {flagText}</Text>
+                          <View key={flag} className="bg-dangerSurface border border-danger/20 rounded px-1.5 py-0.5">
+                            <Text className="text-[10px] text-dangerText font-semibold">⚠️ {flagText}</Text>
                           </View>
                         );
                       })}

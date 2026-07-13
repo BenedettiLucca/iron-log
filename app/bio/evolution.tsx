@@ -12,7 +12,7 @@ import { PhotoComparison } from '../../components/PhotoComparison';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
-import { Colors, getThemeColors } from '@/constants/colors';
+import { getThemeColors } from '@/constants/colors';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { SegmentedControl } from '../../components/SegmentedControl';
@@ -218,7 +218,7 @@ export default function EvolutionScreen() {
               </View>
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
                 <Text className="text-2xs font-bold uppercase text-subtext">{deltaLabel}</Text>
-                <Text className={`text-sm font-extrabold mt-0.5 ${deltaVal >= 0 ? 'text-success' : 'text-danger'}`}>
+                <Text className={`text-sm font-extrabold mt-0.5 ${deltaVal >= 0 ? 'text-successText' : 'text-dangerText'}`}>
                   {formattedDelta}{unit}
                 </Text>
               </View>
@@ -259,7 +259,7 @@ export default function EvolutionScreen() {
   const renderSummaryRow = (label: string, delta: number, unit: string) => {
     const isPositive = delta > 0;
     const isZero = Math.abs(delta) < 0.01;
-    const colorClass = isZero ? 'text-subtext' : isPositive ? 'text-success' : 'text-danger';
+    const colorClass = isZero ? 'text-subtext' : isPositive ? 'text-successText' : 'text-dangerText';
     const sign = isZero ? '•' : isPositive ? '↑' : '↓';
     return (
       <View key={label} className="flex-row justify-between py-2 border-b border-border/50 last:border-b-0">
@@ -295,15 +295,15 @@ export default function EvolutionScreen() {
           {activeTab === 'weight' && (
               <>
                 <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverage")}</Text>
-                {renderChart(weightData, t('bio.weightEvolution'), Colors.primary, 'kg')}
+                {renderChart(weightData, t('bio.weightEvolution'), theme.primaryText, 'kg')}
               </>
           )}
 
           {activeTab === 'measures' && (
               <>
-                {renderChart(measuresData.waist, t('bioEvolution.waist'), Colors.success, 'cm')}
-                {renderChart(measuresData.arm, t("bioEvolution.arm"), Colors.secondary, 'cm')}
-                {renderChart(measuresData.chest, t("bioEvolution.chest"), Colors.accent, 'cm')}
+                {renderChart(measuresData.waist, t('bioEvolution.waist'), theme.successText, 'cm')}
+                {renderChart(measuresData.arm, t("bioEvolution.arm"), theme.secondaryText, 'cm')}
+                {renderChart(measuresData.chest, t("bioEvolution.chest"), theme.accentText, 'cm')}
               </>
           )}
 
@@ -343,7 +343,7 @@ export default function EvolutionScreen() {
                       <View key={entry.id} className="mb-8">
                           <View className="flex-row items-center gap-2 mb-4">
                             <View className="h-[1px] flex-1 bg-border" />
-                            <Text className="text-primary font-bold text-sm uppercase tracking-widest">
+                            <Text className="text-primaryText font-bold text-sm uppercase tracking-widest">
                                 {new Date(entry.date).toLocaleDateString(getLocaleForLanguage(language))}
                             </Text>
                             <View className="h-[1px] flex-1 bg-border" />
@@ -388,7 +388,7 @@ export default function EvolutionScreen() {
                       <Card>
                         <Text className="text-subtext text-xs font-bold uppercase mb-2">{t("bioEvolution.weightChange")}</Text>
                         <View className="flex-row items-end gap-2">
-                          <Text className={`text-4xl font-black ${analytics.weightChangeRate >= 0 ? 'text-success' : 'text-danger'}`}>
+                          <Text className={`text-4xl font-black ${analytics.weightChangeRate >= 0 ? 'text-successText' : 'text-dangerText'}`}>
                             {analytics.weightChangeRate >= 0 ? '+' : ''}
                             {analytics.weightChangeRate.toFixed(2)}
                           </Text>
@@ -476,8 +476,8 @@ export default function EvolutionScreen() {
                       </Card>
 
                       {/* Info Card */}
-                      <Card className="bg-secondary/10 border-secondary/20">
-                        <Text className="text-secondary text-xs font-bold uppercase mb-2">💡 {t('bioEvolution.tip')}</Text>
+                      <Card className="bg-secondarySurface border-secondary/20">
+                        <Text className="text-secondaryText text-xs font-bold uppercase mb-2">💡 {t('bioEvolution.tip')}</Text>
                         <Text className="text-subtext text-xs leading-5">
                           {t('bioEvolution.tipText')}
                         </Text>

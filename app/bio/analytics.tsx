@@ -8,7 +8,7 @@ import { SkeletonList, SkeletonCard } from '../../components/Skeleton';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { Colors, getThemeColors } from '@/constants/colors';
+import { getThemeColors } from '@/constants/colors';
 import { useI18n } from '../../src/i18n/index';
 import { db } from '../../src/db/client';
 import { sessions, sets, personalRecords, bodyMetrics } from '../../src/db/schema';
@@ -309,14 +309,14 @@ export default function AnalyticsScreen() {
       className="flex-1 bg-background"
       contentContainerStyle={{ padding: 16, gap: 16 }}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primaryText} />
       }
     >
       <Stack.Screen options={{ title: t('bioNav.data') }} />
 
       {/* Sessions Count Card */}
       <Card className="items-center py-6">
-        <Text className="text-4xl font-extrabold text-primary font-display">{consistency.sessionsThisMonth}</Text>
+        <Text className="text-4xl font-extrabold text-primaryText font-display">{consistency.sessionsThisMonth}</Text>
         <Text className="text-xs font-bold uppercase text-subtext mt-1">
           {language === 'pt' ? 'Sessões (30d)' : 'Sessions (30d)'}
         </Text>
@@ -416,9 +416,9 @@ export default function AnalyticsScreen() {
           >
             <LineChart
               data={weightData}
-              color={Colors.primary}
+              color={theme.primaryText}
               thickness={3}
-              dataPointsColor={Colors.primary}
+              dataPointsColor={theme.primaryText}
               textColor={theme.subtext}
               hideRules
               yAxisColor="transparent"
@@ -469,8 +469,8 @@ export default function AnalyticsScreen() {
         <View className="gap-3 mt-2">
           {insights.map((insight, idx) => {
             const isSuccess = insight.type === 'success';
-            const bgClass = isSuccess ? 'bg-success/10' : 'bg-primary/5';
-            const textAccentClass = isSuccess ? 'text-success' : 'text-primary';
+            const bgClass = isSuccess ? 'bg-successSurface' : 'bg-primary/5';
+            const textAccentClass = isSuccess ? 'text-successText' : 'text-primaryText';
             return (
               <View key={idx} className={`flex-row gap-3 rounded-xl p-3 items-start ${bgClass}`}>
                 <Text className="text-lg mt-0.5">{insight.icon}</Text>
@@ -491,7 +491,7 @@ export default function AnalyticsScreen() {
         </View>
         <View className="items-center mb-4">
           <Text className="text-text text-5xl font-black font-display">{strengthScore.totalScore}</Text>
-          <Text className="text-primary text-lg font-bold mt-1">{t('analytics.strengthLevel.' + strengthScore.labelKey)}</Text>
+          <Text className="text-primaryText text-lg font-bold mt-1">{t('analytics.strengthLevel.' + strengthScore.labelKey)}</Text>
         </View>
         <View className="gap-2">
           <View className="flex-row justify-between items-center">
@@ -537,8 +537,8 @@ export default function AnalyticsScreen() {
                   <Text className="text-text text-sm font-bold">{ex.exerciseName}</Text>
                   <Text className="text-subtext text-xs">{ex.currentMaxWeight}kg (era {ex.previousMaxWeight || '?'}kg)</Text>
                 </View>
-                <View className={`px-2 py-1 rounded ${ex.progress > 0 ? 'bg-success/10' : 'bg-danger/10'}`}>
-                  <Text className={`text-xs font-bold ${ex.progress > 0 ? 'text-success' : 'text-danger'}`}>
+                <View className={`px-2 py-1 rounded ${ex.progress > 0 ? 'bg-successSurface' : 'bg-dangerSurface'}`}>
+                  <Text className={`text-xs font-bold ${ex.progress > 0 ? 'text-successText' : 'text-dangerText'}`}>
                     {ex.progress > 0 ? '+' : ''}{ex.progress}%
                   </Text>
                 </View>

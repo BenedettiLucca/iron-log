@@ -5,7 +5,7 @@ import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Dialog } from '../../components/Dialog';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { getPhaseLabel, getGoalBadge } from '../../src/utils/programs';
@@ -18,6 +18,7 @@ import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 export default function ProgramDetailScreen() {
   const router = useRouter();
+  const theme = useThemeColors();
   const { t, language } = useI18n();
   const { programId } = useLocalSearchParams<{ programId: string }>();
   const programIdNum = Number(programId);
@@ -137,13 +138,13 @@ export default function ProgramDetailScreen() {
       {/* Header */}
       <View className="px-4 pt-6 pb-4 flex-row items-center">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Text className="text-primary text-sm font-semibold">{t('common.back')}</Text>
+          <Text className="text-primaryText text-sm font-semibold">{t('common.back')}</Text>
         </TouchableOpacity>
         <View className="flex-1">
           <Text className="text-text text-xl font-bold" numberOfLines={1}>{program.name}</Text>
           {program.isActive && (
-            <View className="bg-primary/10 rounded-md px-2 py-0.5 self-start mt-1">
-              <Text className="text-primary text-xs font-bold uppercase">{t('programs.active')}</Text>
+            <View className="bg-primarySurface rounded-md px-2 py-0.5 self-start mt-1">
+              <Text className="text-primaryText text-xs font-bold uppercase">{t('programs.active')}</Text>
             </View>
           )}
         </View>
@@ -156,8 +157,8 @@ export default function ProgramDetailScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
       >
@@ -170,13 +171,13 @@ export default function ProgramDetailScreen() {
           ) : null}
           <View className="flex-row flex-wrap items-center gap-2 mb-3">
             {program.isActive && (
-              <View className="bg-success/15 rounded-full px-3 py-1">
-                <Text className="text-success text-xs font-bold uppercase">{t('programs.active')}</Text>
+              <View className="bg-successSurface rounded-full px-3 py-1">
+                <Text className="text-successText text-xs font-bold uppercase">{t('programs.active')}</Text>
               </View>
             )}
             {currentPhase && (
-              <View className="bg-accent/20 rounded-full px-3 py-1">
-                <Text className="text-accent text-xs font-bold uppercase">{getPhaseLabel(currentPhase, t)}</Text>
+              <View className="bg-accentSurface rounded-full px-3 py-1">
+                <Text className="text-accentText text-xs font-bold uppercase">{getPhaseLabel(currentPhase, t)}</Text>
               </View>
             )}
             <View className="bg-card border border-border rounded-full px-3 py-1">
@@ -217,16 +218,16 @@ export default function ProgramDetailScreen() {
               let statusText = 'Pendente';
 
               if (isCurrent) {
-                badgeStyle = 'bg-primary/10 text-primary';
+                badgeStyle = 'bg-primarySurface text-primaryText';
                 statusText = 'Atual';
               } else if (status === 'done') {
-                badgeStyle = 'bg-success/10 text-success';
+                badgeStyle = 'bg-successSurface text-successText';
                 statusText = 'Concluída';
               } else if (status === 'missed') {
-                badgeStyle = 'bg-danger/10 text-danger';
+                badgeStyle = 'bg-dangerSurface text-dangerText';
                 statusText = 'Perdida';
               } else if (status === 'deload') {
-                badgeStyle = 'bg-accent/10 text-accent';
+                badgeStyle = 'bg-accentSurface text-accentText';
                 statusText = 'Deload';
               }
 
@@ -254,14 +255,14 @@ export default function ProgramDetailScreen() {
                         </Text>
                       </View>
                       {week.phase && week.phase !== 'accumulation' && (
-                        <View className="bg-accent/10 rounded-full px-2.5 py-0.5">
-                          <Text className="text-accent text-2xs font-bold uppercase">
+                        <View className="bg-accentSurface rounded-full px-2.5 py-0.5">
+                          <Text className="text-accentText text-2xs font-bold uppercase">
                             {getPhaseLabel(week.phase, t)}
                           </Text>
                         </View>
                       )}
                     </View>
-                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <Polyline points="9 18 15 12 9 6" />
                     </Svg>
                   </View>
@@ -304,7 +305,7 @@ export default function ProgramDetailScreen() {
 
         {/* Danger Zone */}
         <View className="mt-4 mb-8">
-          <Text className="text-danger text-xs font-bold uppercase tracking-widest mb-3">
+          <Text className="text-dangerText text-xs font-bold uppercase tracking-widest mb-3">
             {t('programs.dangerZone')}
           </Text>
           <Button

@@ -77,7 +77,7 @@ export function Input({
         )}
       </View>
       {error && (
-        <Text className="text-danger text-xs mt-1">
+        <Text className="text-dangerText text-xs mt-1">
           {error}
         </Text>
       )}

@@ -208,17 +208,17 @@ export default function WeekDetailScreen() {
           <SectionHeader label={t('programs.weekDetail') || 'Semana'} />
           {selectedWeekData && (
             <View className={`rounded-full px-2.5 py-0.5 ${
-              selectedWeek === getCurrentWeek() ? 'bg-primary/10' :
-              weekCompletionMap.get(selectedWeek!) === 'done' ? 'bg-success/10' :
-              weekCompletionMap.get(selectedWeek!) === 'missed' ? 'bg-danger/10' :
-              weekCompletionMap.get(selectedWeek!) === 'deload' ? 'bg-accent/10' :
+              selectedWeek === getCurrentWeek() ? 'bg-primarySurface' :
+              weekCompletionMap.get(selectedWeek!) === 'done' ? 'bg-successSurface' :
+              weekCompletionMap.get(selectedWeek!) === 'missed' ? 'bg-dangerSurface' :
+              weekCompletionMap.get(selectedWeek!) === 'deload' ? 'bg-accentSurface' :
               'bg-card border border-border/50'
             }`}>
               <Text className={`text-2xs font-extrabold uppercase tracking-wider ${
-                selectedWeek === getCurrentWeek() ? 'text-primary' :
-                weekCompletionMap.get(selectedWeek!) === 'done' ? 'text-success' :
-                weekCompletionMap.get(selectedWeek!) === 'missed' ? 'text-danger' :
-                weekCompletionMap.get(selectedWeek!) === 'deload' ? 'text-accent' :
+                selectedWeek === getCurrentWeek() ? 'text-primaryText' :
+                weekCompletionMap.get(selectedWeek!) === 'done' ? 'text-successText' :
+                weekCompletionMap.get(selectedWeek!) === 'missed' ? 'text-dangerText' :
+                weekCompletionMap.get(selectedWeek!) === 'deload' ? 'text-accentText' :
                 'text-subtext'
               }`}>
                 {selectedWeek === getCurrentWeek() ? 'Atual' :
@@ -246,13 +246,13 @@ export default function WeekDetailScreen() {
             let textClass = 'text-subtext';
             if (isSelected) {
               bgClass = 'bg-primary border-2 border-primary';
-              textClass = 'text-white';
+              textClass = 'text-onPrimary';
             } else if (wStatus === 'done') {
-              bgClass = 'bg-success/10 border border-success/20'; textClass = 'text-success';
+              bgClass = 'bg-successSurface border border-success/20'; textClass = 'text-successText';
             } else if (wStatus === 'missed') {
-              bgClass = 'bg-danger/10 border border-danger/20'; textClass = 'text-danger';
+              bgClass = 'bg-dangerSurface border border-danger/20'; textClass = 'text-dangerText';
             } else if (wStatus === 'deload') {
-              bgClass = 'bg-accent/10 border border-accent/20'; textClass = 'text-accent';
+              bgClass = 'bg-accentSurface border border-accent/20'; textClass = 'text-accentText';
             }
             return (
               <TouchableOpacity
@@ -347,8 +347,8 @@ export default function WeekDetailScreen() {
                     </Text>
                   </View>
                   {session.sRpe && (
-                    <View className="bg-primary/10 px-2 py-1 rounded">
-                      <Text className="text-primary font-bold text-xs">sRPE {session.sRpe}</Text>
+                    <View className="bg-primarySurface px-2 py-1 rounded">
+                      <Text className="text-primaryText font-bold text-xs">sRPE {session.sRpe}</Text>
                     </View>
                   )}
                 </View>

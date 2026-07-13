@@ -14,6 +14,7 @@ import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useI18n } from '../../src/i18n/index';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useToast } from '../../hooks/use-toast';
 import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -101,6 +102,7 @@ interface RowButtonProps {
 }
 
 function RowButton({ label, onPress, icon, loading = false, disabled = false }: RowButtonProps) {
+  const theme = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -115,7 +117,7 @@ function RowButton({ label, onPress, icon, loading = false, disabled = false }: 
         <Text className="text-text text-sm font-semibold">{label}</Text>
       </View>
       {loading ? (
-        <ActivityIndicator size="small" color={Colors.primary} />
+        <ActivityIndicator size="small" color={theme.primaryText} />
       ) : (
         <ChevronRight />
       )}
@@ -125,6 +127,7 @@ function RowButton({ label, onPress, icon, loading = false, disabled = false }: 
 
 export default function SettingsScreen() {
   const { t, setLanguage, language } = useI18n();
+  const theme = useThemeColors();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -297,7 +300,7 @@ export default function SettingsScreen() {
               size="sm"
               loading={loading}
               fullWidth
-              icon={<BellIcon color={Colors.secondary} />}
+              icon={<BellIcon color={theme.secondaryText} />}
             />
           )}
         </View>
@@ -312,14 +315,14 @@ export default function SettingsScreen() {
             <RowButton
               label={t("settings.exportData")}
               onPress={handleExport}
-              icon={<DownloadIcon color={Colors.primary} />}
+              icon={<DownloadIcon color={theme.primaryText} />}
               loading={loading}
             />
             
             <RowButton
               label={t("settings.importData")}
               onPress={handleImport}
-              icon={<UploadIcon color={Colors.primary} />}
+              icon={<UploadIcon color={theme.primaryText} />}
               loading={loading}
             />
           </View>
@@ -335,19 +338,19 @@ export default function SettingsScreen() {
             <RowButton
               label={t("settings.connectGoogle")}
               onPress={initiateGoogleAuth}
-              icon={<DriveIcon color={Colors.primary} />}
+              icon={<DriveIcon color={theme.primaryText} />}
               disabled={!request}
             />
           ) : (
             <View className="gap-2">
-              <View className="flex-row items-center gap-3 bg-success/10 p-3 rounded-lg border border-success/20">
-                <SuccessIcon color={Colors.success} />
-                <Text className="text-success text-sm font-semibold">{t("settings.connectedGoogle")}</Text>
+              <View className="flex-row items-center gap-3 bg-successSurface p-3 rounded-lg border border-success/20">
+                <SuccessIcon color={theme.successText} />
+                <Text className="text-successText text-sm font-semibold">{t("settings.connectedGoogle")}</Text>
               </View>
               <RowButton
                 label={t("settings.backupNow")}
                 onPress={handleCloudBackup}
-                icon={<CloudIcon color={Colors.primary} />}
+                icon={<CloudIcon color={theme.primaryText} />}
                 loading={loading}
               />
             </View>
@@ -366,13 +369,13 @@ export default function SettingsScreen() {
             <RowButton
               label={t("settings.exportCsvBtn")}
               onPress={handleCsvExport}
-              icon={<FileIcon color={Colors.primary} />}
+              icon={<FileIcon color={theme.primaryText} />}
               loading={loading}
             />
             <RowButton
               label={t("settings.exportAlexandriaJson")}
               onPress={handleAlexandriaExport}
-              icon={<ExportIcon color={Colors.primary} />}
+              icon={<ExportIcon color={theme.primaryText} />}
               loading={loading}
             />
           </View>
@@ -399,7 +402,7 @@ export default function SettingsScreen() {
               >
                 <Text
                   className={`text-xs font-bold uppercase ${
-                    language === lang ? 'text-white' : 'text-subtext'
+                    language === lang ? 'text-onPrimary' : 'text-subtext'
                   }`}
                 >
                   {t(`settings.${lang}`)}
@@ -419,7 +422,7 @@ export default function SettingsScreen() {
           <RowButton
             label={t("common.view")}
             onPress={() => router.push('/about')}
-            icon={<InfoIcon color={Colors.primary} />}
+            icon={<InfoIcon color={theme.primaryText} />}
           />
         </View>
       </Card>

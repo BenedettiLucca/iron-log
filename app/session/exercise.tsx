@@ -248,7 +248,7 @@ export default function ExerciseScreen() {
               className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
               {...a11y.undo}
             >
-              <Text className="text-white font-bold text-sm">{t('exercise.undoLastSet')}</Text>
+              <Text className="text-onWarning font-bold text-sm">{t('exercise.undoLastSet')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -261,7 +261,7 @@ export default function ExerciseScreen() {
               accessibilityRole="button"
               accessibilityLabel={t('exercise.undoDeletedSet')}
             >
-              <Text className="text-white font-bold text-sm">{t('exercise.undoDeletedSet')}</Text>
+              <Text className="text-onDanger font-bold text-sm">{t('exercise.undoDeletedSet')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -269,7 +269,7 @@ export default function ExerciseScreen() {
         {/* Double Progression Banner */}
         {activeProgram && progressionStatus && (
           <View className="mx-4 mt-2">
-            <View className="bg-primary/5 p-3 rounded-xl border border-primary/20">
+            <View className="bg-primarySurface p-3 rounded-xl border border-primaryText/20">
               <View className="flex-row justify-between items-center">
                 <View className="flex-1">
                   <Text className="text-subtext text-2xs font-bold uppercase tracking-wider">
@@ -281,7 +281,7 @@ export default function ExerciseScreen() {
                     </Text>
                   )}
                   {progressionStatus.isAtTop && (
-                    <Text className="text-primary text-2xs font-bold mt-1">{t('programs.atTopRange')}</Text>
+                    <Text className="text-primaryText text-2xs font-bold mt-1">{t('programs.atTopRange')}</Text>
                   )}
                 </View>
                 <Text className="text-sm">
@@ -359,7 +359,7 @@ export default function ExerciseScreen() {
                 }}
                 {...a11y.durationControl(isActiveSetRunning)}
               >
-                <Text className="text-white font-bold text-xl uppercase tracking-widest">
+                <Text className={`${isActiveSetRunning ? 'text-onDanger' : 'text-onSuccess'} font-bold text-xl uppercase tracking-widest`}>
                   {isActiveSetRunning ? t('exercise.stop') : t('exercise.startSet')}
                 </Text>
               </TouchableOpacity>

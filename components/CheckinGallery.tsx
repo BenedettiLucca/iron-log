@@ -37,7 +37,7 @@ export function CheckinGallery({ metrics, selectedMetricId, onSelectMonth }: Che
                 </View>
               )}
             </View>
-            <Text className={`text-xs mt-1.5 font-medium ${isSelected ? 'text-primary font-bold' : 'text-subtext'}`}>
+            <Text className={`text-xs mt-1.5 font-medium ${isSelected ? 'text-primaryText font-bold' : 'text-subtext'}`}>
               {monthLabel}
             </Text>
           </TouchableOpacity>

@@ -4,11 +4,12 @@ import Constants from 'expo-constants';
 import Svg, { Polyline } from 'react-native-svg';
 import { Card } from '@/components/Card';
 import { SectionHeader } from '@/components/SectionHeader';
-import { Colors } from '@/constants/colors';
 import { useI18n } from '@/src/i18n/index';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 export default function AboutScreen() {
   const { t } = useI18n();
+  const theme = useThemeColors();
   const features = [
     t('about.quickLog'),
     t('about.feature2'),
@@ -38,7 +39,7 @@ export default function AboutScreen() {
         <Text className="text-2xl font-extrabold text-text tracking-tight self-center">
           {t('about.title')}
         </Text>
-        <Text className="text-xs font-bold text-primary uppercase tracking-widest mt-1 self-center">
+        <Text className="text-xs font-bold text-primaryText uppercase tracking-widest mt-1 self-center">
           {t('about.version', { version: appVersion })}
         </Text>
       </View>
@@ -66,7 +67,7 @@ export default function AboutScreen() {
                 }`}
               >
                 <View className="mt-0.5">
-                  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <Polyline points="20 6 9 17 4 12" />
                   </Svg>
                 </View>

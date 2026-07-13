@@ -10,7 +10,7 @@ import { Button } from '../../components/Button';
 import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { SectionHeader } from '@/components/SectionHeader';
 import { LoadingState, ErrorState } from '@/components/ScreenState';
 
@@ -33,6 +33,7 @@ type LoadState = 'loading' | 'error' | 'empty' | 'content';
 
 export default function TemplateLibraryScreen() {
   const router = useRouter();
+  const theme = useThemeColors();
   const { t } = useI18n();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
@@ -139,7 +140,7 @@ export default function TemplateLibraryScreen() {
       <View className="mb-3">
         <View className="flex-row justify-between items-start mb-1">
           <Text className="text-text text-lg font-bold flex-1 mr-2">{item.name}</Text>
-          <Text className="text-subtext text-xs font-bold bg-primary/10 px-2 py-1 rounded">
+          <Text className="text-subtext text-xs font-bold bg-primarySurface px-2 py-1 rounded">
             {t('routines.exerciseCount', { count: item.exercises.length })}
           </Text>
         </View>
@@ -173,7 +174,7 @@ export default function TemplateLibraryScreen() {
           title={t('common.delete') || 'Excluir'}
           onPress={() => handleDeleteTemplate(item.id, item.name)}
           variant="ghost"
-          textStyle={{ color: Colors.danger }}
+          textStyle={{ color: theme.dangerText }}
           size="sm"
         />
         <Button

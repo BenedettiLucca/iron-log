@@ -77,7 +77,7 @@ export function ExerciseHeader({
             <View className="flex-1 mr-3">
               <Text className="text-text text-xl font-bold" numberOfLines={2}>{currentName}</Text>
               <View className="flex-row items-center gap-2 mt-1.5">
-                <Text className="text-primary text-xs font-semibold bg-primary/10 px-2 py-0.5 rounded-md">
+                <Text className="text-primaryText text-xs font-semibold bg-primarySurface px-2 py-0.5 rounded-md">
                   S{currentSetNumber}{targetInfo ? `/${targetInfo.sets}` : ''}
                 </Text>
                 {routineRest && (
@@ -91,7 +91,7 @@ export function ExerciseHeader({
 
           {(target || notes) && (
             <View className="mt-2 bg-background p-2 rounded-lg border border-border">
-              {target && <Text className="text-primary font-semibold text-xs">🎯 {target}</Text>}
+              {target && <Text className="text-primaryText font-semibold text-xs">🎯 {target}</Text>}
               {notes && <Text className="text-subtext text-2xs italic mt-0.5">📝 {notes}</Text>}
             </View>
           )}

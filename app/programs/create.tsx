@@ -95,7 +95,7 @@ export default function CreateProgramScreen() {
       {/* Header */}
       <View className="px-4 pt-6 pb-4 flex-row items-center justify-between">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Text className="text-primary text-sm font-semibold">{t('common.back')}</Text>
+          <Text className="text-primaryText text-sm font-semibold">{t('common.back')}</Text>
         </TouchableOpacity>
         <Text className="text-text text-xl font-bold flex-1">{t('programs.createTitle')}</Text>
       </View>
@@ -151,7 +151,7 @@ export default function CreateProgramScreen() {
                   }`}
                 >
                   <Text className={`text-xs font-bold uppercase tracking-wider ${
-                    isActive ? 'text-white' : 'text-subtext'
+                    isActive ? 'text-onPrimary' : 'text-subtext'
                   }`}>
                     {t(`programs.goals.${g}`)}
                   </Text>
@@ -198,8 +198,8 @@ export default function CreateProgramScreen() {
         </View>
 
         {/* Summary Preview */}
-        <Card className="bg-primary/5">
-          <Text className="text-primary font-bold text-xs uppercase tracking-widest mb-2">
+        <Card className="bg-primarySurface">
+          <Text className="text-primaryText font-bold text-xs uppercase tracking-widest mb-2">
             {t('programs.form.preview')}
           </Text>
           <Text className="text-text text-sm leading-6">

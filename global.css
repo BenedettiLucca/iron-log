@@ -6,18 +6,40 @@
   :root {
     /* LIGHT MODE (Padrão) */
     --background: 244 241 222; /* #F4F1DE */
-    --card: 255 255 255;       /* #FFFFFF */
-    --text: 61 64 91;          /* #3D405B (Dark Blue Text) */
-    --subtext: 129 129 135;
-    --border: 224 224 224;
+    --card: 244 241 222;       /* #F4F1DE */
+    --text: 61 64 91;          /* #3D405B */
+    --subtext: 104 104 120;    /* #686878 */
+    --border: 214 207 184;     /* #D6CFB8 */
     
-    --primary: 224 122 95;     /* #E07A5F (Terracotta) */
-    --secondary: 61 90 128;    /* #3D5A80 (Deep Blue) */
-    --accent: 242 204 143;     /* #F2CC8F (Yellow/Cream) */
+    --primary: 158 66 46;      /* #9E422E */
+    --on-primary: 244 241 222; /* #F4F1DE */
+    --primary-text: 158 66 46; /* #9E422E */
+    --primary-surface: 234 220 201; /* #EADCC9 */
+
+    --secondary: 61 90 128;    /* #3D5A80 */
+    --on-secondary: 244 241 222; /* #F4F1DE */
+    --secondary-text: 61 90 128; /* #3D5A80 */
+    --secondary-surface: 222 223 211; /* #DEDFD3 */
+
+    --accent: 242 204 143;     /* #F2CC8F */
+    --on-accent: 29 25 23;     /* #1D1917 */
+    --accent-text: 122 84 18;  /* #7A5412 */
+    --accent-surface: 229 222 198; /* #E5DEC6 */
     
     --success: 129 178 154;    /* #81B29A */
-    --warning: 242 204 143;    /* #F2CC8F (Warm amber) */
-    --danger: 230 57 70;       /* #E63946 (Crimson - distinct from primary) */
+    --on-success: 29 25 23;    /* #1D1917 */
+    --success-text: 63 111 92; /* #3F6F5C */
+    --success-surface: 230 231 212; /* #E6E7D4 */
+
+    --warning: 242 204 143;    /* #F2CC8F */
+    --on-warning: 29 25 23;    /* #1D1917 */
+    --warning-text: 122 84 18;  /* #7A5412 */
+    --warning-surface: 229 222 198; /* #E5DEC6 */
+
+    --danger: 180 35 50;       /* #B42332 */
+    --on-danger: 244 241 222;  /* #F4F1DE */
+    --danger-text: 180 35 50;  /* #B42332 */
+    --danger-surface: 236 216 201; /* #ECD8C9 */
     
     /* Neutral Color Scale */
     --neutral-50: 249 250 251;
@@ -37,16 +59,38 @@
       --background: 29 25 23;    /* #1D1917 */
       --card: 42 36 34;          /* #2A2422 */
       --text: 244 241 222;       /* #F4F1DE */
-      --subtext: 156 163 175;
-      --border: 96 80 80;
+      --subtext: 156 163 175;    /* #9CA3AF */
+      --border: 96 80 80;        /* #605050 */
 
-      --primary: 224 122 95;     /* Mantém a identidade */
-      --secondary: 61 90 128;    /* #3D5A80 (Standardized with light mode) */
-      --accent: 242 204 143;
+      --primary: 158 66 46;      /* #9E422E */
+      --on-primary: 244 241 222; /* #F4F1DE */
+      --primary-text: 232 146 124; /* #E8927C */
+      --primary-surface: 69 51 47; /* #45332F */
+
+      --secondary: 61 90 128;    /* #3D5A80 */
+      --on-secondary: 244 241 222; /* #F4F1DE */
+      --secondary-text: 145 173 210; /* #91ADD2 */
+      --secondary-surface: 56 55 59; /* #38373B */
+
+      --accent: 242 204 143;     /* #F2CC8F */
+      --on-accent: 29 25 23;     /* #1D1917 */
+      --accent-text: 242 204 143; /* #F2CC8F */
+      --accent-surface: 70 60 49; /* #463C31 */
       
-      --success: 129 178 154;
-      --warning: 242 204 143;    /* #F2CC8F (Warm amber) */
-      --danger: 230 57 70;       /* #E63946 (Standardized with light mode) */
+      --success: 129 178 154;    /* #81B29A */
+      --on-success: 29 25 23;    /* #1D1917 */
+      --success-text: 129 178 154; /* #81B29A */
+      --success-surface: 54 56 51; /* #363833 */
+
+      --warning: 242 204 143;    /* #F2CC8F */
+      --on-warning: 29 25 23;    /* #1D1917 */
+      --warning-text: 242 204 143; /* #F2CC8F */
+      --warning-surface: 70 60 49; /* #463C31 */
+
+      --danger: 180 35 50;       /* #B42332 */
+      --on-danger: 244 241 222;  /* #F4F1DE */
+      --danger-text: 255 123 131; /* #FF7B83 */
+      --danger-surface: 72 48 48; /* #483030 */
       
       /* Neutral Color Scale (Dark) */
       --neutral-50: 249 250 251;

@@ -11,7 +11,7 @@ import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { SkeletonList } from '../../components/Skeleton';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useSessions } from '@/hooks/use-sessions';
 import { usePrograms } from '@/hooks/use-programs';
@@ -22,6 +22,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import Svg, { Path, Polyline } from 'react-native-svg';
 export default function HomeScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { allRoutines: routinesList, fetchRoutines, isLoading: routinesLoading } = useRoutines();
@@ -161,8 +162,8 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
       >
@@ -178,7 +179,7 @@ export default function HomeScreen() {
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1 flex-row items-center gap-3">
                     <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
-                      <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
                         <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
                         <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
@@ -194,7 +195,7 @@ export default function HomeScreen() {
                     </View>
                   </View>
                   <View className="bg-primary px-3 py-2 rounded-lg">
-                    <Text className="text-white font-bold text-sm uppercase">{t("home.continue")}</Text>
+                    <Text className="text-onPrimary font-bold text-sm uppercase">{t("home.continue")}</Text>
                   </View>
                 </View>
               </Card>
@@ -225,12 +226,12 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <View className="flex-row items-center gap-2">
-                      <View className="bg-success/15 px-2.5 py-1 rounded-full">
-                        <Text className="text-success text-xs font-semibold capitalize">
+                      <View className="bg-successSurface px-2.5 py-1 rounded-full">
+                        <Text className="text-successText text-xs font-semibold capitalize">
                           {isDeloadWeek ? t('programs.phases.deload') : t(`programs.phases.${phase}`)}
                         </Text>
                       </View>
-                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <Polyline points="9 18 15 12 9 6" />
                       </Svg>
                     </View>
@@ -274,8 +275,8 @@ export default function HomeScreen() {
                   <View className="flex-row flex-wrap gap-2">
                     {keyLifts.slice(0, 3).map((lift) => {
                       const getTrendColor = (trend: string) => {
-                        if (trend === 'up') return 'text-success';
-                        if (trend === 'down') return 'text-danger';
+                        if (trend === 'up') return 'text-successText';
+                        if (trend === 'down') return 'text-dangerText';
                         return 'text-subtext';
                       };
                       return (
@@ -304,7 +305,7 @@ export default function HomeScreen() {
           <View className="flex-row justify-between items-center mb-2 px-1">
               <SectionHeader label={t("home.lastSession")} />
               <TouchableOpacity onPress={() => router.push('/history')}>
-                  <Text className="text-secondary text-xs font-bold uppercase tracking-wider">{t("home.viewCalendar")}</Text>
+                  <Text className="text-secondaryText text-xs font-bold uppercase tracking-wider">{t("home.viewCalendar")}</Text>
               </TouchableOpacity>
           </View>
 
@@ -320,7 +321,7 @@ export default function HomeScreen() {
                               {new Date(lastSession.startTime).toLocaleDateString(getLocaleForLanguage(language))} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
                           </Text>
                       </View>
-                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <Polyline points="9 18 15 12 9 6" />
                       </Svg>
                   </View>
@@ -336,7 +337,7 @@ export default function HomeScreen() {
         <View className="flex-row justify-between items-end mb-3 px-1">
           <SectionHeader label={t("home.availableRoutines")} />
           <TouchableOpacity onPress={() => router.push('/routines')}>
-            <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t("home.manage")}</Text>
+            <Text className="text-primaryText font-bold text-xs uppercase tracking-wider">{t("home.manage")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -361,7 +362,7 @@ export default function HomeScreen() {
                     <Text className="text-text text-xl font-bold mb-1">{routine.name}</Text>
                     <Text className="text-subtext text-sm" numberOfLines={1}>{routine.description}</Text>
                   </View>
-                  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <Polyline points="9 18 15 12 9 6" />
                   </Svg>
                 </View>

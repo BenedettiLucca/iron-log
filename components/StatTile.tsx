@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { View, Text } from 'react-native';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 interface StatTileProps {
   value: string | number;
@@ -21,22 +21,23 @@ export function StatTile({
   delta,
   deltaType = 'neutral',
 }: StatTileProps) {
+  const theme = useThemeColors();
   const getAccentColorHex = () => {
     switch (accentColor) {
-      case 'primary': return Colors.primary;
-      case 'secondary': return Colors.secondary;
-      case 'warning': return Colors.warning;
-      case 'success': return Colors.success;
+      case 'primary': return theme.primaryText;
+      case 'secondary': return theme.secondaryText;
+      case 'warning': return theme.warningText;
+      case 'success': return theme.successText;
       default: return undefined;
     }
   };
 
   const getBgClass = () => {
     switch (accentColor) {
-      case 'primary': return 'bg-primary/10';
-      case 'secondary': return 'bg-secondary/10';
-      case 'warning': return 'bg-warning/10';
-      case 'success': return 'bg-success/10';
+      case 'primary': return 'bg-primarySurface';
+      case 'secondary': return 'bg-secondarySurface';
+      case 'warning': return 'bg-warningSurface';
+      case 'success': return 'bg-successSurface';
       default: return 'bg-text/5';
     }
   };
@@ -61,7 +62,7 @@ export function StatTile({
       </Text>
       {delta && (
         <Text className={`text-2xs font-bold mt-1.5 ${
-          deltaType === 'positive' ? 'text-success' : deltaType === 'negative' ? 'text-danger' : 'text-subtext'
+          deltaType === 'positive' ? 'text-successText' : deltaType === 'negative' ? 'text-dangerText' : 'text-subtext'
         }`}>
           {delta}
         </Text>

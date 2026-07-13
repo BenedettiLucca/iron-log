@@ -22,6 +22,7 @@ import { resolveScreenState } from '../../src/utils/screen-state';
 import { SectionHeader } from '../../components/SectionHeader';
 import { Card } from '../../components/Card';
 import { Colors } from '../../constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import Svg, { Line, Polyline } from 'react-native-svg';
 
 export default function SessionScreen() {
@@ -207,7 +208,7 @@ export default function SessionScreen() {
   return (
     <View className="flex-1 bg-background">
       <Stack.Screen options={{
-        headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
+        headerTitle: () => <Stopwatch startTime={startTime} className="text-onPrimary" />,
         headerLeft: () => (
           <Button
             title=""
@@ -216,7 +217,7 @@ export default function SessionScreen() {
             }}
             variant="ghost"
             icon={
-              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Colors.onPrimary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <Line x1="18" y1="6" x2="6" y2="18" />
                 <Line x1="6" y1="6" x2="18" y2="18" />
               </Svg>
@@ -342,6 +343,7 @@ export default function SessionScreen() {
 
 function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { t } = useI18n();
+  const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
     warmupSwitch: t('a11y.warmupSwitch'),
@@ -400,8 +402,8 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
                 {exercise.name}
               </Text>
               {isActive && (
-                <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
-                  <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
+                <View className="bg-successSurface px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
+                  <Text className="text-successText text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
                     {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
                   </Text>
                 </View>
@@ -411,7 +413,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
             {(exercise.target || exercise.notes) && (
               <View className="mt-2 flex-row flex-wrap gap-2">
                 {exercise.target && (
-                  <Text className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-bold">
+                  <Text className="bg-primarySurface text-primaryText rounded-full px-2 py-0.5 text-xs font-bold">
                     {exercise.target}
                   </Text>
                 )}
@@ -430,8 +432,8 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
 
           <View className="ml-4">
             {isComplete ? (
-              <View className="w-6 h-6 bg-success/10 rounded-full items-center justify-center">
-                <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={Colors.success} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+              <View className="w-6 h-6 bg-successSurface rounded-full items-center justify-center">
+                <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={theme.successText} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                   <Polyline points="20 6 9 17 4 12" />
                 </Svg>
               </View>

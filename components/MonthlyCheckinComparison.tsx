@@ -29,7 +29,7 @@ export function MonthlyCheckinComparison({ current, previous }: MonthlyCheckinCo
 
         return (
           <View key={pose.key} className="gap-3">
-            <Text className="text-primary font-bold text-xs uppercase tracking-widest text-center">{pose.label}</Text>
+            <Text className="text-primaryText font-bold text-xs uppercase tracking-widest text-center">{pose.label}</Text>
 
             <View className="flex-row gap-3">
               {/* Previous Month */}
@@ -85,12 +85,12 @@ export function MonthlyCheckinComparison({ current, previous }: MonthlyCheckinCo
             {previous && (
               <View className="flex-row justify-center gap-6">
                 <View className="flex-row items-center gap-1">
-                  <Text className={`text-sm font-bold ${(current.weight ?? 0) < (previous.weight ?? 0) ? 'text-success' : 'text-danger'}`}>
+                  <Text className={`text-sm font-bold ${(current.weight ?? 0) < (previous.weight ?? 0) ? 'text-successText' : 'text-dangerText'}`}>
                     {calculateChange(current.weight, previous.weight)} kg
                   </Text>
                 </View>
                 <View className="flex-row items-center gap-1">
-                  <Text className={`text-sm font-bold ${(current.waist ?? 0) < (previous.waist ?? 0) ? 'text-success' : 'text-danger'}`}>
+                  <Text className={`text-sm font-bold ${(current.waist ?? 0) < (previous.waist ?? 0) ? 'text-successText' : 'text-dangerText'}`}>
                     {calculateChange(current.waist, previous.waist)} cm
                   </Text>
                 </View>

@@ -12,7 +12,7 @@ import { Button } from '../../components/Button';
 import { RoutinePreview } from '../../components/RoutinePreview';
 import { SkeletonList } from '../../components/Skeleton';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useRoutines } from '@/hooks/use-routines';
 import { useI18n } from '../../src/i18n/index';
 import { buildSessionStartRoute } from '../../src/utils/session-start';
@@ -22,6 +22,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import Svg, { Path } from 'react-native-svg';
 export default function RoutinesListScreen() {
   const router = useRouter();
+  const theme = useThemeColors();
   const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const { toast, setToast } = useToast();
@@ -177,7 +178,7 @@ export default function RoutinesListScreen() {
                   isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
                 }`}
               >
-                <Text className={`text-sm font-semibold ${isActive ? 'text-white' : 'text-subtext'}`}>
+                <Text className={`text-sm font-semibold ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
                   {displayFolder}
                 </Text>
               </TouchableOpacity>
@@ -194,8 +195,8 @@ export default function RoutinesListScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
         ListHeaderComponent={
@@ -250,11 +251,11 @@ export default function RoutinesListScreen() {
                   accessibilityLabel={t("routines.quickStartLabel", { name: item.name })}
                   accessibilityHint={t("routines.quickStartHint")}
                   accessibilityRole="button"
-                  className="bg-success/10 px-3 py-1.5 rounded-lg flex-row items-center gap-1"
+                  className="bg-successSurface px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >
-                  <Text className="text-success text-xs font-bold uppercase">{t("routines.start")}</Text>
+                  <Text className="text-successText text-xs font-bold uppercase">{t("routines.start")}</Text>
                   <Svg width="10" height="10" viewBox="0 0 24 24">
-                    <Path d="M8 5v14l11-7z" fill={Colors.success} />
+                    <Path d="M8 5v14l11-7z" fill={theme.successText} />
                   </Svg>
                 </TouchableOpacity>
               </View>

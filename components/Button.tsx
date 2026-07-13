@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -38,6 +38,7 @@ export function Button({
   className = '',
   accessibilityLabel,
 }: ButtonProps) {
+  const theme = useThemeColors();
   const scale = useSharedValue(1);
   const { trigger } = useHaptics();
 
@@ -97,7 +98,7 @@ export function Button({
 
     switch (variant) {
       case 'secondary':
-        return `${baseClasses} bg-background border-2 border-secondary/20 active:bg-secondary/10`;
+        return `${baseClasses} bg-background border-2 border-secondary/20 active:bg-secondarySurface`;
       case 'danger':
         return `${baseClasses} bg-danger active:opacity-90`;
       case 'ghost':
@@ -113,11 +114,13 @@ export function Button({
   const getTextClasses = () => {
     switch (variant) {
       case 'secondary':
-        return 'text-secondary';
+        return 'text-secondaryText';
       case 'danger':
+        return 'text-onDanger';
       case 'success':
+        return 'text-onSuccess';
       case 'primary':
-        return 'text-white';
+        return 'text-onPrimary';
       case 'ghost':
       default:
         return 'text-subtext';
@@ -142,7 +145,19 @@ export function Button({
       className={`${getVariantClasses()} ${getSizeClasses()} ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? Colors.secondary : Colors.white} />
+        <ActivityIndicator
+          color={
+            variant === 'secondary'
+              ? theme.secondaryText
+              : variant === 'ghost'
+              ? theme.subtext
+              : variant === 'danger'
+              ? theme.onDanger
+              : variant === 'success'
+              ? theme.onSuccess
+              : theme.onPrimary
+          }
+        />
       ) : (
         <>
           {icon && <View className="mr-2">{icon}</View>}

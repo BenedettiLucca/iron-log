@@ -22,6 +22,7 @@ import { Card } from '../../components/Card';
 import { StatTile } from '../../components/StatTile';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
@@ -38,6 +39,7 @@ interface NoteTemplate {
 
 export default function FinishSessionScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const { toast, setToast } = useToast();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
@@ -276,12 +278,12 @@ export default function FinishSessionScreen() {
         {/* Session Statistics Header */}
         {isStatsLoading ? (
           <View className="items-center justify-center py-10 mb-6" accessibilityRole="progressbar">
-            <ActivityIndicator color={Colors.primary} size="large" />
+            <ActivityIndicator color={theme.primaryText} size="large" />
             <Text className="text-subtext text-sm mt-3">{t('common.loading')}</Text>
           </View>
         ) : statsLoadError ? (
           <Card className="mb-6 border-danger/30">
-            <Text className="text-danger text-sm font-semibold text-center">
+            <Text className="text-dangerText text-sm font-semibold text-center">
               {t('common.operationError')}
             </Text>
           </Card>
@@ -369,7 +371,7 @@ export default function FinishSessionScreen() {
           </View>
 
           {weightDiff !== null && (
-            <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-success' : 'text-danger'}`}>
+            <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-successText' : 'text-dangerText'}`}>
               {weightDiff > 0 ? '↑' : '↓'} {t('finish.weightVsPrevious', { weight: Math.abs(weightDiff).toFixed(1) })}
             </Text>
           )}
@@ -380,7 +382,7 @@ export default function FinishSessionScreen() {
           <View className="flex-row justify-between items-center mb-4">
             <SectionHeader label={t('finish.perceivedEffort')} className="pl-0" />
             <View className="bg-primary px-4 py-1.5 rounded-full">
-              <Text className="text-white font-bold text-xl">{sRpe}</Text>
+              <Text className="text-onPrimary font-bold text-xl">{sRpe}</Text>
             </View>
           </View>
 

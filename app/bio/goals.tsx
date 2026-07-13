@@ -286,7 +286,7 @@ export default function GoalsScreen() {
               <Card key={goal.id}>
                 {/* Header row */}
                 <View className="flex-row justify-between items-center mb-3">
-                  <Text className="text-xs font-extrabold uppercase text-primary tracking-wider">
+                  <Text className="text-xs font-extrabold uppercase text-primaryText tracking-wider">
                     {MEASUREMENT_LABELS[goal.type as MeasurementType]}
                   </Text>
                   <Text className="text-xs text-subtext">
@@ -391,7 +391,7 @@ export default function GoalsScreen() {
                     >
                       <Text
                         className={`text-xs font-bold uppercase ${
-                          isActive ? 'text-white' : 'text-subtext'
+                          isActive ? 'text-onPrimary' : 'text-subtext'
                         }`}
                       >
                         {MEASUREMENT_LABELS[type]}

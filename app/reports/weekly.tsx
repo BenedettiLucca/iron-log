@@ -8,7 +8,7 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Toast } from '@/components/Toast';
 import { StatTile } from '@/components/StatTile';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { EmptyState } from '@/components/EmptyState';
 import { ErrorState, LoadingState } from '@/components/ScreenState';
 import { NotionExportService } from '@/services/NotionExportService';
@@ -18,6 +18,7 @@ import { formatDateShort, getWeekNumber } from '@/src/utils/date-utils';
 
 export default function WeeklyReportScreen() {
   const { t } = useI18n();
+  const theme = useThemeColors();
   const [markdown, setMarkdown] = useState('');
   const [sessionCount, setSessionCount] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
@@ -123,17 +124,17 @@ export default function WeeklyReportScreen() {
         <Card
           contentPadding={false}
           className="overflow-hidden"
-          style={{ borderTopWidth: 3, borderTopColor: Colors.primary }}
+          style={{ borderTopWidth: 3, borderTopColor: theme.primaryText }}
         >
           <View className="p-3.5 flex-row justify-between items-center">
             <View>
-              <Text className="text-2xs font-extrabold text-primary uppercase tracking-wider">{periodLabel}</Text>
+              <Text className="text-2xs font-extrabold text-primaryText uppercase tracking-wider">{periodLabel}</Text>
               <Text className="text-sm font-bold text-text mt-0.5">{dateRange}</Text>
             </View>
             {sessionCount > 0 && (
-              <View className="flex-row items-center gap-1.5 bg-success/10 px-2.5 py-1 rounded-full border border-success/15">
+              <View className="flex-row items-center gap-1.5 bg-successSurface px-2.5 py-1 rounded-full border border-success/15">
                 <View className="w-1.5 h-1.5 rounded-full bg-success" />
-                <Text className="text-2xs font-bold text-success">{t('reports.completed') || 'Concluído'}</Text>
+                <Text className="text-2xs font-bold text-successText">{t('reports.completed') || 'Concluído'}</Text>
               </View>
             )}
           </View>

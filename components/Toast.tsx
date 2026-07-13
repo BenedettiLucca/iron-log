@@ -62,6 +62,18 @@ export function Toast({
     }
   };
 
+  const getTextColor = () => {
+    switch (type) {
+      case 'error':
+        return 'text-onDanger';
+      case 'info':
+        return 'text-onSecondary';
+      case 'success':
+      default:
+        return 'text-onSuccess';
+    }
+  };
+
   return (
     <Animated.View
       style={[
@@ -72,7 +84,7 @@ export function Toast({
       ]}
     >
       <View className={`${getBgColor()} px-4 py-3 rounded-xl shadow-lg mx-4 flex-row items-center gap-3`}>
-        <Text className="text-white font-semibold text-base flex-1">
+        <Text className={`${getTextColor()} font-semibold text-base flex-1`}>
           {message}
         </Text>
       </View>

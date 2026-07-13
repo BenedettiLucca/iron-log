@@ -22,6 +22,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
 import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
 
 // Initialize Sentry as early as possible
@@ -38,7 +39,8 @@ function AppStack({ colorScheme }: { colorScheme: string }) {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
-        headerTintColor: Colors.white,
+        headerTintColor: Colors.onPrimary,
+        statusBarStyle: 'light',
         headerTitleStyle: { fontWeight: 'bold' },
         contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
         animation: 'default',
@@ -60,7 +62,14 @@ function AppStack({ colorScheme }: { colorScheme: string }) {
       <Stack.Screen name="about" options={{ title: t('drawer.about') }} />
       <Stack.Screen name="routine/[routineId]" options={{ title: t('routineDetail.title') }} />
       <Stack.Screen name="session/[routineId]" options={{ title: t('session.activeWorkout') }} />
-      <Stack.Screen name="session/exercise" options={{ title: 'Exercise', headerShown: false }} />
+      <Stack.Screen
+        name="session/exercise"
+        options={{
+          title: 'Exercise',
+          headerShown: false,
+          statusBarStyle: colorScheme === 'dark' ? 'light' : 'dark',
+        }}
+      />
       <Stack.Screen name="session/finish" options={{ title: t('finish.title') }} />
       <Stack.Screen name="session/summary" options={{ title: t('summary.title') }} />
     </Stack>
@@ -126,7 +135,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
             accessibilityHint={a11y.dontAskAgainCheckbox.accessibilityHint}
           >
             <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'}`}>
-              {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
+              {dontShowAgain && <Text className="text-onPrimary text-xs font-bold">✓</Text>}
             </View>
             <Text className="text-subtext text-sm">{dontAskAgainLabel}</Text>
           </TouchableOpacity>
@@ -137,7 +146,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
               accessibilityRole={a11y.actions.resume.accessibilityRole}
               accessibilityLabel={a11y.actions.resume.accessibilityLabel}
             >
-              <Text className="text-white font-semibold text-base">{resumeLabel}</Text>
+              <Text className="text-onPrimary font-semibold text-base">{resumeLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-success"
@@ -145,7 +154,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
               accessibilityRole={a11y.actions.save.accessibilityRole}
               accessibilityLabel={a11y.actions.save.accessibilityLabel}
             >
-              <Text className="text-white font-semibold text-base">{saveWorkoutLabel}</Text>
+              <Text className="text-onSuccess font-semibold text-base">{saveWorkoutLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-background border border-border"
@@ -165,6 +174,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
 function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme() ?? 'light';
+  const theme = useThemeColors();
   const router = useRouter();
 
   // Session recovery state
@@ -278,8 +288,8 @@ function Layout() {
   if (error) {
     return (
       <View className="flex-1 justify-center items-center bg-background p-4">
-        <Text className="text-danger text-lg font-bold">{getNestedValue(ptTranslations, 'common.dbMigrationError') || 'Erro na Migração do Banco de Dados'}</Text>
-        <Text className="text-danger mt-2">{error.message}</Text>
+        <Text className="text-dangerText text-lg font-bold">{getNestedValue(ptTranslations, 'common.dbMigrationError') || 'Erro na Migração do Banco de Dados'}</Text>
+        <Text className="text-dangerText mt-2">{error.message}</Text>
       </View>
     );
   }
@@ -287,7 +297,7 @@ function Layout() {
   if (!success) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={theme.primaryText} />
         <Text className="text-text mt-4">{getNestedValue(ptTranslations, 'common.preparingApp') || 'Preparando Iron Log...'}</Text>
       </View>
     );

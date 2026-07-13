@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Pressable } from '@/components/Pressable';
@@ -38,7 +39,7 @@ const FlameIcon = ({ color }: { color: string }) => (
   </Svg>
 );
 
-const PlusIcon = ({ color = Colors.white }: { color?: string }) => (
+const PlusIcon = ({ color = Colors.onPrimary }: { color?: string }) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <Line x1="12" y1="5" x2="12" y2="19" />
     <Line x1="5" y1="12" x2="19" y2="12" />
@@ -47,6 +48,7 @@ const PlusIcon = ({ color = Colors.white }: { color?: string }) => (
 
 export default function SupplementsScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const listLabel = useMemo(() => {
     switch (language) {
       case 'pt':
@@ -287,8 +289,8 @@ export default function SupplementsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
       >
@@ -359,7 +361,7 @@ export default function SupplementsScreen() {
                           </Text>
                           {item.isNighttime && (
                             <View className="ml-2">
-                              <MoonIcon color={Colors.secondary} />
+                              <MoonIcon color={theme.secondaryText} />
                             </View>
                           )}
                         </View>
@@ -370,12 +372,12 @@ export default function SupplementsScreen() {
 
                       <View className="items-end gap-1.5 ml-2">
                         <View className={`w-7 h-7 rounded-full border-2 items-center justify-center ${taken ? 'bg-primary border-primary' : 'border-border'}`}>
-                          {taken && <CheckIcon color={Colors.white} />}
+                          {taken && <CheckIcon color={Colors.onPrimary} />}
                         </View>
                         {streaks[item.id] > 0 && (
-                          <View className="flex-row items-center bg-primary/8 rounded-full px-2 py-0.5 gap-1">
-                            <FlameIcon color={Colors.primary} />
-                            <Text className="text-primary font-bold text-xs">{streaks[item.id]}</Text>
+                          <View className="flex-row items-center bg-primarySurface rounded-full px-2 py-0.5 gap-1">
+                            <FlameIcon color={theme.primaryText} />
+                            <Text className="text-primaryText font-bold text-xs">{streaks[item.id]}</Text>
                           </View>
                         )}
                       </View>
@@ -492,7 +494,7 @@ export default function SupplementsScreen() {
                 <Text className="text-text font-bold">{t('supplements.reminderTime')}</Text>
                 <Text className="text-subtext text-xs">{reminderTime || '--:--'}</Text>
               </View>
-              <Text className="text-primary font-bold uppercase text-xs">{t('common.edit')}</Text>
+              <Text className="text-primaryText font-bold uppercase text-xs">{t('common.edit')}</Text>
             </TouchableOpacity>
 
             {showTimePicker && (
@@ -525,7 +527,7 @@ export default function SupplementsScreen() {
                   fullWidth
                   loading={isDeleting}
                   disabled={isSaving || isDeleting}
-                  textStyle={{ color: Colors.danger }}
+                  textStyle={{ color: theme.dangerText }}
                 />
               )}
             </View>

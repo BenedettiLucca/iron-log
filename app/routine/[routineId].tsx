@@ -9,7 +9,7 @@ import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
 import { parseTargetSets } from '../../src/utils/exercise';
 import { useI18n } from '../../src/i18n/index';
@@ -48,6 +48,7 @@ type ScreenState = 'loading' | 'invalid' | 'not-found' | 'error' | 'empty' | 'co
 
 export default function RoutinePreviewScreen() {
   const { t } = useI18n();
+  const theme = useThemeColors();
   const rawParams = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
   const rawRoutineId = rawParams.routineId;
@@ -289,15 +290,15 @@ export default function RoutinePreviewScreen() {
         <SectionHeader label="Resumo da Rotina" className="mb-2" />
         <Text className="text-text text-xl font-extrabold mb-1">{routineName || t('routineDetail.title')}</Text>
         <View className="flex-row items-center gap-4 mt-2 flex-wrap">
-          <View className="bg-primary/10 rounded-full px-3 py-1">
-            <Text className="text-primary text-xs font-bold uppercase">{totalExercises} {t('routineDetail.exercises')}</Text>
+          <View className="bg-primarySurface rounded-full px-3 py-1">
+            <Text className="text-primaryText text-xs font-bold uppercase">{totalExercises} {t('routineDetail.exercises')}</Text>
           </View>
-          <View className="bg-success/10 rounded-full px-3 py-1">
-            <Text className="text-success text-xs font-bold uppercase">{stats.totalSessions} {t('routineDetail.workouts')}</Text>
+          <View className="bg-successSurface rounded-full px-3 py-1">
+            <Text className="text-successText text-xs font-bold uppercase">{stats.totalSessions} {t('routineDetail.workouts')}</Text>
           </View>
           {estimatedDuration > 0 && (
-            <View className="bg-secondary/10 rounded-full px-3 py-1">
-              <Text className="text-secondary text-xs font-bold uppercase">~{estimatedDuration} {t('routineDetail.min')}</Text>
+            <View className="bg-secondarySurface rounded-full px-3 py-1">
+              <Text className="text-secondaryText text-xs font-bold uppercase">~{estimatedDuration} {t('routineDetail.min')}</Text>
             </View>
           )}
         </View>
@@ -358,15 +359,15 @@ export default function RoutinePreviewScreen() {
                 <Card className={expandedExercise === ex.id ? 'border-primary/40' : ''}>
                   {/* Header Row */}
                   <View className="flex-row items-start">
-                    <View className="w-8 h-8 rounded-full bg-primary/10 justify-center items-center mr-3 mt-0.5">
-                      <Text className="text-primary font-bold text-sm">{index + 1}</Text>
+                    <View className="w-8 h-8 rounded-full bg-primarySurface justify-center items-center mr-3 mt-0.5">
+                      <Text className="text-primaryText font-bold text-sm">{index + 1}</Text>
                     </View>
 
                     <View className="flex-1 mr-2">
                       <Text className="text-text font-bold text-base" numberOfLines={2}>{ex.name}</Text>
                       <View className="flex-row items-center gap-2 mt-0.5 flex-wrap">
                         {ex.target && (
-                          <Text className="text-primary text-xs bg-primary/5 px-2 py-0.5 rounded border border-primary/10 font-bold uppercase">
+                          <Text className="text-primaryText text-xs bg-primarySurface px-2 py-0.5 rounded border border-primaryText/10 font-bold uppercase">
                             {ex.target}
                           </Text>
                         )}
@@ -374,7 +375,7 @@ export default function RoutinePreviewScreen() {
                           <Text className="text-subtext text-xs">⏱ {formatRest(ex.restSeconds)}</Text>
                         ) : null}
                         {ex.type === 'duration' && (
-                          <Text className="text-secondary text-xs">⏱ {t('exercise.duration')}</Text>
+                          <Text className="text-secondaryText text-xs">⏱ {t('exercise.duration')}</Text>
                         )}
                       </View>
                     </View>
@@ -393,7 +394,7 @@ export default function RoutinePreviewScreen() {
 
                     {/* Chevron SVG */}
                     <View className="justify-center h-8">
-                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedExercise === ex.id ? '90deg' : '0deg' }] }}>
+                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedExercise === ex.id ? '90deg' : '0deg' }] }}>
                         <Polyline points="9 18 15 12 9 6" />
                       </Svg>
                     </View>

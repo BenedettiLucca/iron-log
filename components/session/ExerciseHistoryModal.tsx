@@ -33,7 +33,7 @@ export function ExerciseHistoryModal({
         <View className="flex-row justify-between items-center mb-4 mt-2">
           <Text className="text-text text-xl font-bold uppercase">{t("exerciseSession.history")}</Text>
           <TouchableOpacity onPress={onClose}>
-            <Text className="text-primary font-bold uppercase">{t("common.close")}</Text>
+            <Text className="text-primaryText font-bold uppercase">{t("common.close")}</Text>
           </TouchableOpacity>
         </View>
         <FlatList

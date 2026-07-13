@@ -5,7 +5,7 @@ import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
 import { EmptyState } from '../../components/EmptyState';
 import { Button } from '../../components/Button';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { getPhaseLabel, getGoalBadge } from '../../src/utils/programs';
@@ -14,6 +14,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import Svg, { Polyline, Circle } from 'react-native-svg';
 export default function ProgramsListScreen() {
   const router = useRouter();
+  const theme = useThemeColors();
   const { t, language } = useI18n();
   const {
     allPrograms,
@@ -88,8 +89,8 @@ export default function ProgramsListScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={Colors.primary}
-            colors={[Colors.primary]}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
           />
         }
       >
@@ -102,8 +103,8 @@ export default function ProgramsListScreen() {
                 <Text className="text-text font-extrabold text-lg flex-1 mr-3" numberOfLines={1}>
                   {activeProgram.name}
                 </Text>
-                <View className="bg-success/15 rounded-full px-2.5 py-1">
-                  <Text className="text-success text-xs font-bold uppercase">
+                <View className="bg-successSurface rounded-full px-2.5 py-1">
+                  <Text className="text-successText text-xs font-bold uppercase">
                     {t('programs.active')}
                   </Text>
                 </View>
@@ -129,8 +130,8 @@ export default function ProgramsListScreen() {
                 {currentPhase && (
                   <View className="flex-1">
                     <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.phase')}</Text>
-                    <View className="bg-accent/15 rounded-full px-2.5 py-0.5 self-start">
-                      <Text className="text-accent text-xs font-bold uppercase">
+                    <View className="bg-accentSurface rounded-full px-2.5 py-0.5 self-start">
+                      <Text className="text-accentText text-xs font-bold uppercase">
                         {getPhaseLabel(currentPhase, t)}
                       </Text>
                     </View>
@@ -140,7 +141,7 @@ export default function ProgramsListScreen() {
 
               {weeksUntilDeload !== null && weeksUntilDeload > 0 && (
                 <View className="flex-row items-center gap-1.5 mt-2">
-                  <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <Circle cx="12" cy="12" r="10" />
                     <Polyline points="12 6 12 12 16 14" />
                   </Svg>
@@ -186,7 +187,7 @@ export default function ProgramsListScreen() {
                     <Text className="text-subtext text-xs">
                       {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))}
                     </Text>
-                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <Polyline points="9 18 15 12 9 6" />
                     </Svg>
                   </View>

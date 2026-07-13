@@ -99,12 +99,12 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
         <ScrollView className="flex-1 p-4" contentContainerStyle={{ gap: 16 }}>
           {/* Quick Stats */}
           <View className="flex-row gap-3">
-            <Card className="flex-1 items-center py-4 bg-primary/5">
-              <Text className="text-primary text-3xl font-bold">{exerciseList.length}</Text>
+            <Card className="flex-1 items-center py-4 bg-primarySurface">
+              <Text className="text-primaryText text-3xl font-bold">{exerciseList.length}</Text>
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('routines.exercises')}</Text>
             </Card>
-            <Card className="flex-1 items-center py-4 bg-primary/5">
-              <Text className="text-primary text-3xl font-bold">~{estimatedDuration}</Text>
+            <Card className="flex-1 items-center py-4 bg-primarySurface">
+              <Text className="text-primaryText text-3xl font-bold">~{estimatedDuration}</Text>
               <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.minutes')}</Text>
             </Card>
           </View>
@@ -126,8 +126,8 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
                 {exerciseList.map((exercise: ExercisePreview, index: number) => (
                   <Card key={exercise.id} className="flex-row items-center py-3">
                     {/* Number Badge */}
-                    <View className="w-8 h-8 rounded-full bg-primary/10 justify-center items-center mr-3">
-                      <Text className="text-primary font-bold text-sm">{index + 1}</Text>
+                    <View className="w-8 h-8 rounded-full bg-primarySurface justify-center items-center mr-3">
+                      <Text className="text-primaryText font-bold text-sm">{index + 1}</Text>
                     </View>
                     
                     {/* Exercise Info */}
@@ -145,7 +145,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
                           </Text>
                         )}
                         {exercise.type === 'duration' && (
-                          <Text className="text-secondary text-xs">⏱️ {t('exercise.duration')}</Text>
+                          <Text className="text-secondaryText text-xs">⏱️ {t('exercise.duration')}</Text>
                         )}
                       </View>
                       {exercise.notes && (
