@@ -12,6 +12,13 @@
 - Every sprint ends with a real Android verification when device access is required.
 - Do not combine broad visual refactors with business-logic changes.
 
+## Progress — 2026-07-13
+
+- **Sprint 0:** baseline físico parcial capturado em dark mode para Home, Sobre, Ajustes e fluxo sessão → exercício → série → descanso. Light mode, larguras adicionais, idiomas e font scale continuam pendentes.
+- **Sprint 0A:** concluída; trust hardening integrado e enviado para `feat/open-design-redesign`.
+- **Sprint 1:** native correctness iniciado. SVGs inválidos, compatibilidade do Expo Go e ordem de inicialização do Sentry corrigidos e validados no Android em `cf532b6`.
+- **Expo Doctor:** 16/18. Pendências conhecidas: duplicidade de `react-native-safe-area-context` e alinhamento coordenado de 15 dependências; não usar upgrade blanket no meio do polish visual.
+
 ## Quality gates shared by every sprint
 
 ```bash
@@ -112,7 +119,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 ### Scope
 
-1. Fix lowercase SVG primitives (`Line`, `Polyline`).
+1. Fix lowercase SVG primitives (`Line`, `Polyline`). **Concluído em `cf532b6`; guard estático adicionado e Android validado.**
 2. Define contrast-safe semantic pairs per theme:
    - `primary` / `onPrimary` / `primaryText` / `primarySurface`;
    - same for success, danger, warning, secondary;
@@ -129,11 +136,14 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 5. Add static tests/check script for project utility conventions.
 6. Define typography, radius, elevation and spacing roles in one short design-system document.
 
-### Product decisions for Lucca
+### Locked product decisions
 
-- Keep system font (recommended) vs introduce a real display font.
-- Preserve terracotta fill and use dark `onPrimary` vs darken the primary fill for white text.
-- Flat-card direction (recommended) vs keeping shadows on every card.
+- Fonte nativa do sistema; remover `font-display`, não embarcar DM Sans.
+- Primary `#9E422E`; on-primary creme `#F4F1DE` (5.65:1).
+- Background/surface light `#F4F1DE`; branco puro não é superfície padrão.
+- Manter shadows, mas somente numa hierarquia deliberada de elevação.
+- Headers nativos do Stack permanecem; mudança para headers customizados exige nova decisão.
+- Tablet fora do escopo e `supportsTablet: false`.
 
 ### Acceptance
 
@@ -444,10 +454,10 @@ Do not parallelize sprints that touch the same primitives. Antigravity can handl
 Lucca locked the product direction on 2026-07-11:
 
 1. use the native system font; remove fake `font-display` usage rather than adding a custom typeface;
-2. replace pure-white light surfaces/foregrounds with cream; start visual validation with `#FFFCF2`;
-3. darken terracotta; initial AA-safe candidate is `#B9553F` against cream (4.61:1), subject to screenshot approval;
+2. replace pure-white light surfaces/foregrounds with cream `#F4F1DE`;
+3. use terracotta `#9E422E`; it reaches 5.65:1 against cream and is the approved rollout value;
 4. retain shadows, but apply them through an intentional elevation hierarchy rather than making every surface equally elevated;
 5. tablet is out of scope; `supportsTablet` should be disabled;
 6. Web may be installed and used as a secondary QA baseline, but does not become a supported product target without a separate decision.
 
-These are now implementation constraints for Antigravity. The exact terracotta candidate remains subject to visual comparison before rollout.
+These are implementation constraints for Antigravity. They are no longer candidates; any departure requires a new decision with Lucca.

@@ -13,7 +13,7 @@ The redesign established a strong visual direction, but it is **not yet release-
 3. the visual grammar overuses cards, shadows, uppercase labels, heavy weights and pills;
 4. motion exists as isolated effects, not as a coherent interaction system;
 5. forms and fixed actions are not consistently keyboard/safe-area aware;
-6. responsive behavior has not been validated on a real device, large font scale or tablet;
+6. responsive behavior has only partial real-device validation; light mode, alternate widths, large font scale and language expansion remain open;
 7. accessibility coverage and translation quality are incomplete.
 
 The codebase remains functionally healthy: typecheck, lint and all 390 tests pass. This audit is about turning a technically working redesign into a product that feels deliberate, calm and trustworthy.
@@ -29,13 +29,17 @@ The codebase remains functionally healthy: typecheck, lint and all 390 tests pas
 - Translation key parity across four languages.
 - Existing Open Design HTML references.
 
-### Not yet verified
+### Physical-device evidence added 2026-07-13
 
-No Android device/emulator is connected. Expo Web also cannot run: the project exposes a `web` script/configuration, but the required `react-native-web` dependency is absent. Therefore the following remain mandatory device-validation items:
+Android physical-device captures now cover Home, Sobre, Ajustes and the critical session → exercise → saved set → rest timer flow in dark mode. This validation exposed and closed the lowercase SVG crash, the Expo Go notification-module overlay and the Sentry initialization-order warning. The tested flow has no blocking clipping or safe-area overlap.
+
+### Still not verified
+
+Expo Web remains unusable as a baseline because bundling stalls before producing an artifact. The following device-validation items remain mandatory:
 
 - pixel-level layout and clipping;
 - keyboard behavior;
-- actual native SVG rendering;
+- native rendering outside the verified workout icons;
 - transition timing and gesture feel;
 - Android font metrics;
 - TalkBack focus order;
@@ -62,9 +66,9 @@ No release should be called visually complete before the device matrix in this d
 
 ## Release prerequisites and high-risk native findings
 
-The static review found **no proven P0 functional defect**: typecheck, lint and all 390 tests pass. The following items are release blockers or native risks that require device evidence, not confirmed P0 crashes.
+The initial static review found no proven P0 functional defect, but later Android validation confirmed the workout-critical lowercase SVG crash described below. It is now resolved with regression coverage. Remaining findings still require device evidence rather than static assumptions.
 
-### Native SVG child elements use lowercase intrinsic tags
+### Native SVG child elements use lowercase intrinsic tags — resolved
 
 **Evidence:**
 
@@ -74,15 +78,13 @@ The static review found **no proven P0 functional defect**: typecheck, lint and 
 
 `react-native-svg` expects imported `Line`/`Polyline` components. Lowercase JSX may compile through broad intrinsic typings while failing to render correctly on native. These icons sit in workout-critical controls.
 
-**Severity:** P1 native-rendering risk until confirmed on device.
+**Resolution:** replaced with imported `Line`/`Polyline`, protected by `native-compatibility.test.ts` and verified through the workout flow on Android. Commit `cf532b6`. Light-mode visual confirmation remains part of the screenshot matrix, but the runtime crash is closed.
 
-**Acceptance:** import and render capitalized SVG primitives; verify all four icons on Android in light/dark.
+### Real-device visual baseline is incomplete
 
-### Real-device visual baseline does not exist
+An initial Android dark-mode baseline now exists, but it is not the full screenshot matrix. Tablet is explicitly out of scope and disabled. Light mode, alternate phone widths, language expansion, keyboard cases and font scaling still block any honest claim of complete visual polish.
 
-The app claims Android and tablet support, but no screenshot matrix exists and no device is connected. This blocks any honest claim of polished dimensions, keyboard behavior or motion.
-
-**Acceptance:** deterministic seeded build captured on 320/360/390/430dp and one tablet width, light/dark, PT/EN/ES/ZH pairwise matrix, font scale 1.0 and 1.3; critical workout flow also at 1.5.
+**Acceptance:** deterministic seeded build captured on 320/360/390/430dp, light/dark, PT/EN/ES/ZH pairwise matrix, font scale 1.0 and 1.3; critical workout flow also at 1.5. Tablet is excluded.
 
 ---
 
@@ -401,13 +403,13 @@ Tablet support is out of scope. `ios.supportsTablet` must remain disabled until 
 
 ### Web support decision — QA-only for now
 
-Web dependencies were installed as a QA prerequisite, but both `expo start --web` and `expo export --platform web` currently abort before the first module is bundled (0%, no artifact, no reported exception). Web is therefore **not yet a usable baseline**. This does **not** make Web a supported product target. Native-only behavior — safe areas, keyboard, SVG rendering, gestures, haptics and TalkBack — remains blocked until Android device validation.
+Web dependencies were installed as a QA prerequisite, but both `expo start --web` and `expo export --platform web` currently fail to produce a usable artifact. Web is therefore **not a baseline** and does not become a supported product target. Native behavior must continue to be validated on the connected Android device; the dark-mode workout flow now has initial evidence, while the rest of the matrix remains open.
 
 ---
 
 ## Release gates
 
-- [ ] Zero lowercase `react-native-svg` child tags.
+- [x] Zero lowercase `react-native-svg` child tags; static guard and Android verification added in `cf532b6`.
 - [ ] Zero undefined NativeWind utilities/opacities.
 - [ ] Contrast gates pass for all text/control states.
 - [ ] Product-trust defects have regression tests and no false-success/silent-loss path remains.

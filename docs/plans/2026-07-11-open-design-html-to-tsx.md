@@ -18,6 +18,12 @@
 - `npm run lint` — passou, zero issues
 - `npm test -- --runInBand` — 30 suites / 390 testes passaram
 
+**Estado verificado em Android físico em 2026-07-13:**
+- Home, Sobre, Ajustes e fluxo crítico sessão → exercício → série → descanso capturados em dark mode;
+- crash nativo por `<line>`/`<polyline>` e overlay de `expo-notifications` no Expo Go corrigidos em `cf532b6`;
+- typecheck, lint e 424 testes passaram após os fixes;
+- matriz completa de light mode, larguras, idiomas e font scale continua pendente.
+
 ---
 
 ## 1. Decisões de escopo
@@ -26,7 +32,7 @@
 
 1. **Substituir o Drawer por bottom tabs.** Decisão aprovada pelo Lucca: a navegação principal seguirá a bottom row do Open Design, adaptada para Expo Router e safe area nativa.
 2. **Manter os headers do Expo Router.** Traduzir primeiro o conteúdo das telas. Header customizado só entra se houver uma decisão separada.
-3. **Manter fonte nativa do sistema na v1.** O `DM Sans` importado pelo HTML não justifica novos assets/configuração sem comparação no aparelho.
+3. **Usar fonte nativa do sistema.** Decisão final: remover usos fictícios de `font-display`; o `DM Sans` do HTML não entra no app.
 4. **Não criar features novas só porque aparecem nos mocks.** Mock data e interações de demonstração não viram requisitos de produto automaticamente.
 5. **Preservar arquitetura dividida do treino:** visão geral da sessão em `app/session/[routineId].tsx` e registro de exercício em `app/session/exercise.tsx`, mesmo que `active-workout.html` misture os dois.
 6. **Usar componentes existentes antes de criar abstrações.** Só extrair uma nova primitiva quando o mesmo padrão aparecer em pelo menos três telas ou quando reduzir risco de inconsistência.
@@ -60,7 +66,6 @@ O diretório `app/(drawer)` será desmontado no mesmo slice: as cinco telas prin
 ### Gates que ainda exigem debate antes de mudar
 
 - Headers nativos → headers customizados/frosted glass.
-- Fonte do sistema → DM Sans embarcada.
 - Adição de novas métricas/features sugeridas apenas pelos mocks.
 - Mudança da arquitetura do treino para uma tela única.
 
@@ -147,18 +152,22 @@ Regras específicas de biometria:
 
 ### Tokens
 
-Os tokens principais já coincidem entre app e Open Design:
+Os tokens atuais do app e do Open Design **não** são o contrato final. Ambos ainda usam primary `#E07A5F` e superfícies brancas em pontos onde a direção aprovada já mudou. O rollout deve seguir este contrato:
 
-- Primary `#E07A5F`
+- Primary `#9E422E`
+- On-primary `#F4F1DE` — contraste 5.65:1
 - Secondary `#3D5A80`
 - Accent `#F2CC8F`
-- Light background `#F4F1DE`
+- Light background/surface `#F4F1DE`; branco puro não é superfície padrão
+- Light text `#3D405B` — contraste 8.87:1 sobre o creme
 - Dark background `#1D1917`
 - Dark card `#2A2422`
 - Success `#81B29A`
 - Danger `#E63946`
 
-**Correção necessária:** `constants/colors.ts` usa `darkBorder: #605050`, enquanto `global.css` usa `60 50 50` (`#3C3232`). O Open Design usa `96 80 80` (`#605050`). Unificar o token NativeWind em `96 80 80` para eliminar diferença entre classes e inline styles.
+Primary `#9E422E` sobre creme passa AA para texto normal (5.65:1). As demais cores brutas não devem ser reutilizadas como fill, texto e foreground: Sprint 1 define pares semânticos por tema (`on*`, `*Text`, `*Surface`).
+
+**Correção necessária:** `constants/colors.ts` usa `darkBorder: #605050`, enquanto `global.css` usa `60 50 50` (`#3C3232`). Unificar o token NativeWind em `96 80 80` para eliminar diferença entre classes e inline styles.
 
 ### Padrões visuais prioritários
 
