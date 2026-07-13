@@ -6,7 +6,7 @@ import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '../src/i18n/index';
 import { getRirColor } from '@/src/utils/exercise';
 import { Colors } from '@/constants/colors';
-import Svg from 'react-native-svg';
+import Svg, { Polyline } from 'react-native-svg';
 
 
 interface SetCardProps {
@@ -183,7 +183,7 @@ function SetCard({
           )}
           <View className="w-8 h-8 rounded-full bg-success items-center justify-center">
             <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
+              <Polyline points="20 6 9 17 4 12" />
             </Svg>
           </View>
         </View>

@@ -22,7 +22,7 @@ import { resolveScreenState } from '../../src/utils/screen-state';
 import { SectionHeader } from '../../components/SectionHeader';
 import { Card } from '../../components/Card';
 import { Colors } from '../../constants/colors';
-import Svg from 'react-native-svg';
+import Svg, { Line, Polyline } from 'react-native-svg';
 
 export default function SessionScreen() {
   const { t } = useI18n();
@@ -217,8 +217,8 @@ export default function SessionScreen() {
             variant="ghost"
             icon={
               <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Colors.white} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <Line x1="18" y1="6" x2="6" y2="18" />
+                <Line x1="6" y1="6" x2="18" y2="18" />
               </Svg>
             }
             accessibilityLabel={t('common.exit')}
@@ -432,7 +432,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
             {isComplete ? (
               <View className="w-6 h-6 bg-success/10 rounded-full items-center justify-center">
                 <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={Colors.success} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
+                  <Polyline points="20 6 9 17 4 12" />
                 </Svg>
               </View>
             ) : (

@@ -3,6 +3,8 @@ import * as Sentry from '@sentry/react-native';
 const DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
 const isEnabled = Boolean(DSN) && !__DEV__;
 
+export const isCrashReportingEnabled = isEnabled;
+
 export const initCrashReporting = () => {
   if (!DSN) {
     return;

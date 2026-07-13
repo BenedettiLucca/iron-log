@@ -1,19 +1,31 @@
-import * as Notifications from 'expo-notifications';
+import type * as ExpoNotifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { db } from '../src/db/client';
 import { notificationSettings } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
+import { supportsNativeNotifications } from '../src/utils/runtime-environment';
 
-// Configure notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+const isSupported = supportsNativeNotifications(Constants.executionEnvironment ?? '');
+
+let expoNotifications: typeof ExpoNotifications | null = null;
+
+async function getNotificationsModule(): Promise<typeof ExpoNotifications> {
+  if (!expoNotifications) {
+    const mod = await import('expo-notifications');
+    mod.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+    expoNotifications = mod;
+  }
+  return expoNotifications;
+}
 
 export interface NotificationConfig {
   checkinDay: number;
@@ -33,10 +45,16 @@ class NotificationService {
       return true;
     }
 
+    if (!isSupported) {
+      return false;
+    }
+
     if (!Device.isDevice) {
       logger.debug('Notifications: Not a physical device, skipping');
       return false;
     }
+
+    const Notifications = await getNotificationsModule();
 
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -52,7 +70,7 @@ class NotificationService {
     }
 
     // Set up notification response listener
-    this.notificationListener = this.setupResponseListener();
+    this.notificationListener = this.setupResponseListener(Notifications);
 
     this.initialized = true;
 
@@ -65,7 +83,7 @@ class NotificationService {
   /**
    * Set up listener for notification taps
    */
-  private setupResponseListener() {
+  private setupResponseListener(Notifications: typeof ExpoNotifications) {
     return Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       logger.debug('Notification tapped:', data);
@@ -140,7 +158,11 @@ class NotificationService {
    * Schedule monthly check-in notification
    */
   async scheduleMonthlyCheckin(): Promise<void> {
+    if (!isSupported) {
+      return;
+    }
     try {
+      const Notifications = await getNotificationsModule();
       // Cancel all existing notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
 
@@ -209,7 +231,11 @@ class NotificationService {
    * Cancel all scheduled notifications
    */
   async cancelAll(): Promise<void> {
+    if (!isSupported) {
+      return;
+    }
     try {
+      const Notifications = await getNotificationsModule();
       await Notifications.cancelAllScheduledNotificationsAsync();
     } catch (error) {
       logger.error('Error canceling notifications', error);
@@ -231,7 +257,11 @@ class NotificationService {
    * Send a test notification (for development)
    */
   async sendTestNotification(): Promise<void> {
+    if (!isSupported) {
+      return;
+    }
     try {
+      const Notifications = await getNotificationsModule();
       await Notifications.scheduleNotificationAsync({
         content: {
           title: '🧪 Test Notification',
@@ -250,7 +280,6 @@ class NotificationService {
       logger.error('Error sending test notification', error);
     }
   }
-
 }
 
 export const notificationService = new NotificationService();

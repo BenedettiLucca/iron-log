@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react-native';
-import { initCrashReporting } from '@/services/crash-reporting';
+import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
 import { Stack, useRouter } from 'expo-router';
 
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
@@ -10,7 +10,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
 import { useEffect, useState } from 'react';
 import { notificationService } from '@/services/NotificationService';
-import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { and, eq, isNull } from 'drizzle-orm';
 import { sessions } from '../src/db/schema';
@@ -224,21 +223,7 @@ function Layout() {
     }
   }, [success]);
 
-  // Set up notification response listener for deep linking
-  useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const url = response.notification.request.content.data?.url;
-        if (url) {
-          // Navigate to the URL when notification is tapped
-          // The router will handle the navigation
-          logger.debug('Notification tapped, navigating to:', url);
-        }
-      }
-    );
 
-    return () => subscription.remove();
-  }, []);
 
   const handleResumeSession = () => {
     if (!recoverySession) return;
@@ -328,4 +313,4 @@ function Layout() {
   );
 }
 
-export default Sentry.wrap(Layout);
+export default isCrashReportingEnabled ? Sentry.wrap(Layout) : Layout;
