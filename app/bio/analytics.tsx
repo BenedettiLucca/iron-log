@@ -316,7 +316,7 @@ export default function AnalyticsScreen() {
 
       {/* Sessions Count Card */}
       <Card className="items-center py-6">
-        <Text className="text-4xl font-extrabold text-primaryText font-display">{consistency.sessionsThisMonth}</Text>
+        <Text className="text-4xl font-extrabold text-primaryText">{consistency.sessionsThisMonth}</Text>
         <Text className="text-xs font-bold uppercase text-subtext mt-1">
           {language === 'pt' ? 'Sessões (30d)' : 'Sessions (30d)'}
         </Text>
@@ -403,7 +403,7 @@ export default function AnalyticsScreen() {
         <Card>
           <View className="mb-4">
             <SectionHeader label={language === 'pt' ? 'Peso Corporal' : 'Body Weight'} />
-            <Text className="text-xs text-subtext pl-1 mt-1 font-display">
+            <Text className="text-xs text-subtext pl-1 mt-1">
               {language === 'pt' ? 'Últimos 30 dias' : 'Last 30 days'} · {weightData[weightData.length - 1]?.value.toFixed(1)}kg {language === 'pt' ? 'atual' : 'current'}
             </Text>
           </View>
@@ -454,7 +454,7 @@ export default function AnalyticsScreen() {
                 <View className="flex-1 bg-primary/5 rounded-full h-2.5 overflow-hidden">
                   <View className="bg-primary h-full rounded-full" style={{ width: `${barWidth}%` }} />
                 </View>
-                <Text className="text-xs font-mono text-subtext w-14 text-right font-display">
+                <Text className="text-xs font-mono text-subtext w-14 text-right">
                   {vol >= 1000 ? `${(vol / 1000).toFixed(1)}k` : vol.toFixed(0)}kg
                 </Text>
               </View>
@@ -490,7 +490,7 @@ export default function AnalyticsScreen() {
           <SectionHeader label={t("bioAnalytics.strengthScore")} />
         </View>
         <View className="items-center mb-4">
-          <Text className="text-text text-5xl font-black font-display">{strengthScore.totalScore}</Text>
+          <Text className="text-text text-5xl font-black">{strengthScore.totalScore}</Text>
           <Text className="text-primaryText text-lg font-bold mt-1">{t('analytics.strengthLevel.' + strengthScore.labelKey)}</Text>
         </View>
         <View className="gap-2">
@@ -500,7 +500,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-primary rounded-full" style={{ width: `${(strengthScore.volumeScore / 40) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0 font-display">{strengthScore.volumeScore}/40</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.volumeScore}/40</Text>
             </View>
           </View>
           <View className="flex-row justify-between items-center">
@@ -509,7 +509,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-secondary rounded-full" style={{ width: `${(strengthScore.intensityScore / 30) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0 font-display">{strengthScore.intensityScore}/30</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.intensityScore}/30</Text>
             </View>
           </View>
           <View className="flex-row justify-between items-center">
@@ -518,7 +518,7 @@ export default function AnalyticsScreen() {
               <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
                 <View className="h-full bg-success rounded-full" style={{ width: `${(strengthScore.consistencyScore / 30) * 100}%` }} />
               </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0 font-display">{strengthScore.consistencyScore}/30</Text>
+              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.consistencyScore}/30</Text>
             </View>
           </View>
         </View>
@@ -558,7 +558,7 @@ export default function AnalyticsScreen() {
             {estimated1RM.slice(0, 8).map(item => (
               <View key={item.exercise} className="flex-row justify-between items-center">
                 <Text className="text-text text-sm flex-1" numberOfLines={1}>{item.exercise}</Text>
-                <Text className="text-text text-sm font-bold font-display">{item.estimated1RM}kg</Text>
+                <Text className="text-text text-sm font-bold">{item.estimated1RM}kg</Text>
               </View>
             ))}
           </View>

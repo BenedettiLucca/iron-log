@@ -54,7 +54,7 @@ export function StatTile({
           {icon}
         </View>
       )}
-      <Text className="text-2xl font-extrabold text-text tracking-tight font-display">
+      <Text className="text-2xl font-extrabold text-text tracking-tight">
         {value}
       </Text>
       <Text className="text-2xs font-bold uppercase text-subtext tracking-wider mt-0.5 text-center">

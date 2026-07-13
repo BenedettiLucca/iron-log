@@ -320,7 +320,7 @@ export default function SummaryScreen() {
         <Card className="mb-5">
           <SectionHeader label={t('summary.fullReport')} className="mb-3 pl-0" />
           <View className="bg-primary/3 rounded-xl p-3 border border-border">
-            <Text className="text-text text-xs font-mono select-text leading-5" numberOfLines={20}>
+            <Text className="text-text text-xs font-mono leading-5" numberOfLines={20}>
               {report}
             </Text>
           </View>

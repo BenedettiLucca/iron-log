@@ -375,7 +375,7 @@ export default function BioScreen() {
                               {item.type === 'monthly' && (
                                   <Text className="text-xs bg-secondarySurface text-secondaryText px-2 py-0.5 rounded font-bold uppercase">{t("bio.checkin")}</Text>
                               )}
-                              <Text className="text-text font-bold text-lg font-display">{item.weight}kg</Text>
+                              <Text className="text-text font-bold text-lg">{item.weight}kg</Text>
                           </View>
                       </View>
                   ))

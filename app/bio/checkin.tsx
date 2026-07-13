@@ -237,7 +237,7 @@ export default function CheckinScreen() {
                     </View>
                   )}
                   <View className="absolute bottom-0 left-0 right-0 bg-black/60 py-1.5 items-center">
-                    <Text className="text-white text-3xs font-bold uppercase tracking-wider">
+                    <Text className="text-white text-2xs font-bold uppercase tracking-wider">
                       {pose.label}
                     </Text>
                   </View>

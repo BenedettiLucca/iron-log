@@ -153,7 +153,7 @@ export default function WeeklyReportScreen() {
         <Card>
           <Text className="text-sm font-bold text-text mb-3">📄 {t('reports.summary')}</Text>
           <View className="bg-primary/5 rounded-xl p-3 border border-border/50">
-            <Text className="text-text text-xs leading-5 font-mono select-text">
+            <Text className="text-text text-xs leading-5 font-mono">
               {markdown}
             </Text>
           </View>

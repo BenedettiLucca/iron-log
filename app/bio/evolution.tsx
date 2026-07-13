@@ -178,7 +178,7 @@ export default function EvolutionScreen() {
         <Card style={{ marginBottom: 24 }}>
             <View className="mb-4">
               <SectionHeader label={title} />
-              <Text className="text-sm text-subtext pl-1 mt-1 font-display">
+              <Text className="text-sm text-subtext pl-1 mt-1">
                 {currentLabel}: {currentVal.toFixed(1)}{unit} ({formattedDelta}{unit})
               </Text>
             </View>

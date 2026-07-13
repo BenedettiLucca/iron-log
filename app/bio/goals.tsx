@@ -296,7 +296,7 @@ export default function GoalsScreen() {
 
                 {/* Values row */}
                 <View className="flex-row items-center gap-2 mb-3">
-                  <Text className="text-xl font-extrabold text-text font-display">
+                  <Text className="text-xl font-extrabold text-text">
                     {currentVal !== null ? currentVal.toFixed(1) : '—'}
                     <Text className="text-xs text-subtext font-medium"> {unit}</Text>
                   </Text>

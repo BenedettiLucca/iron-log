@@ -315,7 +315,7 @@ export default function ExerciseScreen() {
                 setIsWarmupMode(!isWarmupMode);
                 setIsDirty(true);
               }}
-              className={`w-12 h-7 rounded-full p-0.5 transition-colors ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
+              className={`w-12 h-7 rounded-full p-0.5 ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
               {...a11y.warmupSwitch(isWarmupMode)}
             >
               <View

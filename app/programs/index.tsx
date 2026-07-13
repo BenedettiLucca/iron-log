@@ -119,7 +119,7 @@ export default function ProgramsListScreen() {
               {/* Metadata Grid (2 Columns) */}
               <View className="flex-row justify-between mb-2">
                 <View className="flex-1 mr-2">
-                  <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.weeksLabel')}</Text>
+                  <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.weeksLabel')}</Text>
                   <Text className="text-text text-sm font-semibold">
                     {currentWeek
                       ? t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })
@@ -129,7 +129,7 @@ export default function ProgramsListScreen() {
                 </View>
                 {currentPhase && (
                   <View className="flex-1">
-                    <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.phase')}</Text>
+                    <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.phase')}</Text>
                     <View className="bg-accentSurface rounded-full px-2.5 py-0.5 self-start">
                       <Text className="text-accentText text-xs font-bold uppercase">
                         {getPhaseLabel(currentPhase, t)}

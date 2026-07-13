@@ -240,14 +240,14 @@ export default function HomeScreen() {
                   {/* Stats Row */}
                   <View className="flex-row gap-3 mb-3">
                     <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center">
-                      <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.volume')}</Text>
+                      <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.volume')}</Text>
                       <Text className="text-text text-base font-extrabold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
-                      <Text className="text-subtext text-3xs mt-0.5">
+                      <Text className="text-subtext text-2xs mt-0.5">
                         {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
                       </Text>
                     </View>
                     <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center justify-center">
-                      <Text className="text-subtext text-3xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.avgSRPE')}</Text>
+                      <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.avgSRPE')}</Text>
                       <Text className="text-text text-base font-extrabold">{avgSRPE ?? '-'}</Text>
                     </View>
                   </View>
