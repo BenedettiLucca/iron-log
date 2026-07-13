@@ -8,6 +8,7 @@ import { desc, isNull, eq, and, inArray } from 'drizzle-orm';
 import { Card } from '../../components/Card';
 import { Dialog } from '../../components/Dialog';
 import { SkeletonList } from '../../components/Skeleton';
+import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
@@ -75,9 +76,13 @@ export default function HistoryScreen() {
   const [daySessions, setDaySessions] = useState<SessionWithExercises[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDayLoading, setIsDayLoading] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
+  const [dayError, setDayError] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState({ visible: false, sessionId: 0, sessionName: '' });
 
   const loadSessions = useCallback(async () => {
+    setPageError(null);
     try {
       setIsLoading(true);
       const result = await db.select().from(sessions).where(isNull(sessions.deletedAt)).orderBy(desc(sessions.startTime));
@@ -94,10 +99,11 @@ export default function HistoryScreen() {
       setMarkedDates(marks);
     } catch (e) {
       logger.error('Erro inesperado', e);
+      setPageError(t('states.errorBody'));
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadSessions();
@@ -126,6 +132,9 @@ export default function HistoryScreen() {
 
   const handleDayPress = useCallback(async (day: any) => {
     setSelectedDate(day.dateString);
+    setDayError(null);
+    setDaySessions([]);
+    setIsDayLoading(true);
     const filtered = allSessions.filter(s => {
       const sDate = toLocalDateKey(s.startTime);
       return sDate === day.dateString;
@@ -133,41 +142,48 @@ export default function HistoryScreen() {
 
     // Load exercise info for all filtered sessions in a single batch query
     if (filtered.length === 0) {
-      setDaySessions([]);
+      setIsDayLoading(false);
       return;
     }
 
-    const sessionIds = filtered.map(s => s.id);
-    const allSets = await db
-      .select({ sessionId: sets.sessionId, exerciseName: sets.exerciseName })
-      .from(sets)
-      .where(and(
-        inArray(sets.sessionId, sessionIds),
-        isNull(sets.deletedAt),
-      ));
+    try {
+      const sessionIds = filtered.map(s => s.id);
+      const allSets = await db
+        .select({ sessionId: sets.sessionId, exerciseName: sets.exerciseName })
+        .from(sets)
+        .where(and(
+          inArray(sets.sessionId, sessionIds),
+          isNull(sets.deletedAt),
+        ));
 
-    // Group sets by session
-    const setsBySession = new Map<number, { names: Set<string>; count: number }>();
-    for (const row of allSets) {
-      if (!setsBySession.has(row.sessionId)) {
-        setsBySession.set(row.sessionId, { names: new Set(), count: 0 });
+      // Group sets by session
+      const setsBySession = new Map<number, { names: Set<string>; count: number }>();
+      for (const row of allSets) {
+        if (!setsBySession.has(row.sessionId)) {
+          setsBySession.set(row.sessionId, { names: new Set(), count: 0 });
+        }
+        const entry = setsBySession.get(row.sessionId)!;
+        entry.count++;
+        if (row.exerciseName) entry.names.add(row.exerciseName);
       }
-      const entry = setsBySession.get(row.sessionId)!;
-      entry.count++;
-      if (row.exerciseName) entry.names.add(row.exerciseName);
+
+      const enriched: SessionWithExercises[] = filtered.map(session => {
+        const data = setsBySession.get(session.id);
+        return {
+          ...session,
+          exerciseNames: data ? Array.from(data.names) : [],
+          totalSets: data?.count ?? 0,
+        };
+      });
+
+      setDaySessions(enriched);
+    } catch (e) {
+      logger.error('Failed to load day session details', e);
+      setDayError(t('states.errorBody'));
+    } finally {
+      setIsDayLoading(false);
     }
-
-    const enriched: SessionWithExercises[] = filtered.map(session => {
-      const data = setsBySession.get(session.id);
-      return {
-        ...session,
-        exerciseNames: data ? Array.from(data.names) : [],
-        totalSets: data?.count ?? 0,
-      };
-    });
-
-    setDaySessions(enriched);
-  }, [allSessions]);
+  }, [allSessions, t]);
 
   const colorScheme = useColorScheme();
   const cardBg = colorScheme === 'dark' ? Colors.darkCard : Colors.lightCard;
@@ -240,19 +256,50 @@ export default function HistoryScreen() {
     </View>
   );
 
-  const renderEmpty = () => (
-    <View className="p-4">
-      <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
-        <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
-        <Text className="text-subtext font-bold text-center">
-          {!selectedDate ? t('history.selectDay') : t('history.noWorkouts')}
-        </Text>
-        <Text className="text-subtext text-xs text-center mt-1">
-          {!selectedDate ? t('history.selectDayPrompt') : t('history.noWorkoutsDesc')}
-        </Text>
+  const renderDayContent = () => {
+    if (isDayLoading) {
+      return (
+        <View className="p-4">
+          <SkeletonList count={2} />
+        </View>
+      );
+    }
+    if (dayError) {
+      return (
+        <View className="p-4">
+          <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
+            <Text className="text-4xl mb-2">⚠️</Text>
+            <Text className="text-subtext font-bold text-center">{t('states.errorTitle')}</Text>
+            <Text className="text-subtext text-xs text-center mt-1">{dayError}</Text>
+            <TouchableOpacity
+              className="mt-4 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20"
+              onPress={() => selectedDate && handleDayPress({ dateString: selectedDate })}
+              accessibilityRole="button"
+            >
+              <Text className="text-primary font-bold text-xs uppercase tracking-wider">{t('states.retry')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+    return renderEmpty();
+  };
+
+  function renderEmpty() {
+    return (
+      <View className="p-4">
+        <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
+          <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
+          <Text className="text-subtext font-bold text-center">
+            {!selectedDate ? t('history.selectDay') : t('history.noWorkouts')}
+          </Text>
+          <Text className="text-subtext text-xs text-center mt-1">
+            {!selectedDate ? t('history.selectDayPrompt') : t('history.noWorkoutsDesc')}
+          </Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
 
   return (
     <View className="flex-1 bg-background">
@@ -260,6 +307,11 @@ export default function HistoryScreen() {
         <View className="flex-1 p-4">
           <SkeletonList count={3} />
         </View>
+      ) : pageError ? (
+        <ErrorState
+          message={pageError}
+          onRetry={loadSessions}
+        />
       ) : (
         <FlatList
           data={daySessions}
@@ -274,7 +326,7 @@ export default function HistoryScreen() {
             />
           }
           ListHeaderComponent={renderHeader}
-          ListEmptyComponent={renderEmpty}
+          ListEmptyComponent={renderDayContent}
           renderItem={({ item }) => (
             <Card>
               <View className="flex-row justify-between items-start">

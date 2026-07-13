@@ -6,6 +6,7 @@ import type { DashboardAnalytics } from '../../services/AnalyticsService';
 import { Card } from '../../components/Card';
 import { SkeletonList, SkeletonCard } from '../../components/Skeleton';
 import { EmptyState } from '../../components/EmptyState';
+import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { Colors, getThemeColors } from '@/constants/colors';
 import { useI18n } from '../../src/i18n/index';
@@ -40,6 +41,7 @@ export default function AnalyticsScreen() {
   const theme = getThemeColors(colorScheme);
   const [data, setData] = useState<DashboardAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const [keyStats, setKeyStats] = useState({
@@ -187,9 +189,12 @@ export default function AnalyticsScreen() {
 
       setVolDist(muscleGroupVolume);
       setWeightData(chartWeights);
+      // Clear any previous error on success
+      setHasError(false);
 
     } catch (e) {
       logger.error('Failed to load analytics', e);
+      setHasError(true);
     } finally {
       setLoading(false);
     }
@@ -219,6 +224,17 @@ export default function AnalyticsScreen() {
         </View>
         <SkeletonList count={3} />
       </ScrollView>
+    );
+  }
+
+  if (!loading && hasError && !data) {
+    return (
+      <View className="flex-1 bg-background">
+        <Stack.Screen options={{ title: t('bioNav.data') }} />
+        <ErrorState
+          onRetry={loadAnalytics}
+        />
+      </View>
     );
   }
 

@@ -2,7 +2,6 @@ import {
   View,
   Text,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/Button';
@@ -10,6 +9,8 @@ import { Card } from '@/components/Card';
 import { Toast } from '@/components/Toast';
 import { StatTile } from '@/components/StatTile';
 import { Colors } from '@/constants/colors';
+import { EmptyState } from '@/components/EmptyState';
+import { ErrorState, LoadingState } from '@/components/ScreenState';
 import { NotionExportService } from '@/services/NotionExportService';
 import { useI18n } from '@/src/i18n/index';
 import { logger } from '@/services/logger';
@@ -22,10 +23,12 @@ export default function WeeklyReportScreen() {
   const [totalVolume, setTotalVolume] = useState(0);
   const [avgSRPE, setAvgSRPE] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   const generateReport = useCallback(async () => {
+    setHasError(false);
     try {
       setLoading(true);
       const result = await NotionExportService.exportWeeklyReport(t);
@@ -35,8 +38,7 @@ export default function WeeklyReportScreen() {
       setAvgSRPE(result.avgSRPE);
     } catch (e) {
       logger.error('Failed to generate weekly report', e);
-      setToastMessage(t('reports.exportError'));
-      setShowToast(true);
+      setHasError(true);
     } finally {
       setLoading(false);
     }
@@ -60,8 +62,19 @@ export default function WeeklyReportScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color={Colors.primary} />
+      <View className="flex-1 bg-background">
+        <LoadingState />
+      </View>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <View className="flex-1 bg-background">
+        <ErrorState
+          message={t('reports.exportError')}
+          onRetry={generateReport}
+        />
       </View>
     );
   }
@@ -82,6 +95,23 @@ export default function WeeklyReportScreen() {
   const periodLabel = `${t('reports.md.week') || 'Semana'} ${weekNum}`;
 
   const volumeDisplay = totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume;
+
+  if (sessionCount === 0) {
+    return (
+      <View className="flex-1 bg-background">
+        <EmptyState
+          icon="📋"
+          title={t('reports.noSessions')}
+        />
+        <Toast
+          visible={showToast}
+          message={toastMessage}
+          type="error"
+          onHide={() => setShowToast(false)}
+        />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-background">
@@ -129,13 +159,15 @@ export default function WeeklyReportScreen() {
         </Card>
 
         {/* Copy Button */}
-        <Button
-          title={t('reports.copyNotion')}
-          onPress={handleCopy}
-          variant="primary"
-          size="lg"
-          fullWidth
-        />
+        {markdown.length > 0 && (
+          <Button
+            title={t('reports.copyNotion')}
+            onPress={handleCopy}
+            variant="primary"
+            size="lg"
+            fullWidth
+          />
+        )}
       </ScrollView>
 
       <Toast
