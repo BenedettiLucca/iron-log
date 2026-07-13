@@ -304,7 +304,7 @@ export default function SummaryScreen() {
                         else if (flag === 'repeated_below_range') flagText = t('summary.verdicts.flagRepeatedBelowRange');
                         return (
                           <View key={flag} className="bg-dangerSurface border border-danger/20 rounded px-1.5 py-0.5">
-                            <Text className="text-[10px] text-dangerText font-semibold">⚠️ {flagText}</Text>
+                            <Text className="text-2xs text-dangerText font-semibold">⚠️ {flagText}</Text>
                           </View>
                         );
                       })}
@@ -319,7 +319,7 @@ export default function SummaryScreen() {
         {/* Report Preview */}
         <Card className="mb-5">
           <SectionHeader label={t('summary.fullReport')} className="mb-3 pl-0" />
-          <View className="bg-primary/3 rounded-xl p-3 border border-border">
+          <View className="bg-primary/5 rounded-xl p-3 border border-border">
             <Text className="text-text text-xs font-mono leading-5" numberOfLines={20}>
               {report}
             </Text>

@@ -175,7 +175,7 @@ export default function HomeScreen() {
               onPress={handleResumeSession}
               activeOpacity={0.8}
             >
-              <Card className="bg-primary/8 border border-primary/20">
+              <Card className="bg-primary/10 border border-primary/20">
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1 flex-row items-center gap-3">
                     <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
@@ -217,7 +217,7 @@ export default function HomeScreen() {
             <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
               <SectionHeader label={t('programs.active')} className="mb-2" />
               <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
-                <Card className={isDeloadWeek ? 'bg-green-500/10 border border-green-500/30' : isNearDeload ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-primary/5 border border-primary/20'}>
+                <Card className={isDeloadWeek ? 'bg-successSurface border border-successText/30' : isNearDeload ? 'bg-warningSurface border border-warningText/30' : 'bg-primary/5 border border-primary/20'}>
                   <View className="flex-row justify-between items-center mb-3">
                     <View className="flex-1 mr-2">
                       <Text className="text-text font-bold text-lg mb-0.5">{activeProgram.name}</Text>
@@ -261,9 +261,9 @@ export default function HomeScreen() {
                   </View>
 
                   {isDeloadWeek ? (
-                    <Text className="text-green-500 text-xs font-semibold mt-2">{t('programs.deloadNow')}</Text>
+                    <Text className="text-successText text-xs font-semibold mt-2">{t('programs.deloadNow')}</Text>
                   ) : isNearDeload && weeksUntilDeload !== null ? (
-                    <Text className="text-yellow-600 text-xs font-semibold mt-2">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
+                    <Text className="text-warningText text-xs font-semibold mt-2">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
                   ) : null}
                 </Card>
               </TouchableOpacity>

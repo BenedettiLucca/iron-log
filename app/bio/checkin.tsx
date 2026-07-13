@@ -340,7 +340,7 @@ export default function CheckinScreen() {
                                 <Image source={{ uri }} className="w-full h-full" resizeMode="cover" />
                               ) : (
                                 <View className="flex-1 items-center justify-center">
-                                  <Text className="text-[10px]">📷</Text>
+                                  <Text className="text-2xs">📷</Text>
                                 </View>
                               )}
                             </View>

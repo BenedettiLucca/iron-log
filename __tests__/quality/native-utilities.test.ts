@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const projectRoot = path.resolve(__dirname, '../..');
+const unsupportedColorOpacity = /\b(?:bg|border|text|fill|stroke|divide|outline|ring(?:-offset)?|shadow|accent|caret|decoration|placeholder|from|via|to)-[A-Za-z][\w-]*\/(?:3|8)\b/g;
 
 function collectUiFiles(): string[] {
   const files: string[] = [];
@@ -21,6 +22,9 @@ describe('NativeWind utility contract', () => {
     const forbidden = [
       { pattern: /\bfont-display\b/g, reason: 'undefined font family; Iron Log uses the system font' },
       { pattern: /\btext-3xs\b/g, reason: 'undefined size; text-2xs is the supported 10px floor' },
+      { pattern: /\btext-\[10px\]/g, reason: 'use the configured text-2xs role for the 10px floor' },
+      { pattern: unsupportedColorOpacity, reason: 'opacity modifier is absent from the configured Tailwind scale' },
+      { pattern: /\b(?:gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}(?:\/[0-9]+)?\b/g, reason: 'use an Iron Log semantic color role instead of the default Tailwind palette' },
       { pattern: /\btransition-colors\b/g, reason: 'web transition utility has no native behavior' },
       { pattern: /\bselect-text\b/g, reason: 'web text-selection utility has no native behavior' },
     ];
@@ -34,6 +38,12 @@ describe('NativeWind utility contract', () => {
     });
 
     expect(violations).toEqual([]);
+  });
+
+  it('covers every Tailwind color namespace without matching layout fractions', () => {
+    const fixture = 'bg-primary/3 shadow-primary/3 ring-primary/8 ring-offset-primary/3 divide-primary/8 decoration-primary/3 from-primary/8 via-primary/3 to-primary/8';
+    expect([...fixture.matchAll(unsupportedColorOpacity)].map((match) => match[0])).toEqual(fixture.split(' '));
+    expect([...('w-1/3 basis-1/3 text-2xl/8').matchAll(unsupportedColorOpacity)]).toEqual([]);
   });
 
   it('keeps text-2xs explicitly defined as the minimum supported text size', () => {

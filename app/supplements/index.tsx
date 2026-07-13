@@ -350,7 +350,7 @@ export default function SupplementsScreen() {
                       accessibilityHint={taken ? t('supplements.toggleTakenHint') : t('supplements.togglePendingHint')}
                       hapticType="selection"
                     >
-                      <View className="w-10 h-10 rounded-full bg-primary/8 justify-center items-center mr-3">
+                      <View className="w-10 h-10 rounded-full bg-primary/10 justify-center items-center mr-3">
                         <Text className="text-xl">{item.emoji || '💊'}</Text>
                       </View>
 

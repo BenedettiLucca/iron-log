@@ -404,17 +404,17 @@ export default function RoutinePreviewScreen() {
                   {ex.sessionCount > 0 && (
                     <View className="flex-row gap-2 mt-2 flex-wrap">
                       {ex.prWeight !== null && (
-                        <View className="bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                          <Text className="text-amber-600 text-xs font-bold">🏆 PR: {ex.prWeight}kg</Text>
+                        <View className="bg-accentSurface px-2 py-0.5 rounded-full border border-accentText/20">
+                          <Text className="text-accentText text-xs font-bold">🏆 PR: {ex.prWeight}kg</Text>
                         </View>
                       )}
                       {ex.estimated1RM !== null && (
-                        <View className="bg-purple-500/10 px-2 py-0.5 rounded-full border purple-500/20">
-                          <Text className="text-purple-500 text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
+                        <View className="bg-primarySurface px-2 py-0.5 rounded-full border border-primaryText/20">
+                          <Text className="text-primaryText text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
                         </View>
                       )}
-                      <View className="bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
-                        <Text className="text-blue-500 text-xs font-bold">{t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}</Text>
+                      <View className="bg-secondarySurface px-2 py-0.5 rounded-full border border-secondaryText/20">
+                        <Text className="text-secondaryText text-xs font-bold">{t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}</Text>
                       </View>
                     </View>
                   )}

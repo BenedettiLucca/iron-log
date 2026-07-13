@@ -470,8 +470,8 @@ export default function ExerciseScreen() {
                   thumbTintColor={Colors.primary}
                 />
                 <View className="flex-row justify-between px-1">
-                  <Text className="text-gray-400 text-2xs">{t("finish.maximum")}</Text>
-                  <Text className="text-gray-400 text-2xs">{t("finish.regenerative")}</Text>
+                  <Text className="text-subtext text-2xs">{t("finish.maximum")}</Text>
+                  <Text className="text-subtext text-2xs">{t("finish.regenerative")}</Text>
                 </View>
               </View>
 

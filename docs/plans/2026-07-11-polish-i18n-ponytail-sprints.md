@@ -117,24 +117,24 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** repair the foundation so screens stop fighting invalid tokens and contrast.
 
+**Status (2026-07-13):** native blockers and semantic tokens complete; utility cleanup complete in `707667e` plus the follow-up semantic-palette cleanup; final visual pilot pending.
+
 ### Scope
 
 1. Fix lowercase SVG primitives (`Line`, `Polyline`). **Concluído em `cf532b6`; guard estático adicionado e Android validado.**
 2. Define contrast-safe semantic pairs per theme:
    - `primary` / `onPrimary` / `primaryText` / `primarySurface`;
    - same for success, danger, warning, secondary;
-   - stronger light-mode muted foreground.
-3. Decide header treatment in light mode.
+   - stronger light-mode muted foreground. **Concluído em `b9e9f30`; 434 testes e Android light/dark validados.**
+3. Decide header treatment in light mode. **Concluído: header terracota com foreground/status bar claros.**
 4. Remove/replace invalid classes:
-   - `text-3xs`;
-   - `font-display` unless a real font is chosen;
-   - `text-[10px]`;
-   - `/3`, `/8`, `/15` opacities;
-   - malformed classes such as `border purple-500/20`;
+   - `text-3xs`, `text-[10px]` and undefined `font-display`;
+   - unsupported opacity modifiers `/3` and `/8` (`/15` is valid in the installed Tailwind 3.4 scale);
+   - malformed utilities such as `border purple-500/20`;
    - default Tailwind palette colors inside product screens;
-   - web-only transition classes.
-5. Add static tests/check script for project utility conventions.
-6. Define typography, radius, elevation and spacing roles in one short design-system document.
+   - web-only transition/selection classes. **Concluído; guarded by `native-utilities.test.ts`.**
+5. Add static tests/check script for project utility conventions. **Concluído.**
+6. Define typography, radius, elevation and spacing roles in one short design-system document. **Concluído em `docs/design-system.md`.**
 
 ### Locked product decisions
 
