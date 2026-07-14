@@ -66,6 +66,8 @@ export const pt = {
     exerciseSingular: 'exercício',
     invalidName: 'Nome inválido',
     operationError: 'Erro na operação',
+    progress: 'Progresso',
+    progressCount: '{current} de {total}',
 
   },
 
@@ -344,6 +346,10 @@ export const pt = {
     deleteSet: 'Excluir Série',
     editSet: 'Editar Série',
     exitConfirm: 'Tem certeza que deseja sair? O progresso será perdido.',
+    exerciseProgressSingular: '{current} de {total} exercício',
+    exerciseProgressPlural: '{current} de {total} exercícios',
+    exercisesCompletedProgressSingular: '{current} de {total} exercício concluído',
+    exercisesCompletedProgressPlural: '{current} de {total} exercícios concluídos',
 
   },
 

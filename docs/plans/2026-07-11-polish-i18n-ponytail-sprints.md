@@ -159,7 +159,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
-**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Item 4 (`SegmentedControl`) concluído com Antigravity, 6 testes, Android físico light/dark com labels ES e re-review independente. Item 5 permanece pendente.
+**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Item 4 (`SegmentedControl`) concluído com Antigravity, 6 testes, Android físico light/dark com labels ES e re-review independente. Item 5 (`ProgressBar`) concluído com Antigravity, 12 testes de contrato e call sites, suite completa verde, blockers de implementação resolvidos no re-review independente e spot check Android pós-hardening aprovado. A validação revelou também um loop preexistente no detalhe do programa (`useFocusEffect` → `setActiveProgram` → mudança de identidade de `fetchDashboardData`); os efeitos foram separados e a correção foi validada no Android e coberta por regressão comportamental e estrutural.
 
 ### Scope
 
@@ -186,7 +186,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 5. `ProgressBar`
    - remove hardcoded Portuguese;
    - expose accessibility value;
-   - reduced-motion path.
+   - animate without layout thrash. **Concluído; 12 testes cobrem i18n genérico e call sites, singular/plural, labels compact/custom/hidden, semântica progressbar e modo decorativo, clamp de finitos/não finitos, geometria/cor nativas do fill, `scaleX` de 300ms sem width animation e Reduce Motion instantâneo. Validado no Android físico após o hardening do fill nativo.**
 6. `Skeleton`
    - move animation lifecycle into effect;
    - honor numeric and percentage widths used by callers;

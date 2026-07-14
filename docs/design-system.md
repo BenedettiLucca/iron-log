@@ -13,6 +13,7 @@ This is the implementation contract for product UI. It describes the system that
 - Card interaction contract: `__tests__/components/Card.test.tsx`
 - Form-control contracts: `__tests__/components/Input.test.tsx` and `__tests__/components/DatePicker.test.tsx`
 - Segmented-control contract: `__tests__/components/SegmentedControl.test.tsx`
+- Progress-indicator contracts: `__tests__/components/ProgressBar.test.tsx` and `__tests__/quality/progress-bar-call-sites.test.ts`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -90,6 +91,15 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - The container exposes `tablist` semantics and each option exposes `tab` plus its selected state.
 - The selected pill uses a restrained 160ms opacity/scale transition. Reduce Motion applies the state instantly.
 - Pressing the selected tab is a no-op, ordinary tab changes do not emit haptics, and pressed feedback uses NativeWind `active:` classes rather than Pressable style callbacks.
+
+## Progress indicators
+
+- `ProgressBar` is a generic primitive: it never assumes the value represents exercises. Use a localized custom `label` when the unit or context matters.
+- The visual label is sentence case and `showLabel` is honored by every variant. Hidden labels remain available through the progress element's accessibility value.
+- Invalid, negative and overflowing values are clamped before display, accessibility output and animation. The exposed range is always 0–100 with localized text for the clamped count context.
+- The outer element exposes `progressbar`, label and value semantics by default. Use `isAccessible={false}` only when the bar is decorative and the surrounding accessible UI already communicates the value; when a visible summary duplicates the bar, keep the bar as the sole semantic value and hide the duplicate text from accessibility.
+- Fill motion uses a full-width layer with left-origin `scaleX`; never animate width or trigger layout on each frame. Required fill geometry and color live in native `style` rather than relying on NativeWind interop through a custom animated wrapper. The standard transition is 300ms and Reduce Motion updates instantly.
+- Exercise progress copy selects explicit singular/plural locale keys. Never produce `1 de 1 exercícios` or its EN/ES equivalent.
 
 ## Buttons and action feedback
 

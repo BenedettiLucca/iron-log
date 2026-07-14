@@ -448,6 +448,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
 }
 
 function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
+  const { t } = useI18n();
   // Fetch all sets for the session - selecting all columns for better live query support
   const { data: allSets } = useLiveQuery(
     db.select()
@@ -479,14 +480,27 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
 
   if (totalCount === 0) return null;
 
+  const progressLabel = t(
+    totalCount === 1
+      ? 'session.exercisesCompletedProgressSingular'
+      : 'session.exercisesCompletedProgressPlural',
+    { current: completedCount, total: totalCount }
+  );
+
   return (
     <View className="mt-4">
-      <SectionHeader label={`${completedCount} de ${totalCount} concluídos`} className="mb-2 pl-0" />
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <SectionHeader label={progressLabel} className="mb-2 pl-0" />
+      </View>
       <ProgressBar
         current={completedCount}
         total={totalCount}
         variant="header"
         showLabel={false}
+        label={progressLabel}
       />
     </View>
   );

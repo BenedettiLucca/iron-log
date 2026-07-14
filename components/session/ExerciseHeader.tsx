@@ -50,6 +50,15 @@ export function ExerciseHeader({
               total={totalExercises}
               variant="compact"
               showLabel={true}
+              label={t(
+                totalExercises === 1
+                  ? 'session.exerciseProgressSingular'
+                  : 'session.exerciseProgressPlural',
+                {
+                  current: completedExercisesCount,
+                  total: totalExercises,
+                }
+              )}
             />
           </View>
         )}

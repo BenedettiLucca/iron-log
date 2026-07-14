@@ -63,6 +63,8 @@ export const zh = {
     exerciseSingular: '个动作',
     invalidName: '名称无效',
     operationError: '操作错误',
+    progress: '进度',
+    progressCount: '{current}/{total}',
 
   },
   home: {
@@ -325,6 +327,10 @@ export const zh = {
     deleteSet: '删除组',
     editSet: '编辑组',
     exitConfirm: '确定要退出吗？进度将丢失。',
+    exerciseProgressSingular: '{current}/{total} 个动作',
+    exerciseProgressPlural: '{current}/{total} 个动作',
+    exercisesCompletedProgressSingular: '已完成 {current}/{total} 个动作',
+    exercisesCompletedProgressPlural: '已完成 {current}/{total} 个动作',
 
   },
   exercise: {

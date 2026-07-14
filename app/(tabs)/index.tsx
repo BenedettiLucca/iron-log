@@ -257,6 +257,8 @@ export default function HomeScreen() {
                     <ProgressBar
                       current={weeklyVolume}
                       total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
+                      showLabel={false}
+                      isAccessible={false}
                     />
                   </View>
 
