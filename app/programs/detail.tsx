@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Toast } from '../../components/Toast';
@@ -45,12 +45,16 @@ export default function ProgramDetailScreen() {
   useFocusEffect(
     useCallback(() => {
       if (programIdNum) {
-        fetchProgramDetails(programIdNum).then(() => {
-          fetchDashboardData();
-        });
+        void fetchProgramDetails(programIdNum);
       }
-    }, [programIdNum, fetchProgramDetails, fetchDashboardData])
+    }, [programIdNum, fetchProgramDetails])
   );
+
+  useEffect(() => {
+    if (activeProgram?.id === programIdNum) {
+      fetchDashboardData();
+    }
+  }, [activeProgram?.id, programIdNum, fetchDashboardData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
