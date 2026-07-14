@@ -445,6 +445,23 @@ This sprint is intentionally last. Updating architecture, setup and component gu
    - current project commands, conventions and architecture only;
    - remove instructions tied to deleted files, old flows or superseded tooling.
 
+### Release version and build metadata
+
+1. Choose the final semantic release version from the actual shipped scope; do not assume patch/minor/major before reviewing the release diff.
+2. Synchronize the public version across:
+   - `package.json`;
+   - the root package entries in `package-lock.json`;
+   - `app.json` → `expo.version`;
+   - any release/version constants introduced before Sprint 9.
+3. Reconcile native build identifiers:
+   - Android `versionCode` must be greater than the last distributed build;
+   - iOS `buildNumber` must be greater than the last distributed build;
+   - confirm whether EAS uses local or remote app-version source and how production `autoIncrement` is configured before editing either field;
+   - never increment locally and remotely by accident.
+4. Verify the resolved Expo configuration, not only the JSON source, and confirm the About screen displays the target public version through `Constants.expoConfig.version`.
+5. Align the same release version in `CHANGELOG.md`, release notes, Git tag/GitHub release and monitoring release metadata when applicable.
+6. Add or run an executable version-parity check so `package.json`, lockfile and resolved Expo config cannot silently drift.
+
 ### Historical plans and audits
 
 - Keep audits and implementation plans as historical evidence; do not rewrite their original findings to pretend the repository was always correct.
@@ -477,6 +494,8 @@ This sprint is intentionally last. Updating architecture, setup and component gu
 - Every documented command is executed successfully or explicitly marked platform/environment-specific.
 - No broken internal documentation links.
 - No authoritative document references removed files, obsolete tokens, unsupported targets or stale test counts.
+- `package.json`, `package-lock.json`, resolved Expo config, About screen and release notes agree on one public version.
+- Resolved Android `versionCode` and iOS `buildNumber` are monotonic against the latest distributed builds, with EAS/local ownership documented.
 - Historical docs have an explicit status without losing their original context.
 - `CHANGELOG.md` accurately represents the final release and its known limitations.
 - Lucca approves the final documentation map and handoff summary.
