@@ -70,6 +70,28 @@ describe('Input', () => {
     expect(StyleSheet.flatten(input.props.style).minHeight).toBe(64);
   });
 
+  it('keeps the floor with multiline, explicit height and style arrays', () => {
+    const { UNSAFE_getByType, rerender } = render(
+      <Input
+        multiline
+        value="Notas"
+        onChangeText={jest.fn()}
+        style={[{ height: 36, minHeight: 32 }, { minHeight: 60 }]}
+      />
+    );
+
+    let style = StyleSheet.flatten(UNSAFE_getByType('TextInput' as any).props.style);
+    expect(style.height).toBe(36);
+    expect(style.minHeight).toBe(60);
+
+    rerender(
+      <Input multiline value="Notas" onChangeText={jest.fn()} style={[{ height: 36 }]} />
+    );
+    style = StyleSheet.flatten(UNSAFE_getByType('TextInput' as any).props.style);
+    expect(style.height).toBe(36);
+    expect(style.minHeight).toBe(44);
+  });
+
   it('keeps internal focus state while forwarding focus and blur callbacks', () => {
     const onFocus = jest.fn();
     const onBlur = jest.fn();

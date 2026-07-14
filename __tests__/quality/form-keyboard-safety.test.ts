@@ -11,7 +11,10 @@ const keyboardSafeForms = [
   { file: 'app/(tabs)/bio.tsx', containers: 1 },
 ] as const;
 
-const count = (source: string, token: string) => source.split(token).length - 1;
+const keyboardSafeContainerPattern = /<(?:ScrollView|FlatList)\b(?=[^>]*\bautomaticallyAdjustKeyboardInsets\b)(?=[^>]*\bkeyboardShouldPersistTaps="handled")(?=[^>]*\bkeyboardDismissMode="on-drag")[^>]*>/g;
+
+const countKeyboardSafeContainers = (source: string) =>
+  source.match(keyboardSafeContainerPattern)?.length ?? 0;
 
 describe('shared form keyboard safety', () => {
   it.each(keyboardSafeForms)(
@@ -19,9 +22,7 @@ describe('shared form keyboard safety', () => {
     ({ file, containers }) => {
       const source = fs.readFileSync(path.join(root, file), 'utf8');
 
-      expect(count(source, 'automaticallyAdjustKeyboardInsets')).toBeGreaterThanOrEqual(containers);
-      expect(count(source, 'keyboardShouldPersistTaps="handled"')).toBeGreaterThanOrEqual(containers);
-      expect(count(source, 'keyboardDismissMode="on-drag"')).toBeGreaterThanOrEqual(containers);
+      expect(countKeyboardSafeContainers(source)).toBeGreaterThanOrEqual(containers);
     }
   );
 });

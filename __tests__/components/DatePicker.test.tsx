@@ -166,18 +166,77 @@ describe('DatePicker', () => {
     expect(UNSAFE_queryByType('DateTimePicker' as any)).toBeNull();
   });
 
-  it('keeps the iOS done target at least 44dp', () => {
+  it('closes and ignores late native changes when disabled while open', () => {
+    const onChange = jest.fn();
+    const selectedDate = new Date(2026, 6, 20);
+    const { rerender, UNSAFE_getByType, UNSAFE_queryByType } = render(
+      <DatePicker label="Data inicial" value={null} onChange={onChange} />
+    );
+
+    fireEvent.press(UNSAFE_getByType('Pressable' as any));
+    const staleNativeChange = UNSAFE_getByType('DateTimePicker' as any).props.onChange;
+
+    rerender(
+      <DatePicker label="Data inicial" value={null} onChange={onChange} disabled />
+    );
+
+    const trigger = UNSAFE_getByType('Pressable' as any);
+    expect(UNSAFE_queryByType('DateTimePicker' as any)).toBeNull();
+    expect(trigger.props.accessibilityState).toEqual({ disabled: true, expanded: false });
+    expect(StyleSheet.flatten(trigger.props.style).borderColor).toBe(theme.border);
+
+    act(() => {
+      staleNativeChange({ type: 'set', nativeEvent: {} }, selectedDate);
+    });
+    expect(onChange).not.toHaveBeenCalled();
+
+    rerender(
+      <DatePicker label="Data inicial" value={null} onChange={onChange} disabled={false} />
+    );
+    expect(UNSAFE_queryByType('DateTimePicker' as any)).toBeNull();
+    expect(UNSAFE_getByType('Pressable' as any).props.accessibilityState).toEqual({
+      disabled: false,
+      expanded: false,
+    });
+  });
+
+  it('opens and closes the iOS modal through a >=44dp Done target', () => {
     Object.defineProperty(Platform, 'OS', { value: 'ios', configurable: true });
-    const { UNSAFE_getAllByType } = render(
+    const { rerender, UNSAFE_getAllByType, UNSAFE_getByType } = render(
       <DatePicker label="Data inicial" value={null} onChange={jest.fn()} />
     );
 
-    const pressables = UNSAFE_getAllByType('Pressable' as any);
-    const done = pressables.find((node) => node.props.accessibilityLabel === 'Concluído');
+    let pressables = UNSAFE_getAllByType('Pressable' as any);
+    const trigger = pressables.find((node) => node.props.accessibilityLabel === 'Data inicial');
+    let done = pressables.find((node) => node.props.accessibilityLabel === 'Concluído');
 
-    expect(done).toBeDefined();
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(false);
+    fireEvent.press(trigger!);
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(true);
+
+    rerender(<DatePicker label="Data inicial" value={null} onChange={jest.fn()} disabled />);
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(false);
+    expect(
+      UNSAFE_getAllByType('Pressable' as any).find(
+        (node) => node.props.accessibilityLabel === 'Data inicial'
+      )?.props.accessibilityState
+    ).toEqual({ disabled: true, expanded: false });
+
+    rerender(<DatePicker label="Data inicial" value={null} onChange={jest.fn()} />);
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(false);
+    pressables = UNSAFE_getAllByType('Pressable' as any);
+    fireEvent.press(
+      pressables.find((node) => node.props.accessibilityLabel === 'Data inicial')!
+    );
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(true);
+
+    pressables = UNSAFE_getAllByType('Pressable' as any);
+    done = pressables.find((node) => node.props.accessibilityLabel === 'Concluído');
     expect(done?.props.className).toContain('min-h-[44px]');
     expect(done?.props.className).toContain('min-w-[44px]');
+
+    fireEvent.press(done!);
+    expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(false);
   });
 
   it('forwards a selected Android date and closes the picker', () => {

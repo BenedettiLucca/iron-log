@@ -76,7 +76,7 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - `Input` and `DatePicker` enforce a real minimum target height of 44dp. Caller styles may increase height but cannot reduce it below the floor.
 - Border state precedence is error → focus/open → default. A selected date is a value, not a focus signal.
 - Focus/open borders use `primaryText`; error borders use `dangerText`; default and disabled controls use `border`.
-- Disabled controls are non-interactive, visually muted with `opacity-60`, and expose their disabled accessibility state.
+- Disabled controls are non-interactive, visually muted with `opacity-60`, and expose their disabled accessibility state. Disabling an open DatePicker closes it and ignores stale native change events.
 - Input focus is silent: ordinary text entry does not emit haptics. External focus/blur callbacks run without bypassing internal state.
 - Validation errors remain programmatically associated through the control hint, stay visible while focused, and are announced with a polite live region.
 - DatePicker exposes its formatted value through `accessibilityValue`; its iOS Done action keeps a minimum 44×44dp target.

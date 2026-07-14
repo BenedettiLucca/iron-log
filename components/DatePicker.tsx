@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform, Pressable, Modal, View, Text, StyleSheet, useColorScheme } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getThemeColors } from '@/constants/colors';
@@ -29,8 +29,15 @@ export function DatePicker({
 }: DatePickerProps) {
   const { t, language } = useI18n();
   const [show, setShow] = useState(false);
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
+  const isOpen = show && !disabled;
+
+  useEffect(() => {
+    if (disabled) setShow(false);
+  }, [disabled]);
 
   const displayPlaceholder = placeholder || t('datePicker.placeholder');
   const locale = getLocaleForLanguage(language);
@@ -45,9 +52,8 @@ export function DatePicker({
       setShow(false);
     }
 
-    if (selectedDate) {
-      onChange(selectedDate);
-    }
+    if (disabledRef.current || event.type === 'dismissed') return;
+    if (selectedDate) onChange(selectedDate);
   };
 
   const formatDate = (date: Date) => {
@@ -60,7 +66,7 @@ export function DatePicker({
 
   const borderColor = error
     ? theme.dangerText
-    : show
+    : isOpen
     ? theme.primaryText
     : theme.border;
 
@@ -85,7 +91,7 @@ export function DatePicker({
             accessibilityRole="button"
             accessibilityLabel={mergedAccessibilityLabel}
             accessibilityValue={{ text: displayValue }}
-            accessibilityState={{ disabled, expanded: show }}
+            accessibilityState={{ disabled, expanded: isOpen }}
             accessibilityHint={error}
             style={[
               styles.pickerButton,
@@ -98,7 +104,7 @@ export function DatePicker({
           </Pressable>
 
           <Modal
-            visible={show}
+            visible={isOpen}
             transparent
             animationType="slide"
             onRequestClose={() => setShow(false)}
@@ -142,7 +148,7 @@ export function DatePicker({
             accessibilityRole="button"
             accessibilityLabel={mergedAccessibilityLabel}
             accessibilityValue={{ text: displayValue }}
-            accessibilityState={{ disabled, expanded: show }}
+            accessibilityState={{ disabled, expanded: isOpen }}
             accessibilityHint={error}
             style={[
               styles.pickerButton,
@@ -154,7 +160,7 @@ export function DatePicker({
             </Text>
           </Pressable>
 
-          {show && (
+          {isOpen && (
             <DateTimePicker
               value={value || new Date()}
               mode={mode}

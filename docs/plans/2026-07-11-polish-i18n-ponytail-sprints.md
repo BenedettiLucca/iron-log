@@ -159,7 +159,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
-**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) implementado com Antigravity, coberto por 17 testes e validado no Android físico em light/dark; revisão independente pendente. Itens 4–5 permanecem pendentes.
+**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Itens 4–5 permanecem pendentes.
 
 ### Scope
 
@@ -176,7 +176,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
    - remove medium haptic from ordinary navigation cards. **Implementado; `Card.test.tsx` cobre flat default/bordered, elevação explícita, token `active`, forwarding de style, ausência de haptic e semântica acessível. O pressed state real foi validado no NativeWind instalado e no Android físico.**
 3. `Input` / `DatePicker`
    - ≥44dp targets;
-   - consistent focus/error/disabled states. **Implementado; 17 testes cobrem floor real, precedence visual, callbacks, disabled/error associados e acessíveis, valor do DatePicker, submit nativo, fluxo Android, target iOS e 6 containers keyboard-safe.**
+   - consistent focus/error/disabled states. **Implementado; 19 testes cobrem floor real (incluindo multiline/height/style arrays), precedence visual, transição open→disabled e evento nativo tardio, callbacks, disabled/error associados e acessíveis, valor do DatePicker, submit nativo, fluxo Android, lifecycle/target iOS e 6 containers keyboard-safe com associação estrutural.**
    - accessible error association;
    - keyboard-safe behavior.
 4. `SegmentedControl`
