@@ -415,6 +415,74 @@ If Expo's supported dependency model expects the direct package, keep it. Ponyta
 
 ---
 
+## Sprint 9 — Documentation reconciliation and project handoff
+
+**Goal:** reconcile every authoritative document with the shipped product after implementation and final device QA are stable.
+
+This sprint is intentionally last. Updating architecture, setup and component guidance while the product is still moving creates documentation churn and stale claims.
+
+### Authoritative documentation
+
+1. `README.md`
+   - current product scope and supported platforms;
+   - setup, environment variables and verified commands;
+   - development, test, build and release workflow;
+   - concise architecture and directory map;
+   - links to deeper authoritative docs.
+2. `CHANGELOG.md`
+   - release-facing summary of user-visible changes;
+   - migration or compatibility notes where applicable;
+   - known limitations and intentional deferrals.
+3. `docs/design-system.md`
+   - final semantic tokens and contrast rules;
+   - component, elevation, motion and haptic contracts;
+   - accessibility, Reduce Motion and content-fit rules;
+   - links to executable contract tests.
+4. `docs/i18n/README.{en,es,zh}.md`
+   - supported locales, key-parity workflow and content conventions;
+   - accurate commands and ownership for future translation work.
+5. `CLAUDE.md` and `GEMINI.md`
+   - current project commands, conventions and architecture only;
+   - remove instructions tied to deleted files, old flows or superseded tooling.
+
+### Historical plans and audits
+
+- Keep audits and implementation plans as historical evidence; do not rewrite their original findings to pretend the repository was always correct.
+- Add a clear status header where missing: completed, superseded, partially implemented or intentionally deferred.
+- Link each historical document to the final source of truth or outcome when useful.
+- Consolidate or delete duplicate guidance only after checking incoming links and preserving unique decisions.
+
+### Reconciliation checks
+
+1. Inventory every Markdown document and classify it as authoritative, historical or obsolete.
+2. Verify every documented command by running it in the final repository.
+3. Verify versions, environment variables, package names, routes, file paths and supported platforms against source/configuration.
+4. Check internal links and anchors.
+5. Search for stale palette values, removed components, old architecture names, unsupported Web/tablet claims and obsolete QA exceptions.
+6. Confirm i18n locale/key claims against executable parity tests.
+7. Confirm design-system claims against component and quality tests.
+8. Record final known issues and accepted Expo Doctor exceptions with owner/reason.
+9. Run a final documentation diff review for contradictions and duplicated sources of truth.
+
+### Anti-scope
+
+- No new product features, redesigns or opportunistic refactors.
+- Do not hide a product defect by documenting it as intended behavior. Route newly discovered defects back to the owning component/flow and verify the fix separately.
+- Do not create a new document when an existing authoritative document can own the information.
+- Do not copy the same setup or design contract across multiple files; link to the canonical source.
+
+### Acceptance
+
+- A clean-clone setup succeeds by following `README.md` exactly.
+- Every documented command is executed successfully or explicitly marked platform/environment-specific.
+- No broken internal documentation links.
+- No authoritative document references removed files, obsolete tokens, unsupported targets or stale test counts.
+- Historical docs have an explicit status without losing their original context.
+- `CHANGELOG.md` accurately represents the final release and its known limitations.
+- Lucca approves the final documentation map and handoff summary.
+
+---
+
 ## Recommended execution order
 
 ```text
@@ -435,6 +503,8 @@ Sprint 6   i18n/a11y/content fit
 Sprint 7   Ponytail
    ↓
 Sprint 8   final device QA
+   ↓
+Sprint 9   documentation reconciliation and handoff
 ```
 
 Do not parallelize sprints that touch the same primitives. Antigravity can handle the bulk inside each sprint, but each sprint remains small enough for a human-quality diff review.
@@ -451,6 +521,7 @@ Do not parallelize sprints that touch the same primitives. Antigravity can handl
 8. `refactor(a11y): complete accessible interaction semantics`
 9. `refactor: remove dead and redundant code`
 10. `fix(ui): close final device QA findings`
+11. `docs: reconcile final product documentation`
 
 ## First decision checkpoint — locked
 
