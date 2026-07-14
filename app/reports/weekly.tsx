@@ -126,17 +126,9 @@ export default function WeeklyReportScreen() {
           className="overflow-hidden"
           style={{ borderTopWidth: 3, borderTopColor: theme.primaryText }}
         >
-          <View className="p-3.5 flex-row justify-between items-center">
-            <View>
-              <Text className="text-2xs font-extrabold text-primaryText uppercase tracking-wider">{periodLabel}</Text>
-              <Text className="text-sm font-bold text-text mt-0.5">{dateRange}</Text>
-            </View>
-            {sessionCount > 0 && (
-              <View className="flex-row items-center gap-1.5 bg-successSurface px-2.5 py-1 rounded-full border border-success/15">
-                <View className="w-1.5 h-1.5 rounded-full bg-success" />
-                <Text className="text-2xs font-bold text-successText">{t('reports.completed') || 'Concluído'}</Text>
-              </View>
-            )}
+          <View className="p-3.5">
+            <Text className="text-2xs font-extrabold text-primaryText uppercase tracking-wider">{periodLabel}</Text>
+            <Text className="text-sm font-bold text-text mt-0.5">{dateRange}</Text>
           </View>
         </Card>
 

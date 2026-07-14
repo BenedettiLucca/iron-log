@@ -117,7 +117,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** repair the foundation so screens stop fighting invalid tokens and contrast.
 
-**Status (2026-07-13):** native blockers and semantic tokens complete; utility cleanup complete in `707667e` plus the follow-up semantic-palette cleanup; final visual pilot pending.
+**Status (2026-07-14): concluída.** Blockers nativos, tokens semânticos, utility contract e documentação central finalizados; piloto visual de Sobre e Relatório Semanal aprovado em Android físico, light/dark. O risco de viewport estreito foi revisado pela estrutura flexível e ausência de larguras fixas; não foi usado AVD de 320dp.
 
 ### Scope
 
@@ -143,6 +143,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 - Background/surface light `#F4F1DE`; branco puro não é superfície padrão.
 - Manter shadows, mas somente numa hierarquia deliberada de elevação.
 - Headers nativos do Stack permanecem; mudança para headers customizados exige nova decisão.
+- O relatório semanal é um snapshot informativo e não exibe badge de lifecycle “concluído”; esse status pertence apenas ao fluxo pós-treino.
 - Tablet fora do escopo e `supportsTablet: false`.
 
 ### Acceptance
