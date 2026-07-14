@@ -12,6 +12,7 @@ This is the implementation contract for product UI. It describes the system that
 - Button interaction contract: `__tests__/components/Button.test.tsx`
 - Card interaction contract: `__tests__/components/Card.test.tsx`
 - Form-control contracts: `__tests__/components/Input.test.tsx` and `__tests__/components/DatePicker.test.tsx`
+- Segmented-control contract: `__tests__/components/SegmentedControl.test.tsx`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -81,6 +82,14 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - Validation errors remain programmatically associated through the control hint, stay visible while focused, and are announced with a polite live region.
 - DatePicker exposes its formatted value through `accessibilityValue`; its iOS Done action keeps a minimum 44×44dp target.
 - Form `ScrollView`/`FlatList` containers use automatic keyboard insets, handled taps and drag-to-dismiss; do not introduce fixed keyboard offsets.
+
+## Segmented controls
+
+- Segmented controls keep all options visible at equal width; they do not hide tabs behind horizontal scrolling.
+- Every tab has a minimum 44dp target. Labels use constrained shrinkable width, wrap freely at narrow widths without an ellipsis cap, and receive invisible break opportunities inside long words while preserving the original accessible copy.
+- The container exposes `tablist` semantics and each option exposes `tab` plus its selected state.
+- The selected pill uses a restrained 160ms opacity/scale transition. Reduce Motion applies the state instantly.
+- Pressing the selected tab is a no-op, ordinary tab changes do not emit haptics, and pressed feedback uses NativeWind `active:` classes rather than Pressable style callbacks.
 
 ## Buttons and action feedback
 

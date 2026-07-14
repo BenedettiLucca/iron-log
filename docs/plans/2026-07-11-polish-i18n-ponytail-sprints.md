@@ -159,7 +159,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
-**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Itens 4–5 permanecem pendentes.
+**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Item 4 (`SegmentedControl`) concluído com Antigravity, 6 testes, Android físico light/dark com labels ES e re-review independente. Item 5 permanece pendente.
 
 ### Scope
 
@@ -182,7 +182,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 4. `SegmentedControl`
    - long-label strategy: scroll/wrap/adaptive layout;
    - selected indicator motion;
-   - tab semantics.
+   - tab semantics. **Concluído; 6 testes cobrem tablist/tab/selected, targets ≥44dp, wrap adaptativo para labels ES e `MEASUREMENTS` em 4 tabs, soft breaks com copy acessível intacta, no-op da tab ativa, timing de 160ms e Reduce Motion instantâneo. Validado no Android físico em light/dark e aprovado no re-review independente.**
 5. `ProgressBar`
    - remove hardcoded Portuguese;
    - expose accessibility value;
