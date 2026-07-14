@@ -14,6 +14,7 @@ This is the implementation contract for product UI. It describes the system that
 - Form-control contracts: `__tests__/components/Input.test.tsx` and `__tests__/components/DatePicker.test.tsx`
 - Segmented-control contract: `__tests__/components/SegmentedControl.test.tsx`
 - Progress-indicator contracts: `__tests__/components/ProgressBar.test.tsx` and `__tests__/quality/progress-bar-call-sites.test.ts`
+- Loading-placeholder contract: `__tests__/components/Skeleton.test.tsx`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -100,6 +101,14 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - The outer element exposes `progressbar`, label and value semantics by default. Use `isAccessible={false}` only when the bar is decorative and the surrounding accessible UI already communicates the value; when a visible summary duplicates the bar, keep the bar as the sole semantic value and hide the duplicate text from accessibility.
 - Fill motion uses a full-width layer with left-origin `scaleX`; never animate width or trigger layout on each frame. Required fill geometry and color live in native `style` rather than relying on NativeWind interop through a custom animated wrapper. The standard transition is 300ms and Reduce Motion updates instantly.
 - Exercise progress copy selects explicit singular/plural locale keys. Never produce `1 de 1 exercícios` or its EN/ES equivalent.
+
+## Loading placeholders
+
+- `Skeleton` dimensions live on a core React Native wrapper and accept numeric or percentage widths. Percentage widths such as `60%`, `80%`, `100%` and `40%` must never be discarded.
+- Caller `className` is forwarded to the core wrapper. The animated fill carries required dimensions, semantic `border` color and radius in native style rather than depending on NativeWind interop through an animated component.
+- The standard pulse reverses opacity between `0.6` and `0.3` over 800ms. Start it in an effect, never during render, and cancel the infinite animation on cleanup.
+- Reduce Motion uses a static opacity of `0.5` and does not create a timing/repeat loop. Enabling Reduce Motion while mounted cancels the running loop before applying the static value.
+- Skeletons are decorative and remain hidden from accessibility. Loading context belongs to the owning screen, not to each placeholder rectangle.
 
 ## Buttons and action feedback
 

@@ -83,6 +83,8 @@ jest.mock('react-native-reanimated', () => ({
   withTiming: jest.fn((val, config) => val),
   withRepeat: jest.fn((val) => val),
   withSequence: jest.fn((...args) => args[args.length - 1]),
+  cancelAnimation: jest.fn(),
+  View: 'AnimatedView',
   FadeIn: 'FadeIn',
   FadeInDown: 'FadeInDown',
   ZoomIn: 'ZoomIn',

@@ -159,7 +159,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
-**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Item 4 (`SegmentedControl`) concluído com Antigravity, 6 testes, Android físico light/dark com labels ES e re-review independente. Item 5 (`ProgressBar`) concluído com Antigravity, 12 testes de contrato e call sites, suite completa verde, blockers de implementação resolvidos no re-review independente e spot check Android pós-hardening aprovado. A validação revelou também um loop preexistente no detalhe do programa (`useFocusEffect` → `setActiveProgram` → mudança de identidade de `fetchDashboardData`); os efeitos foram separados e a correção foi validada no Android e coberta por regressão comportamental e estrutural.
+**Status (2026-07-14): em andamento.** Itens 1 (`Button`) e 2 (`Card`) concluídos com Antigravity, testes, Android físico e re-review independente. Item 3 (`Input` / `DatePicker`) concluído com Antigravity, 19 testes, Android físico light/dark e re-review independente. Item 4 (`SegmentedControl`) concluído com Antigravity, 6 testes, Android físico light/dark com labels ES e re-review independente. Item 5 (`ProgressBar`) concluído com Antigravity, 12 testes de contrato e call sites, suite completa verde, blockers de implementação resolvidos no re-review independente e spot check Android pós-hardening aprovado. Item 6 (`Skeleton`) concluído com 7 testes RED→GREEN, validação Android light/dark, lifecycle e Reduce Motion aprovada e re-review independente sem blockers. A validação revelou também um loop preexistente no detalhe do programa (`useFocusEffect` → `setActiveProgram` → mudança de identidade de `fetchDashboardData`); os efeitos foram separados e a correção foi validada no Android e coberta por regressão comportamental e estrutural.
 
 ### Scope
 
@@ -191,7 +191,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
    - move animation lifecycle into effect;
    - honor numeric and percentage widths used by callers;
    - stop/unmount cleanly;
-   - static under Reduce Motion.
+   - static under Reduce Motion. **Concluído; 7 testes cobrem dimensões numéricas e percentuais reais, wrapper NativeWind-safe, pulse reverso sem restart em rerender, cleanup individual e em lista, mount estático e transição dinâmica para Reduce Motion. Validado no Android físico em light/dark, pulse normal, Reduce Motion estático e troca rápida de telas sem erro; re-review independente aprovado sem blockers.**
 7. `Dialog`, `Toast`, `RestTimer`
    - real safe areas;
    - focus/focus restoration;
