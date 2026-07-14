@@ -159,6 +159,8 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
+**Status (2026-07-14): em andamento.** Item 1 (`Button`) concluído: implementação com Antigravity, 24 testes de componente, contrato de CTA em PT/EN/ES, Android físico aprovado e re-review independente sem bloqueadores. Itens 2–5 permanecem pendentes.
+
 ### Scope
 
 1. `Button`
@@ -166,7 +168,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
    - contrast-safe foregrounds;
    - restrained press motion;
    - haptic semantics by action;
-   - reduced-motion path.
+   - reduced-motion path. **Implementado; `Button.test.tsx` cobre 24 cenários de casing, foreground/loading, haptics, acessibilidade, indisponibilidade, transição pressed→loading e Reduce Motion.**
 2. `Card`
    - flat default;
    - elevation only for interactive/floating variants;

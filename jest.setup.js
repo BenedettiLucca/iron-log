@@ -74,8 +74,11 @@ jest.mock('expo-web-browser', () => ({
 }));
 
 jest.mock('react-native-reanimated', () => ({
-  useSharedValue: jest.fn(() => ({ value: 0 })),
-  useAnimatedStyle: jest.fn((fn) => fn),
+  useSharedValue: jest.fn((initialValue) =>
+    require('react').useRef({ value: initialValue }).current
+  ),
+  useAnimatedStyle: jest.fn((fn) => fn()),
+  useReducedMotion: jest.fn(() => false),
   withSpring: jest.fn((val, config) => val),
   withTiming: jest.fn((val, config) => val),
   withRepeat: jest.fn((val) => val),

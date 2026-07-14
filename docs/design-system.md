@@ -1,6 +1,6 @@
 # Iron Log design-system contract
 
-This is the implementation contract for product UI. It describes the system that exists today; component redesign and motion work belong to later sprints.
+This is the implementation contract for product UI. It describes the system that exists today and evolves with each completed component sprint.
 
 ## Sources of truth
 
@@ -9,6 +9,7 @@ This is the implementation contract for product UI. It describes the system that
 - CSS variables: `global.css`
 - Contrast and pairing guards: `__tests__/quality/design-tokens.test.ts`
 - Native utility guard: `__tests__/quality/native-utilities.test.ts`
+- Button interaction contract: `__tests__/components/Button.test.tsx`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -59,6 +60,14 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - Floating feedback, modal or active overlay: `shadow-lg` or `shadow-xl` only when it must sit above content.
 - Do not use shadow to compensate for weak color or border hierarchy.
 - Shadows remain enabled by product decision; later component work may reduce where the shared defaults overuse them.
+
+## Buttons and action feedback
+
+- CTA labels use sentence case and preserve the translated title exactly. All-caps remains reserved for compact metadata, badges and short labels; the shared `Button` never transforms copy.
+- Press motion uses scale `0.98` over 80ms and returns to `1` over 120ms. Reduce Motion, disabled and loading states do not animate.
+- Press haptics are outcome-neutral: primary and success variants use medium impact; secondary and ghost use light impact; danger uses warning feedback.
+- A success-colored action is not proof of durable success. Notification-style `success` feedback must fire only in the owning flow after validation and persistence complete.
+- Foregrounds remain semantic per variant: `onPrimary`, `secondaryText`, `onDanger`, `subtext` and `onSuccess`.
 
 ## Utility policy
 

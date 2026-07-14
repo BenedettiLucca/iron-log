@@ -1,11 +1,24 @@
 import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { useHaptics } from '@/hooks/use-haptics';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useHaptics, type HapticFeedbackType } from '@/hooks/use-haptics';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
+
+const HAPTIC_BY_VARIANT: Record<ButtonVariant, HapticFeedbackType> = {
+  primary: 'medium',
+  secondary: 'light',
+  danger: 'warning',
+  ghost: 'light',
+  success: 'medium',
+};
 
 interface ButtonProps {
   title: string;
@@ -40,6 +53,7 @@ export function Button({
 }: ButtonProps) {
   const theme = useThemeColors();
   const scale = useSharedValue(1);
+  const isReducedMotion = useReducedMotion();
   const { trigger } = useHaptics();
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -47,24 +61,23 @@ export function Button({
   }));
 
   const handlePressIn = () => {
-    if (disabled || loading) return;
-    scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+    if (disabled || loading || isReducedMotion) return;
+    scale.value = withTiming(0.98, { duration: 80 });
   };
 
   const handlePressOut = () => {
-    if (disabled || loading) return;
-    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+    if (disabled || loading || isReducedMotion) {
+      scale.value = 1;
+      return;
+    }
+    scale.value = withTiming(1, { duration: 120 });
   };
 
   const handlePress = () => {
     if (disabled || loading) return;
 
     // Trigger haptic feedback based on variant
-    if (variant === 'danger') {
-      trigger('warning');
-    } else {
-      trigger('medium');
-    }
+    trigger(HAPTIC_BY_VARIANT[variant]);
 
     onPress();
   };
@@ -84,12 +97,12 @@ export function Button({
   const getTextSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'text-xs font-bold tracking-wider uppercase';
+        return 'text-xs font-bold';
       case 'lg':
-        return 'text-lg font-bold tracking-widest uppercase';
+        return 'text-lg font-bold';
       case 'md':
       default:
-        return 'text-sm font-bold tracking-wider uppercase';
+        return 'text-sm font-bold';
     }
   };
 

@@ -209,6 +209,56 @@ describe('i18n', () => {
     });
   });
 
+  describe('button copy contract', () => {
+    const sentenceCaseLabels = [
+      {
+        language: 'pt',
+        translations: pt,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finalizar treino',
+          'exercise.saveBtn': 'Salvar',
+          'exercise.saving': 'Salvando...',
+          'routines.createNewRoutine': 'Criar nova rotina',
+          'routines.createTemplate': 'Criar template',
+          'routines.import': 'Importar',
+          'session.end': 'Fim',
+        },
+      },
+      {
+        language: 'en',
+        translations: en,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finish workout',
+          'exercise.saveBtn': 'Save',
+          'exercise.saving': 'Saving...',
+          'routines.createNewRoutine': 'Create new routine',
+          'routines.createTemplate': 'Create template',
+          'routines.import': 'Import',
+          'session.end': 'End',
+        },
+      },
+      {
+        language: 'es',
+        translations: es,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finalizar entrenamiento',
+          'exercise.saveBtn': 'Guardar',
+          'exercise.saving': 'Guardando...',
+          'routines.createNewRoutine': 'Crear nueva rutina',
+          'routines.createTemplate': 'Crear plantilla',
+          'routines.import': 'Importar',
+          'session.end': 'Fin',
+        },
+      },
+    ] as const;
+
+    it.each(sentenceCaseLabels)('keeps CTA labels in sentence case for $language', ({ translations, expected }) => {
+      for (const [key, value] of Object.entries(expected)) {
+        expect(getNestedValue(translations, key)).toBe(value);
+      }
+    });
+  });
+
   describe('translation key parity', () => {
     function getAllKeys(obj: any, prefix = ''): string[] {
       const keys: string[] = [];
