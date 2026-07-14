@@ -10,6 +10,7 @@ This is the implementation contract for product UI. It describes the system that
 - Contrast and pairing guards: `__tests__/quality/design-tokens.test.ts`
 - Native utility guard: `__tests__/quality/native-utilities.test.ts`
 - Button interaction contract: `__tests__/components/Button.test.tsx`
+- Card interaction contract: `__tests__/components/Card.test.tsx`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -55,11 +56,19 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 
 ## Elevation
 
-- Flat/bordered surfaces: border only, no shadow.
-- Standard card or button: `shadow-sm`.
+- Static cards are flat: semantic background plus border, with no built-in shadow.
+- Interactive or floating cards may opt into `shadow-sm`/`shadow-md` explicitly at the call site when elevation communicates affordance or layering.
 - Floating feedback, modal or active overlay: `shadow-lg` or `shadow-xl` only when it must sit above content.
 - Do not use shadow to compensate for weak color or border hierarchy.
-- Shadows remain enabled by product decision; later component work may reduce where the shared defaults overuse them.
+- Shadows remain enabled by product decision, but every elevation now requires a deliberate role.
+
+## Cards
+
+- `default` and compatibility `bordered` variants are flat. Explicit caller classes remain the elevation escape hatch.
+- A Card becomes interactive only when both `pressable` and `onPress` are provided; otherwise it renders a static `View`.
+- Pressed feedback is a restrained opacity change to `0.92`, without scale animation.
+- Cards do not emit automatic haptics. Navigation cards stay quiet; specialized flows own any semantic haptic.
+- Interactive cards default to button semantics and may opt into link semantics with an explicit accessibility label.
 
 ## Buttons and action feedback
 

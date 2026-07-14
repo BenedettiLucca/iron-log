@@ -159,7 +159,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 **Goal:** make polish systemic instead of handcrafted per screen.
 
-**Status (2026-07-14): em andamento.** Item 1 (`Button`) concluído: implementação com Antigravity, 24 testes de componente, contrato de CTA em PT/EN/ES, Android físico aprovado e re-review independente sem bloqueadores. Itens 2–5 permanecem pendentes.
+**Status (2026-07-14): em andamento.** Item 1 (`Button`) concluído com Antigravity, 24 testes, Android físico e re-review independente. Item 2 (`Card`) concluído com Antigravity, 6 testes, extração NativeWind verificada, Android físico light/dark + interação e re-review independente. Itens 3–5 permanecem pendentes.
 
 ### Scope
 
@@ -173,7 +173,7 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
    - flat default;
    - elevation only for interactive/floating variants;
    - consistent pressed state;
-   - remove medium haptic from ordinary navigation cards.
+   - remove medium haptic from ordinary navigation cards. **Implementado; `Card.test.tsx` cobre flat default/bordered, elevação explícita, token `active`, forwarding de style, ausência de haptic e semântica acessível. O pressed state real foi validado no NativeWind instalado e no Android físico.**
 3. `Input` / `DatePicker`
    - ≥44dp targets;
    - consistent focus/error/disabled states;
