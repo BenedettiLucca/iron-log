@@ -372,7 +372,12 @@ export default function GoalsScreen() {
             <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" disabled={isSaving} />
           </View>
 
-          <ScrollView contentContainerStyle={{ gap: 16 }}>
+          <ScrollView
+            automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={{ gap: 16 }}
+          >
             <View>
               <Text className="text-subtext text-xs font-bold uppercase mb-3">{t("bioGoals.measurementType")}</Text>
               <View className="flex-row flex-wrap gap-2">

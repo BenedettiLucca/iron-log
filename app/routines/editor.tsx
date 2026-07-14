@@ -197,7 +197,9 @@ export default function RoutineEditorScreen() {
     <View className="flex-1 bg-background">
       <ScrollView
         className="px-4 pb-4"
+        automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         contentContainerStyle={{ gap: 16 }}
       >
         <Input
@@ -434,6 +436,9 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
 
             <FlatList
             data={filtered}
+            automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: 40 }}
             ListEmptyComponent={

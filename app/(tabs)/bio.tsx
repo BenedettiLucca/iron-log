@@ -233,7 +233,9 @@ export default function BioScreen() {
     <View className="flex-1 bg-background">
       <ScrollView
         className="px-4 pb-4"
+        automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         contentContainerStyle={{ gap: 16 }}
         refreshControl={
           <RefreshControl

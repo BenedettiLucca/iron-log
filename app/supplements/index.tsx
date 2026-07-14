@@ -425,7 +425,13 @@ export default function SupplementsScreen() {
             />
           </View>
 
-          <ScrollView className="p-5" contentContainerStyle={{ gap: 20 }}>
+          <ScrollView
+            className="p-5"
+            automaticallyAdjustKeyboardInsets
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={{ gap: 20 }}
+          >
             <View className="flex-row gap-4">
               <View className="w-16">
                 <Input

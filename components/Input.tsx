@@ -1,6 +1,13 @@
 import { useState } from 'react';
-import { TextInput, View, Text, TextInputProps, ViewStyle, useColorScheme } from 'react-native';
-import { useHaptics } from '@/hooks/use-haptics';
+import {
+  TextInput,
+  View,
+  Text,
+  TextInputProps,
+  ViewStyle,
+  useColorScheme,
+  StyleSheet,
+} from 'react-native';
 import { getThemeColors } from '@/constants/colors';
 
 interface InputProps extends TextInputProps {
@@ -9,6 +16,7 @@ interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
   maxLength?: number;
   showCharacterCount?: boolean;
+  className?: string;
 }
 
 export function Input({
@@ -19,32 +27,52 @@ export function Input({
   maxLength,
   showCharacterCount = false,
   value,
+  editable = true,
+  onFocus,
+  onBlur,
+  className = '',
+  accessibilityState,
+  accessibilityLabel,
+  accessibilityHint,
   ...textInputProps
 }: InputProps) {
-  const { trigger } = useHaptics();
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
   const [isFocused, setIsFocused] = useState(false);
 
-  // Animate border color
-  const borderColor = isFocused
-    ? theme.primary
-    : error
-    ? theme.danger
+  const disabled = editable === false;
+
+  const borderColor = error
+    ? theme.dangerText
+    : isFocused && !disabled
+    ? theme.primaryText
     : theme.border;
 
-  const handleFocus = (e: any) => {
+  const handleFocus: NonNullable<TextInputProps['onFocus']> = (event) => {
     setIsFocused(true);
-    trigger('selection');
-    textInputProps.onFocus?.(e);
+    onFocus?.(event);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur: NonNullable<TextInputProps['onBlur']> = (event) => {
     setIsFocused(false);
-    textInputProps.onBlur?.(e);
+    onBlur?.(event);
   };
 
   const characterCount = typeof value === 'string' ? value.length : 0;
+
+  const flattenedStyle = StyleSheet.flatten(style) || {};
+  const callerMinHeight = typeof flattenedStyle.minHeight === 'number' ? flattenedStyle.minHeight : 0;
+  const finalMinHeight = Math.max(callerMinHeight, 44);
+
+  const baseClassName = `bg-card rounded-xl px-4 py-3 text-base text-text min-h-[44px]${disabled ? ' opacity-60' : ''}`;
+  const finalClassName = className ? `${baseClassName} ${className}` : baseClassName;
+
+  const mergedAccessibilityState = {
+    ...accessibilityState,
+    disabled,
+  };
+  const mergedAccessibilityLabel = accessibilityLabel ?? label;
+  const mergedAccessibilityHint = error ?? accessibilityHint;
 
   return (
     <View style={containerStyle}>
@@ -55,19 +83,26 @@ export function Input({
       )}
       <View className="relative">
         <TextInput
-          className={`bg-card rounded-xl px-4 py-3 text-base text-text min-h-[44px]`}
+          className={finalClassName}
           style={[
             {
               borderColor,
               borderWidth: 2,
             },
             style,
+            {
+              minHeight: finalMinHeight,
+            },
           ]}
           placeholderTextColor={theme.subtext}
           onFocus={handleFocus}
           onBlur={handleBlur}
           value={value}
           maxLength={maxLength}
+          editable={editable}
+          accessibilityState={mergedAccessibilityState}
+          accessibilityLabel={mergedAccessibilityLabel}
+          accessibilityHint={mergedAccessibilityHint}
           {...textInputProps}
         />
         {showCharacterCount && maxLength && (
@@ -77,7 +112,7 @@ export function Input({
         )}
       </View>
       {error && (
-        <Text className="text-dangerText text-xs mt-1">
+        <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">
           {error}
         </Text>
       )}

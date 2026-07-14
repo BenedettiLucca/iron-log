@@ -102,6 +102,9 @@ export default function CreateProgramScreen() {
 
       <ScrollView
         className="flex-1"
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         contentContainerStyle={{
           padding: 16,
           paddingBottom: 100 + insets.bottom,

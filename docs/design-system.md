@@ -11,6 +11,7 @@ This is the implementation contract for product UI. It describes the system that
 - Native utility guard: `__tests__/quality/native-utilities.test.ts`
 - Button interaction contract: `__tests__/components/Button.test.tsx`
 - Card interaction contract: `__tests__/components/Card.test.tsx`
+- Form-control contracts: `__tests__/components/Input.test.tsx` and `__tests__/components/DatePicker.test.tsx`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -69,6 +70,17 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - Pressed feedback is a restrained opacity change to `0.92`, without scale animation.
 - Cards do not emit automatic haptics. Navigation cards stay quiet; specialized flows own any semantic haptic.
 - Interactive cards default to button semantics and may opt into link semantics with an explicit accessibility label.
+
+## Form controls
+
+- `Input` and `DatePicker` enforce a real minimum target height of 44dp. Caller styles may increase height but cannot reduce it below the floor.
+- Border state precedence is error → focus/open → default. A selected date is a value, not a focus signal.
+- Focus/open borders use `primaryText`; error borders use `dangerText`; default and disabled controls use `border`.
+- Disabled controls are non-interactive, visually muted with `opacity-60`, and expose their disabled accessibility state.
+- Input focus is silent: ordinary text entry does not emit haptics. External focus/blur callbacks run without bypassing internal state.
+- Validation errors remain programmatically associated through the control hint, stay visible while focused, and are announced with a polite live region.
+- DatePicker exposes its formatted value through `accessibilityValue`; its iOS Done action keeps a minimum 44×44dp target.
+- Form `ScrollView`/`FlatList` containers use automatic keyboard insets, handled taps and drag-to-dismiss; do not introduce fixed keyboard offsets.
 
 ## Buttons and action feedback
 
