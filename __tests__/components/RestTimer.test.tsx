@@ -191,10 +191,12 @@ describe('RestTimer', () => {
   it('stops animation work on unmount', () => {
     const result = renderTimer();
 
-    expect(mockSpring).toHaveBeenCalledWith(
-      mockAnimatedValue,
-      expect.objectContaining({ toValue: 0, useNativeDriver: true })
-    );
+    expect(mockSpring).toHaveBeenCalledWith(mockAnimatedValue, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    });
     result.unmount();
 
     expect(mockStopAnimation).toHaveBeenCalled();
@@ -206,6 +208,22 @@ describe('RestTimer', () => {
 
     expect(mockSetValue).toHaveBeenCalledWith(0);
     expect(mockSpring).not.toHaveBeenCalled();
+  });
+
+  it('uses the shared 200ms timing for an accepted swipe dismissal', () => {
+    const onClose = jest.fn();
+    renderTimer({ onClose });
+
+    act(() => {
+      mockPanResponderConfig.onPanResponderRelease?.({}, { dy: 120 });
+    });
+
+    expect(mockTiming).toHaveBeenCalledWith(mockAnimatedValue, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('uses the current Reduce Motion value in swipe-to-dismiss callbacks', () => {

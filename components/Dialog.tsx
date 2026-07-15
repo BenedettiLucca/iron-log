@@ -2,6 +2,7 @@ import { useRef, type Component, type RefObject } from 'react';
 import { View, Text, TouchableOpacity, Modal, Keyboard } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { focusAccessibilityNode } from '@/src/utils/accessibility';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 import { useI18n } from '../src/i18n/index';
 import { Button } from './Button';
 
@@ -30,6 +31,7 @@ export function Dialog({
 }: DialogProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  const reducedMotion = useReactiveReducedMotion();
   const titleRef = useRef<Text>(null);
 
   const resolvedConfirmText = confirmText ?? t('common.confirm');
@@ -58,7 +60,7 @@ export function Dialog({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType={reducedMotion ? 'none' : 'fade'}
       statusBarTranslucent
       navigationBarTranslucent
       accessibilityViewIsModal

@@ -5,6 +5,8 @@ import { DatePicker } from '@/components/DatePicker';
 
 (global as typeof globalThis & { React: typeof React }).React = React;
 
+const mockUseReactiveReducedMotion = jest.fn(() => false);
+
 const theme = {
   primaryText: '#9E422E',
   dangerText: '#B42332',
@@ -67,6 +69,9 @@ jest.mock('@react-native-community/datetimepicker', () => ({
 jest.mock('@/constants/colors', () => ({
   getThemeColors: () => theme,
 }));
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => mockUseReactiveReducedMotion(),
+}));
 jest.mock('@/src/i18n', () => ({
   useI18n: () => ({
     language: 'pt',
@@ -89,6 +94,7 @@ describe('DatePicker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseReactiveReducedMotion.mockReturnValue(false);
     Object.defineProperty(Platform, 'OS', { value: 'android', configurable: true });
   });
 
@@ -237,6 +243,22 @@ describe('DatePicker', () => {
 
     fireEvent.press(done!);
     expect(UNSAFE_getByType('Modal' as any).props.visible).toBe(false);
+  });
+
+  it('disables the iOS modal entrance animation under Reduce Motion', () => {
+    Object.defineProperty(Platform, 'OS', { value: 'ios', configurable: true });
+    const result = render(
+      <DatePicker label="Data inicial" value={null} onChange={jest.fn()} />
+    );
+
+    expect(result.UNSAFE_getByType('Modal' as any).props.animationType).toBe('slide');
+
+    mockUseReactiveReducedMotion.mockReturnValue(true);
+    result.rerender(
+      <DatePicker label="Data inicial" value={null} onChange={jest.fn()} />
+    );
+
+    expect(result.UNSAFE_getByType('Modal' as any).props.animationType).toBe('none');
   });
 
   it('forwards a selected Android date and closes the picker', () => {

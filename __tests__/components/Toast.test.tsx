@@ -95,10 +95,12 @@ describe('Toast', () => {
     const onHide = jest.fn();
     render(<Toast visible message="Salvo" duration={1000} onHide={onHide} />);
 
-    expect(mockSpring).toHaveBeenCalledWith(
-      mockAnimatedValue,
-      expect.objectContaining({ toValue: 0, useNativeDriver: true })
-    );
+    expect(mockSpring).toHaveBeenCalledWith(mockAnimatedValue, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 50,
+      friction: 7,
+    });
     expect(mockTiming).not.toHaveBeenCalled();
 
     jest.advanceTimersByTime(1000);
@@ -113,6 +115,16 @@ describe('Toast', () => {
     act(() => mockTimingCallbacks[0]({ finished: true }));
 
     expect(onHide).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the 2000ms default dwell before starting exit', () => {
+    render(<Toast visible message="Salvo" />);
+
+    jest.advanceTimersByTime(1999);
+    expect(mockTiming).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(1);
+    expect(mockTiming).toHaveBeenCalledTimes(1);
   });
 
   it('restarts the dwell time when a new message replaces a visible toast', () => {

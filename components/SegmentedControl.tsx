@@ -2,10 +2,10 @@ import { useRef, useEffect } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface Segment {
   key: string;
@@ -35,11 +35,11 @@ function addSoftBreakOpportunities(label: string) {
 interface SegmentOptionProps {
   segment: Segment;
   isActive: boolean;
-  onSelect: (key: string) => void;
+  isReducedMotion: boolean;
+  onSelect: () => void;
 }
 
-function SegmentOption({ segment, isActive, onSelect }: SegmentOptionProps) {
-  const isReducedMotion = useReducedMotion();
+function SegmentOption({ segment, isActive, isReducedMotion, onSelect }: SegmentOptionProps) {
   const progress = useSharedValue(isActive ? 1 : 0);
   const isFirstRender = useRef(true);
   const displayLabel = addSoftBreakOpportunities(segment.label);
@@ -68,7 +68,7 @@ function SegmentOption({ segment, isActive, onSelect }: SegmentOptionProps) {
     <Pressable
       onPress={() => {
         if (!isActive) {
-          onSelect(segment.key);
+          onSelect();
         }
       }}
       accessibilityRole="tab"
@@ -100,6 +100,8 @@ export function SegmentedControl({
   onSelect,
   className = '',
 }: SegmentedControlProps) {
+  const isReducedMotion = useReactiveReducedMotion();
+
   return (
     <View style={{ flexShrink: 0 }} className={className}>
       <View className="flex-row items-stretch bg-primary/5 rounded-full p-0.5" accessibilityRole="tablist">
@@ -108,7 +110,8 @@ export function SegmentedControl({
             key={segment.key}
             segment={segment}
             isActive={segment.key === activeKey}
-            onSelect={onSelect}
+            isReducedMotion={isReducedMotion}
+            onSelect={() => onSelect(segment.key)}
           />
         ))}
       </View>

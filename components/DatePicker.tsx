@@ -3,6 +3,7 @@ import { Platform, Pressable, Modal, View, Text, StyleSheet, useColorScheme } fr
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getThemeColors } from '@/constants/colors';
 import { useI18n, getLocaleForLanguage } from '@/src/i18n';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface DatePickerProps {
   label?: string;
@@ -28,6 +29,7 @@ export function DatePicker({
   accessibilityLabel,
 }: DatePickerProps) {
   const { t, language } = useI18n();
+  const reducedMotion = useReactiveReducedMotion();
   const [show, setShow] = useState(false);
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
@@ -106,7 +108,7 @@ export function DatePicker({
           <Modal
             visible={isOpen}
             transparent
-            animationType="slide"
+            animationType={reducedMotion ? 'none' : 'slide'}
             onRequestClose={() => setShow(false)}
           >
             <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>

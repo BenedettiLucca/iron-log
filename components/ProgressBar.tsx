@@ -4,10 +4,10 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  useReducedMotion,
 } from 'react-native-reanimated';
 import { useI18n } from '../src/i18n/index';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface ProgressBarProps {
   current: number;
@@ -33,7 +33,7 @@ export function ProgressBar({
   const { t } = useI18n();
   const theme = useThemeColors();
   const progressValue = useSharedValue(0);
-  const isReducedMotion = useReducedMotion();
+  const isReducedMotion = useReactiveReducedMotion();
 
   const safeTotal = (Number.isFinite(total) && total > 0) ? total : 0;
   const safeCurrent = (Number.isFinite(current) && safeTotal > 0) ? Math.max(0, Math.min(current, safeTotal)) : 0;

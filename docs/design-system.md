@@ -68,6 +68,52 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - Do not use shadow to compensate for weak color or border hierarchy.
 - Shadows remain enabled by product decision, but every elevation now requires a deliberate role.
 
+## Motion roles and haptic mapping
+
+The table below is the canonical motion matrix for the shared components covered by Sprint 2. Component tests lock each explicit timing/spring value; hook tests lock runtime Reduce Motion subscription, async initialization and cleanup. Do not introduce a new duration or spring ad hoc at a call site.
+
+### Motion matrix
+
+| Component behavior | Value / curve | Reduce Motion |
+|---|---|---|
+| Button press-in | 80ms timing to `scale: 0.98` | Keep `scale: 1` |
+| Button release/cancel | 120ms timing to `scale: 1` | Restore `scale: 1` immediately |
+| SegmentedControl selection | 160ms timing, opacity plus `0.96 → 1` scale | Apply final state immediately |
+| ProgressBar value change | 300ms timing, left-origin `scaleX` | Apply final value immediately |
+| RestTimer accepted swipe dismissal | 200ms timing | Dismiss immediately |
+| Toast entrance | spring `tension: 50`, `friction: 7` | Show in place immediately |
+| Toast exit | 300ms timing after dwell | Hide immediately after the same dwell period |
+| RestTimer entrance/rejected drag | spring `tension: 65`, `friction: 11` | Show/restore immediately |
+| Skeleton pulse | reversible 800ms timing, opacity `0.6 ↔ 0.3` | Static opacity `0.5`; no loop |
+| Native modal entrance | platform-controlled `fade` for Dialog and `slide` for iOS DatePicker | `animationType="none"` |
+
+Toast dwell defaults to 2000ms and is lifecycle, not animation. Card, DatePicker trigger and ordinary Pressable feedback use immediate `active:` opacity states; do not add JavaScript timing solely to animate opacity. Native modal durations are deliberately not guessed or duplicated in JavaScript.
+
+### Motion grammar
+
+- Motion explains press, selection, progress or layering. It is not decoration and must not delay persistence or navigation.
+- Use timing for deterministic state changes and the two documented springs only for transient overlay arrival/restoration.
+- A single interaction gets one primary motion response. Do not stack scale, translation and decorative bounce on the same action.
+- Within the Sprint 2 shared-component scope, continuous, entrance and exit motion reacts to the OS Reduce Motion setting while the app is mounted. Dwell time, countdown state and accessibility announcements remain functional.
+- Repeating/native animation must stop on replacement, setting changes and unmount. Completion callbacks must ignore canceled animations.
+- Feature-specific legacy modals outside this shared-component scope are audited in their owning screen sprints; this matrix does not claim they already comply.
+
+### Haptic mapping
+
+`useHaptics()` is the single adapter over Expo Haptics, and the names below are its actual `HapticFeedbackType` values:
+
+| Type | Native feedback | Use |
+|---|---|---|
+| `light` | light impact | Low-consequence adjustment, secondary/ghost Button |
+| `medium` | medium impact | Primary/success Button press and explicit edit action |
+| `heavy` | heavy impact | Reserved for rare high-salience physical actions; no shared default |
+| `selection` | selection feedback | Reserved for deliberate discrete selection controls; SegmentedControl remains silent |
+| `success` | success notification | Only after confirmed persistence or a real outcome such as a PR |
+| `warning` | warning notification | Destructive intent such as danger Button or set deletion |
+| `error` | error notification | Only after a confirmed failed outcome, never on ordinary validation focus |
+
+Shared Button variants map `primary → medium`, `success → medium`, `secondary → light`, `ghost → light` and `danger → warning`. Disabled/loading Buttons, Card, Input, DatePicker and SegmentedControl are silent. A success-colored Button still emits outcome-neutral `medium`; the owning flow may emit `success` only after durable success. The generic haptic `Pressable` defaults to `medium`, so use it only when tactile feedback is intentional rather than as a drop-in replacement for every pressable surface.
+
 ## Cards
 
 - `default` and compatibility `bordered` variants are flat. Explicit caller classes remain the elevation escape hatch.
@@ -92,7 +138,7 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - Segmented controls keep all options visible at equal width; they do not hide tabs behind horizontal scrolling.
 - Every tab has a minimum 44dp target. Labels use constrained shrinkable width, wrap freely at narrow widths without an ellipsis cap, and receive invisible break opportunities inside long words while preserving the original accessible copy.
 - The container exposes `tablist` semantics and each option exposes `tab` plus its selected state.
-- The selected pill uses a restrained 160ms opacity/scale transition. Reduce Motion applies the state instantly.
+- The selected pill follows the SegmentedControl selection row in the canonical motion matrix; Reduce Motion applies the state instantly.
 - Pressing the selected tab is a no-op, ordinary tab changes do not emit haptics, and pressed feedback uses NativeWind `active:` classes rather than Pressable style callbacks.
 
 ## Progress indicators
@@ -101,15 +147,14 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - The visual label is sentence case and `showLabel` is honored by every variant. Hidden labels remain available through the progress element's accessibility value.
 - Invalid, negative and overflowing values are clamped before display, accessibility output and animation. The exposed range is always 0–100 with localized text for the clamped count context.
 - The outer element exposes `progressbar`, label and value semantics by default. Use `isAccessible={false}` only when the bar is decorative and the surrounding accessible UI already communicates the value; when a visible summary duplicates the bar, keep the bar as the sole semantic value and hide the duplicate text from accessibility.
-- Fill motion uses a full-width layer with left-origin `scaleX`; never animate width or trigger layout on each frame. Required fill geometry and color live in native `style` rather than relying on NativeWind interop through a custom animated wrapper. The standard transition is 300ms and Reduce Motion updates instantly.
+- Fill motion uses a full-width layer with left-origin `scaleX`; never animate width or trigger layout on each frame. Required fill geometry and color live in native `style` rather than relying on NativeWind interop through a custom animated wrapper. Timing and Reduce Motion behavior follow the canonical motion matrix.
 - Exercise progress copy selects explicit singular/plural locale keys. Never produce `1 de 1 exercícios` or its EN/ES equivalent.
 
 ## Loading placeholders
 
 - `Skeleton` dimensions live on a core React Native wrapper and accept numeric or percentage widths. Percentage widths such as `60%`, `80%`, `100%` and `40%` must never be discarded.
 - Caller `className` is forwarded to the core wrapper. The animated fill carries required dimensions, semantic `border` color and radius in native style rather than depending on NativeWind interop through an animated component.
-- The standard pulse reverses opacity between `0.6` and `0.3` over 800ms. Start it in an effect, never during render, and cancel the infinite animation on cleanup.
-- Reduce Motion uses a static opacity of `0.5` and does not create a timing/repeat loop. Enabling Reduce Motion while mounted cancels the running loop before applying the static value.
+- Pulse timing, opacity range and the static Reduce Motion state follow the canonical motion matrix. Start the loop in an effect, never during render, and cancel it on cleanup or when the OS setting changes.
 - Skeletons are decorative and remain hidden from accessibility. Loading context belongs to the owning screen, not to each placeholder rectangle.
 
 ## Overlays, alerts and transient UI
@@ -117,14 +162,13 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - `Dialog` uses a native modal, real safe-area padding and dismisses the keyboard before focusing its accessible heading. Backdrop, Android back and VoiceOver escape from any focused dialog element share the same cancel path without collapsing the dialog into one accessibility node. Native modal restoration remains the default; callers that need deterministic restoration may pass `returnFocusRef`.
 - `Toast` positions from `safeArea.top + 12`. Errors use an assertive alert; success and info use polite live regions. Replacing a visible message restarts its dwell period, and every timer/native animation stops during cleanup.
 - `RestTimer` is a native modal bottom sheet with real bottom inset. Opening dismisses the keyboard and focuses the heading. Its countdown has the `timer` role but no live region, so it stays queryable without being announced every second; the finished state is announced once per rest period.
-- Toast, RestTimer and Skeleton share reactive Reduce Motion state. Infinite/repeating work must stop when the setting changes or the component unmounts; gesture callbacks read the current setting rather than a mount-time closure.
+- Button, SegmentedControl, ProgressBar, Skeleton, Dialog, DatePicker, Toast and RestTimer share reactive Reduce Motion state. Infinite/repeating work must stop when the setting changes or the component unmounts; gesture callbacks read the current setting rather than a mount-time closure.
 - Required sheet geometry and safe-area spacing belong to core/native styles. Do not rely on NativeWind interoperability through `Animated.View` for an overlay's existence or placement.
 
 ## Buttons and action feedback
 
 - CTA labels use sentence case and preserve the translated title exactly. All-caps remains reserved for compact metadata, badges and short labels; the shared `Button` never transforms copy.
-- Press motion uses scale `0.98` over 80ms and returns to `1` over 120ms. Reduce Motion, disabled and loading states do not animate.
-- Press haptics are outcome-neutral: primary and success variants use medium impact; secondary and ghost use light impact; danger uses warning feedback.
+- Press motion, Reduce Motion behavior and per-variant haptics follow the canonical matrices above. Disabled and loading states neither animate nor emit feedback.
 - A success-colored action is not proof of durable success. Notification-style `success` feedback must fire only in the owning flow after validation and persistence complete.
 - Foregrounds remain semantic per variant: `onPrimary`, `secondaryText`, `onDanger`, `subtext` and `onSuccess`.
 

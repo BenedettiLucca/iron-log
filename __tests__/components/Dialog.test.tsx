@@ -6,6 +6,7 @@ import { Dialog } from '@/components/Dialog';
 
 const mockDismissKeyboard = jest.fn();
 const mockFocusAccessibilityNode = jest.fn();
+const mockUseReactiveReducedMotion = jest.fn(() => false);
 const mockInsets = { top: 44, right: 3, bottom: 34, left: 5 };
 
 jest.mock('react-native/Libraries/Components/Keyboard/Keyboard', () => ({
@@ -33,6 +34,9 @@ jest.mock('react-native-safe-area-context', () => ({
 }));
 jest.mock('@/src/utils/accessibility', () => ({
   focusAccessibilityNode: (...args: unknown[]) => mockFocusAccessibilityNode(...args),
+}));
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => mockUseReactiveReducedMotion(),
 }));
 jest.mock('@/components/Button', () => ({
   Button: (props: Record<string, unknown>) => React.createElement('Button', props),
@@ -62,6 +66,7 @@ describe('Dialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseReactiveReducedMotion.mockReturnValue(false);
     globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) => {
       callback(0);
       return 1;
@@ -85,6 +90,24 @@ describe('Dialog', () => {
     expect(backdrop.props.accessible).toBe(false);
     expect(result.UNSAFE_getByType('Modal' as any).props.statusBarTranslucent).toBe(true);
     expect(result.UNSAFE_getByType('Modal' as any).props.navigationBarTranslucent).toBe(true);
+  });
+
+  it('disables native entrance motion when Reduce Motion is enabled', () => {
+    const result = renderDialog();
+    expect(result.UNSAFE_getByType('Modal' as any).props.animationType).toBe('fade');
+
+    mockUseReactiveReducedMotion.mockReturnValue(true);
+    result.rerender(
+      <Dialog
+        visible
+        title="Excluir treino"
+        message="Essa ação não pode ser desfeita."
+        onConfirm={jest.fn()}
+        onCancel={jest.fn()}
+      />
+    );
+
+    expect(result.UNSAFE_getByType('Modal' as any).props.animationType).toBe('none');
   });
 
   it('dismisses the keyboard and moves accessibility focus to its heading on show', () => {

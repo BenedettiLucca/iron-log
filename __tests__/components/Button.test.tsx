@@ -1,11 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { Button } from '@/components/Button';
 
 (global as typeof globalThis & { React: typeof React }).React = React;
 
 const mockTrigger = jest.fn();
+let mockReducedMotion = false;
 
 jest.mock('react-native/Libraries/Components/Pressable/Pressable', () => ({
   __esModule: true,
@@ -35,14 +36,17 @@ jest.mock('@/hooks/use-theme-colors', () => ({
   }),
 }));
 
-const mockUseReducedMotion = useReducedMotion as jest.MockedFunction<typeof useReducedMotion>;
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => mockReducedMotion,
+}));
+
 const mockUseSharedValue = useSharedValue as jest.MockedFunction<typeof useSharedValue>;
 const mockWithTiming = withTiming as jest.MockedFunction<typeof withTiming>;
 
 describe('Button', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseReducedMotion.mockReturnValue(false);
+    mockReducedMotion = false;
   });
 
   it.each(['sm', 'md', 'lg'] as const)('preserves sentence case for the %s size', (size) => {
@@ -192,15 +196,21 @@ describe('Button', () => {
     expect(mockWithTiming).toHaveBeenCalledTimes(1);
   });
 
-  it('does not animate when Reduce Motion is enabled', () => {
-    mockUseReducedMotion.mockReturnValue(true);
-    const { UNSAFE_getByType } = render(<Button title="Continuar" onPress={jest.fn()} />);
-    const button = UNSAFE_getByType('Pressable' as any);
+  it('reacts when Reduce Motion changes while mounted', () => {
+    const result = render(<Button title="Continuar" onPress={jest.fn()} />);
+    const scale = mockUseSharedValue.mock.results[0].value;
 
+    result.UNSAFE_getByType('Pressable' as any).props.onPressIn();
+    expect(mockWithTiming).toHaveBeenCalledTimes(1);
+
+    mockWithTiming.mockClear();
+    mockReducedMotion = true;
+    result.rerender(<Button title="Continuar" onPress={jest.fn()} />);
+    const button = result.UNSAFE_getByType('Pressable' as any);
     button.props.onPressIn();
     button.props.onPressOut();
 
-    expect(mockUseReducedMotion).toHaveBeenCalled();
     expect(mockWithTiming).not.toHaveBeenCalled();
+    expect(scale.value).toBe(1);
   });
 });

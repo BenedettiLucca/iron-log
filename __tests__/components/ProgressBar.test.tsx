@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { ProgressBar } from '@/components/ProgressBar';
 
 (global as typeof globalThis & { React: typeof React }).React = React;
@@ -28,7 +28,12 @@ jest.mock('@/src/i18n/index', () => ({
   }),
 }));
 
-const mockUseReducedMotion = useReducedMotion as jest.Mock;
+let mockReducedMotion = false;
+
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => mockReducedMotion,
+}));
+
 const mockUseSharedValue = useSharedValue as jest.Mock;
 const mockWithTiming = withTiming as jest.Mock;
 
@@ -44,7 +49,7 @@ function getHostNodes(result: ReturnType<typeof render>) {
 describe('ProgressBar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseReducedMotion.mockReturnValue(false);
+    mockReducedMotion = false;
   });
 
   it('exposes localized progress semantics and a percentage value', () => {
@@ -156,9 +161,12 @@ describe('ProgressBar', () => {
     expect(mockWithTiming).toHaveBeenCalledWith(0.75, { duration: 300 });
   });
 
-  it('updates instantly under Reduce Motion', () => {
-    mockUseReducedMotion.mockReturnValue(true);
-    const result = render(<ProgressBar current={1} total={2} />);
+  it('updates instantly when Reduce Motion changes while mounted', () => {
+    const result = render(<ProgressBar current={1} total={4} />);
+    mockWithTiming.mockClear();
+
+    mockReducedMotion = true;
+    result.rerender(<ProgressBar current={2} total={4} />);
     const { fill } = getHostNodes(result);
 
     expect(fill).toBeDefined();

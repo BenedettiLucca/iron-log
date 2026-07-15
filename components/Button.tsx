@@ -2,12 +2,12 @@ import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { useHaptics, type HapticFeedbackType } from '@/hooks/use-haptics';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -55,7 +55,7 @@ export function Button({
 }: ButtonProps) {
   const theme = useThemeColors();
   const scale = useSharedValue(1);
-  const isReducedMotion = useReducedMotion();
+  const isReducedMotion = useReactiveReducedMotion();
   const { trigger } = useHaptics();
 
   const animatedStyle = useAnimatedStyle(() => ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { useReducedMotion, withTiming } from 'react-native-reanimated';
+import { withTiming } from 'react-native-reanimated';
 import { SegmentedControl } from '@/components/SegmentedControl';
 
 (global as typeof globalThis & { React: typeof React }).React = React;
@@ -34,7 +34,12 @@ jest.mock('react-native/Libraries/Components/View/View', () => ({
   default: 'View',
 }));
 
-const mockUseReducedMotion = useReducedMotion as jest.MockedFunction<typeof useReducedMotion>;
+let mockReducedMotion = false;
+
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => mockReducedMotion,
+}));
+
 const mockWithTiming = withTiming as jest.MockedFunction<typeof withTiming>;
 
 const segments = [
@@ -46,7 +51,7 @@ const segments = [
 describe('SegmentedControl', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseReducedMotion.mockReturnValue(false);
+    mockReducedMotion = false;
   });
 
   it('exposes a tablist with selected tab semantics and >=44dp targets', () => {
@@ -162,18 +167,18 @@ describe('SegmentedControl', () => {
     expect(mockWithTiming).toHaveBeenCalledWith(1, { duration: 160 });
   });
 
-  it('updates indicators instantly under Reduce Motion', () => {
-    mockUseReducedMotion.mockReturnValue(true);
-    const { rerender, UNSAFE_getByProps } = render(
+  it('updates indicators instantly when Reduce Motion changes while mounted', () => {
+    const result = render(
       <SegmentedControl segments={segments} activeKey="daily" onSelect={jest.fn()} />
     );
     mockWithTiming.mockClear();
 
-    rerender(
+    mockReducedMotion = true;
+    result.rerender(
       <SegmentedControl segments={segments} activeKey="training" onSelect={jest.fn()} />
     );
 
-    expect(UNSAFE_getByProps({ testID: 'segment-indicator-training' })).toBeTruthy();
+    expect(result.UNSAFE_getByProps({ testID: 'segment-indicator-training' })).toBeTruthy();
     expect(mockWithTiming).not.toHaveBeenCalled();
   });
 });
