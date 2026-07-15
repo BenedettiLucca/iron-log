@@ -15,6 +15,8 @@ This is the implementation contract for product UI. It describes the system that
 - Segmented-control contract: `__tests__/components/SegmentedControl.test.tsx`
 - Progress-indicator contracts: `__tests__/components/ProgressBar.test.tsx` and `__tests__/quality/progress-bar-call-sites.test.ts`
 - Loading-placeholder contract: `__tests__/components/Skeleton.test.tsx`
+- Overlay contracts: `__tests__/components/Dialog.test.tsx`, `__tests__/components/Toast.test.tsx` and `__tests__/components/RestTimer.test.tsx`
+- Accessibility-focus helper: `__tests__/utils/accessibility.test.ts`
 
 Do not introduce screen-local hex colors or default Tailwind palette colors. Add or change a semantic role in all three token sources and extend the contrast test first.
 
@@ -109,6 +111,14 @@ Avoid new arbitrary radius values. Use component defaults before adding screen-l
 - The standard pulse reverses opacity between `0.6` and `0.3` over 800ms. Start it in an effect, never during render, and cancel the infinite animation on cleanup.
 - Reduce Motion uses a static opacity of `0.5` and does not create a timing/repeat loop. Enabling Reduce Motion while mounted cancels the running loop before applying the static value.
 - Skeletons are decorative and remain hidden from accessibility. Loading context belongs to the owning screen, not to each placeholder rectangle.
+
+## Overlays, alerts and transient UI
+
+- `Dialog` uses a native modal, real safe-area padding and dismisses the keyboard before focusing its accessible heading. Backdrop, Android back and VoiceOver escape from any focused dialog element share the same cancel path without collapsing the dialog into one accessibility node. Native modal restoration remains the default; callers that need deterministic restoration may pass `returnFocusRef`.
+- `Toast` positions from `safeArea.top + 12`. Errors use an assertive alert; success and info use polite live regions. Replacing a visible message restarts its dwell period, and every timer/native animation stops during cleanup.
+- `RestTimer` is a native modal bottom sheet with real bottom inset. Opening dismisses the keyboard and focuses the heading. Its countdown has the `timer` role but no live region, so it stays queryable without being announced every second; the finished state is announced once per rest period.
+- Toast, RestTimer and Skeleton share reactive Reduce Motion state. Infinite/repeating work must stop when the setting changes or the component unmounts; gesture callbacks read the current setting rather than a mount-time closure.
+- Required sheet geometry and safe-area spacing belong to core/native styles. Do not rely on NativeWind interoperability through `Animated.View` for an overlay's existence or placement.
 
 ## Buttons and action feedback
 

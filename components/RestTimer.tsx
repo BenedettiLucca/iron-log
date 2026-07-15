@@ -1,7 +1,11 @@
-import { View, Text, TouchableOpacity, Animated, PanResponder } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, PanResponder, Modal, Keyboard, AccessibilityInfo } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
+import { focusAccessibilityNode } from '@/src/utils/accessibility';
 import { formatTimer } from '@/src/utils/timer';
 import { useI18n } from '../src/i18n/index';
+
 
 interface RestTimerProps {
   visible: boolean;
@@ -23,11 +27,21 @@ export function RestTimer({
   nextExerciseName,
 }: RestTimerProps) {
   const { t } = useI18n();
+  const insets = useSafeAreaInsets();
+  const reducedMotion = useReactiveReducedMotion();
   const slideAnim = useRef(new Animated.Value(1)).current;
-  const panOffset = useRef(0);
+  const titleRef = useRef<Text>(null);
+  const announcedRef = useRef(false);
 
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  const reducedMotionRef = useRef(reducedMotion);
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+  }, [reducedMotion]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -35,126 +49,209 @@ export function RestTimer({
       onMoveShouldSetPanResponder: (_, gestureState) => {
         return Math.abs(gestureState.dy) > 5 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
       },
-      onPanResponderGrant: () => {
-        panOffset.current = 0;
-      },
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dy > 0) {
-          panOffset.current = gestureState.dy;
           slideAnim.setValue(gestureState.dy / 500);
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
         if (gestureState.dy > 100) {
-          Animated.timing(slideAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }).start(() => onCloseRef.current());
+          slideAnim.stopAnimation();
+          if (reducedMotionRef.current) {
+            slideAnim.setValue(1);
+            onCloseRef.current();
+          } else {
+            Animated.timing(slideAnim, {
+              toValue: 1,
+              duration: 200,
+              useNativeDriver: true,
+            }).start((res) => {
+              if (res && res.finished === false) {
+                return;
+              }
+              onCloseRef.current();
+            });
+          }
         } else {
-          Animated.spring(slideAnim, {
-            toValue: 0,
-            useNativeDriver: true,
-            tension: 65,
-            friction: 11,
-          }).start();
+          slideAnim.stopAnimation();
+          if (reducedMotionRef.current) {
+            slideAnim.setValue(0);
+          } else {
+            Animated.spring(slideAnim, {
+              toValue: 0,
+              useNativeDriver: true,
+              tension: 65,
+              friction: 11,
+            }).start();
+          }
         }
       },
     })
   ).current;
 
   useEffect(() => {
+    slideAnim.stopAnimation();
+
     if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 65,
-        friction: 11,
-      }).start();
+      if (reducedMotion) {
+        slideAnim.setValue(0);
+      } else {
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          tension: 65,
+          friction: 11,
+        }).start();
+      }
     } else {
       slideAnim.setValue(1);
     }
-  }, [visible, slideAnim]);
+
+    return () => {
+      slideAnim.stopAnimation();
+    };
+  }, [visible, slideAnim, reducedMotion]);
+
+  useEffect(() => {
+    if (!visible || status !== 'finished') {
+      announcedRef.current = false;
+      return;
+    }
+
+    if (!announcedRef.current) {
+      AccessibilityInfo.announceForAccessibility(t('restTimer.readyForNextSet'));
+      announcedRef.current = true;
+    }
+  }, [visible, status, t]);
 
   if (!visible) return null;
 
   const slideOffset = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 500]
+    outputRange: [0, 500],
   });
 
   return (
-    <>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      navigationBarTranslucent
+      accessibilityViewIsModal
+      onRequestClose={onClose}
+      onShow={() => {
+        Keyboard.dismiss();
+        focusAccessibilityNode(titleRef.current);
+      }}
+    >
       {/* Backdrop - tap to close */}
       <TouchableOpacity
         activeOpacity={1}
         className="absolute top-0 left-0 right-0 bottom-0 bg-black/40"
+        accessible={false}
         onPress={onClose}
       />
 
       {/* Bottom Sheet with swipe-to-dismiss */}
       <Animated.View
-        className="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl pt-3 pb-8 px-6 shadow-xl"
         style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
           transform: [{ translateY: slideOffset }],
           zIndex: 999,
           elevation: 999,
         }}
+        accessible={false}
+        accessibilityViewIsModal
         {...panResponder.panHandlers}
       >
-        <View className="w-10 h-1 bg-border rounded-full self-center mb-5" />
+        <View
+          className="bg-card rounded-t-3xl pt-3 px-6 shadow-xl"
+          style={{ paddingBottom: Math.max(insets.bottom, 24) }}
+        >
+          <View className="w-10 h-1 bg-border rounded-full self-center mb-5" />
 
-        <View className="items-center">
-          <Text className="text-subtext text-sm font-bold uppercase tracking-widest mb-2">{t('restTimer.rest')}</Text>
-
-          <Text className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-successText' : 'text-primaryText'}`}>
-            {formatTimer(seconds)}
-          </Text>
-
-          <Text className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-successText' : 'text-text'}`}>
-            {status === 'finished' ? t('restTimer.readyForNextSet') : t('restTimer.resting')}
-          </Text>
-
-          {/* Quick Actions */}
-          <View className="flex-row gap-3 w-full justify-center mb-6">
-            <TouchableOpacity
-              className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
-              onPress={() => onAddTime(30)}
-              accessibilityLabel={t('restTimer.add30sAccessibility')}
-              accessibilityRole="button"
+          <View className="items-center">
+            <Text
+              ref={titleRef}
+              accessible={true}
+              accessibilityRole="header"
+              onAccessibilityEscape={onClose}
+              className="text-subtext text-sm font-bold uppercase tracking-widest mb-2"
             >
-              <Text className="text-text font-bold text-base">+30s</Text>
-            </TouchableOpacity>
+              {t('restTimer.rest')}
+            </Text>
 
-            <TouchableOpacity
-              className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
-              onPress={() => onAddTime(-10)}
-              accessibilityLabel={t('restTimer.minus10sAccessibility')}
-              accessibilityRole="button"
+            <Text
+              accessible={true}
+              accessibilityRole="timer"
+              accessibilityLabel={`${t('restTimer.rest')}: ${formatTimer(seconds)}`}
+              onAccessibilityEscape={onClose}
+              className={`text-7xl font-mono font-bold mb-4 ${status === 'finished' ? 'text-successText' : 'text-primaryText'}`}
             >
-              <Text className="text-text font-bold text-base">-10s</Text>
-            </TouchableOpacity>
+              {formatTimer(seconds)}
+            </Text>
 
-            <TouchableOpacity
-              className={`flex-1 p-4 rounded-xl items-center min-h-[52px] justify-center ${status === 'finished' ? 'bg-success' : 'bg-primary'}`}
-              onPress={onSkip}
-              accessibilityLabel={status === 'finished' ? t('restTimer.continueAccessibility') : t('restTimer.skipAccessibility')}
-              accessibilityRole="button"
+            <Text
+              accessible
+              onAccessibilityEscape={onClose}
+              className={`text-base font-medium mb-6 ${status === 'finished' ? 'text-successText' : 'text-text'}`}
             >
-              <Text className={`font-bold text-base ${status === 'finished' ? 'text-onSuccess' : 'text-onPrimary'}`}>
-                {status === 'finished' ? t('restTimer.continue') : t('restTimer.skip')}
-              </Text>
-            </TouchableOpacity>
-          </View>
+              {status === 'finished' ? t('restTimer.readyForNextSet') : t('restTimer.resting')}
+            </Text>
 
-          {nextExerciseName && (
-            <View className="items-center pt-4 border-t border-border w-full">
-              <Text className="text-subtext text-xs font-bold uppercase mb-1">{t('restTimer.nextExerciseLabel')}</Text>
-              <Text className="text-text font-semibold text-base">{nextExerciseName}</Text>
+            {/* Quick Actions */}
+            <View className="flex-row gap-3 w-full justify-center mb-6">
+              <TouchableOpacity
+                className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
+                onPress={() => onAddTime(30)}
+                accessibilityLabel={t('restTimer.add30sAccessibility')}
+                accessibilityRole="button"
+                onAccessibilityEscape={onClose}
+              >
+                <Text className="text-text font-bold text-base">+30s</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="flex-1 bg-background p-4 rounded-xl border border-border items-center min-h-[52px] justify-center"
+                onPress={() => onAddTime(-10)}
+                accessibilityLabel={t('restTimer.minus10sAccessibility')}
+                accessibilityRole="button"
+                onAccessibilityEscape={onClose}
+              >
+                <Text className="text-text font-bold text-base">-10s</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className={`flex-1 p-4 rounded-xl items-center min-h-[52px] justify-center ${status === 'finished' ? 'bg-success' : 'bg-primary'}`}
+                onPress={onSkip}
+                accessibilityLabel={status === 'finished' ? t('restTimer.continueAccessibility') : t('restTimer.skipAccessibility')}
+                accessibilityRole="button"
+                onAccessibilityEscape={onClose}
+              >
+                <Text className={`font-bold text-base ${status === 'finished' ? 'text-onSuccess' : 'text-onPrimary'}`}>
+                  {status === 'finished' ? t('restTimer.continue') : t('restTimer.skip')}
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
+
+            {nextExerciseName && (
+              <View
+                accessible
+                accessibilityLabel={`${t('restTimer.nextExerciseLabel')}: ${nextExerciseName}`}
+                onAccessibilityEscape={onClose}
+                className="items-center pt-4 border-t border-border w-full"
+              >
+                <Text className="text-subtext text-xs font-bold uppercase mb-1">{t('restTimer.nextExerciseLabel')}</Text>
+                <Text className="text-text font-semibold text-base">{nextExerciseName}</Text>
+              </View>
+            )}
+          </View>
         </View>
       </Animated.View>
-    </>
+    </Modal>
   );
 }

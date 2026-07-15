@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface ToastProps {
   visible: boolean;
@@ -18,13 +20,30 @@ export function Toast({
 }: ToastProps) {
   const slideAnim = useRef(new Animated.Value(-100)).current;
   const onHideRef = useRef(onHide);
+  const insets = useSafeAreaInsets();
+  const reducedMotion = useReactiveReducedMotion();
 
   useEffect(() => {
     onHideRef.current = onHide;
   }, [onHide]);
 
   useEffect(() => {
-    if (visible) {
+    slideAnim.stopAnimation();
+
+    if (!visible) {
+      slideAnim.setValue(-100);
+      return;
+    }
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    if (reducedMotion) {
+      slideAnim.setValue(0);
+      timer = setTimeout(() => {
+        slideAnim.setValue(-100);
+        onHideRef.current?.();
+      }, duration);
+    } else {
       Animated.spring(slideAnim, {
         toValue: 0,
         useNativeDriver: true,
@@ -32,21 +51,25 @@ export function Toast({
         friction: 7,
       }).start();
 
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         Animated.timing(slideAnim, {
           toValue: -100,
           duration: 300,
           useNativeDriver: true,
-        }).start(() => {
+        }).start((res) => {
+          if (res && res.finished === false) {
+            return;
+          }
           onHideRef.current?.();
         });
       }, duration);
-
-      return () => clearTimeout(timer);
-    } else {
-      slideAnim.setValue(-100);
     }
-  }, [visible, duration, slideAnim]);
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      slideAnim.stopAnimation();
+    };
+  }, [visible, message, duration, slideAnim, reducedMotion]);
 
   if (!visible) return null;
 
@@ -79,11 +102,18 @@ export function Toast({
       style={[
         styles.container,
         {
+          top: insets.top + 12,
           transform: [{ translateY: slideAnim }],
         },
       ]}
     >
-      <View className={`${getBgColor()} px-4 py-3 rounded-xl shadow-lg mx-4 flex-row items-center gap-3`}>
+      <View
+        accessible
+        accessibilityRole="alert"
+        accessibilityLabel={message}
+        accessibilityLiveRegion={type === 'error' ? 'assertive' : 'polite'}
+        className={`${getBgColor()} px-4 py-3 rounded-xl shadow-lg mx-4 flex-row items-center gap-3`}
+      >
         <Text className={`${getTextColor()} font-semibold text-base flex-1`}>
           {message}
         </Text>
@@ -95,7 +125,6 @@ export function Toast({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 60,
     left: 0,
     right: 0,
     zIndex: 9999,

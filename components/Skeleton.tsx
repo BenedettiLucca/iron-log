@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { AccessibilityInfo, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import Animated, {
   useSharedValue,
   withRepeat,
   withTiming,
   useAnimatedStyle,
-  useReducedMotion,
   cancelAnimation,
 } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface SkeletonProps {
   width?: number | `${number}%`;
@@ -18,36 +18,8 @@ interface SkeletonProps {
 
 export function Skeleton({ width = '100%', height = 40, className = '' }: SkeletonProps) {
   const theme = useThemeColors();
-  const startupReducedMotion = useReducedMotion();
-  const [isReducedMotion, setIsReducedMotion] = useState(startupReducedMotion);
+  const isReducedMotion = useReactiveReducedMotion();
   const opacity = useSharedValue(0.6);
-
-  useEffect(() => {
-    let mounted = true;
-    let receivedChangeEvent = false;
-
-    const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
-      (enabled) => {
-        if (!mounted) return;
-        receivedChangeEvent = true;
-        setIsReducedMotion(enabled);
-      }
-    );
-
-    void AccessibilityInfo.isReduceMotionEnabled()
-      .then((enabled) => {
-        if (mounted && !receivedChangeEvent) {
-          setIsReducedMotion(enabled);
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      mounted = false;
-      subscription.remove();
-    };
-  }, []);
 
   useEffect(() => {
     if (isReducedMotion) {

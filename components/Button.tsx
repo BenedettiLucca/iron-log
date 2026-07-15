@@ -33,6 +33,7 @@ interface ButtonProps {
   textStyle?: TextStyle;
   className?: string;
   accessibilityLabel?: string;
+  onAccessibilityEscape?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -50,6 +51,7 @@ export function Button({
   textStyle,
   className = '',
   accessibilityLabel,
+  onAccessibilityEscape,
 }: ButtonProps) {
   const theme = useThemeColors();
   const scale = useSharedValue(1);
@@ -148,6 +150,7 @@ export function Button({
       disabled={disabled || loading}
       accessibilityLabel={accessibilityLabel || title}
       accessibilityRole="button"
+      onAccessibilityEscape={onAccessibilityEscape}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={[
         animatedStyle,

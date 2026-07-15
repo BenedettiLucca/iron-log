@@ -79,6 +79,22 @@ describe('Button', () => {
     );
   });
 
+  it('forwards the VoiceOver escape handler to its accessible pressable', () => {
+    const onAccessibilityEscape = jest.fn();
+    const { UNSAFE_getByType } = render(
+      <Button
+        title="Cancelar"
+        onPress={jest.fn()}
+        onAccessibilityEscape={onAccessibilityEscape}
+      />
+    );
+    const button = UNSAFE_getByType('Pressable' as any);
+
+    button.props.onAccessibilityEscape();
+
+    expect(onAccessibilityEscape).toHaveBeenCalledTimes(1);
+  });
+
   it.each([
     ['primary', 'text-onPrimary'],
     ['secondary', 'text-secondaryText'],
