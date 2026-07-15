@@ -19,6 +19,7 @@ import { buildSessionStartRoute } from '../../src/utils/session-start';
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 import { SectionHeader } from '@/components/SectionHeader';
+import { consumePendingToast } from '@/src/utils/flash-toast';
 import Svg, { Path } from 'react-native-svg';
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -34,7 +35,13 @@ export default function RoutinesListScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchRoutines();
-    }, [fetchRoutines])
+      const pendingToast = consumePendingToast();
+      if (pendingToast) {
+        setToast({ visible: true, ...pendingToast });
+      } else {
+        setToast({ visible: false, message: '', type: 'success' });
+      }
+    }, [fetchRoutines, setToast])
   );
 
   const onRefresh = useCallback(async () => {

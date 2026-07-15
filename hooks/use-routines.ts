@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { db } from '@/src/db/client';
-import { routines, routineExercises, exercises } from '@/src/db/schema';
+import { routines, routineExercises, exercises, sessions, programWeeks } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Routine } from '@/src/types';
@@ -23,8 +23,12 @@ export function useRoutines() {
 
   const deleteRoutine = useCallback(async (id: number): Promise<boolean> => {
     try {
-      await db.delete(routineExercises).where(eq(routineExercises.routineId, id));
-      await db.delete(routines).where(eq(routines.id, id));
+      db.transaction((tx) => {
+        tx.delete(routineExercises).where(eq(routineExercises.routineId, id)).run();
+        tx.update(sessions).set({ routineId: null }).where(eq(sessions.routineId, id)).run();
+        tx.update(programWeeks).set({ routineId: null }).where(eq(programWeeks.routineId, id)).run();
+        tx.delete(routines).where(eq(routines.id, id)).run();
+      });
       await fetchRoutines();
       return true;
     } catch (e) {

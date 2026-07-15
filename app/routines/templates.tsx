@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../src/i18n/index';
@@ -21,6 +21,11 @@ import {
   mapTemplateExercise,
   type TemplateExercise,
 } from '@/src/utils/routine-template-integrity';
+import {
+  hasRoutineNameConflict,
+  isRoutineNameUniqueConstraintError,
+} from '@/src/utils/routine-name';
+import { setPendingToast } from '@/src/utils/flash-toast';
 
 type Template = {
   id: number;
@@ -41,6 +46,7 @@ export default function TemplateLibraryScreen() {
   const { toast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
   const [isCreating, setIsCreating] = useState(false);
+  const isCreatingRef = useRef(false);
 
   const loadTemplates = useCallback(async () => {
     setLoadState('loading');
@@ -90,29 +96,66 @@ export default function TemplateLibraryScreen() {
   }, [loadTemplates]);
 
   const handleLoadFromTemplate = async (template: Template) => {
-    if (isCreating) return;
+    if (isCreatingRef.current) return;
 
+    isCreatingRef.current = true;
     setIsCreating(true);
-    try {
-      await db.transaction(async (tx) => {
-        const newRoutine = await tx.insert(routines).values({
-          name: `${template.name} (Cópia)`,
-          description: template.description || '',
-          isTemplate: false,
-        }).returning();
+    const copyName = t('routines.templateCopy', { name: template.name });
 
-        const rows = buildRoutineRowsFromTemplate(newRoutine[0].id, template.exercises);
+    try {
+      const sameName = await db
+        .select({ id: routines.id })
+        .from(routines)
+        .where(eq(routines.name, copyName));
+
+      if (hasRoutineNameConflict(sameName)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: copyName }),
+          type: 'error',
+        });
+        return;
+      }
+
+      db.transaction((tx) => {
+        const newRoutine = tx
+          .insert(routines)
+          .values({
+            name: copyName,
+            description: template.description || '',
+            isTemplate: false,
+          })
+          .returning({ id: routines.id })
+          .get();
+        if (!newRoutine) throw new Error('Failed to create routine from template');
+
+        const rows = buildRoutineRowsFromTemplate(newRoutine.id, template.exercises);
         if (rows.length > 0) {
-          await tx.insert(routineExercises).values(rows);
+          tx.insert(routineExercises).values(rows).run();
         }
       });
 
-      setToast({ visible: true, message: t('routines.templateLoadedWithExercises', { name: template.name, count: template.exercises.length }), type: 'success' });
+      setPendingToast({
+        message: t('routines.templateLoadedWithExercises', {
+          name: template.name,
+          count: template.exercises.length,
+        }),
+        type: 'success',
+      });
       router.back();
     } catch (e) {
-      logger.error('Error loading from template', e);
-      setToast({ visible: true, message: t('routines.loadTemplateError'), type: 'error' });
+      if (isRoutineNameUniqueConstraintError(e)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: copyName }),
+          type: 'error',
+        });
+      } else {
+        logger.error('Error loading from template', e);
+        setToast({ visible: true, message: t('routines.loadTemplateError'), type: 'error' });
+      }
     } finally {
+      isCreatingRef.current = false;
       setIsCreating(false);
     }
   };

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { db } from '../../src/db/client';
@@ -18,6 +18,12 @@ import {
   buildRoutineExerciseRows,
   buildSaveAsTemplateValues,
 } from '@/src/utils/routine-template-integrity';
+import {
+  hasRoutineNameConflict,
+  isRoutineNameUniqueConstraintError,
+  normalizeRoutineName,
+} from '@/src/utils/routine-name';
+import { setPendingToast } from '@/src/utils/flash-toast';
 
 type SelectedExercise = {
   id: number;
@@ -40,6 +46,7 @@ export default function RoutineEditorScreen() {
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
   const [newName, setNewName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const isSavingRef = useRef(false);
   const { toast, setToast } = useToast();
 
 
@@ -96,34 +103,66 @@ export default function RoutineEditorScreen() {
   };
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSavingRef.current) return;
     if (!validateForm()) return;
 
+    isSavingRef.current = true;
     setIsSaving(true);
-    try {
-      let routineId = Number(id);
+    const normalizedName = normalizeRoutineName(name);
+    const editingRoutineId = Number(id);
 
-      await db.transaction(async (tx) => {
+    try {
+      const sameName = await db
+        .select({ id: routines.id })
+        .from(routines)
+        .where(eq(routines.name, normalizedName));
+
+      if (hasRoutineNameConflict(sameName, isEditing ? editingRoutineId : undefined)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: normalizedName }),
+          type: 'error',
+        });
+        return;
+      }
+
+      let routineId = editingRoutineId;
+      db.transaction((tx) => {
         if (isEditing) {
-          await tx.update(routines)
-            .set({ name, description })
-            .where(eq(routines.id, routineId));
-          await tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId));
+          tx.update(routines)
+            .set({ name: normalizedName, description })
+            .where(eq(routines.id, routineId))
+            .run();
+          tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
         } else {
-          const res = await tx.insert(routines).values({ name, description }).returning();
-          routineId = res[0].id;
+          const created = tx
+            .insert(routines)
+            .values({ name: normalizedName, description })
+            .returning({ id: routines.id })
+            .get();
+          if (!created) throw new Error('Failed to create routine');
+          routineId = created.id;
         }
 
-        await tx.insert(routineExercises).values(
-          buildRoutineExerciseRows(routineId, selectedExercises),
-        );
+        tx.insert(routineExercises)
+          .values(buildRoutineExerciseRows(routineId, selectedExercises))
+          .run();
       });
 
       router.back();
     } catch (e) {
-      logger.error('Erro inesperado', e);
-      setToast({ visible: true, message: t('routines.saveError'), type: 'error' });
+      if (isRoutineNameUniqueConstraintError(e)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: normalizedName }),
+          type: 'error',
+        });
+      } else {
+        logger.error('Erro inesperado', e);
+        setToast({ visible: true, message: t('routines.saveError'), type: 'error' });
+      }
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };
@@ -148,7 +187,7 @@ export default function RoutineEditorScreen() {
   };
 
   const handleSaveAsTemplate = async () => {
-    if (isSaving) return;
+    if (isSavingRef.current) return;
 
     const routineId = Number(id);
     if (!id || isNaN(routineId)) {
@@ -158,24 +197,51 @@ export default function RoutineEditorScreen() {
 
     if (!validateForm()) return;
 
+    isSavingRef.current = true;
     setIsSaving(true);
+    const normalizedName = normalizeRoutineName(name);
+
     try {
-      await db.transaction(async (tx) => {
-        await tx.update(routines)
-          .set(buildSaveAsTemplateValues(name, description))
-          .where(eq(routines.id, routineId));
-        await tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId));
-        await tx.insert(routineExercises).values(
-          buildRoutineExerciseRows(routineId, selectedExercises),
-        );
+      const sameName = await db
+        .select({ id: routines.id })
+        .from(routines)
+        .where(eq(routines.name, normalizedName));
+
+      if (hasRoutineNameConflict(sameName, routineId)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: normalizedName }),
+          type: 'error',
+        });
+        return;
+      }
+
+      db.transaction((tx) => {
+        tx.update(routines)
+          .set(buildSaveAsTemplateValues(normalizedName, description))
+          .where(eq(routines.id, routineId))
+          .run();
+        tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
+        tx.insert(routineExercises)
+          .values(buildRoutineExerciseRows(routineId, selectedExercises))
+          .run();
       });
 
-      setToast({ visible: true, message: t('routines.savedAsTemplate'), type: 'success' });
+      setPendingToast({ message: t('routines.savedAsTemplate'), type: 'success' });
       router.back();
     } catch (e) {
-      logger.error('Erro inesperado', e);
-      setToast({ visible: true, message: t('routines.saveTemplateError'), type: 'error' });
+      if (isRoutineNameUniqueConstraintError(e)) {
+        setToast({
+          visible: true,
+          message: t('routines.duplicateName', { name: normalizedName }),
+          type: 'error',
+        });
+      } else {
+        logger.error('Erro inesperado', e);
+        setToast({ visible: true, message: t('routines.saveTemplateError'), type: 'error' });
+      }
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };

@@ -6,6 +6,7 @@ import { routineExercises, exercises, personalRecords, sets, sessions, routines 
 import { eq, desc, and, sql, isNull, max } from 'drizzle-orm';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
+import { Toast } from '../../components/Toast';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
@@ -16,6 +17,8 @@ import { useI18n } from '../../src/i18n/index';
 import { SectionHeader } from '@/components/SectionHeader';
 import { StatTile } from '@/components/StatTile';
 import { safeParseParams, routinePreviewParamsSchema } from '@/src/validators/routes';
+import { useToast } from '@/hooks/use-toast';
+import { consumePendingToast } from '@/src/utils/flash-toast';
 import Svg, { Polyline } from 'react-native-svg';
 
 interface ExerciseWithStats {
@@ -51,6 +54,7 @@ export default function RoutinePreviewScreen() {
   const theme = useThemeColors();
   const rawParams = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
+  const { toast, setToast } = useToast();
   const rawRoutineId = rawParams.routineId;
   const rawRoutineName = rawParams.routineName;
 
@@ -200,10 +204,16 @@ export default function RoutinePreviewScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      const pendingToast = consumePendingToast();
+      if (pendingToast) {
+        setToast({ visible: true, ...pendingToast });
+      } else {
+        setToast({ visible: false, message: '', type: 'success' });
+      }
       setScreenState('loading');
       setExpandedExercise(null);
       loadData();
-    }, [loadData])
+    }, [loadData, setToast])
   );
 
   const handleStartWorkout = () => {
@@ -494,6 +504,12 @@ export default function RoutinePreviewScreen() {
         />
       </View>
     </View>
+    <Toast
+      visible={toast.visible}
+      message={toast.message}
+      type={toast.type}
+      onHide={() => setToast((current) => ({ ...current, visible: false }))}
+    />
     </View>
   );
 }
