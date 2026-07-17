@@ -7,13 +7,11 @@ import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
 import { AlexandriaExportService } from '../../services/AlexandriaExportService';
-import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useI18n } from '../../src/i18n/index';
-import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useToast } from '../../hooks/use-toast';
 import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
@@ -21,8 +19,8 @@ import { SectionHeader } from '@/components/SectionHeader';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const ChevronRight = () => (
-  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={Colors.lightSubtext} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
+const ChevronRight = ({ color }: { color: string }) => (
+  <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.7 }}>
     <Polyline points="9 18 15 12 9 6" />
   </Svg>
 );
@@ -99,16 +97,17 @@ interface RowButtonProps {
   icon: React.ReactNode;
   loading?: boolean;
   disabled?: boolean;
+  noBorder?: boolean;
 }
 
-function RowButton({ label, onPress, icon, loading = false, disabled = false }: RowButtonProps) {
+function RowButton({ label, onPress, icon, loading = false, disabled = false, noBorder = false }: RowButtonProps) {
   const theme = useThemeColors();
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.7}
-      className="flex-row items-center justify-between bg-card rounded-xl p-3 border border-border"
+      className={`flex-row items-center justify-between py-3.5 ${noBorder ? '' : 'border-b border-border/40'}`}
       accessibilityRole="button"
       accessibilityLabel={label}
     >
@@ -119,7 +118,7 @@ function RowButton({ label, onPress, icon, loading = false, disabled = false }: 
       {loading ? (
         <ActivityIndicator size="small" color={theme.primaryText} />
       ) : (
-        <ChevronRight />
+        <ChevronRight color={theme.subtext} />
       )}
     </TouchableOpacity>
   );
@@ -268,31 +267,32 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 12, paddingBottom: 32 }}>
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t("settings.checkinReminders")} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            {t("settings.reminderDescription")}
-          </Text>
+    <ScrollView className="flex-1 bg-background p-4" contentContainerStyle={{ gap: 20, paddingBottom: 32 }}>
+      {/* Reminders Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.checkinReminders")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t("settings.reminderDescription")}
+        </Text>
 
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-1">
-              <Text className="text-text font-semibold text-sm">{t("settings.enableReminders")}</Text>
-              <Text className="text-subtext text-xs mt-0.5">
-                {t('settings.dayAt', { day: notificationSettings.checkinDay, hour: notificationSettings.checkinHour })}
-              </Text>
-            </View>
-            <Switch
-              value={notificationSettings.enabled}
-              onValueChange={toggleEnabled}
-              disabled={notificationsLoading}
-              trackColor={{ false: Colors.darkButton, true: Colors.primary }}
-              thumbColor={Colors.white}
-            />
+        <View className="flex-row items-center justify-between py-3 border-b border-border/40">
+          <View className="flex-1">
+            <Text className="text-text font-semibold text-sm">{t("settings.enableReminders")}</Text>
+            <Text className="text-subtext text-xs mt-0.5">
+              {t('settings.dayAt', { day: notificationSettings.checkinDay, hour: notificationSettings.checkinHour })}
+            </Text>
           </View>
+          <Switch
+            value={notificationSettings.enabled}
+            onValueChange={toggleEnabled}
+            disabled={notificationsLoading}
+            trackColor={{ false: theme.border, true: theme.primary }}
+            thumbColor={theme.onPrimary}
+          />
+        </View>
 
-          {notificationSettings.enabled && (
+        {notificationSettings.enabled && (
+          <View className="mt-3">
             <Button
               title={t("settings.testNotification")}
               onPress={sendTestNotification}
@@ -302,130 +302,139 @@ export default function SettingsScreen() {
               fullWidth
               icon={<BellIcon color={theme.secondaryText} />}
             />
-          )}
-        </View>
-      </Card>
-
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t("settings.localBackup")} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.localBackupDesc')}</Text>
-
-          <View className="gap-2">
-            <RowButton
-              label={t("settings.exportData")}
-              onPress={handleExport}
-              icon={<DownloadIcon color={theme.primaryText} />}
-              loading={loading}
-            />
-            
-            <RowButton
-              label={t("settings.importData")}
-              onPress={handleImport}
-              icon={<UploadIcon color={theme.primaryText} />}
-              loading={loading}
-            />
           </View>
-        </View>
-      </Card>
+        )}
+      </View>
 
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t("settings.cloudBackup")} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-4 leading-5">{t('settings.cloudBackupDesc')}</Text>
+      <View className="border-b border-border/40" />
 
-          {!accessToken ? (
-            <RowButton
-              label={t("settings.connectGoogle")}
-              onPress={initiateGoogleAuth}
-              icon={<DriveIcon color={theme.primaryText} />}
-              disabled={!request}
-            />
-          ) : (
-            <View className="gap-2">
-              <View className="flex-row items-center gap-3 bg-successSurface p-3 rounded-lg border border-success/20">
-                <SuccessIcon color={theme.successText} />
-                <Text className="text-successText text-sm font-semibold">{t("settings.connectedGoogle")}</Text>
-              </View>
-              <RowButton
-                label={t("settings.backupNow")}
-                onPress={handleCloudBackup}
-                icon={<CloudIcon color={theme.primaryText} />}
-                loading={loading}
-              />
-            </View>
-          )}
-        </View>
-      </Card>
+      {/* Local Backup Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.localBackup")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">{t('settings.localBackupDesc')}</Text>
 
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t("settings.exportData")} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            {t("settings.csvDesc")}
-          </Text>
-
-          <View className="gap-2">
-            <RowButton
-              label={t("settings.exportCsvBtn")}
-              onPress={handleCsvExport}
-              icon={<FileIcon color={theme.primaryText} />}
-              loading={loading}
-            />
-            <RowButton
-              label={t("settings.exportAlexandriaJson")}
-              onPress={handleAlexandriaExport}
-              icon={<ExportIcon color={theme.primaryText} />}
-              loading={loading}
-            />
-          </View>
-        </View>
-      </Card>
-
-      {/* Language Selector */}
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t('settings.language')} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-3 leading-5">
-            {t('settings.languageDesc')}
-          </Text>
-          <View className="flex-row gap-2 flex-wrap">
-            {(['pt', 'en', 'es', 'zh'] as const).map((lang) => (
-              <TouchableOpacity
-                key={lang}
-                onPress={() => setLanguage(lang)}
-                className={`px-3 py-2 rounded-full border ${
-                  language === lang
-                    ? 'bg-primary border-transparent'
-                    : 'bg-card border-border'
-                }`}
-              >
-                <Text
-                  className={`text-xs font-bold uppercase ${
-                    language === lang ? 'text-onPrimary' : 'text-subtext'
-                  }`}
-                >
-                  {t(`settings.${lang}`)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Card>
-
-      <Card contentPadding={false}>
-        <View className="p-3">
-          <SectionHeader label={t("settings.about") !== "settings.about" ? t("settings.about") : t("drawer.about")} className="mb-1.5" />
-          <Text className="text-subtext text-sm mb-4 leading-5">
-            {t("about.philosophyText")}
-          </Text>
+        <View>
           <RowButton
-            label={t("common.view")}
-            onPress={() => router.push('/about')}
-            icon={<InfoIcon color={theme.primaryText} />}
+            label={t("settings.exportData")}
+            onPress={handleExport}
+            icon={<DownloadIcon color={theme.primaryText} />}
+            loading={loading}
+          />
+
+          <RowButton
+            label={t("settings.importData")}
+            onPress={handleImport}
+            icon={<UploadIcon color={theme.primaryText} />}
+            loading={loading}
+            noBorder
           />
         </View>
-      </Card>
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Cloud Backup Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.cloudBackup")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">{t('settings.cloudBackupDesc')}</Text>
+
+        {!accessToken ? (
+          <RowButton
+            label={t("settings.connectGoogle")}
+            onPress={initiateGoogleAuth}
+            icon={<DriveIcon color={theme.primaryText} />}
+            disabled={!request}
+            noBorder
+          />
+        ) : (
+          <View>
+            <View className="flex-row items-center gap-3 bg-successSurface p-3 rounded-lg border border-success/20 mb-3">
+              <SuccessIcon color={theme.successText} />
+              <Text className="text-successText text-sm font-semibold">{t("settings.connectedGoogle")}</Text>
+            </View>
+            <RowButton
+              label={t("settings.backupNow")}
+              onPress={handleCloudBackup}
+              icon={<CloudIcon color={theme.primaryText} />}
+              loading={loading}
+              noBorder
+            />
+          </View>
+        )}
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Data Export Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.exportData")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t("settings.csvDesc")}
+        </Text>
+
+        <View>
+          <RowButton
+            label={t("settings.exportCsvBtn")}
+            onPress={handleCsvExport}
+            icon={<FileIcon color={theme.primaryText} />}
+            loading={loading}
+          />
+          <RowButton
+            label={t("settings.exportAlexandriaJson")}
+            onPress={handleAlexandriaExport}
+            icon={<ExportIcon color={theme.primaryText} />}
+            loading={loading}
+            noBorder
+          />
+        </View>
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Language Selector Section */}
+      <View className="py-2">
+        <SectionHeader label={t('settings.language')} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t('settings.languageDesc')}
+        </Text>
+        <View className="flex-row gap-2 flex-wrap">
+          {(['pt', 'en', 'es', 'zh'] as const).map((lang) => (
+            <TouchableOpacity
+              key={lang}
+              onPress={() => setLanguage(lang)}
+              className={`min-h-[44px] min-w-[44px] items-center justify-center px-3 rounded-full border ${
+                language === lang
+                  ? 'bg-primary border-transparent'
+                  : 'bg-card border-border'
+              }`}
+            >
+              <Text
+                className={`text-xs font-bold uppercase ${
+                  language === lang ? 'text-onPrimary' : 'text-subtext'
+                }`}
+              >
+                {t(`settings.${lang}`)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* About Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.about") !== "settings.about" ? t("settings.about") : t("drawer.about")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t("about.philosophyText")}
+        </Text>
+        <RowButton
+          label={t("common.view")}
+          onPress={() => router.push('/about')}
+          icon={<InfoIcon color={theme.primaryText} />}
+          noBorder
+        />
+      </View>
 
       <Toast
         visible={toast.visible}

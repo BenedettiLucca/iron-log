@@ -174,7 +174,7 @@ describe('semantic design tokens', () => {
     expect(violations).toEqual([]);
   });
 
-  it('reserves literal white foregrounds for media scrims and the native switch thumb', () => {
+  it('reserves literal white foregrounds for media scrims', () => {
     const literalWhite = /\btext-white\b|Colors\.white|color=["']white["']/g;
     const occurrences = Object.fromEntries(collectUiFiles().map((relativePath) => {
       const source = fs.readFileSync(path.join(projectRoot, relativePath), 'utf8');
@@ -182,7 +182,6 @@ describe('semantic design tokens', () => {
     }).filter(([, count]) => count > 0));
 
     expect(occurrences).toEqual({
-      'app/(tabs)/settings.tsx': 1,
       'app/bio/checkin.tsx': 1,
       'components/PhotoComparison.tsx': 2,
       'components/PhotoOverlay.tsx': 2,
