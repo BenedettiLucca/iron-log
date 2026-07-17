@@ -17,11 +17,17 @@ const settingsSource = readSource('../../app/(tabs)/settings.tsx');
 const weeklyReportSource = readSource('../../app/reports/weekly.tsx');
 const indexSource = readSource('../../app/(tabs)/index.tsx');
 const historySource = readSource('../../app/(tabs)/history.tsx');
+const programsIndexSource = readSource('../../app/programs/index.tsx');
+const programsDetailSource = readSource('../../app/programs/detail.tsx');
+const programsWeekDetailSource = readSource('../../app/programs/week-detail.tsx');
 const incompleteSessionSection = sourceSection(indexSource, '{/* Incomplete Session Banner */}', '{/* Active Program / Dashboard */}');
 const activeProgramSection = sourceSection(indexSource, '{/* Active Program / Dashboard */}', '{/* Key Lifts Dashboard */}');
 const availableRoutinesSection = sourceSection(indexSource, 'home.availableRoutines', '</ScrollView>');
 const historyRowsSection = sourceSection(historySource, 'renderItem={({ item, index })', '<Dialog');
 const historyRetrySection = sourceSection(historySource, 'if (dayError)', 'return renderEmpty()');
+const programDetailSummary = sourceSection(programsDetailSource, '{/* Program Info Card */}', '{/* Weeks List */}');
+const programWeekExerciseSection = sourceSection(programsWeekDetailSource, '{/* Exercise List */}', "SectionHeader label={t('programs.dashboard.sessions')");
+const programWeekSelectorSection = sourceSection(programsWeekDetailSource, '{/* Week Grid */}', '<ScrollView className="flex-1 px-4"');
 
 describe('Sprint 3 information hierarchy', () => {
   it('flattens static About sections and keeps the root-owned header', () => {
@@ -153,5 +159,127 @@ describe('Sprint 3 information hierarchy', () => {
     expect(historySource).toContain('RefreshControl');
     expect(historySource).toContain('Dialog');
     expect(historySource).toContain('/session/summary');
+  });
+
+  it('prohibits manual pt-16 compensation in the program screens', () => {
+    expect(programsIndexSource).not.toContain('pt-16');
+    expect(programsDetailSource).not.toContain('pt-16');
+    expect(programsWeekDetailSource).not.toContain('pt-16');
+  });
+
+  it('Programs list relies on the native Stack title and wraps user names', () => {
+    expect(programsIndexSource).not.toMatch(/\{t\(['"]programs\.title['"]\)\}/);
+    expect(programsIndexSource).toMatch(/numberOfLines=\{2\}[\s\S]{0,80}\{activeProgram\.name\}/);
+    expect(programsIndexSource).toMatch(/numberOfLines=\{2\}[\s\S]{0,80}\{program\.name\}/);
+  });
+
+  it('archived programs use flat TouchableOpacity rows rather than Card', () => {
+    const archivedSection = sourceSection(programsIndexSource, '{/* Archived Programs */}', '{/* Bottom Action Bar */}');
+    expect(archivedSection).not.toContain('<Card');
+    expect(archivedSection).toContain('<TouchableOpacity');
+  });
+
+  it('Program Detail uses the native title and does not repeat page identity in the summary', () => {
+    expect(programsDetailSource).toMatch(/<Stack\.Screen[\s\S]{0,100}options=\{\{\s*title:\s*program\.name/);
+    expect(programDetailSummary).not.toContain("t('programs.title')");
+    expect(programDetailSummary).not.toContain('{program.name}');
+    expect(programDetailSummary).not.toContain('uppercase');
+    expect(programsDetailSource).not.toContain('{/* Header */}');
+  });
+
+  it('Program Detail validates a positive integer only after declaring every hook', () => {
+    const invalidGuard = "if (!Number.isInteger(programIdNum) || programIdNum <= 0)";
+    const guardIndex = programsDetailSource.indexOf(invalidGuard);
+    const errorIndex = programsDetailSource.indexOf("return <ErrorState message={t('programs.invalidRoute')} />", guardIndex);
+
+    expect(guardIndex).toBeGreaterThan(0);
+    expect(errorIndex).toBeGreaterThan(guardIndex);
+    for (const hook of ['useFocusEffect(', 'useEffect(', 'const onRefresh = useCallback(']) {
+      const hookIndex = programsDetailSource.indexOf(hook);
+      expect(hookIndex).toBeGreaterThan(0);
+      expect(hookIndex).toBeLessThan(guardIndex);
+    }
+  });
+
+  it('Week Detail does not render a custom programs.weekDetail header inside content', () => {
+    expect(programsWeekDetailSource).not.toContain('programs.weekDetail');
+  });
+
+  it('Week Detail selector exposes accessibility labels, role button, and selected state', () => {
+    expect(programsWeekDetailSource).toContain('accessibilityLabel');
+    expect(programsWeekDetailSource).toContain('accessibilityRole="button"');
+    expect(programsWeekDetailSource).toContain('accessibilityState');
+  });
+
+  it('planned exercises in Week Detail are genuinely flat rows', () => {
+    expect(programWeekExerciseSection).not.toContain('<Card');
+    expect(programWeekExerciseSection).not.toContain('rounded-2xl');
+    expect(programWeekExerciseSection).not.toContain('bg-card');
+  });
+
+  it('status display logic preserves terminal states before current and styles the selector from resolved status', () => {
+    expect(programsDetailSource).toMatch(/status\s*!==\s*['"]future['"]\s*\?\s*status\s*:\s*isCurrent\s*\?\s*['"]current['"]\s*:\s*['"]future['"]/);
+    expect(programsWeekDetailSource).toMatch(/status\s*!==\s*['"]future['"]\s*\?\s*status\s*:\s*isCurrent\s*\?\s*['"]current['"]\s*:\s*['"]future['"]/);
+    expect(programsWeekDetailSource).not.toContain('badgeStyle.split');
+    expect(programWeekSelectorSection).toContain("resolvedWStatus === 'current'");
+    expect(programWeekSelectorSection).toContain("resolvedWStatus === 'done'");
+    expect(programWeekSelectorSection).not.toMatch(/else if \(wStatus ===/);
+    expect(programWeekSelectorSection).toContain('getStatusEmoji(resolvedWStatus)');
+  });
+
+  it('Program Detail and Week Detail do not contain hardcoded strings', () => {
+    const forbidden = [
+      'Programa',
+      'Semanas',
+      'Pendente',
+      'Atual',
+      'Concluída',
+      'Perdida',
+      'Até',
+      'Nenhuma semana configurada',
+      'Voltar',
+      'Programa não encontrado',
+      'Semana não encontrada',
+      'Metas da Semana',
+      'RIR Alvo',
+      'Intensidade',
+      'Fase do Bloco',
+      'Acumulação',
+      'Exercícios Planejados',
+      'Meta:',
+      'Rest:',
+      'Obs:',
+      'Nenhuma rotina ou exercício planejado para esta semana',
+      'Nenhum treino realizado nesta semana'
+    ];
+    for (const str of forbidden) {
+      expect(programsDetailSource).not.toContain(str);
+      expect(programsWeekDetailSource).not.toContain(str);
+    }
+  });
+
+  it('preserves list, detail, and week detail functional logic', () => {
+    // list keeps navigation
+    expect(programsIndexSource).toContain('/programs/create');
+    expect(programsIndexSource).toContain('/programs/detail');
+
+    // detail keeps useFocusEffect, dashboard effect, refresh, delete, Dialog/Toast, week-detail path
+    expect(programsDetailSource).toContain('useFocusEffect');
+    expect(programsDetailSource).toContain('fetchDashboardData');
+    expect(programsDetailSource).toContain('onRefresh');
+    expect(programsDetailSource).toContain('deleteProgram');
+    expect(programsDetailSource).toContain('Dialog');
+    expect(programsDetailSource).toContain('Toast');
+    expect(programsDetailSource).toContain('/programs/week-detail');
+
+    // week detail keeps weekDetailParamsSchema, safeParseParams, request-id guards, routineExercises query, sessions, retry, summary navigation
+    expect(programsWeekDetailSource).toContain('weekDetailParamsSchema');
+    expect(programsWeekDetailSource).toContain('safeParseParams');
+    expect(programsWeekDetailSource).toContain('sessionsRequestRef');
+    expect(programsWeekDetailSource).toContain('exercisesRequestRef');
+    expect(programsWeekDetailSource).toContain('routineExercises');
+    expect(programsWeekDetailSource).toContain('getSessionsForWeek');
+    expect(programsWeekDetailSource).toContain('/session/summary');
+    expect(programsWeekDetailSource).toContain('sessionId');
   });
 });

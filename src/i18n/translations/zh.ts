@@ -847,6 +847,18 @@ export const zh = {
 
   // Programs / 周期化训练
   programs: {
+    phase: '阶段',
+    weeksHeading: '周数',
+    maxReps: '最多 {max} 次',
+    weeklyTargets: '本周目标',
+    targetRir: '目标 RIR',
+    intensity: '强度',
+    blockPhase: '训练阶段',
+    plannedExercises: '计划动作',
+    targetLabel: '目标',
+    restLabel: '休息',
+    notesLabel: '备注',
+    noPlannedExercises: '本周无计划训练或动作',
     title: '训练计划',
     subtitle: '管理你的中周期和周期化训练',
     drawer: '训练计划',
@@ -950,6 +962,7 @@ export const zh = {
         done: '已完成训练',
         missed: '错过训练',
         deload: '减载周',
+        current: '当前周',
         future: '未来周',
       },
       noSessions: '本周无训练',
