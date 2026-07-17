@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useFocusEffect } from 'expo-router';
 import { useState, useCallback, useMemo } from 'react';
 import { db } from '../../src/db/client';
@@ -13,7 +13,8 @@ import { logger } from '@/services/logger';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
 import { parseTargetSets } from '../../src/utils/exercise';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionHeader } from '@/components/SectionHeader';
 import { StatTile } from '@/components/StatTile';
 import { safeParseParams, routinePreviewParamsSchema } from '@/src/validators/routes';
@@ -50,8 +51,9 @@ interface RoutineStats {
 type ScreenState = 'loading' | 'invalid' | 'not-found' | 'error' | 'empty' | 'content';
 
 export default function RoutinePreviewScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const theme = useThemeColors();
+  const insets = useSafeAreaInsets();
   const rawParams = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
   const { toast, setToast } = useToast();
@@ -168,7 +170,7 @@ export default function RoutinePreviewScreen() {
             weightHistory: weightHistory
               .filter(w => w.weightKg !== null)
               .map(w => ({
-                date: new Date(w.startTime).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                date: new Date(w.startTime).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit' }),
                 weight: w.weightKg!,
               }))
               .reverse(),
@@ -200,7 +202,7 @@ export default function RoutinePreviewScreen() {
       logger.error('Failed to load routine preview', e);
       setScreenState('error');
     }
-  }, [params, rawRoutineName]);
+  }, [params, rawRoutineName, language]);
 
   useFocusEffect(
     useCallback(() => {
@@ -238,7 +240,7 @@ export default function RoutinePreviewScreen() {
 
   const formatDate = (epoch: number | null) => {
     if (!epoch) return '—';
-    return new Date(epoch).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return new Date(epoch).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit', year: '2-digit' });
   };
 
   const formatRest = (seconds: number | null) => {
@@ -292,81 +294,82 @@ export default function RoutinePreviewScreen() {
 
   return (
     <View className="flex-1 bg-background">
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
       <Stack.Screen options={{ title: routineName || t('routineDetail.title') }} />
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, paddingBottom: 96 + insets.bottom, gap: 16 }}>
 
-      {/* Summary Card */}
-      <Card>
-        <SectionHeader label="Resumo da Rotina" className="mb-2" />
-        <Text className="text-text text-xl font-extrabold mb-1">{routineName || t('routineDetail.title')}</Text>
-        <View className="flex-row items-center gap-4 mt-2 flex-wrap">
-          <View className="bg-primarySurface rounded-full px-3 py-1">
-            <Text className="text-primaryText text-xs font-bold uppercase">{totalExercises} {t('routineDetail.exercises')}</Text>
-          </View>
-          <View className="bg-successSurface rounded-full px-3 py-1">
-            <Text className="text-successText text-xs font-bold uppercase">{stats.totalSessions} {t('routineDetail.workouts')}</Text>
-          </View>
-          {estimatedDuration > 0 && (
-            <View className="bg-secondarySurface rounded-full px-3 py-1">
-              <Text className="text-secondaryText text-xs font-bold uppercase">~{estimatedDuration} {t('routineDetail.min')}</Text>
-            </View>
-          )}
-        </View>
-      </Card>
-
-      {/* Last Session */}
-      {stats.lastSessionDate && (
+        {/* Summary Card */}
         <Card>
-          <SectionHeader label={t('routineDetail.lastWorkout')} className="mb-2" />
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="text-text text-lg font-bold">{formatDate(stats.lastSessionDate)}</Text>
-              {stats.avgDuration > 0 && (
-                <Text className="text-subtext text-xs">{t('routineDetail.avgDuration', { duration: stats.avgDuration })}</Text>
-              )}
+          <View className="flex-row items-center gap-x-4 gap-y-1 flex-wrap">
+            <Text className="text-text text-sm">
+              {t(totalExercises === 1 ? 'routineDetail.exerciseCountSingle' : 'routineDetail.exerciseCount', { count: totalExercises })}
+            </Text>
+            <Text className="text-text text-sm">
+              {t(stats.totalSessions === 1 ? 'routineDetail.workoutCountSingle' : 'routineDetail.workoutCount', { count: stats.totalSessions })}
+            </Text>
+            {estimatedDuration > 0 && (
+              <Text className="text-text text-sm">
+                {t('routineDetail.estimatedMinutes', { minutes: estimatedDuration })}
+              </Text>
+            )}
+          </View>
+
+          {stats.lastSessionDate && (
+            <>
+              <View className="border-t border-border/60 my-3" />
+              <View className="flex-row justify-between items-center flex-wrap gap-2">
+                <View>
+                  <Text className="text-subtext text-xs">{t('routineDetail.lastWorkout')}</Text>
+                  <Text className="text-text text-sm font-semibold mt-0.5">{formatDate(stats.lastSessionDate)}</Text>
+                </View>
+                {stats.avgDuration > 0 && (
+                  <Text className="text-subtext text-xs">
+                    {t('routineDetail.avgDurationLabel', { duration: stats.avgDuration })}
+                  </Text>
+                )}
+              </View>
+            </>
+          )}
+        </Card>
+
+        {/* PRs Section */}
+        {exercisesData.some(e => e.prWeight !== null) && (
+          <View>
+            <SectionHeader label={t('routineDetail.personalRecords')} className="mb-3" />
+            <View className="flex-row flex-wrap gap-2.5">
+              {exercisesData.filter(e => e.prWeight !== null).slice(0, 4).map(ex => (
+                <StatTile
+                  key={ex.id}
+                  value={`${ex.prWeight}kg`}
+                  label={ex.name}
+                  accentColor="warning"
+                  className="w-[calc(50%-5px)]"
+                  delta={ex.lastDate ? formatDate(ex.lastDate) : undefined}
+                />
+              ))}
             </View>
           </View>
-        </Card>
-      )}
+        )}
 
-      {/* PRs Section */}
-      {exercisesData.some(e => e.prWeight !== null) && (
+        {/* Exercise List */}
         <View>
-          <SectionHeader label="Recordes Pessoais" className="mb-3" />
-          <View className="flex-row flex-wrap gap-2.5">
-            {exercisesData.filter(e => e.prWeight !== null).slice(0, 4).map(ex => (
-              <StatTile
-                key={ex.id}
-                value={`${ex.prWeight}kg`}
-                label={ex.name}
-                accentColor="warning"
-                className="w-[calc(50%-5px)]"
-                delta={ex.lastDate ? formatDate(ex.lastDate) : undefined}
-              />
-            ))}
-          </View>
-        </View>
-      )}
+          <SectionHeader label={t('routineDetail.exercises')} className="mb-3" />
 
-      {/* Exercise List */}
-      <View>
-        <SectionHeader label={t('routineDetail.exercises')} className="mb-3" />
-
-        {screenState === 'empty' ? (
-          <EmptyState
-            icon="📋"
-            title={t('routines.noExercises')}
-            description={t('routines.addExercisesHint')}
-          />
-        ) : (
-          <View className="gap-3">
-            {exercisesData.map((ex, index) => (
-              <TouchableOpacity
-                key={ex.id}
-                onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}
-                activeOpacity={0.7}
-              >
-                <Card className={expandedExercise === ex.id ? 'border-primary/40' : ''}>
+          {screenState === 'empty' ? (
+            <EmptyState
+              icon="📋"
+              title={t('routines.noExercises')}
+              description={t('routines.addExercisesHint')}
+            />
+          ) : (
+            <View className="gap-3">
+              {exercisesData.map((ex, index) => (
+                <Card
+                  key={ex.id}
+                  pressable
+                  onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}
+                  className={expandedExercise === ex.id ? 'border-primary/40' : ''}
+                  accessibilityLabel={`${ex.name}, ${expandedExercise === ex.id ? t('routineDetail.collapseDetails') : t('routineDetail.expandDetails')}`}
+                >
                   {/* Header Row */}
                   <View className="flex-row items-start">
                     <View className="w-8 h-8 rounded-full bg-primarySurface justify-center items-center mr-3 mt-0.5">
@@ -377,7 +380,7 @@ export default function RoutinePreviewScreen() {
                       <Text className="text-text font-bold text-base" numberOfLines={2}>{ex.name}</Text>
                       <View className="flex-row items-center gap-2 mt-0.5 flex-wrap">
                         {ex.target && (
-                          <Text className="text-primaryText text-xs bg-primarySurface px-2 py-0.5 rounded border border-primaryText/10 font-bold uppercase">
+                          <Text className="text-primaryText text-xs font-semibold">
                             {ex.target}
                           </Text>
                         )}
@@ -394,7 +397,7 @@ export default function RoutinePreviewScreen() {
                     {ex.lastWeight !== null ? (
                       <View className="items-end min-w-[50px] mr-2">
                         <Text className="text-text font-bold text-sm">{ex.lastWeight}kg</Text>
-                        <Text className="text-subtext text-xs">{ex.lastReps} reps</Text>
+                        <Text className="text-subtext text-xs">{t('routineDetail.repsCount', { count: ex.lastReps ?? 0 })}</Text>
                       </View>
                     ) : (
                       <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center mr-2">
@@ -412,20 +415,20 @@ export default function RoutinePreviewScreen() {
 
                   {/* PR & Stats Badges */}
                   {ex.sessionCount > 0 && (
-                    <View className="flex-row gap-2 mt-2 flex-wrap">
+                    <View className="flex-row items-center gap-x-3 gap-y-0.5 mt-2 flex-wrap">
                       {ex.prWeight !== null && (
-                        <View className="bg-accentSurface px-2 py-0.5 rounded-full border border-accentText/20">
-                          <Text className="text-accentText text-xs font-bold">🏆 PR: {ex.prWeight}kg</Text>
-                        </View>
+                        <Text className="text-accentText text-xs font-semibold">
+                          {t('routineDetail.personalRecordWeight', { weight: `${ex.prWeight}kg` })}
+                        </Text>
                       )}
                       {ex.estimated1RM !== null && (
-                        <View className="bg-primarySurface px-2 py-0.5 rounded-full border border-primaryText/20">
-                          <Text className="text-primaryText text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
-                        </View>
+                        <Text className="text-primaryText text-xs font-semibold">
+                          {t('routineDetail.estimatedOneRepMax', { weight: `${ex.estimated1RM}kg` })}
+                        </Text>
                       )}
-                      <View className="bg-secondarySurface px-2 py-0.5 rounded-full border border-secondaryText/20">
-                        <Text className="text-secondaryText text-xs font-bold">{t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}</Text>
-                      </View>
+                      <Text className="text-secondaryText text-xs font-semibold">
+                        {t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}
+                      </Text>
                     </View>
                   )}
 
@@ -475,41 +478,38 @@ export default function RoutinePreviewScreen() {
                     </View>
                   )}
                 </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
-      <View className="h-24" />
-    </ScrollView>
-
-    {/* Floating Bottom Actions */}
-    <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: 24 }}>
-      <View className="flex-row gap-3">
-        <Button
-          title={t('common.edit')}
-          onPress={handleEdit}
-          variant="secondary"
-          size="lg"
-          className="flex-1"
-        />
-        <Button
-          title={t('routineDetail.startWorkout')}
-          onPress={handleStartWorkout}
-          variant="primary"
-          size="lg"
-          className="flex-[2]"
-          disabled={!params || screenState !== 'content'}
-        />
+      {/* Floating Bottom Actions */}
+      <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
+        <View className="flex-row gap-3">
+          <Button
+            title={t('common.edit')}
+            onPress={handleEdit}
+            variant="secondary"
+            size="lg"
+            className="flex-1"
+          />
+          <Button
+            title={t('routineDetail.startWorkout')}
+            onPress={handleStartWorkout}
+            variant="primary"
+            size="lg"
+            className="flex-[2]"
+            disabled={!params || screenState !== 'content'}
+          />
+        </View>
       </View>
-    </View>
-    <Toast
-      visible={toast.visible}
-      message={toast.message}
-      type={toast.type}
-      onHide={() => setToast((current) => ({ ...current, visible: false }))}
-    />
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast((current) => ({ ...current, visible: false }))}
+      />
     </View>
   );
 }

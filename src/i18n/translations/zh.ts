@@ -833,7 +833,18 @@ export const zh = {
     notFound: '未找到训练计划',
     invalidRoute: '无效路由',
     queryError: '加载训练计划数据失败。',
-
+    summary: '概览',
+    personalRecords: '个人纪录',
+    exerciseCount: '{count}个动作',
+    exerciseCountSingle: '{count}个动作',
+    workoutCount: '{count}次训练',
+    workoutCountSingle: '{count}次训练',
+    estimatedMinutes: '约 {minutes} 分钟',
+    repsCount: '{count}次',
+    personalRecordWeight: '🏆 PR: {weight}',
+    estimatedOneRepMax: '💪 1RM: {weight}',
+    expandDetails: '展开详情',
+    collapseDetails: '折叠详情',
   },
 
   // Exercise Session (active exercise screen)

@@ -1,5 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { pt } from '../../src/i18n/translations/pt';
+import { en } from '../../src/i18n/translations/en';
+import { es } from '../../src/i18n/translations/es';
+import { zh } from '../../src/i18n/translations/zh';
 
 function readSource(relativePath: string) {
   return fs.readFileSync(path.resolve(__dirname, relativePath), 'utf8');
@@ -20,6 +24,7 @@ const historySource = readSource('../../app/(tabs)/history.tsx');
 const programsIndexSource = readSource('../../app/programs/index.tsx');
 const programsDetailSource = readSource('../../app/programs/detail.tsx');
 const programsWeekDetailSource = readSource('../../app/programs/week-detail.tsx');
+const routineDetailSource = readSource('../../app/routine/[routineId].tsx');
 const incompleteSessionSection = sourceSection(indexSource, '{/* Incomplete Session Banner */}', '{/* Active Program / Dashboard */}');
 const activeProgramSection = sourceSection(indexSource, '{/* Active Program / Dashboard */}', '{/* Key Lifts Dashboard */}');
 const availableRoutinesSection = sourceSection(indexSource, 'home.availableRoutines', '</ScrollView>');
@@ -28,6 +33,8 @@ const historyRetrySection = sourceSection(historySource, 'if (dayError)', 'retur
 const programDetailSummary = sourceSection(programsDetailSource, '{/* Program Info Card */}', '{/* Weeks List */}');
 const programWeekExerciseSection = sourceSection(programsWeekDetailSource, '{/* Exercise List */}', "SectionHeader label={t('programs.dashboard.sessions')");
 const programWeekSelectorSection = sourceSection(programsWeekDetailSource, '{/* Week Grid */}', '<ScrollView className="flex-1 px-4"');
+const routineSummarySection = sourceSection(routineDetailSource, '{/* Summary Card */}', '{/* PRs Section */}');
+const routineExerciseSection = sourceSection(routineDetailSource, '{/* Exercise List */}', '{/* Floating Bottom Actions */}');
 
 describe('Sprint 3 information hierarchy', () => {
   it('flattens static About sections and keeps the root-owned header', () => {
@@ -281,5 +288,113 @@ describe('Sprint 3 information hierarchy', () => {
     expect(programsWeekDetailSource).toContain('getSessionsForWeek');
     expect(programsWeekDetailSource).toContain('/session/summary');
     expect(programsWeekDetailSource).toContain('sessionId');
+  });
+
+  it('uses the native Routine title and keeps one static summary anchor', () => {
+    const stackScreenIndex = routineDetailSource.indexOf('<Stack.Screen');
+    const scrollViewIndex = routineDetailSource.indexOf('<ScrollView');
+
+    expect(routineDetailSource).toContain("<Stack.Screen options={{ title: routineName || t('routineDetail.title') }} />");
+    expect(stackScreenIndex).toBeGreaterThan(-1);
+    expect(stackScreenIndex).toBeLessThan(scrollViewIndex);
+    expect(routineSummarySection).not.toContain("{routineName || t('routineDetail.title')}");
+    expect(routineSummarySection).not.toContain('Resumo da Rotina');
+    expect(routineSummarySection.match(/<Card\b/g) ?? []).toHaveLength(1);
+    expect(routineDetailSource).not.toContain('{/* Last Session */}');
+  });
+
+  it('uses direct pressable exercise Cards without target or metric pill soup', () => {
+    const targetBlock = routineExerciseSection.match(/\{ex\.target\s*&&\s*\([\s\S]+?<\/Text>\s*\)\}/)?.[0];
+    const metricsBlock = routineExerciseSection.match(/\{ex\.sessionCount\s*>\s*0\s*&&\s*\([\s\S]+?<\/View>\s*\)\}/)?.[0];
+
+    expect(routineExerciseSection).toMatch(/<Card[\s\S]{0,100}\bpressable\b/);
+    expect(routineExerciseSection).toContain('onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}');
+    expect(routineExerciseSection).toContain("t('routineDetail.collapseDetails')");
+    expect(routineExerciseSection).toContain("t('routineDetail.expandDetails')");
+    expect(routineExerciseSection).not.toContain('<TouchableOpacity');
+    expect(targetBlock).toBeDefined();
+    expect(targetBlock).not.toMatch(/bg-primarySurface|rounded|border/);
+    expect(metricsBlock).toBeDefined();
+    expect(metricsBlock).not.toMatch(/rounded-full|bg-(?:accent|primary|secondary)Surface|border-(?:accent|primary|secondary)Text/);
+  });
+
+  it('localizes Routine copy and both date paths', () => {
+    expect(routineDetailSource).not.toMatch(/Recordes Pessoais|Resumo da Rotina|\{ex\.lastReps\} reps/);
+    expect(routineDetailSource).not.toContain("toLocaleDateString('pt-BR'");
+    expect(routineDetailSource.match(/getLocaleForLanguage\(language\)/g) ?? []).toHaveLength(2);
+    expect(routineSummarySection).toContain('routineDetail.exerciseCountSingle');
+    expect(routineSummarySection).toContain('routineDetail.workoutCountSingle');
+  });
+
+  it('uses the real bottom safe area for Routine content and actions', () => {
+    expect(routineDetailSource).toContain('const insets = useSafeAreaInsets()');
+    expect(routineDetailSource).toContain('paddingBottom: 96 + insets.bottom');
+    expect(routineDetailSource).toContain('paddingBottom: Math.max(insets.bottom, 12)');
+    expect(routineDetailSource).not.toContain('paddingBottom: 24');
+    expect(routineDetailSource).not.toContain('className="h-24"');
+  });
+
+  it('preserves Routine data, route, state, and action contracts', () => {
+    for (const pattern of [
+      'routinePreviewParamsSchema',
+      'consumePendingToast',
+      'routineExercises.orderIndex',
+      'isNull(sets.deletedAt)',
+      'isNull(sessions.deletedAt)',
+      '/routines/editor',
+      '/session/[routineId]',
+      '_ts: Date.now().toString()',
+      "disabled={!params || screenState !== 'content'}",
+    ]) {
+      expect(routineDetailSource).toContain(pattern);
+    }
+  });
+
+  it('checks new user-visible copy represented in all four locales', () => {
+    const requiredKeys = [
+      'summary',
+      'personalRecords',
+      'exerciseCount',
+      'exerciseCountSingle',
+      'workoutCount',
+      'workoutCountSingle',
+      'estimatedMinutes',
+      'repsCount',
+      'personalRecordWeight',
+      'estimatedOneRepMax',
+      'expandDetails',
+      'collapseDetails'
+    ];
+
+    for (const key of requiredKeys) {
+      expect(pt.routineDetail).toHaveProperty(key);
+      expect(en.routineDetail).toHaveProperty(key);
+      expect(es.routineDetail).toHaveProperty(key);
+      expect(zh.routineDetail).toHaveProperty(key);
+    }
+  });
+
+  it('keeps ordinary Routine labels in sentence case', () => {
+    expect(pt.routineDetail).toMatchObject({
+      lastWorkout: 'Último treino',
+      weightEvolution: 'Evolução de carga',
+      recentHistory: 'Histórico recente',
+      startWorkout: 'Iniciar treino',
+      title: 'Detalhe da rotina',
+    });
+    expect(en.routineDetail).toMatchObject({
+      lastWorkout: 'Last workout',
+      weightEvolution: 'Weight evolution',
+      recentHistory: 'Recent history',
+      startWorkout: 'Start workout',
+      title: 'Routine detail',
+    });
+    expect(es.routineDetail).toMatchObject({
+      lastWorkout: 'Último entreno',
+      weightEvolution: 'Evolución de carga',
+      recentHistory: 'Historial reciente',
+      startWorkout: 'Iniciar entreno',
+      title: 'Detalle de rutina',
+    });
   });
 });
