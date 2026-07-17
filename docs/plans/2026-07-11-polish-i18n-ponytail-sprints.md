@@ -241,6 +241,8 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 - Shadows indicate elevation, not decoration.
 - 320dp + 1.3 font scale passes PT/ES.
 
+**Concluído.** Home, History, Settings, About, Weekly Report, Programs list/detail/week detail e Routine Detail foram reorganizados com um único anchor visual por tela, headers nativos sem duplicação, superfícies flat, badges restritos a status, nomes longos com wrap e CTA primário dominante. Guards nativos agora rejeitam `divide-*` e `last:` não suportados pelo NativeWind; separadores usam posição explícita. A suíte final cobre 58 suites / 610 testes, com typecheck, ESLint e `git diff --check` limpos. Validado no Android físico via Expo Go em 320dp e font scale 1.3, PT/ES e light/dark; os ajustes finais de key lifts e tab `Entrenos` foram aprovados no aparelho, e o re-review independente terminou sem blockers.
+
 ---
 
 ## Sprint 4 — Analytics, biometrics and dense-data polish

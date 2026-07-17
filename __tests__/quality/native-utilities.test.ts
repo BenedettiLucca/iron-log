@@ -28,6 +28,7 @@ describe('NativeWind utility contract', () => {
       { pattern: /\btransition-colors\b/g, reason: 'web transition utility has no native behavior' },
       { pattern: /\bselect-text\b/g, reason: 'web text-selection utility has no native behavior' },
       { pattern: /\bdivide-[xy](?:-reverse)?\b/g, reason: 'NativeWind 4 has no native divide utility; put explicit borders on child rows' },
+      { pattern: /\blast:/g, reason: 'NativeWind 4 has no native last-child variant; choose row borders explicitly from row position' },
     ];
 
     const violations = collectUiFiles().flatMap((relativePath) => {

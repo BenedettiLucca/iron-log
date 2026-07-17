@@ -27,6 +27,7 @@ const programsWeekDetailSource = readSource('../../app/programs/week-detail.tsx'
 const routineDetailSource = readSource('../../app/routine/[routineId].tsx');
 const incompleteSessionSection = sourceSection(indexSource, '{/* Incomplete Session Banner */}', '{/* Active Program / Dashboard */}');
 const activeProgramSection = sourceSection(indexSource, '{/* Active Program / Dashboard */}', '{/* Key Lifts Dashboard */}');
+const keyLiftsSection = sourceSection(indexSource, '{/* Key Lifts Dashboard */}', 'home.lastSession');
 const availableRoutinesSection = sourceSection(indexSource, 'home.availableRoutines', '</ScrollView>');
 const historyRowsSection = sourceSection(historySource, 'renderItem={({ item, index })', '<Dialog');
 const historyRetrySection = sourceSection(historySource, 'if (dayError)', 'return renderEmpty()');
@@ -95,6 +96,13 @@ describe('Sprint 3 information hierarchy', () => {
     expect(indexSource).not.toContain('bg-card border border-border rounded-xl');
   });
 
+  it('spaces key lifts as readable columns with native separators', () => {
+    expect(keyLiftsSection).not.toContain('w-px h-6');
+    expect(keyLiftsSection).toContain("index > 0 ? 'border-l border-border/50' : ''");
+    expect(keyLiftsSection).toMatch(/numberOfLines=\{2\}>\{lift\.name\}<\/Text>/);
+    expect(keyLiftsSection).toContain('text-center');
+  });
+
   it('maps every Home phase badge branch to matching semantic roles', () => {
     expect(activeProgramSection).toContain("isDeloadWeek ? 'bg-successSurface' : isNearDeload ? 'bg-warningSurface' : 'bg-primarySurface'");
     expect(activeProgramSection).toContain("isDeloadWeek ? 'text-successText' : isNearDeload ? 'text-warningText' : 'text-primaryText'");
@@ -112,6 +120,10 @@ describe('Sprint 3 information hierarchy', () => {
     expect(indexSource).not.toMatch(/className="[^"]*\buppercase\b[^"]*"[\s\S]{0,120}home\.manage/);
     expect(indexSource).toMatch(/router\.push\('\/history'\)[\s\S]{0,100}min-h-\[44px\]/);
     expect(indexSource).toMatch(/router\.push\('\/routines'\)[\s\S]{0,100}min-h-\[44px\]/);
+  });
+
+  it('uses a compact natural Spanish label for the routines tab', () => {
+    expect(es.tabs.routines).toBe('Entrenos');
   });
 
   it('History contains no explicit Card after session rows are flattened', () => {
@@ -187,6 +199,15 @@ describe('Sprint 3 information hierarchy', () => {
     const archivedSection = sourceSection(programsIndexSource, '{/* Archived Programs */}', '{/* Bottom Action Bar */}');
     expect(archivedSection).not.toContain('<Card');
     expect(archivedSection).toContain('<TouchableOpacity');
+  });
+
+  it('uses explicit index-based separators for native program rows', () => {
+    const archivedSection = sourceSection(programsIndexSource, '{/* Archived Programs */}', '{/* Bottom Action Bar */}');
+    const weeksSection = sourceSection(programsDetailSource, '{/* Weeks List */}', '{/* Exercise Targets */}');
+    expect(archivedSection).toContain('archivedPrograms.map((program, index)');
+    expect(archivedSection).toContain("index < archivedPrograms.length - 1 ? 'border-b border-border/50' : ''");
+    expect(weeksSection).toContain('weeks.map((week, index)');
+    expect(weeksSection).toContain("index < weeks.length - 1 ? 'border-b border-border/50' : ''");
   });
 
   it('Program Detail uses the native title and does not repeat page identity in the summary', () => {

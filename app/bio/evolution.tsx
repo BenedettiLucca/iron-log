@@ -256,13 +256,13 @@ export default function EvolutionScreen() {
   const armDelta = getDelta(measuresData.arm);
   const chestDelta = getDelta(measuresData.chest);
 
-  const renderSummaryRow = (label: string, delta: number, unit: string) => {
+  const renderSummaryRow = (label: string, delta: number, unit: string, showDivider = true) => {
     const isPositive = delta > 0;
     const isZero = Math.abs(delta) < 0.01;
     const colorClass = isZero ? 'text-subtext' : isPositive ? 'text-successText' : 'text-dangerText';
     const sign = isZero ? '•' : isPositive ? '↑' : '↓';
     return (
-      <View key={label} className="flex-row justify-between py-2 border-b border-border/50 last:border-b-0">
+      <View key={label} className={`flex-row justify-between py-2 ${showDivider ? 'border-b border-border/50' : ''}`}>
         <Text className="text-sm text-subtext">{label}</Text>
         <Text className={`text-sm font-bold ${colorClass}`}>
           {sign} {Math.abs(delta).toFixed(1)} {unit}
@@ -471,7 +471,7 @@ export default function EvolutionScreen() {
                           {renderSummaryRow(language === 'pt' ? 'Peso' : 'Weight', weightDelta, 'kg')}
                           {renderSummaryRow(t('bio.waist') || 'Cintura', waistDelta, 'cm')}
                           {renderSummaryRow(t('bio.chest') || 'Tórax', chestDelta, 'cm')}
-                          {renderSummaryRow(language === 'pt' ? 'Braço' : 'Arm', armDelta, 'cm')}
+                          {renderSummaryRow(language === 'pt' ? 'Braço' : 'Arm', armDelta, 'cm', false)}
                         </View>
                       </Card>
 

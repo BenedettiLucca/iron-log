@@ -159,11 +159,13 @@ export default function ProgramsListScreen() {
           <View className="mt-2">
             <SectionHeader label={t('programs.archived')} className="mb-2" />
             <View className="border-t border-border/50">
-              {archivedPrograms.map(program => (
+              {archivedPrograms.map((program, index) => (
                 <TouchableOpacity
                   key={program.id}
                   onPress={() => router.push(`/programs/detail?programId=${program.id}` as any)}
-                  className="py-3 flex-row justify-between items-center min-h-[44px] border-b border-border/50 last:border-b-0"
+                  className={`py-3 flex-row justify-between items-center min-h-[44px] ${
+                    index < archivedPrograms.length - 1 ? 'border-b border-border/50' : ''
+                  }`}
                   accessibilityRole="button"
                   accessibilityLabel={program.name}
                 >

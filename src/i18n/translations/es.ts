@@ -13,7 +13,7 @@ export const es = {
 
   tabs: {
     home: 'Inicio',
-    routines: 'Entrenamientos',
+    routines: 'Entrenos',
     history: 'Historial',
     bio: 'Biometría',
     settings: 'Ajustes',

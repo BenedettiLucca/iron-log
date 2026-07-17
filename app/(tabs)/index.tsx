@@ -281,7 +281,7 @@ export default function HomeScreen() {
               {keyLifts.length > 0 && (
                 <View className="mt-3 px-1">
                   <SectionHeader label={t('programs.dashboard.keyLifts')} className="mb-2" />
-                  <View className="flex-row items-center py-2">
+                  <View className="flex-row items-stretch py-3">
                     {keyLifts.slice(0, 3).map((lift, index) => {
                       const getTrendColor = (trend: string) => {
                         if (trend === 'up') return 'text-successText';
@@ -289,20 +289,20 @@ export default function HomeScreen() {
                         return 'text-subtext';
                       };
                       return (
-                        <View key={lift.exerciseId} className="flex-1 flex-row items-center">
-                          {index > 0 && <View className="w-px h-6 bg-border/60" />}
-                          <View className="flex-1 items-center">
-                            <Text className="text-xs font-bold text-subtext mb-1" numberOfLines={1}>{lift.name}</Text>
-                            <View className="flex-row items-baseline justify-center gap-1.5">
-                              <Text className="text-lg font-extrabold text-text">
-                                {lift.currentWeight}
-                                <Text className="text-xs text-subtext font-medium"> kg</Text>
-                              </Text>
-                              <Text className={`text-2xs font-semibold ${getTrendColor(lift.trend)}`}>
-                                {t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}
-                              </Text>
-                            </View>
-                          </View>
+                        <View
+                          key={lift.exerciseId}
+                          className={`flex-1 min-w-0 items-center px-2 ${
+                            index > 0 ? 'border-l border-border/50' : ''
+                          }`}
+                        >
+                          <Text className="text-xs font-bold text-subtext mb-1 text-center" numberOfLines={2}>{lift.name}</Text>
+                          <Text className="text-lg font-extrabold text-text text-center">
+                            {lift.currentWeight}
+                            <Text className="text-xs text-subtext font-medium"> kg</Text>
+                          </Text>
+                          <Text className={`text-2xs font-semibold mt-0.5 ${getTrendColor(lift.trend)}`}>
+                            {t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}
+                          </Text>
                         </View>
                       );
                     })}
