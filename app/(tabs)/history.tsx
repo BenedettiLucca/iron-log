@@ -5,7 +5,6 @@ import { useRouter } from 'expo-router';
 import { db } from '../../src/db/client';
 import { sessions, sets } from '../../src/db/schema';
 import { desc, isNull, eq, and, inArray } from 'drizzle-orm';
-import { Card } from '../../components/Card';
 import { Dialog } from '../../components/Dialog';
 import { SkeletonList } from '../../components/Skeleton';
 import { ErrorState } from '../../components/ScreenState';
@@ -13,7 +12,7 @@ import { logger } from '@/services/logger';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
-import { useI18n } from '../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { toLocalDateKey } from '@/src/utils/date-key';
 import { SectionHeader } from '@/components/SectionHeader';
 
@@ -228,8 +227,8 @@ export default function HistoryScreen() {
 
   const renderHeader = () => (
     <View>
-      <View className="p-4 pb-0">
-        <View className="rounded-2xl overflow-hidden border border-border shadow-sm bg-card">
+      <View className="pt-4 pb-0">
+        <View className="rounded-2xl overflow-hidden border border-border bg-card">
           <Calendar
             onDayPress={handleDayPress}
             markedDates={{
@@ -249,7 +248,7 @@ export default function HistoryScreen() {
         </View>
       </View>
 
-      <View className="px-4 pt-4">
+      <View className="pt-4">
         <SectionHeader
           label={selectedDate ? `${t('history.workoutsOn')} ${selectedDate.split('-').reverse().join('/')}` : t('history.selectDay')}
           className="mb-3"
@@ -261,24 +260,24 @@ export default function HistoryScreen() {
   const renderDayContent = () => {
     if (isDayLoading) {
       return (
-        <View className="p-4">
+        <View className="py-4">
           <SkeletonList count={2} />
         </View>
       );
     }
     if (dayError) {
       return (
-        <View className="p-4">
+        <View className="py-4">
           <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
             <Text className="text-4xl mb-2">⚠️</Text>
             <Text className="text-subtext font-bold text-center">{t('states.errorTitle')}</Text>
             <Text className="text-subtext text-xs text-center mt-1">{dayError}</Text>
             <TouchableOpacity
-              className="mt-4 bg-primarySurface px-4 py-2 rounded-xl border border-primary/20"
+              className="mt-4 min-h-[44px] bg-primarySurface px-4 rounded-xl border border-primary/20 items-center justify-center"
               onPress={() => selectedDate && handleDayPress({ dateString: selectedDate })}
               accessibilityRole="button"
             >
-              <Text className="text-primaryText font-bold text-xs uppercase tracking-wider">{t('states.retry')}</Text>
+              <Text className="text-primaryText font-bold text-xs">{t('states.retry')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -289,7 +288,7 @@ export default function HistoryScreen() {
 
   function renderEmpty() {
     return (
-      <View className="p-4">
+      <View className="py-4">
         <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
           <Text className="text-4xl mb-2" accessibilityLabel={t("history.calendarIcon")}>📅</Text>
           <Text className="text-subtext font-bold text-center">
@@ -318,7 +317,7 @@ export default function HistoryScreen() {
         <FlatList
           data={daySessions}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ gap: 12, padding: 16, paddingTop: 0 }}
+          contentContainerStyle={{ padding: 16, paddingTop: 0 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -329,25 +328,20 @@ export default function HistoryScreen() {
           }
           ListHeaderComponent={renderHeader}
           ListEmptyComponent={renderDayContent}
-          renderItem={({ item }) => (
-            <Card>
+          renderItem={({ item, index }) => (
+            <View className="py-1">
+              {index > 0 && <View className="h-px bg-border/60 mb-3" />}
               <View className="flex-row justify-between items-start">
                 <View className="flex-1">
                   <Text className="text-lg font-extrabold text-text tracking-tight mb-1">{item.routineName}</Text>
-                  <Text className="text-xs font-bold uppercase tracking-wider text-subtext mb-2">
-                    {new Date(item.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} {t('session.series')}
+                  <Text className="text-xs text-subtext mb-2">
+                    {new Date(item.startTime).toLocaleTimeString(getLocaleForLanguage(language), { hour: '2-digit', minute: '2-digit' })} • {item.durationMinutes || 0} min • {item.totalSets} {t('session.series')}
                   </Text>
                   {item.exerciseNames.length > 0 && (
-                    <View className="flex-row flex-wrap gap-1">
-                      {item.exerciseNames.slice(0, 3).map((name, idx) => (
-                        <View key={idx} className="bg-primarySurface px-2 py-0.5 rounded-md">
-                          <Text className="text-primaryText text-xs font-semibold">{name}</Text>
-                        </View>
-                      ))}
-                      {item.exerciseNames.length > 3 && (
-                        <Text className="text-subtext text-xs font-semibold">+{item.exerciseNames.length - 3}</Text>
-                      )}
-                    </View>
+                    <Text className="text-subtext text-xs font-medium">
+                      {item.exerciseNames.slice(0, 3).join(', ')}
+                      {item.exerciseNames.length > 3 ? ` +${item.exerciseNames.length - 3}` : ''}
+                    </Text>
                   )}
                 </View>
                 <View className="flex-col gap-1.5 ml-2 justify-center">
@@ -357,7 +351,7 @@ export default function HistoryScreen() {
                     accessibilityLabel={`${t('history.view')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-primaryText font-black text-2xs uppercase tracking-wider">{t("common.view")}</Text>
+                    <Text className="text-primaryText font-black text-2xs">{t("common.view")}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="bg-dangerSurface px-2.5 py-1.5 rounded-lg border border-danger/20 items-center justify-center min-w-[52px] min-h-[44px]"
@@ -365,11 +359,11 @@ export default function HistoryScreen() {
                     accessibilityLabel={`${t('common.delete')} ${item.routineName}`}
                     accessibilityRole="button"
                   >
-                    <Text className="text-dangerText font-black text-2xs uppercase tracking-wider">{t("common.delete")}</Text>
+                    <Text className="text-dangerText font-black text-2xs">{t("common.delete")}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            </Card>
+            </View>
           )}
         />
       )}

@@ -171,35 +171,35 @@ export default function HomeScreen() {
         {incompleteSession && (
           <View className="mt-4">
             <SectionHeader label={t("home.activeWorkout")} className="mb-2" />
-            <TouchableOpacity
+            <Card
+              pressable
               onPress={handleResumeSession}
-              activeOpacity={0.8}
+              className="bg-primary/10 border border-primary/20"
+              accessibilityLabel={`${t("home.continue")}: ${incompleteSession.routineName}. ${incompleteSession.exerciseName}`}
             >
-              <Card className="bg-primary/10 border border-primary/20">
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1 flex-row items-center gap-3">
-                    <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
-                      <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
-                        <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
-                        <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
-                        <Path d="M17 8h-1v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
-                        <Path d="M9 12h6" />
-                      </Svg>
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-text text-lg font-bold">{incompleteSession.routineName}</Text>
-                      <Text className="text-subtext text-xs mt-0.5">
-                        {incompleteSession.exerciseName} • {t("home.tapToContinue")}
-                      </Text>
-                    </View>
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center gap-3">
+                  <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
+                    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                      <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                      <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                      <Path d="M17 8h-1v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                      <Path d="M9 12h6" />
+                    </Svg>
                   </View>
-                  <View className="bg-primary px-3 py-2 rounded-lg">
-                    <Text className="text-onPrimary font-bold text-sm uppercase">{t("home.continue")}</Text>
+                  <View className="flex-1">
+                    <Text className="text-text text-lg font-bold" numberOfLines={2}>{incompleteSession.routineName}</Text>
+                    <Text className="text-subtext text-xs mt-0.5">
+                      {incompleteSession.exerciseName} • {t("home.tapToContinue")}
+                    </Text>
                   </View>
                 </View>
-              </Card>
-            </TouchableOpacity>
+                <View className="bg-primary px-3 py-2 rounded-lg">
+                  <Text className="text-onPrimary font-bold text-sm">{t("home.continue")}</Text>
+                </View>
+              </View>
+            </Card>
           </View>
         )}
 
@@ -213,85 +213,95 @@ export default function HomeScreen() {
           const isDeloadWeek = phase === 'deload';
           const isNearDeload = weeksUntilDeload !== null && weeksUntilDeload <= 2 && !isDeloadWeek;
 
+          const badgeBg = isDeloadWeek ? 'bg-successSurface' : isNearDeload ? 'bg-warningSurface' : 'bg-primarySurface';
+          const badgeText = isDeloadWeek ? 'text-successText' : isNearDeload ? 'text-warningText' : 'text-primaryText';
+
           return (
             <View className={incompleteSession ? 'mt-3' : 'mt-4'}>
               <SectionHeader label={t('programs.active')} className="mb-2" />
-              <TouchableOpacity onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}>
-                <Card className={isDeloadWeek ? 'bg-successSurface border border-successText/30' : isNearDeload ? 'bg-warningSurface border border-warningText/30' : 'bg-primary/5 border border-primary/20'}>
-                  <View className="flex-row justify-between items-center mb-3">
-                    <View className="flex-1 mr-2">
-                      <Text className="text-text font-bold text-lg mb-0.5">{activeProgram.name}</Text>
-                      <Text className="text-subtext text-xs font-medium">
-                        {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
+              <Card
+                pressable
+                onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}
+                className={isDeloadWeek ? 'bg-successSurface border border-successText/30' : isNearDeload ? 'bg-warningSurface border border-warningText/30' : 'bg-primary/5 border border-primary/20'}
+                accessibilityLabel={`${t("programs.active")}: ${activeProgram.name}`}
+              >
+                <View className="flex-row justify-between items-center mb-3">
+                  <View className="flex-1 mr-2">
+                    <Text className="text-text font-bold text-lg mb-0.5">{activeProgram.name}</Text>
+                    <Text className="text-subtext text-xs font-medium">
+                      {t('programs.weekOf', { current: currentWeek, total: activeProgram.weeksDuration })}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center gap-2">
+                    <View className={`${badgeBg} px-2.5 py-1 rounded-full`}>
+                      <Text className={`${badgeText} text-xs font-semibold capitalize`}>
+                        {isDeloadWeek ? t('programs.phases.deload') : t(`programs.phases.${phase}`)}
                       </Text>
                     </View>
-                    <View className="flex-row items-center gap-2">
-                      <View className="bg-successSurface px-2.5 py-1 rounded-full">
-                        <Text className="text-successText text-xs font-semibold capitalize">
-                          {isDeloadWeek ? t('programs.phases.deload') : t(`programs.phases.${phase}`)}
-                        </Text>
-                      </View>
-                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <Polyline points="9 18 15 12 9 6" />
-                      </Svg>
-                    </View>
+                    <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Polyline points="9 18 15 12 9 6" />
+                    </Svg>
                   </View>
+                </View>
 
-                  {/* Stats Row */}
-                  <View className="flex-row gap-3 mb-3">
-                    <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center">
-                      <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.volume')}</Text>
-                      <Text className="text-text text-base font-extrabold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
-                      <Text className="text-subtext text-2xs mt-0.5">
-                        {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
-                      </Text>
-                    </View>
-                    <View className="flex-1 bg-background border border-border/60 rounded-xl p-2.5 items-center justify-center">
-                      <Text className="text-subtext text-2xs font-extrabold uppercase tracking-widest mb-0.5">{t('programs.dashboard.avgSRPE')}</Text>
-                      <Text className="text-text text-base font-extrabold">{avgSRPE ?? '-'}</Text>
-                    </View>
+                {/* Stats Row */}
+                <View className="flex-row items-center border-t border-b border-border/60 py-3 mb-3">
+                  <View className="flex-1 items-center">
+                    <Text className="text-subtext text-2xs font-extrabold mb-0.5">{t('programs.dashboard.volume')}</Text>
+                    <Text className="text-text text-base font-extrabold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
+                    <Text className="text-subtext text-2xs mt-0.5">
+                      {t('programs.dashboard.volumeAvg')}: {(avgWeeklyVolume/1000).toFixed(1)}k kg
+                    </Text>
                   </View>
-
-                  {/* Progress Row */}
-                  <View className="mt-1">
-                    <ProgressBar
-                      current={weeklyVolume}
-                      total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
-                      showLabel={false}
-                      isAccessible={false}
-                    />
+                  <View className="w-px h-8 bg-border/60" />
+                  <View className="flex-1 items-center justify-center">
+                    <Text className="text-subtext text-2xs font-extrabold mb-0.5">{t('programs.dashboard.avgSRPE')}</Text>
+                    <Text className="text-text text-base font-extrabold">{avgSRPE ?? '-'}</Text>
                   </View>
+                </View>
 
-                  {isDeloadWeek ? (
-                    <Text className="text-successText text-xs font-semibold mt-2">{t('programs.deloadNow')}</Text>
-                  ) : isNearDeload && weeksUntilDeload !== null ? (
-                    <Text className="text-warningText text-xs font-semibold mt-2">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
-                  ) : null}
-                </Card>
-              </TouchableOpacity>
+                {/* Progress Row */}
+                <View className="mt-1">
+                  <ProgressBar
+                    current={weeklyVolume}
+                    total={Math.max(weeklyVolume, avgWeeklyVolume, 1)}
+                    showLabel={false}
+                    isAccessible={false}
+                  />
+                </View>
+
+                {isDeloadWeek ? (
+                  <Text className="text-successText text-xs font-semibold mt-2">{t('programs.deloadNow')}</Text>
+                ) : isNearDeload && weeksUntilDeload !== null ? (
+                  <Text className="text-warningText text-xs font-semibold mt-2">{t('programs.deloadIn', { weeks: weeksUntilDeload })}</Text>
+                ) : null}
+              </Card>
 
               {/* Key Lifts Dashboard */}
               {keyLifts.length > 0 && (
                 <View className="mt-3 px-1">
                   <SectionHeader label={t('programs.dashboard.keyLifts')} className="mb-2" />
-                  <View className="flex-row flex-wrap gap-2">
-                    {keyLifts.slice(0, 3).map((lift) => {
+                  <View className="flex-row items-center py-2">
+                    {keyLifts.slice(0, 3).map((lift, index) => {
                       const getTrendColor = (trend: string) => {
                         if (trend === 'up') return 'text-successText';
                         if (trend === 'down') return 'text-dangerText';
                         return 'text-subtext';
                       };
                       return (
-                        <View key={lift.exerciseId} className="bg-card border border-border rounded-xl p-3 flex-1 min-w-[30%]">
-                          <Text className="text-xs font-bold text-subtext uppercase mb-1" numberOfLines={1}>{lift.name}</Text>
-                          <View className="flex-row items-baseline justify-between">
-                            <Text className="text-lg font-extrabold text-text">
-                              {lift.currentWeight}
-                              <Text className="text-xs text-subtext font-medium"> kg</Text>
-                            </Text>
-                            <Text className={`text-2xs font-semibold ${getTrendColor(lift.trend)}`}>
-                              {t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}
-                            </Text>
+                        <View key={lift.exerciseId} className="flex-1 flex-row items-center">
+                          {index > 0 && <View className="w-px h-6 bg-border/60" />}
+                          <View className="flex-1 items-center">
+                            <Text className="text-xs font-bold text-subtext mb-1" numberOfLines={1}>{lift.name}</Text>
+                            <View className="flex-row items-baseline justify-center gap-1.5">
+                              <Text className="text-lg font-extrabold text-text">
+                                {lift.currentWeight}
+                                <Text className="text-xs text-subtext font-medium"> kg</Text>
+                              </Text>
+                              <Text className={`text-2xs font-semibold ${getTrendColor(lift.trend)}`}>
+                                {t(`programs.trend${lift.trend.charAt(0).toUpperCase() + lift.trend.slice(1)}`)}
+                              </Text>
+                            </View>
                           </View>
                         </View>
                       );
@@ -306,8 +316,11 @@ export default function HomeScreen() {
         <View className={`mt-4 ${incompleteSession ? 'mb-4' : 'mb-8'}`}>
           <View className="flex-row justify-between items-center mb-2 px-1">
               <SectionHeader label={t("home.lastSession")} />
-              <TouchableOpacity onPress={() => router.push('/history')}>
-                  <Text className="text-secondaryText text-xs font-bold uppercase tracking-wider">{t("home.viewCalendar")}</Text>
+              <TouchableOpacity
+                onPress={() => router.push('/history')}
+                className="min-h-[44px] px-2 -mr-2 items-center justify-center"
+              >
+                <Text className="text-secondaryText text-xs font-bold">{t("home.viewCalendar")}</Text>
               </TouchableOpacity>
           </View>
 
@@ -338,8 +351,11 @@ export default function HomeScreen() {
 
         <View className="flex-row justify-between items-end mb-3 px-1">
           <SectionHeader label={t("home.availableRoutines")} />
-          <TouchableOpacity onPress={() => router.push('/routines')}>
-            <Text className="text-primaryText font-bold text-xs uppercase tracking-wider">{t("home.manage")}</Text>
+          <TouchableOpacity
+            onPress={() => router.push('/routines')}
+            className="min-h-[44px] px-2 -mr-2 items-center justify-center"
+          >
+            <Text className="text-primaryText font-bold text-xs">{t("home.manage")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -361,7 +377,7 @@ export default function HomeScreen() {
               >
                 <View className="flex-row justify-between items-center">
                   <View className="flex-1 mr-4">
-                    <Text className="text-text text-xl font-bold mb-1">{routine.name}</Text>
+                    <Text className="text-text text-xl font-bold mb-1" numberOfLines={2}>{routine.name}</Text>
                     <Text className="text-subtext text-sm" numberOfLines={1}>{routine.description}</Text>
                   </View>
                   <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
