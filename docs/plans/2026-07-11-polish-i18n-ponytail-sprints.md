@@ -347,48 +347,154 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 ---
 
-## Sprint 7 — Ponytail cleanup
+## Sprint 7 — Open-issue triage and release-scope lock
 
-**Goal:** remove dead and ornamental complexity after the UI architecture stabilizes.
+**Goal:** decide which live GitHub issues still matter against the post-redesign repository before adding feature work or cleanup scope.
 
-### Zero-risk deletes
+This sprint is discovery and decision, not implementation. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
 
-- `constants/typography.ts`
-- `services/index.ts`
-- `hooks/index.ts`
-- `src/validators/index.ts`
-- `src/utils/index.ts`
-- `services/program/index.ts`
+### Live starting set
 
-### Validate then simplify
+Snapshot on 2026-07-14: issues `#63`–`#71` are open. Re-fetch the live backlog when the sprint starts; do not assume this snapshot remains complete.
 
-- `src/utils/program-detail-state.ts`
-- `hooks/use-progression.ts`
-- `src/utils/calculations.ts`
-- `src/utils/session-verdict-markdown.ts`
-- repeated icons only where extraction is a net reduction.
+Current clusters to investigate:
 
-### Dependency check
+- routine organization: `#63` folders and `#64` archive;
+- schedule/adherence truth: `#65` manifest, `#67` lane drift and `#71` sleep-adjusted variance;
+- session model: `#66` micro-session mode;
+- mutation reliability: `#68` async error feedback;
+- confidence/coverage: `#69` untested routes and modules;
+- external health context: `#70` nutrition pipeline.
 
-Test removal of direct `@react-navigation/bottom-tabs` with:
+### Scope
 
-- clean install;
-- Expo doctor;
-- typecheck/lint/tests;
-- native Android build;
-- tabs runtime smoke test.
-
-If Expo's supported dependency model expects the direct package, keep it. Ponytail is not an excuse to create hidden dependency fragility.
+1. Re-fetch every open issue with body, labels, dependencies and update date.
+2. Verify each issue against the current branch and current external dependencies:
+   - paths and components still exist;
+   - the reported gap still reproduces;
+   - redesign work has not already resolved or changed it;
+   - proposed abstractions remain necessary;
+   - issue counts and test-coverage claims are recalculated, never copied.
+3. Map dependencies and overlap before prioritizing. In particular, validate the `#65 → #67/#71` relationship, the Alexandria dependency in `#70`, the `#63/#64` product overlap, and whether Sprint 0A plus routine hardening superseded parts of `#68/#69`.
+4. Score each issue on:
+   - user value and observed real-world pain;
+   - correctness/trust or release risk;
+   - dependency readiness;
+   - fit with the current product direction;
+   - implementation/QA cost and uncertainty;
+   - whether it destabilizes screens already approved;
+   - YAGNI risk and smallest useful v1.
+5. Classify every issue as exactly one of:
+   - **pre-release** — worth implementing before final QA;
+   - **fold into existing sprint** — same ownership and verification surface;
+   - **post-release** — valuable, but not worth destabilizing this release;
+   - **close/supersede** — stale, duplicate or already resolved.
+6. For each pre-release candidate, define a strict v1, anti-scope, dependencies, test plan, physical-device checks and rollback boundary.
+7. Produce `docs/plans/YYYY-MM-DD-open-issue-triage.md` with a lightweight evidence table, dependency graph, ranking and recommendation proportional to the live backlog; do not build process bureaucracy around a small issue set.
+8. Hold an explicit Lucca decision checkpoint. No issue enters Sprint 8 and no GitHub issue is closed/relabelled solely by agent judgment.
 
 ### Acceptance
 
-- Net code reduction.
-- No abstraction introduced solely to appear “clean”.
-- Full behavior and native-build verification.
+- Every live open issue is checked against current code and dependencies.
+- Each recommendation cites repository evidence, not only the issue body.
+- Pre-release scope is intentionally small; default is defer unless value/risk justifies release disruption.
+- Lucca approves the selected/deferred/closed set.
+- Approved GitHub comments/labels reflect the decision without rewriting issue history.
 
 ---
 
-## Sprint 8 — Final visual QA and release hardening
+## Sprint 8 — Selected issue implementation (conditional)
+
+**Goal:** implement only the pre-release issues explicitly approved in Sprint 7, before the final complexity audit.
+
+Skip this sprint when Sprint 7 selects no pre-release issues.
+
+### Scope
+
+1. Write a focused implementation plan for each selected issue from the verified current codebase.
+2. Preserve the Sprint 7 v1 and anti-scope; do not implement the issue body's speculative follow-ups by default.
+3. Resolve dependency order before parallelizing. Issues touching the same schema, session flow or shared primitive remain sequential.
+4. Use TDD for behavior and data changes, plus source-level contract tests where regression risk is architectural.
+5. Commit each issue or independently reversible slice separately and reference the issue when appropriate.
+6. Run typecheck, lint, full Jest, diff-check and required Android physical validation after each issue.
+7. Re-review the resulting diff independently; update issue status only after verified execution.
+
+### Acceptance
+
+- Every selected issue meets its Sprint 7 acceptance criteria and physical-device checks.
+- No deferred issue leaks into implementation through opportunistic refactoring.
+- Full baseline remains green after all selected work.
+- Remaining open issues have an explicit post-release or dependency rationale.
+
+---
+
+## Sprint 9 — Fresh Ponytail audit
+
+**Goal:** produce a new evidence-based whole-repo complexity audit after redesign, i18n/a11y and any selected issue work have stabilized.
+
+The previous Ponytail candidate list is historical context, not an execution checklist. Files previously named for deletion or simplification must be rediscovered and revalidated from zero.
+
+### Scope
+
+1. Capture a clean baseline before scanning: branch status, source/dependency inventory, typecheck, lint, full Jest, Expo Doctor and Android build status. If device/build tooling is unavailable in the audit environment, record the limitation and last verified evidence explicitly rather than treating environment absence as a product failure.
+2. Audit the whole current repository, including app routes, components, hooks, services, utils, validators, tests, barrel exports, dependencies, scripts and CI workflows.
+3. Hunt for validated `delete`, `native`, `stdlib`, `yagni` and `shrink` findings, plus:
+   - transitive deadness and test-only exports;
+   - stale barrels and unused hook return values;
+   - duplicated constants/helpers;
+   - test-runner or CI glob drift;
+   - dependencies that can be removed without hidden Expo/native fragility.
+4. Independently verify every candidate across production, tests, dynamic/string references, barrels, docs and workflows. Subagent output is a hypothesis, never proof.
+5. Measure expected net line/dependency reduction and assign risk, behavior surface and verification plan.
+6. Write a dated audit report under `docs/audits/` with:
+   - confirmed findings ranked by cut size and risk;
+   - rejected false positives;
+   - recommended execution batches;
+   - explicit deferrals and rationale.
+7. Hold a Lucca checkpoint to approve which findings proceed. The audit itself applies no production cleanup.
+
+### Acceptance
+
+- Audit reflects the repository at the actual post-Sprint-8 commit.
+- Every proposed deletion has verified zero required callers.
+- Every dependency finding includes clean-install/native verification requirements.
+- False positives are recorded rather than silently discarded.
+- No cleanup code is mixed into the audit commit.
+
+---
+
+## Sprint 10 — Ponytail findings execution
+
+**Goal:** execute only the confirmed and approved findings from Sprint 9, maximizing net reduction without weakening behavior or native reliability.
+
+### Execution order
+
+1. **Dead-code purge:** verified zero-caller files, exports and stale barrels.
+2. **Correctness/type findings:** only when exposed by the audit and covered by a failing regression first.
+3. **YAGNI removal:** unused props, wrappers, config and direct dependencies.
+4. **Shrink/consolidate:** only genuine 3+ duplication where extraction produces a net reduction; no abstraction for aesthetics.
+
+The old candidates (`constants/typography.ts`, barrel indexes, program-detail helpers, progression/calculation helpers, verdict Markdown and direct `@react-navigation/bottom-tabs`) may be re-evaluated, but receive no presumption of validity. The dependency experiment runs only if Sprint 9 reconfirms it.
+
+### Verification
+
+- Commit by reversible risk batch, not as one cleanup dump.
+- Search tests, docs, workflows and dynamic references before every deletion.
+- Run typecheck, lint, full Jest and diff-check after every batch.
+- Run clean install, Expo Doctor, native Android build and runtime smoke for dependency/native-boundary changes.
+- Independently review every batch and report actual net lines/dependencies removed.
+
+### Acceptance
+
+- Net code reduction from approved findings.
+- No abstraction introduced solely to appear “clean”.
+- No stale workflow, test or documentation references to removed symbols/files.
+- Full behavior and native-build verification remain green.
+- Audit report records executed, rejected and deferred findings separately.
+
+---
+
+## Sprint 11 — Final visual QA and release hardening
 
 **Goal:** prove the polish rather than assert it.
 
@@ -403,7 +509,7 @@ If Expo's supported dependency model expects the direct package, keep it. Ponyta
 7. TalkBack critical flow.
 8. Performance smoke: long lists, charts, 20-set workout.
 9. Fix only validated final polish defects; no new redesign ideas.
-10. Final Ponytail review of changed code.
+10. Run a final Ponytail delta review only on Sprint 10 cleanup and Sprint 11 QA changes; do not repeat the whole-repository Sprint 9 audit.
 
 ### Release acceptance
 
@@ -416,7 +522,7 @@ If Expo's supported dependency model expects the direct package, keep it. Ponyta
 
 ---
 
-## Sprint 9 — Documentation reconciliation and project handoff
+## Sprint 12 — Documentation reconciliation and project handoff
 
 **Goal:** reconcile every authoritative document with the shipped product after implementation and final device QA are stable.
 
@@ -453,7 +559,7 @@ This sprint is intentionally last. Updating architecture, setup and component gu
    - `package.json`;
    - the root package entries in `package-lock.json`;
    - `app.json` → `expo.version`;
-   - any release/version constants introduced before Sprint 9.
+   - any release/version constants introduced before Sprint 12.
 3. Reconcile native build identifiers:
    - Android `versionCode` must be greater than the last distributed build;
    - iOS `buildNumber` must be greater than the last distributed build;
@@ -520,11 +626,19 @@ Sprint 5   forms/session   ┘
    ↓
 Sprint 6   i18n/a11y/content fit
    ↓
-Sprint 7   Ponytail
+Sprint 7   live-issue triage + Lucca scope lock
    ↓
-Sprint 8   final device QA
+Sprint 8   approved pre-release issues (conditional; skip when none)
    ↓
-Sprint 9   documentation reconciliation and handoff
+Sprint 9   fresh whole-repo Ponytail audit
+   ↓
+           Lucca findings checkpoint
+   ↓
+Sprint 10  approved Ponytail findings execution
+   ↓
+Sprint 11  final device QA
+   ↓
+Sprint 12  documentation reconciliation and handoff
 ```
 
 Do not parallelize sprints that touch the same primitives. Antigravity can handle the bulk inside each sprint, but each sprint remains small enough for a human-quality diff review.
@@ -539,9 +653,12 @@ Do not parallelize sprints that touch the same primitives. Antigravity can handl
 6. `style(ui): polish forms and workout flow`
 7. `fix(i18n): complete translations and responsive content`
 8. `refactor(a11y): complete accessible interaction semantics`
-9. `refactor: remove dead and redundant code`
-10. `fix(ui): close final device QA findings`
-11. `docs: reconcile final product documentation`
+9. `docs: triage open issues and lock release scope`
+10. Per approved issue: `fix|feat(<scope>): implement verified issue slice`
+11. `docs: refresh Ponytail audit against stabilized repository`
+12. Per approved cleanup batch: `refactor: remove validated dead and redundant code`
+13. `fix(ui): close final device QA findings`
+14. `docs: reconcile final product documentation`
 
 ## First decision checkpoint — locked
 
