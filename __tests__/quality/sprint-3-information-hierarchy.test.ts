@@ -35,6 +35,7 @@ const programWeekExerciseSection = sourceSection(programsWeekDetailSource, '{/* 
 const programWeekSelectorSection = sourceSection(programsWeekDetailSource, '{/* Week Grid */}', '<ScrollView className="flex-1 px-4"');
 const routineSummarySection = sourceSection(routineDetailSource, '{/* Summary Card */}', '{/* PRs Section */}');
 const routineExerciseSection = sourceSection(routineDetailSource, '{/* Exercise List */}', '{/* Floating Bottom Actions */}');
+const settingsLanguageSection = sourceSection(settingsSource, '{/* Language Selector Section */}', '{/* About Section */}');
 
 describe('Sprint 3 information hierarchy', () => {
   it('flattens static About sections and keeps the root-owned header', () => {
@@ -48,8 +49,10 @@ describe('Sprint 3 information hierarchy', () => {
     expect(settingsSource).not.toContain('<Card');
   });
 
-  it('keeps language selections at the 44dp touch-target floor', () => {
-    expect(settingsSource).toMatch(/setLanguage\(lang\)[\s\S]{0,220}min-h-\[44px\]/);
+  it('keeps language selections at 44dp and exposes button/selected semantics', () => {
+    expect(settingsLanguageSection).toMatch(/setLanguage\(lang\)[\s\S]{0,220}min-h-\[44px\]/);
+    expect(settingsLanguageSection).toContain('accessibilityRole="button"');
+    expect(settingsLanguageSection).toContain('accessibilityState={{ selected: language === lang }}');
   });
 
   it('uses theme roles for the native settings switch', () => {
@@ -352,7 +355,6 @@ describe('Sprint 3 information hierarchy', () => {
 
   it('checks new user-visible copy represented in all four locales', () => {
     const requiredKeys = [
-      'summary',
       'personalRecords',
       'exerciseCount',
       'exerciseCountSingle',

@@ -833,7 +833,6 @@ export const zh = {
     notFound: '未找到训练计划',
     invalidRoute: '无效路由',
     queryError: '加载训练计划数据失败。',
-    summary: '概览',
     personalRecords: '个人纪录',
     exerciseCount: '{count}个动作',
     exerciseCountSingle: '{count}个动作',

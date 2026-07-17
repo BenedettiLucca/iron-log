@@ -224,7 +224,7 @@ export default function ProgramDetailScreen() {
         <View>
           <SectionHeader label={t('programs.weeksHeading')} className="mb-3" />
           {weeks.length > 0 ? (
-            <View className="border-t border-border/50 divide-y divide-border/50 bg-card rounded-2xl px-4">
+            <View className="border-t border-border/50 bg-card rounded-2xl px-4">
               {weeks.map(week => {
                 const isCurrent = currentWeek === week.weekNumber;
                 const status = weekCompletionMap.get(week.weekNumber) || 'future';
@@ -253,7 +253,7 @@ export default function ProgramDetailScreen() {
                       pathname: '/programs/week-detail',
                       params: { programId: program.id, weekNumber: week.weekNumber }
                     } as any)}
-                    className="py-3 flex-row justify-between items-center min-h-[44px]"
+                    className="py-3 flex-row justify-between items-center min-h-[44px] border-b border-border/50 last:border-b-0"
                     accessibilityRole="button"
                     accessibilityLabel={`${t('programs.weekNumber', { num: week.weekNumber })} - ${t(`programs.dashboard.weekStatus.${resolvedStatus}`)}`}
                   >

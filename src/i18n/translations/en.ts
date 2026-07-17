@@ -833,7 +833,6 @@ export const en = {
     notFound: 'Routine not found',
     invalidRoute: 'Invalid route',
     queryError: 'Failed to load routine data.',
-    summary: 'Summary',
     personalRecords: 'Personal records',
     exerciseCount: '{count} exercises',
     exerciseCountSingle: '{count} exercise',

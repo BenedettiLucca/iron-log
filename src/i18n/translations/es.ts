@@ -833,7 +833,6 @@ export const es = {
     notFound: 'Rutina no encontrada',
     invalidRoute: 'Ruta inválida',
     queryError: 'Error al cargar datos de rutina.',
-    summary: 'Resumen',
     personalRecords: 'Récords personales',
     exerciseCount: '{count} ejercicios',
     exerciseCountSingle: '{count} ejercicio',

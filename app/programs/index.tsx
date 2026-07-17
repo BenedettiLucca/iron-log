@@ -158,12 +158,12 @@ export default function ProgramsListScreen() {
         {archivedPrograms.length > 0 && (
           <View className="mt-2">
             <SectionHeader label={t('programs.archived')} className="mb-2" />
-            <View className="border-t border-border/50 divide-y divide-border/50">
+            <View className="border-t border-border/50">
               {archivedPrograms.map(program => (
                 <TouchableOpacity
                   key={program.id}
                   onPress={() => router.push(`/programs/detail?programId=${program.id}` as any)}
-                  className="py-3 flex-row justify-between items-center min-h-[44px]"
+                  className="py-3 flex-row justify-between items-center min-h-[44px] border-b border-border/50 last:border-b-0"
                   accessibilityRole="button"
                   accessibilityLabel={program.name}
                 >

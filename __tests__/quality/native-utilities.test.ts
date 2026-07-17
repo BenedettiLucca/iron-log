@@ -27,6 +27,7 @@ describe('NativeWind utility contract', () => {
       { pattern: /\b(?:gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}(?:\/[0-9]+)?\b/g, reason: 'use an Iron Log semantic color role instead of the default Tailwind palette' },
       { pattern: /\btransition-colors\b/g, reason: 'web transition utility has no native behavior' },
       { pattern: /\bselect-text\b/g, reason: 'web text-selection utility has no native behavior' },
+      { pattern: /\bdivide-[xy](?:-reverse)?\b/g, reason: 'NativeWind 4 has no native divide utility; put explicit borders on child rows' },
     ];
 
     const violations = collectUiFiles().flatMap((relativePath) => {

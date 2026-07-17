@@ -402,6 +402,9 @@ export default function SettingsScreen() {
             <TouchableOpacity
               key={lang}
               onPress={() => setLanguage(lang)}
+              accessibilityRole="button"
+              accessibilityLabel={t(`settings.${lang}`)}
+              accessibilityState={{ selected: language === lang }}
               className={`min-h-[44px] min-w-[44px] items-center justify-center px-3 rounded-full border ${
                 language === lang
                   ? 'bg-primary border-transparent'

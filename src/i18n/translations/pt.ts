@@ -864,7 +864,6 @@ export const pt = {
     notFound: 'Rotina não encontrada',
     invalidRoute: 'Rota inválida',
     queryError: 'Falha ao carregar dados da rotina.',
-    summary: 'Resumo',
     personalRecords: 'Recordes pessoais',
     exerciseCount: '{count} exercícios',
     exerciseCountSingle: '{count} exercício',
