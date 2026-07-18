@@ -14,6 +14,10 @@ describe('chart layout helpers', () => {
       expect(getChartViewportWidth(400)).toBe(400 - CHART_HORIZONTAL_PADDING);
     });
 
+    it('keeps a 320dp screen inside the intentional 240dp chart viewport', () => {
+      expect(getChartViewportWidth(320)).toBe(240);
+    });
+
     it('never returns less than the minimum viewport width', () => {
       expect(getChartViewportWidth(200)).toBe(MIN_CHART_VIEWPORT_WIDTH);
     });

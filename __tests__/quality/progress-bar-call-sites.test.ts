@@ -32,6 +32,8 @@ describe('ProgressBar call-site contracts', () => {
 
     expect(usageFiles).toEqual([
       'app/(tabs)/index.tsx',
+      'app/bio/analytics.tsx',
+      'app/bio/goals.tsx',
       'app/session/[routineId].tsx',
       'components/session/ExerciseHeader.tsx',
     ]);

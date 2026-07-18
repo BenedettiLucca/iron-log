@@ -1,5 +1,4 @@
 import { View, Text, ScrollView, RefreshControl, useWindowDimensions, useColorScheme } from 'react-native';
-import { Stack } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import type { DashboardAnalytics } from '../../services/AnalyticsService';
@@ -9,13 +8,19 @@ import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { getThemeColors } from '@/constants/colors';
-import { useI18n } from '../../src/i18n/index';
+import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { db } from '../../src/db/client';
 import { sessions, sets, personalRecords, bodyMetrics } from '../../src/db/schema';
 import { asc, isNull } from 'drizzle-orm';
-import { StatTile } from '../../components/StatTile';
 import { SectionHeader } from '../../components/SectionHeader';
 import { LineChart } from 'react-native-gifted-charts';
+import { ProgressBar } from '../../components/ProgressBar';
+import {
+  getMetricTrend,
+  getPercentageTrend,
+  isDisplayableBodyMetricValue,
+} from '../../src/utils/body-metrics';
+import type { MetricTrend } from '../../src/utils/body-metrics';
 import {
   CHART_END_SPACING,
   CHART_INITIAL_SPACING,
@@ -34,6 +39,18 @@ const getMuscleGroup = (name: string) => {
   return 'other';
 };
 
+interface KeyStats {
+  recentVolume: number;
+  recentSessionsCount: number;
+  recentAvgRpe: number | null;
+  recentAvgDur: number | null;
+  recentPRsCount: number;
+  prevVolume: number;
+  prevAvgRpe: number | null;
+  prevAvgDur: number | null;
+  prevPRsCount: number;
+}
+
 export default function AnalyticsScreen() {
   const { t, language } = useI18n();
   const { width: screenWidth } = useWindowDimensions();
@@ -44,15 +61,16 @@ export default function AnalyticsScreen() {
   const [hasError, setHasError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [keyStats, setKeyStats] = useState({
+  const [keyStats, setKeyStats] = useState<KeyStats>({
     recentVolume: 0,
-    volDeltaPct: 0,
-    recentAvgRpe: 0,
-    rpeDelta: 0,
-    recentAvgDur: 0,
-    durDelta: 0,
+    recentSessionsCount: 0,
+    recentAvgRpe: null,
+    recentAvgDur: null,
     recentPRsCount: 0,
-    prsDelta: 0
+    prevVolume: 0,
+    prevAvgRpe: null,
+    prevAvgDur: null,
+    prevPRsCount: 0
   });
 
   const [volDist, setVolDist] = useState<Record<string, number>>({
@@ -60,38 +78,20 @@ export default function AnalyticsScreen() {
     back: 0,
     legs: 0,
     shoulders: 0,
-    arms: 0
+    arms: 0,
+    other: 0,
   });
 
   const [weightData, setWeightData] = useState<{ value: number; label: string }[]>([]);
 
   const getMuscleGroupLabel = (group: string) => {
-    if (language === 'pt') {
-      switch (group) {
-        case 'chest': return 'Peito';
-        case 'back': return 'Costas';
-        case 'legs': return 'Pernas';
-        case 'shoulders': return 'Ombros';
-        case 'arms': return 'Braços';
-        default: return 'Outros';
-      }
-    } else {
-      switch (group) {
-        case 'chest': return 'Chest';
-        case 'back': return 'Back';
-        case 'legs': return 'Legs';
-        case 'shoulders': return 'Shoulders';
-        case 'arms': return 'Arms';
-        default: return 'Other';
-      }
-    }
+    return t(`muscleGroup.${group}`);
   };
 
   const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const analytics = await AnalyticsService.getFullAnalytics();
-      setData(analytics);
 
       // Fetch key stats and volume distribution and weight metrics
       const nowMs = Date.now();
@@ -120,19 +120,16 @@ export default function AnalyticsScreen() {
         .filter(set => prevSessionIds.has(set.sessionId) && !set.isWarmup)
         .reduce((sum, set) => sum + (set.weightKg * set.reps), 0);
 
-      const volDeltaPct = prevVolume > 0 ? ((recentVolume - prevVolume) / prevVolume) * 100 : 0;
-
       // sRPE
       const recentRpeSessions = recentSessions.filter(s => s.sRpe && s.sRpe > 0);
       const prevRpeSessions = prevSessions.filter(s => s.sRpe && s.sRpe > 0);
 
       const recentAvgRpe = recentRpeSessions.length > 0
         ? recentRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / recentRpeSessions.length
-        : 0;
+        : null;
       const prevAvgRpe = prevRpeSessions.length > 0
         ? prevRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / prevRpeSessions.length
-        : 0;
-      const rpeDelta = recentAvgRpe - prevAvgRpe;
+        : null;
 
       // Duration
       const recentDurSessions = recentSessions.filter(s => s.durationMinutes && s.durationMinutes > 0);
@@ -140,16 +137,14 @@ export default function AnalyticsScreen() {
 
       const recentAvgDur = recentDurSessions.length > 0
         ? recentDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / recentDurSessions.length
-        : 0;
+        : null;
       const prevAvgDur = prevDurSessions.length > 0
         ? prevDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / prevDurSessions.length
-        : 0;
-      const durDelta = recentAvgDur - prevAvgDur;
+        : null;
 
       // PRs
-      const recentPRs = allPRsList.filter(pr => pr.date >= thirtyDaysAgoMs);
-      const prevPRs = allPRsList.filter(pr => pr.date >= sixtyDaysAgoMs && pr.date < thirtyDaysAgoMs);
-      const prsDelta = recentPRs.length - prevPRs.length;
+      const recentPRsCount = allPRsList.filter(pr => pr.date >= thirtyDaysAgoMs).length;
+      const prevPRsCount = allPRsList.filter(pr => pr.date >= sixtyDaysAgoMs && pr.date < thirtyDaysAgoMs).length;
 
       // Volume distribution
       const muscleGroupVolume: Record<string, number> = {
@@ -157,7 +152,8 @@ export default function AnalyticsScreen() {
         back: 0,
         legs: 0,
         shoulders: 0,
-        arms: 0
+        arms: 0,
+        other: 0,
       };
 
       allSets
@@ -170,26 +166,34 @@ export default function AnalyticsScreen() {
         });
 
       // Weight chart data
-      const recentWeights = weights.filter(m => m.weight && m.weight > 0);
-      const chartWeights = recentWeights.map(point => ({
-        value: point.weight!,
-        label: new Date(point.date).getDate().toString()
-      })).slice(-30);
+      const recentWeights = weights.filter(
+        metric => metric.date >= thirtyDaysAgoMs
+          && isDisplayableBodyMetricValue(metric.weight)
+          && metric.weight > 0,
+      );
+      const chartWeights = recentWeights.map(point => {
+        const d = new Date(point.date);
+        return {
+          value: point.weight!,
+          label: d.toLocaleDateString(getLocaleForLanguage(language), { day: 'numeric', month: 'short' })
+        };
+      });
 
       setKeyStats({
         recentVolume,
-        volDeltaPct,
+        recentSessionsCount: recentSessions.length,
         recentAvgRpe,
-        rpeDelta,
         recentAvgDur,
-        durDelta,
-        recentPRsCount: recentPRs.length,
-        prsDelta
+        recentPRsCount,
+        prevVolume,
+        prevAvgRpe,
+        prevAvgDur,
+        prevPRsCount,
       });
 
       setVolDist(muscleGroupVolume);
       setWeightData(chartWeights);
-      // Clear any previous error on success
+      setData(analytics);
       setHasError(false);
 
     } catch (e) {
@@ -198,7 +202,7 @@ export default function AnalyticsScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     loadAnalytics();
@@ -213,7 +217,6 @@ export default function AnalyticsScreen() {
   if (loading && !data) {
     return (
       <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
-        <Stack.Screen options={{ title: t('bioNav.data') }} />
         <SkeletonCard>
           <View className="items-center py-4" />
         </SkeletonCard>
@@ -230,7 +233,6 @@ export default function AnalyticsScreen() {
   if (!loading && hasError && !data) {
     return (
       <View className="flex-1 bg-background">
-        <Stack.Screen options={{ title: t('bioNav.data') }} />
         <ErrorState
           onRetry={loadAnalytics}
         />
@@ -241,7 +243,6 @@ export default function AnalyticsScreen() {
   if (!data) {
     return (
       <View className="flex-1 bg-background">
-        <Stack.Screen options={{ title: t('bioNav.data') }} />
         <EmptyState
           icon="📊"
           title={t("bioAnalytics.insufficientData")}
@@ -251,58 +252,95 @@ export default function AnalyticsScreen() {
     );
   }
 
+  if (data.strengthScore.labelKey === 'error') {
+    return (
+      <View className="flex-1 bg-background">
+        <ErrorState onRetry={loadAnalytics} />
+      </View>
+    );
+  }
+
   const { strengthScore, consistency, volumeTrends, topExercises, estimated1RM } = data;
 
-  const volDeltaText = keyStats.volDeltaPct === 0
-    ? (language === 'pt' ? '— estável' : '— stable')
-    : `${keyStats.volDeltaPct > 0 ? '↑' : '↓'} ${Math.abs(keyStats.volDeltaPct).toFixed(1)}%`;
-  const volDeltaType = keyStats.volDeltaPct > 0 ? 'positive' : keyStats.volDeltaPct < 0 ? 'negative' : 'neutral';
+  if (consistency.totalSessions === 0 && weightData.length === 0) {
+    return (
+      <View className="flex-1 bg-background">
+        <EmptyState
+          icon="📊"
+          title={t('bioAnalytics.insufficientData')}
+          description={t('bioAnalytics.emptyDesc')}
+        />
+      </View>
+    );
+  }
 
-  const rpeDeltaText = keyStats.rpeDelta === 0
-    ? (language === 'pt' ? '— estável' : '— stable')
-    : `${keyStats.rpeDelta > 0 ? '↑' : '↓'} ${Math.abs(keyStats.rpeDelta).toFixed(1)}`;
-  const rpeDeltaType = keyStats.rpeDelta > 0 ? 'positive' : keyStats.rpeDelta < 0 ? 'negative' : 'neutral';
+  const volTrend = getPercentageTrend(keyStats.recentVolume, keyStats.prevVolume, 0.05);
+  const rpeTrend = getMetricTrend(keyStats.recentAvgRpe, keyStats.prevAvgRpe, 0.05);
+  const durTrend = getMetricTrend(keyStats.recentAvgDur, keyStats.prevAvgDur, 0.5);
+  const prsTrend = getMetricTrend(keyStats.recentPRsCount, keyStats.prevPRsCount, 0.5);
 
-  const durDeltaText = keyStats.durDelta === 0
-    ? (language === 'pt' ? '— estável' : '— stable')
-    : `${keyStats.durDelta > 0 ? '↑' : '↓'} ${Math.abs(keyStats.durDelta).toFixed(0)}m`;
-  const durDeltaType = keyStats.durDelta > 0 ? 'positive' : keyStats.durDelta < 0 ? 'negative' : 'neutral';
+  const formatTrendText = (trend: MetricTrend, unit = '', decimals = 1) => {
+    if (trend.direction === 'unavailable') {
+      return t('bioAnalytics.noComparison');
+    }
+    if (trend.direction === 'stable') {
+      return `• ${t('bioAnalytics.stable')}`;
+    }
+    const sign = trend.direction === 'up' ? '↑' : '↓';
+    const deltaValue = Math.abs(trend.delta ?? 0).toFixed(decimals);
+    return `${sign} ${deltaValue}${unit}`;
+  };
 
-  const prsDeltaText = keyStats.prsDelta === 0
-    ? (language === 'pt' ? '— sem recorde' : '— no record')
-    : `${language === 'pt' ? '★ Novo recorde' : '★ New record'}`;
-  const prsDeltaType = keyStats.prsDelta > 0 ? 'positive' : 'neutral';
+  const getTrendColorClass = (trend: MetricTrend, hasPositiveDirection: boolean) => {
+    if (!hasPositiveDirection || trend.direction === 'unavailable' || trend.direction === 'stable') {
+      return 'text-subtext';
+    }
+    return trend.direction === 'up' ? 'text-successText' : 'text-dangerText';
+  };
 
   const insights = [];
-  if (keyStats.volDeltaPct > 0) {
+  if (volTrend.direction === 'up') {
     insights.push({
       type: 'success',
-      title: language === 'pt' ? 'Volume em alta' : 'Volume on the rise',
-      description: language === 'pt' ? `Seu volume total aumentou ${keyStats.volDeltaPct.toFixed(0)}% nos últimos 30 dias. Continue progredindo!` : `Your total volume increased by ${keyStats.volDeltaPct.toFixed(0)}% in the last 30 days. Keep progressing!`,
+      title: t('bioAnalytics.insightVolumeUpTitle'),
+      description: t('bioAnalytics.insightVolumeUpDesc', { value: Math.abs(volTrend.delta ?? 0).toFixed(0) }),
       icon: '📈'
     });
-  } else if (keyStats.volDeltaPct < 0) {
+  } else if (volTrend.direction === 'down') {
     insights.push({
       type: 'info',
-      title: language === 'pt' ? 'Recuperação ativa' : 'Active recovery',
-      description: language === 'pt' ? `Seu volume total diminuiu ${Math.abs(keyStats.volDeltaPct).toFixed(0)}% nos últimos 30 dias. Foco na recuperação.` : `Your total volume decreased by ${Math.abs(keyStats.volDeltaPct).toFixed(0)}% in the last 30 days. Focus on recovery.`,
+      title: t('bioAnalytics.insightVolumeDownTitle'),
+      description: t('bioAnalytics.insightVolumeDownDesc', { value: Math.abs(volTrend.delta ?? 0).toFixed(0) }),
       icon: '🔄'
+    });
+  } else if (volTrend.direction === 'stable') {
+    insights.push({
+      type: 'info',
+      title: t('bioAnalytics.insightVolumeStableTitle'),
+      description: t('bioAnalytics.insightVolumeStableDesc'),
+      icon: '➡️'
     });
   } else {
     insights.push({
       type: 'info',
-      title: language === 'pt' ? 'Volume constante' : 'Constant volume',
-      description: language === 'pt' ? 'Seu volume de treino permaneceu estável nos últimos 30 dias.' : 'Your workout volume remained stable in the last 30 days.',
-      icon: '➡️'
+      title: t('bioAnalytics.noComparison'),
+      description: t('bioAnalytics.insightVolumeUnavailableDesc'),
+      icon: 'ℹ️'
     });
   }
 
   insights.push({
     type: 'info',
-    title: language === 'pt' ? 'Frequência de treinos' : 'Workout frequency',
-    description: language === 'pt' ? `${consistency.weeklyFrequency} treinos/semana na média das últimas 12 semanas.` : `${consistency.weeklyFrequency} workouts/week average in the last 12 weeks.`,
+    title: t('bioAnalytics.insightFrequencyTitle'),
+    description: t('bioAnalytics.insightFrequencyDesc', { value: consistency.weeklyFrequency }),
     icon: '⏱️'
   });
+
+  const weightViewportWidth = getChartViewportWidth(screenWidth);
+  const weightChartWidth = getScrollableChartWidth(weightData.length, weightViewportWidth);
+  const hasWeightOverflow = weightChartWidth > weightViewportWidth;
+  const hasWeeklyVolume = volumeTrends.some(week => week.totalVolume > 0);
+  const hasVolumeDistribution = Object.values(volDist).some(value => value > 0);
 
   return (
     <ScrollView
@@ -312,79 +350,104 @@ export default function AnalyticsScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primaryText} />
       }
     >
-      <Stack.Screen options={{ title: t('bioNav.data') }} />
+      {hasError && data && (
+        <View
+          className="bg-dangerSurface border border-dangerText/30 rounded-xl px-4 py-3"
+          accessibilityLiveRegion="polite"
+        >
+          <Text className="text-dangerText text-sm">{t('states.errorBody')}</Text>
+        </View>
+      )}
 
       {/* Sessions Count Card */}
       <Card className="items-center py-6">
-        <Text className="text-4xl font-extrabold text-primaryText">{consistency.sessionsThisMonth}</Text>
-        <Text className="text-xs font-bold uppercase text-subtext mt-1">
-          {language === 'pt' ? 'Sessões (30d)' : 'Sessions (30d)'}
+        <Text className="text-4xl font-extrabold text-primaryText">{keyStats.recentSessionsCount}</Text>
+        <Text className="text-xs font-bold text-subtext mt-1">
+          {t('bioAnalytics.sessionCount30d')}
         </Text>
-        <Text className="text-xs text-subtext mt-2">
-          {`${consistency.weeklyFrequency} ${language === 'pt' ? 'treinos/semana' : 'workouts/week'} · ${language === 'pt' ? 'Volume total' : 'Total volume'}: ${keyStats.recentVolume >= 1000 ? `${(keyStats.recentVolume / 1000).toFixed(1)}k` : keyStats.recentVolume.toFixed(0)}kg`}
-        </Text>
+
+        <View className="w-full mt-4 border-t border-border/50">
+          {[
+            {
+              key: 'volume',
+              label: `${t('bioAnalytics.volume')} · ${t('bioAnalytics.period30d')}`,
+              value: keyStats.recentVolume >= 1000 ? `${(keyStats.recentVolume / 1000).toFixed(1)}k kg` : `${keyStats.recentVolume.toFixed(0)} kg`,
+              trend: volTrend,
+              unit: '%',
+              decimals: 1,
+              hasPositiveDirection: true,
+            },
+            {
+              key: 'srpe',
+              label: `${t('bioAnalytics.avgSrpe')} · ${t('bioAnalytics.period30d')}`,
+              value: keyStats.recentAvgRpe !== null ? keyStats.recentAvgRpe.toFixed(1) : '—',
+              trend: rpeTrend,
+              unit: '',
+              decimals: 1,
+              hasPositiveDirection: false,
+            },
+            {
+              key: 'duration',
+              label: `${t('bioAnalytics.avgDuration')} · ${t('bioAnalytics.period30d')}`,
+              value: keyStats.recentAvgDur !== null ? `${keyStats.recentAvgDur.toFixed(0)} min` : '—',
+              trend: durTrend,
+              unit: ' min',
+              decimals: 0,
+              hasPositiveDirection: false,
+            },
+            {
+              key: 'prs',
+              label: `${t('bioAnalytics.personalRecords')} · ${t('bioAnalytics.period30d')}`,
+              value: `${keyStats.recentPRsCount}`,
+              trend: prsTrend,
+              unit: '',
+              decimals: 0,
+              hasPositiveDirection: true,
+            },
+          ].map((item, index) => (
+            <View
+              key={item.key}
+              className={`py-3 px-4 gap-1 ${index > 0 ? 'border-t border-border/50' : ''}`}
+            >
+              <View className="flex-row justify-between items-start gap-3">
+                <Text className="text-sm text-subtext flex-1 min-w-0">{item.label}</Text>
+                <Text className="text-sm font-bold text-text flex-shrink-0">{item.value}</Text>
+              </View>
+              <Text className={`text-xs text-right self-end ${getTrendColorClass(item.trend, item.hasPositiveDirection)}`}>
+                {formatTrendText(item.trend, item.unit, item.decimals)}
+              </Text>
+            </View>
+          ))}
+        </View>
       </Card>
 
-      {/* Key Stats Grid */}
-      <View className="gap-3">
-        <View className="flex-row gap-3">
-          <StatTile
-            value={keyStats.recentVolume >= 1000 ? `${(keyStats.recentVolume / 1000).toFixed(1)}k` : keyStats.recentVolume.toFixed(0)}
-            label={language === 'pt' ? 'Volume (kg)' : 'Volume (kg)'}
-            accentColor="primary"
-            delta={volDeltaText}
-            deltaType={volDeltaType}
-            className="flex-1"
-          />
-          <StatTile
-            value={keyStats.recentAvgRpe.toFixed(1)}
-            label={language === 'pt' ? 'sRPE Médio' : 'Avg sRPE'}
-            accentColor="secondary"
-            delta={rpeDeltaText}
-            deltaType={rpeDeltaType}
-            className="flex-1"
-          />
-        </View>
-        <View className="flex-row gap-3">
-          <StatTile
-            value={`${keyStats.recentAvgDur.toFixed(0)}m`}
-            label={language === 'pt' ? 'Duração Média' : 'Avg Duration'}
-            delta={durDeltaText}
-            deltaType={durDeltaType}
-            className="flex-1"
-          />
-          <StatTile
-            value={keyStats.recentPRsCount}
-            label={language === 'pt' ? 'PRs (30d)' : 'PRs (30d)'}
-            accentColor="warning"
-            delta={prsDeltaText}
-            deltaType={prsDeltaType}
-            className="flex-1"
-          />
-        </View>
-      </View>
-
       {/* Volume weekly bar chart card */}
-      {volumeTrends.length > 0 && (
-        <Card>
-          <View className="mb-3">
-            <SectionHeader label={t('bioAnalytics.weeklyVolumeTitleLabel')} />
-            <Text className="text-xs text-subtext pl-1 mt-1">
-              {language === 'pt' ? 'Últimas 12 semanas' : 'Last 12 weeks'}
-            </Text>
+      <Card>
+        <View className="mb-3">
+          <SectionHeader label={t('bioAnalytics.weeklyVolumeTitleLabel')} />
+          <Text className="text-xs text-subtext pl-1 mt-1">
+            {t('bioAnalytics.period12Weeks')}
+          </Text>
+        </View>
+        {!hasWeeklyVolume ? (
+          <View className="items-center py-6">
+            <Text className="text-subtext text-xs">{t('bioAnalytics.noWeeklyVolume')}</Text>
           </View>
+        ) : (
           <View className="gap-1">
             {(() => {
-              const maxVolume = Math.max(...volumeTrends.map(w => w.totalVolume), 1);
-              return volumeTrends.slice(-12).map((week) => {
+              const visibleVolumeTrends = volumeTrends.slice(-12);
+              const maxVolume = Math.max(...visibleVolumeTrends.map(week => week.totalVolume), 1);
+              return visibleVolumeTrends.map((week) => {
                 const barWidth = (week.totalVolume / maxVolume) * 100;
+                const visibleBarWidth = week.totalVolume > 0 ? Math.max(barWidth, 2) : 0;
                 return (
                   <View key={week.week} className="flex-row items-center gap-2">
-                    <Text className="text-subtext text-2xs font-mono w-12">{week.week.slice(-2)}w</Text>
+                    <Text className="text-subtext text-2xs font-mono w-12">{week.week.slice(-3)}</Text>
                     <View className="flex-1 h-4 bg-border/30 rounded overflow-hidden">
                       <View
                         className="h-full bg-primary/70 rounded"
-                        style={{ width: `${Math.max(barWidth, 2)}%` }}
+                        style={{ width: `${visibleBarWidth}%` }}
                       />
                     </View>
                     <Text className="text-subtext text-2xs font-mono w-14 text-right">
@@ -395,88 +458,112 @@ export default function AnalyticsScreen() {
               });
             })()}
           </View>
-        </Card>
-      )}
+        )}
+      </Card>
 
       {/* Body Weight Chart */}
-      {weightData.length >= 2 && (
-        <Card>
-          <View className="mb-4">
-            <SectionHeader label={language === 'pt' ? 'Peso Corporal' : 'Body Weight'} />
-            <Text className="text-xs text-subtext pl-1 mt-1">
-              {language === 'pt' ? 'Últimos 30 dias' : 'Last 30 days'} · {weightData[weightData.length - 1]?.value.toFixed(1)}kg {language === 'pt' ? 'atual' : 'current'}
-            </Text>
+      <Card>
+        <View className="mb-4">
+          <SectionHeader label={t('bioAnalytics.bodyWeight')} />
+          <Text className="text-xs text-subtext pl-1 mt-1">
+            {t('bioAnalytics.period30d')}
+          </Text>
+        </View>
+        {weightData.length < 2 ? (
+          <View className="items-center py-6">
+            <Text className="text-subtext text-xs">{t('bioAnalytics.weightChartHint')}</Text>
           </View>
-          <ScrollView
-            horizontal
-            nestedScrollEnabled
-            bounces={false}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ minWidth: getChartViewportWidth(screenWidth) }}
-          >
-            <LineChart
-              data={weightData}
-              color={theme.primaryText}
-              thickness={3}
-              dataPointsColor={theme.primaryText}
-              textColor={theme.subtext}
-              hideRules
-              yAxisColor="transparent"
-              xAxisColor="transparent"
-              height={120}
-              width={getScrollableChartWidth(weightData.length, getChartViewportWidth(screenWidth))}
-              disableScroll
-              initialSpacing={CHART_INITIAL_SPACING}
-              endSpacing={CHART_END_SPACING}
-              spacing={MIN_CHART_POINT_SPACING}
-              textFontSize={10}
-            />
-          </ScrollView>
-        </Card>
-      )}
+        ) : (
+          <View>
+            <ScrollView
+              horizontal
+              nestedScrollEnabled
+              bounces={false}
+              showsHorizontalScrollIndicator={hasWeightOverflow}
+              contentOffset={{ x: Math.max(weightChartWidth - weightViewportWidth, 0), y: 0 }}
+              contentContainerStyle={{ minWidth: weightViewportWidth }}
+            >
+              <LineChart
+                data={weightData}
+                color={theme.primaryText}
+                thickness={3}
+                dataPointsColor={theme.primaryText}
+                textColor={theme.subtext}
+                hideRules
+                yAxisColor="transparent"
+                xAxisColor="transparent"
+                height={120}
+                width={weightChartWidth}
+                disableScroll
+                initialSpacing={CHART_INITIAL_SPACING}
+                endSpacing={CHART_END_SPACING}
+                spacing={MIN_CHART_POINT_SPACING}
+                textFontSize={10}
+                yAxisTextStyle={{ color: theme.subtext, fontSize: 10 }}
+                xAxisLabelTextStyle={{ color: theme.subtext, fontSize: 10 }}
+                yAxisLabelSuffix=" kg"
+                yAxisLabelWidth={36}
+              />
+            </ScrollView>
+            {hasWeightOverflow && (
+              <Text className="text-2xs text-subtext text-center mt-2">
+                {t('bioAnalytics.scrollHint')}
+              </Text>
+            )}
+          </View>
+        )}
+      </Card>
 
       {/* Volume Distribution Card */}
       <Card>
         <View className="mb-3">
-          <SectionHeader label={language === 'pt' ? 'Distribuição de Volume' : 'Volume Distribution'} />
+          <SectionHeader label={t('bioAnalytics.volumeDistribution')} />
           <Text className="text-xs text-subtext pl-1 mt-1">
-            {language === 'pt' ? 'Por grupo muscular (30d)' : 'By muscle group (30d)'}
+            {t('bioAnalytics.byMuscleGroup')}
           </Text>
         </View>
-        <View className="gap-3 mt-2">
-          {Object.keys(volDist).map((group) => {
-            const vol = volDist[group];
-            const maxVol = Math.max(...Object.values(volDist), 1);
-            const barWidth = (vol / maxVol) * 100;
-            return (
-              <View key={group} className="flex-row items-center gap-3">
-                <Text className="text-xs font-bold text-text w-16">{getMuscleGroupLabel(group)}</Text>
-                <View className="flex-1 bg-primary/5 rounded-full h-2.5 overflow-hidden">
-                  <View className="bg-primary h-full rounded-full" style={{ width: `${barWidth}%` }} />
+        {!hasVolumeDistribution ? (
+          <View className="items-center py-6">
+            <Text className="text-subtext text-xs">{t('bioAnalytics.noVolumeDistribution')}</Text>
+          </View>
+        ) : (
+          <View className="gap-3 mt-2">
+            {Object.keys(volDist).map((group) => {
+              const vol = volDist[group];
+              const maxVol = Math.max(...Object.values(volDist), 1);
+              const barWidth = (vol / maxVol) * 100;
+              return (
+                <View key={group} className="flex-row items-center gap-3">
+                  <Text className="text-xs font-bold text-text w-16">{getMuscleGroupLabel(group)}</Text>
+                  <View className="flex-1 bg-border/30 rounded-full h-2.5 overflow-hidden">
+                    <View className="bg-primary h-full rounded-full" style={{ width: `${barWidth}%` }} />
+                  </View>
+                  <Text className="text-xs font-mono text-subtext w-14 text-right">
+                    {vol >= 1000 ? `${(vol / 1000).toFixed(1)}k` : vol.toFixed(0)}kg
+                  </Text>
                 </View>
-                <Text className="text-xs font-mono text-subtext w-14 text-right">
-                  {vol >= 1000 ? `${(vol / 1000).toFixed(1)}k` : vol.toFixed(0)}kg
-                </Text>
-              </View>
-            );
-          })}
-        </View>
+              );
+            })}
+          </View>
+        )}
       </Card>
 
       {/* Insights Card */}
       <Card>
-        <SectionHeader label="Insights" className="mb-3" />
-        <View className="gap-3 mt-2">
-          {insights.map((insight, idx) => {
-            const isSuccess = insight.type === 'success';
-            const bgClass = isSuccess ? 'bg-successSurface' : 'bg-primary/5';
-            const textAccentClass = isSuccess ? 'text-successText' : 'text-primaryText';
+        <SectionHeader label={t('bioAnalytics.insights')} className="mb-3" />
+        <View className="mt-2">
+          {insights.map((insight, idx, arr) => {
             return (
-              <View key={idx} className={`flex-row gap-3 rounded-xl p-3 items-start ${bgClass}`}>
+              <View
+                key={idx}
+                className={`flex-row gap-3 py-3 items-start ${
+                  idx < arr.length - 1 ? 'border-b border-border/50' : ''
+                }`}
+              >
                 <Text className="text-lg mt-0.5">{insight.icon}</Text>
                 <View className="flex-1">
-                  <Text className={`font-bold text-sm mb-1 ${textAccentClass}`}>{insight.title}</Text>
-                  <Text className="text-text text-xs leading-5">{insight.description}</Text>
+                  <Text className="font-bold text-sm mb-1 text-text">{insight.title}</Text>
+                  <Text className="text-subtext text-xs leading-5">{insight.description}</Text>
                 </View>
               </View>
             );
@@ -484,71 +571,100 @@ export default function AnalyticsScreen() {
         </View>
       </Card>
 
-      {/* Strength Score (preserved behavior) */}
+      {/* Strength Score */}
       <Card>
         <View className="mb-3">
           <SectionHeader label={t("bioAnalytics.strengthScore")} />
         </View>
-        <View className="items-center mb-4">
-          <Text className="text-text text-5xl font-black">{strengthScore.totalScore}</Text>
-          <Text className="text-primaryText text-lg font-bold mt-1">{t('analytics.strengthLevel.' + strengthScore.labelKey)}</Text>
-        </View>
-        <View className="gap-2">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">{t("bioAnalytics.volume")}</Text>
-            <View className="flex-row items-center gap-2 flex-1 ml-4">
-              <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                <View className="h-full bg-primary rounded-full" style={{ width: `${(strengthScore.volumeScore / 40) * 100}%` }} />
+
+        {strengthScore.labelKey === 'noData' ? (
+          <View className="items-center py-4">
+            <Text className="text-subtext text-sm text-center">
+              {t("bioAnalytics.insufficientData")}
+            </Text>
+            <Text className="text-subtext text-xs text-center mt-1">
+              {t("bioAnalytics.emptyDesc")}
+            </Text>
+          </View>
+        ) : (
+          <View>
+            <View className="items-center mb-4">
+              <Text className="text-text text-4xl font-black">{strengthScore.totalScore}</Text>
+              <Text className="text-primaryText text-lg font-bold mt-1">
+                {t('analytics.strengthLevel.' + strengthScore.labelKey)}
+              </Text>
+            </View>
+            <View className="gap-4">
+              <View className="gap-1">
+                <View className="flex-row justify-between items-center" accessibilityLabel={`${t("bioAnalytics.volume")}: ${strengthScore.volumeScore}/40`}>
+                  <Text className="text-subtext text-xs font-bold" aria-hidden>{t("bioAnalytics.volume")}</Text>
+                  <Text className="text-text text-xs font-bold" aria-hidden>{strengthScore.volumeScore}/40</Text>
+                </View>
+                <ProgressBar
+                  current={strengthScore.volumeScore}
+                  total={40}
+                  showLabel={false}
+                />
               </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.volumeScore}/40</Text>
+              <View className="gap-1">
+                <View className="flex-row justify-between items-center" accessibilityLabel={`${t("bioAnalytics.intensity")}: ${strengthScore.intensityScore}/30`}>
+                  <Text className="text-subtext text-xs font-bold" aria-hidden>{t("bioAnalytics.intensity")}</Text>
+                  <Text className="text-text text-xs font-bold" aria-hidden>{strengthScore.intensityScore}/30</Text>
+                </View>
+                <ProgressBar
+                  current={strengthScore.intensityScore}
+                  total={30}
+                  showLabel={false}
+                />
+              </View>
+              <View className="gap-1">
+                <View className="flex-row justify-between items-center" accessibilityLabel={`${t("bioAnalytics.consistency")}: ${strengthScore.consistencyScore}/30`}>
+                  <Text className="text-subtext text-xs font-bold" aria-hidden>{t("bioAnalytics.consistency")}</Text>
+                  <Text className="text-text text-xs font-bold" aria-hidden>{strengthScore.consistencyScore}/30</Text>
+                </View>
+                <ProgressBar
+                  current={strengthScore.consistencyScore}
+                  total={30}
+                  showLabel={false}
+                />
+              </View>
             </View>
           </View>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">{t("bioAnalytics.intensity")}</Text>
-            <View className="flex-row items-center gap-2 flex-1 ml-4">
-              <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                <View className="h-full bg-secondary rounded-full" style={{ width: `${(strengthScore.intensityScore / 30) * 100}%` }} />
-              </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.intensityScore}/30</Text>
-            </View>
-          </View>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-subtext text-sm">{t("bioAnalytics.consistency")}</Text>
-            <View className="flex-row items-center gap-2 flex-1 ml-4">
-              <View className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                <View className="h-full bg-success rounded-full" style={{ width: `${(strengthScore.consistencyScore / 30) * 100}%` }} />
-              </View>
-              <Text className="text-text text-xs font-bold min-w-[42px] text-right flex-shrink-0">{strengthScore.consistencyScore}/30</Text>
-            </View>
-          </View>
-        </View>
+        )}
       </Card>
 
-      {/* Top Exercise Progressions (preserved behavior) */}
+      {/* Top Exercise Progressions */}
       {topExercises.length > 0 && (
         <Card>
           <View className="mb-3">
             <SectionHeader label={t('bioAnalytics.topExercisesLabel')} />
           </View>
           <View className="gap-3">
-            {topExercises.map(ex => (
-              <View key={ex.exerciseId} className="flex-row justify-between items-center">
-                <View className="flex-1">
-                  <Text className="text-text text-sm font-bold">{ex.exerciseName}</Text>
-                  <Text className="text-subtext text-xs">{ex.currentMaxWeight}kg (era {ex.previousMaxWeight || '?'}kg)</Text>
+            {topExercises.map(ex => {
+              const isNew = ex.progress === null;
+              return (
+                <View key={ex.exerciseId} className="flex-row justify-between items-start gap-3">
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-text text-sm font-bold">{ex.exerciseName}</Text>
+                    <Text className="text-subtext text-xs">
+                      {isNew
+                        ? `${ex.currentMaxWeight}kg · ${t('bioAnalytics.newExercise')}`
+                        : `${ex.currentMaxWeight}kg (${t('bioAnalytics.previousValue', { value: `${ex.previousMaxWeight}kg` })})`}
+                    </Text>
+                  </View>
+                  <View className={`max-w-[55%] px-2 py-1 rounded ${isNew ? 'bg-background border border-border' : ex.progress! > 0 ? 'bg-successSurface' : ex.progress! < 0 ? 'bg-dangerSurface' : 'bg-background border border-border'}`}>
+                    <Text className={`text-xs font-bold text-right ${isNew ? 'text-subtext' : ex.progress! > 0 ? 'text-successText' : ex.progress! < 0 ? 'text-dangerText' : 'text-subtext'}`}>
+                      {isNew ? t('bioAnalytics.noComparison') : `${ex.progress! > 0 ? '+' : ''}${ex.progress!}%`}
+                    </Text>
+                  </View>
                 </View>
-                <View className={`px-2 py-1 rounded ${ex.progress > 0 ? 'bg-successSurface' : 'bg-dangerSurface'}`}>
-                  <Text className={`text-xs font-bold ${ex.progress > 0 ? 'text-successText' : 'text-dangerText'}`}>
-                    {ex.progress > 0 ? '+' : ''}{ex.progress}%
-                  </Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </Card>
       )}
 
-      {/* Estimated 1RM (preserved behavior) */}
+      {/* Estimated 1RM */}
       {estimated1RM.length > 0 && (
         <Card>
           <View className="mb-3">
@@ -556,9 +672,9 @@ export default function AnalyticsScreen() {
           </View>
           <View className="gap-2">
             {estimated1RM.slice(0, 8).map(item => (
-              <View key={item.exercise} className="flex-row justify-between items-center">
-                <Text className="text-text text-sm flex-1" numberOfLines={1}>{item.exercise}</Text>
-                <Text className="text-text text-sm font-bold">{item.estimated1RM}kg</Text>
+              <View key={item.exercise} className="flex-row justify-between items-start gap-3">
+                <Text className="text-text text-sm flex-1 min-w-0">{item.exercise}</Text>
+                <Text className="text-text text-sm font-bold flex-shrink-0">{item.estimated1RM}kg</Text>
               </View>
             ))}
           </View>

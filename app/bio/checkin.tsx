@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import { db } from '../../src/db/client';
 import { bodyMetrics } from '../../src/db/schema';
@@ -11,7 +11,7 @@ import { Button } from '../../components/Button';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { processCheckinData } from '@/src/utils/checkin-screen';
 import { Card } from '../../components/Card';
@@ -30,7 +30,7 @@ function PlusIcon({ color = Colors.onPrimary, size = 16 }: { color?: string; siz
 
 export default function CheckinScreen() {
   const router = useRouter();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [monthlyMetrics, setMonthlyMetrics] = useState<BodyMetric[]>([]);
   const [selectedMetricId, setSelectedMetricId] = useState<number | null>(null);
   const [showGallery, setShowGallery] = useState(false);
@@ -86,7 +86,6 @@ export default function CheckinScreen() {
   if (!hasData || !current) {
     return (
       <View className="flex-1 bg-background px-4">
-        <Stack.Screen options={{ title: t('bio.monthlyCheckin') }} />
         <View className="flex-1 justify-center">
           <EmptyState
             icon="📸"
@@ -151,10 +150,9 @@ export default function CheckinScreen() {
     return (
       <View
         key={key}
-        style={{ backgroundColor: 'rgba(224, 122, 95, 0.03)' }}
-        className="flex-1 rounded-xl p-3 border border-border/50"
+        className="flex-1 rounded-xl p-3 border border-border/50 bg-secondarySurface/30"
       >
-        <Text className="text-2xs font-bold uppercase text-subtext">
+        <Text className="text-2xs font-bold text-subtext">
           {label}
         </Text>
         <Text className="text-xl font-extrabold text-text mt-1">
@@ -170,14 +168,12 @@ export default function CheckinScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: t('bio.monthlyCheckin') }} />
-
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Header Card */}
         <Card className="flex-row items-center justify-between mx-4 mt-4">
           <View className="flex-1 mr-4">
             <Text className="text-lg font-extrabold text-text">
-              {formatMonthYear(current.date)}
+              {formatMonthYear(current.date, getLocaleForLanguage(language))}
             </Text>
             <Text className="text-xs text-subtext">
               {previous
@@ -187,8 +183,10 @@ export default function CheckinScreen() {
           </View>
           <TouchableOpacity
             onPress={() => router.push('/bio?checkin=open')}
-            className="bg-primary py-2.5 px-4 rounded-xl flex-row items-center gap-1.5"
+            className="bg-primary py-2.5 px-4 rounded-xl flex-row items-center gap-1.5 min-h-[44px]"
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={t('checkin.newCheckin')}
           >
             <PlusIcon size={16} />
             <Text className="text-onPrimary font-bold text-sm">
@@ -201,8 +199,10 @@ export default function CheckinScreen() {
         <View className="px-4 mt-3 flex-row justify-between items-center">
           <TouchableOpacity
             onPress={() => setShowGallery(s => !s)}
-            className="bg-card border border-border py-1.5 px-3 rounded-lg"
+            className="bg-card border border-border py-1.5 px-3 rounded-lg min-h-[44px]"
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={showGallery ? t('checkin.hideGallery') : t('checkin.showGallery')}
           >
             <Text className="text-text font-bold text-xs">
               {showGallery ? t('checkin.hideGallery') : t('checkin.showGallery')}
@@ -237,7 +237,7 @@ export default function CheckinScreen() {
                     </View>
                   )}
                   <View className="absolute bottom-0 left-0 right-0 bg-black/60 py-1.5 items-center">
-                    <Text className="text-white text-2xs font-bold uppercase tracking-wider">
+                    <Text className="text-white text-2xs font-bold tracking-wider">
                       {pose.label}
                     </Text>
                   </View>
@@ -278,7 +278,7 @@ export default function CheckinScreen() {
             <View className="mt-2">
               {allMonthly.map((metric, idx) => {
                 const isFirst = idx === 0;
-                const dateStr = new Date(metric.date).toLocaleDateString();
+                const dateStr = new Date(metric.date).toLocaleDateString(getLocaleForLanguage(language));
                 const infoSummary = `${metric.weight ?? '—'} kg · ${t('bio.waist') || 'Cintura'} ${metric.waist ?? '—'}cm · ${t('bio.chest') || 'Peito'} ${metric.chest ?? '—'}cm`;
 
                 return (
@@ -296,7 +296,7 @@ export default function CheckinScreen() {
                     </View>
                     {/* Content */}
                     <View className="flex-1">
-                      <Text className="text-2xs font-bold text-subtext uppercase">
+                      <Text className="text-2xs font-bold text-subtext">
                         {dateStr}
                       </Text>
                       <Text className="text-sm text-text font-medium mt-0.5">
@@ -311,7 +311,7 @@ export default function CheckinScreen() {
             <View className="mt-2">
               {allMonthly.map((metric, idx) => {
                 const isFirst = idx === 0;
-                const dateStr = new Date(metric.date).toLocaleDateString();
+                const dateStr = new Date(metric.date).toLocaleDateString(getLocaleForLanguage(language));
 
                 return (
                   <View
@@ -328,7 +328,7 @@ export default function CheckinScreen() {
                     </View>
                     {/* Content */}
                     <View className="flex-1">
-                      <Text className="text-2xs font-bold text-subtext uppercase mb-2">
+                      <Text className="text-2xs font-bold text-subtext mb-2">
                         {dateStr}
                       </Text>
                       <View className="flex-row gap-2">

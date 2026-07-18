@@ -18,3 +18,47 @@ export function getAdjacentMonths(metrics: BodyMetric[]): { current: BodyMetric 
     previous: sorted[1] || null,
   };
 }
+
+export type MetricTrendDirection = 'up' | 'down' | 'stable' | 'unavailable';
+export type MetricTrend = { delta: number | null; direction: MetricTrendDirection };
+
+export function getMetricTrend(
+  current: number | null | undefined,
+  previous: number | null | undefined,
+  epsilon?: number,
+): MetricTrend {
+  if (current === null || current === undefined || !Number.isFinite(current) ||
+      previous === null || previous === undefined || !Number.isFinite(previous)) {
+    return { delta: null, direction: 'unavailable' };
+  }
+  const delta = current - previous;
+  if (epsilon !== undefined && Math.abs(delta) < epsilon) {
+    return { delta: 0, direction: 'stable' };
+  }
+  if (delta > 0) return { delta, direction: 'up' };
+  if (delta < 0) return { delta, direction: 'down' };
+  return { delta: 0, direction: 'stable' };
+}
+
+export function getPercentageTrend(
+  current: number | null | undefined,
+  previous: number | null | undefined,
+  epsilon?: number,
+): MetricTrend {
+  if (current === null || current === undefined || !Number.isFinite(current) ||
+      previous === null || previous === undefined || !Number.isFinite(previous) ||
+      previous === 0) {
+    return { delta: null, direction: 'unavailable' };
+  }
+  const delta = ((current - previous) / previous) * 100;
+  if (epsilon !== undefined && Math.abs(delta) < epsilon) {
+    return { delta: 0, direction: 'stable' };
+  }
+  if (delta > 0) return { delta, direction: 'up' };
+  if (delta < 0) return { delta, direction: 'down' };
+  return { delta: 0, direction: 'stable' };
+}
+
+export function isDisplayableBodyMetricValue(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 999;
+}

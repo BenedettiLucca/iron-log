@@ -1,5 +1,4 @@
 import { View, Text, ScrollView, Image, useWindowDimensions, useColorScheme } from 'react-native';
-import { Stack } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { bodyMetrics } from '../../src/db/schema';
@@ -36,11 +35,7 @@ const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
   if (latest.photoSide && previous.photoSide) {
     return { before: previous.photoSide, after: latest.photoSide };
   }
-  // Fallback to any available
-  return {
-    before: previous.photoFront || previous.photoBack || previous.photoSide,
-    after: latest.photoFront || latest.photoBack || latest.photoSide,
-  };
+  return null;
 };
 
 export default function EvolutionScreen() {
@@ -48,7 +43,7 @@ export default function EvolutionScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
-  const [weightData, setWeightData] = useState<any[]>([]);
+  const [weightData, setWeightData] = useState<{ value: number; label?: string; dataPointText?: string }[]>([]);
   const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
@@ -101,7 +96,7 @@ export default function EvolutionScreen() {
         .filter(m => m[key] != null)
         .map(m => ({
           value: m[key] || 0,
-          label: new Date(m.date).toLocaleDateString('pt-BR', { month: 'short' })
+          label: new Date(m.date).toLocaleDateString(getLocaleForLanguage(language), { month: 'short' })
         })).slice(-12); // Últimos 12 meses
 
       setMeasuresData({
@@ -152,9 +147,9 @@ export default function EvolutionScreen() {
     loadData();
   }, [loadData]);
 
-  const renderChart = (data: any[], title: string, color: string, unit: string = '') => {
+  const renderChart = (data: { value: number; label?: string; dataPointText?: string }[], title: string, color: string, unit: string = '') => {
       if (!data || data.length < 2) return (
-          <Card style={{ marginBottom: 24, height: 160, justifyContent: 'center', alignItems: 'center' }}>
+          <Card className="mb-6" style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
               <Text className="text-subtext italic">{t("bioEvolution.insufficientData")} {title}</Text>
           </Card>
       );
@@ -169,13 +164,13 @@ export default function EvolutionScreen() {
       const avgVal = data.reduce((sum, item) => sum + item.value, 0) / data.length;
       const formattedDelta = `${deltaVal >= 0 ? '+' : ''}${deltaVal.toFixed(1)}`;
 
-      const initialLabel = language === 'pt' ? 'Inicial' : language === 'es' ? 'Inicial' : language === 'zh' ? '初始' : 'Initial';
-      const currentLabel = language === 'pt' ? 'Atual' : language === 'es' ? 'Actual' : language === 'zh' ? '当前' : 'Current';
-      const deltaLabel = language === 'pt' ? 'Delta' : language === 'es' ? 'Delta' : language === 'zh' ? '变化' : 'Delta';
-      const averageLabel = language === 'pt' ? 'Média' : language === 'es' ? 'Promedio' : language === 'zh' ? '平均' : 'Average';
+      const initialLabel = t('bioEvolution.initial');
+      const currentLabel = t('bioEvolution.current');
+      const deltaLabel = t('bioEvolution.delta');
+      const averageLabel = t('bioEvolution.average');
 
       return (
-        <Card style={{ marginBottom: 24 }}>
+        <Card className="mb-6">
             <View className="mb-4">
               <SectionHeader label={title} />
               <Text className="text-sm text-subtext pl-1 mt-1">
@@ -209,21 +204,21 @@ export default function EvolutionScreen() {
             </ScrollView>
             <View className="flex-row gap-2 mt-4">
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
-                <Text className="text-2xs font-bold uppercase text-subtext">{initialLabel}</Text>
+                 <Text className="text-2xs font-bold text-subtext">{initialLabel}</Text>
                 <Text className="text-sm font-extrabold text-text mt-0.5">{initialVal.toFixed(1)}{unit}</Text>
               </View>
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
-                <Text className="text-2xs font-bold uppercase text-subtext">{currentLabel}</Text>
+                 <Text className="text-2xs font-bold text-subtext">{currentLabel}</Text>
                 <Text className="text-sm font-extrabold text-text mt-0.5">{currentVal.toFixed(1)}{unit}</Text>
               </View>
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
-                <Text className="text-2xs font-bold uppercase text-subtext">{deltaLabel}</Text>
-                <Text className={`text-sm font-extrabold mt-0.5 ${deltaVal >= 0 ? 'text-successText' : 'text-dangerText'}`}>
+                 <Text className="text-2xs font-bold text-subtext">{deltaLabel}</Text>
+                <Text className="text-sm font-extrabold mt-0.5 text-text">
                   {formattedDelta}{unit}
                 </Text>
               </View>
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
-                <Text className="text-2xs font-bold uppercase text-subtext">{averageLabel}</Text>
+                 <Text className="text-2xs font-bold text-subtext">{averageLabel}</Text>
                 <Text className="text-sm font-extrabold text-text mt-0.5">{avgVal.toFixed(1)}{unit}</Text>
               </View>
             </View>
@@ -246,26 +241,27 @@ export default function EvolutionScreen() {
     return <ErrorState message={errorMessage} onRetry={loadData} />;
   }
 
-  const getDelta = (dataList: any[]) => {
-    if (!dataList || dataList.length < 2) return 0;
+  const getDelta = (dataList: { value: number }[]) => {
+    if (!dataList || dataList.length < 2) return null;
     return (dataList[dataList.length - 1]?.value || 0) - (dataList[0]?.value || 0);
   };
 
-  const weightDelta = weightData.length >= 2 ? (weightData[weightData.length - 1]?.value || 0) - (weightData[0]?.value || 0) : 0;
+  const weightDelta = weightData.length >= 2 ? (weightData[weightData.length - 1]?.value || 0) - (weightData[0]?.value || 0) : null;
   const waistDelta = getDelta(measuresData.waist);
   const armDelta = getDelta(measuresData.arm);
   const chestDelta = getDelta(measuresData.chest);
 
-  const renderSummaryRow = (label: string, delta: number, unit: string, showDivider = true) => {
-    const isPositive = delta > 0;
-    const isZero = Math.abs(delta) < 0.01;
-    const colorClass = isZero ? 'text-subtext' : isPositive ? 'text-successText' : 'text-dangerText';
-    const sign = isZero ? '•' : isPositive ? '↑' : '↓';
+  const renderSummaryRow = (label: string, delta: number | null, unit: string, showDivider = true) => {
+    const isUnavailable = delta === null;
+    const isZero = !isUnavailable && Math.abs(delta) < 0.01;
+    const isPositive = !isUnavailable && delta > 0;
+    const colorClass = isUnavailable || isZero ? 'text-subtext' : isPositive ? 'text-successText' : 'text-dangerText';
+    const sign = isUnavailable ? '—' : isZero ? '•' : isPositive ? '↑' : '↓';
     return (
       <View key={label} className={`flex-row justify-between py-2 ${showDivider ? 'border-b border-border/50' : ''}`}>
         <Text className="text-sm text-subtext">{label}</Text>
         <Text className={`text-sm font-bold ${colorClass}`}>
-          {sign} {Math.abs(delta).toFixed(1)} {unit}
+          {sign} {isUnavailable ? '' : `${Math.abs(delta).toFixed(1)} ${unit}`}
         </Text>
       </View>
     );
@@ -280,8 +276,7 @@ export default function EvolutionScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: t('bioNav.evolution') }} />
-      
+
       {/* Tabs */}
       <View className="px-4 pt-4 mb-2">
         <SegmentedControl
@@ -294,7 +289,7 @@ export default function EvolutionScreen() {
       <ScrollView className="flex-1 px-4" nestedScrollEnabled contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
               <>
-                <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverage")}</Text>
+                <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverageLabel")}</Text>
                 {renderChart(weightData, t('bio.weightEvolution'), theme.primaryText, 'kg')}
               </>
           )}
@@ -318,13 +313,15 @@ export default function EvolutionScreen() {
                                    const latest = photos[0];
                                    const previous = photos[1];
                                    if (latest && previous) {
-                                       const { before, after } = getBestPhotoPair(latest, previous);
-                                       setComparison({
-                                           visible: true,
-                                           beforeUri: before,
-                                           afterUri: after,
-                                           label: t('bio.latestCheckins'),
-                                       });
+                                       const pair = getBestPhotoPair(latest, previous);
+                                       if (pair) {
+                                           setComparison({
+                                               visible: true,
+                                               beforeUri: pair.before,
+                                               afterUri: pair.after,
+                                               label: t('bio.latestCheckins'),
+                                           });
+                                       }
                                    }
                                }}
                                variant="secondary"
@@ -343,29 +340,29 @@ export default function EvolutionScreen() {
                       <View key={entry.id} className="mb-8">
                           <View className="flex-row items-center gap-2 mb-4">
                             <View className="h-[1px] flex-1 bg-border" />
-                            <Text className="text-primaryText font-bold text-sm uppercase tracking-widest">
+                            <Text className="text-primaryText font-bold text-sm tracking-widest">
                                 {new Date(entry.date).toLocaleDateString(getLocaleForLanguage(language))}
                             </Text>
                             <View className="h-[1px] flex-1 bg-border" />
                           </View>
 
-                          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-4 pl-2">
+                          <ScrollView horizontal showsHorizontalScrollIndicator={true} className="gap-4 pl-2">
                               {entry.photoFront && (
                                   <View>
                                       <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.front")}</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.front")}</Text>
                                   </View>
                               )}
                               {entry.photoBack && (
                                   <View>
                                       <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.back")}</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.back")}</Text>
                                   </View>
                               )}
                               {entry.photoSide && (
                                   <View>
                                       <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold uppercase">{t("bioEvolution.side")}</Text>
+                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.side")}</Text>
                                   </View>
                               )}
                           </ScrollView>
@@ -386,9 +383,9 @@ export default function EvolutionScreen() {
                     <>
                       {/* Weight Change Rate */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-2">{t("bioEvolution.weightChange")}</Text>
+                        <Text className="text-subtext text-xs font-bold mb-2">{t("bioEvolution.weightChange")}</Text>
                         <View className="flex-row items-end gap-2">
-                          <Text className={`text-4xl font-black ${analytics.weightChangeRate >= 0 ? 'text-successText' : 'text-dangerText'}`}>
+                          <Text className="text-4xl font-black text-text">
                             {analytics.weightChangeRate >= 0 ? '+' : ''}
                             {analytics.weightChangeRate.toFixed(2)}
                           </Text>
@@ -398,7 +395,7 @@ export default function EvolutionScreen() {
 
                       {/* Average Weight */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-2">{t("bioEvolution.avgWeight")}</Text>
+                        <Text className="text-subtext text-xs font-bold mb-2">{t("bioEvolution.avgWeight")}</Text>
                         <View className="flex-row items-end gap-2">
                           <Text className="text-4xl font-black text-text">
                             {analytics.averageWeight.toFixed(1)}
@@ -410,12 +407,12 @@ export default function EvolutionScreen() {
                       {/* Statistics Grid */}
                       <View className="flex-row gap-3">
                         <Card className="flex-1">
-                          <Text className="text-subtext text-xs font-bold uppercase mb-1">{t("bioEvolution.totalEntries")}</Text>
+                          <Text className="text-subtext text-xs font-bold mb-1">{t("bioEvolution.totalEntries")}</Text>
                           <Text className="text-2xl font-black text-text">{analytics.totalEntries}</Text>
                         </Card>
 
                         <Card className="flex-1">
-                          <Text className="text-subtext text-xs font-bold uppercase mb-1">{t("bioEvolution.period")}</Text>
+                          <Text className="text-subtext text-xs font-bold mb-1">{t("bioEvolution.period")}</Text>
                           <Text className="text-2xl font-black text-text">
                             {analytics.firstEntryDate && analytics.lastEntryDate
                               ? Math.ceil(
@@ -430,16 +427,10 @@ export default function EvolutionScreen() {
 
                       {/* Trend Analysis */}
                       <Card>
-                        <Text className="text-subtext text-xs font-bold uppercase mb-3">{t("bioEvolution.trend")}</Text>
+                        <Text className="text-subtext text-xs font-bold mb-3">{t("bioEvolution.trend")}</Text>
                         <View className="flex-row items-center gap-3">
                           <View
-                            className={`w-16 h-16 rounded-full items-center justify-center ${
-                              analytics.weightChangeRate > 0.1
-                                ? 'bg-success/20'
-                                : analytics.weightChangeRate < -0.1
-                                ? 'bg-danger/20'
-                                : 'bg-secondary/20'
-                            }`}
+                            className="w-16 h-16 rounded-full items-center justify-center bg-card"
                           >
                             <Text className="text-3xl">
                               {analytics.weightChangeRate > 0.1 ? '📈' : analytics.weightChangeRate < -0.1 ? '📉' : '➡️'}
@@ -466,18 +457,18 @@ export default function EvolutionScreen() {
 
                       {/* Evolution Summary Card */}
                       <Card>
-                        <SectionHeader label={language === 'pt' ? 'Resumo da Evolução' : 'Evolution Summary'} className="mb-2" />
+                        <SectionHeader label={t('bioEvolution.summary')} className="mb-2" />
                         <View className="mt-2">
-                          {renderSummaryRow(language === 'pt' ? 'Peso' : 'Weight', weightDelta, 'kg')}
-                          {renderSummaryRow(t('bio.waist') || 'Cintura', waistDelta, 'cm')}
-                          {renderSummaryRow(t('bio.chest') || 'Tórax', chestDelta, 'cm')}
-                          {renderSummaryRow(language === 'pt' ? 'Braço' : 'Arm', armDelta, 'cm', false)}
+                          {renderSummaryRow(t('bioEvolution.weightLabel'), weightDelta, 'kg')}
+                          {renderSummaryRow(t('bio.waist'), waistDelta, 'cm')}
+                          {renderSummaryRow(t('bio.chest'), chestDelta, 'cm')}
+                          {renderSummaryRow(t('bio.armRightAbbr'), armDelta, 'cm', false)}
                         </View>
                       </Card>
 
                       {/* Info Card */}
                       <Card className="bg-secondarySurface border-secondary/20">
-                        <Text className="text-secondaryText text-xs font-bold uppercase mb-2">💡 {t('bioEvolution.tip')}</Text>
+                        <Text className="text-secondaryText text-xs font-bold mb-2">💡 {t('bioEvolution.tip')}</Text>
                         <Text className="text-subtext text-xs leading-5">
                           {t('bioEvolution.tipText')}
                         </Text>

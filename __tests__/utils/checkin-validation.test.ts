@@ -102,17 +102,18 @@ describe('buildCheckinEntryData', () => {
     expect(entry.photoBack).toBeNull();
   });
 
-  it('falls back to 0 when no existing data and no validated value', () => {
+  it('preserves missing measurements as null instead of inventing zeros', () => {
     const entry = buildCheckinEntryData({
       validated: { waist: undefined, armRight: undefined, thighRight: undefined, chest: undefined, calf: undefined },
       photos: { front: null, back: null, side: null },
       photoNotes: { front: '', back: '', side: '' },
-      weight: 80,
+      weight: null,
       date: 1234567890,
     });
 
-    expect(entry.waist).toBe(0);
-    expect(entry.armRight).toBe(0);
+    expect(entry.weight).toBeNull();
+    expect(entry.waist).toBeNull();
+    expect(entry.armRight).toBeNull();
     expect(entry.photoFront).toBeNull();
   });
 });
@@ -197,13 +198,14 @@ describe('monthly check-in current-month resolution', () => {
       existingData: currentMonthEntry,
       photos: { front: null, back: null, side: null },
       photoNotes: { front: '', back: '', side: '' },
-      weight: 0,
+      weight: null,
       date: reference,
     });
 
     expect(currentMonthEntry).toBeUndefined();
-    expect(entry.waist).toBe(0);
-    expect(entry.armRight).toBe(0);
+    expect(entry.weight).toBeNull();
+    expect(entry.waist).toBeNull();
+    expect(entry.armRight).toBeNull();
     expect(entry.photoFront).toBeNull();
     expect(entry.photoBack).toBeNull();
     expect(entry.photoSide).toBeNull();

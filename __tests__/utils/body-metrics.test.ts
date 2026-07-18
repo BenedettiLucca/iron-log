@@ -1,4 +1,10 @@
-import { groupMetricsByMonth, getAdjacentMonths } from '../../src/utils/body-metrics';
+import {
+  getAdjacentMonths,
+  getMetricTrend,
+  getPercentageTrend,
+  groupMetricsByMonth,
+  isDisplayableBodyMetricValue,
+} from '../../src/utils/body-metrics';
 import { BodyMetric } from '../../src/types';
 
 const makeMetric = (overrides: Partial<BodyMetric>): BodyMetric => ({
@@ -77,5 +83,41 @@ describe('getAdjacentMonths', () => {
     const { current, previous } = getAdjacentMonths(metrics);
     expect(current?.weight).toBe(116);
     expect(previous?.weight).toBe(120);
+  });
+});
+
+describe('metric presentation helpers', () => {
+  it('preserves direction and zero without assigning good/bad meaning', () => {
+    expect(getMetricTrend(82, 80)).toEqual({ delta: 2, direction: 'up' });
+    expect(getMetricTrend(78, 80)).toEqual({ delta: -2, direction: 'down' });
+    expect(getMetricTrend(0, 0)).toEqual({ delta: 0, direction: 'stable' });
+  });
+
+  it('returns unavailable when either comparison value is missing or non-finite', () => {
+    expect(getMetricTrend(null, 80)).toEqual({ delta: null, direction: 'unavailable' });
+    expect(getMetricTrend(80, undefined)).toEqual({ delta: null, direction: 'unavailable' });
+    expect(getMetricTrend(Number.NaN, 80)).toEqual({ delta: null, direction: 'unavailable' });
+    expect(getMetricTrend(Number.POSITIVE_INFINITY, 80)).toEqual({ delta: null, direction: 'unavailable' });
+  });
+
+  it('uses an epsilon so displayed zero is stable rather than an up/down arrow', () => {
+    expect(getMetricTrend(80.004, 80, 0.01)).toEqual({ delta: 0, direction: 'stable' });
+  });
+
+  it('does not invent a percentage when the previous period is zero or absent', () => {
+    expect(getPercentageTrend(120, 100)).toEqual({ delta: 20, direction: 'up' });
+    expect(getPercentageTrend(80, 100)).toEqual({ delta: -20, direction: 'down' });
+    expect(getPercentageTrend(10, 0)).toEqual({ delta: null, direction: 'unavailable' });
+    expect(getPercentageTrend(10, null)).toEqual({ delta: null, direction: 'unavailable' });
+  });
+
+  it('accepts intentional zero but rejects invalid persisted body metrics', () => {
+    expect(isDisplayableBodyMetricValue(0)).toBe(true);
+    expect(isDisplayableBodyMetricValue(999)).toBe(true);
+    expect(isDisplayableBodyMetricValue(null)).toBe(false);
+    expect(isDisplayableBodyMetricValue(-1)).toBe(false);
+    expect(isDisplayableBodyMetricValue(1000)).toBe(false);
+    expect(isDisplayableBodyMetricValue(Number.NaN)).toBe(false);
+    expect(isDisplayableBodyMetricValue(Number.POSITIVE_INFINITY)).toBe(false);
   });
 });

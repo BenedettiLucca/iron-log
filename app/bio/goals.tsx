@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { Stack } from 'expo-router';
 import Svg, { Path } from 'react-native-svg';
 import { db } from '../../src/db/client';
 import { measurementGoals, bodyMetrics } from '../../src/db/schema';
@@ -11,15 +10,18 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Dialog } from '@/components/Dialog';
 import { DatePicker } from '@/components/DatePicker';
+import { ProgressBar } from '@/components/ProgressBar';
+import { LoadingState, ErrorState } from '@/components/ScreenState';
 import { logger } from '@/services/logger';
 import { goalInputSchema } from '@/src/validators/forms';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { Toast } from '@/components/Toast';
 import { useToast } from '@/hooks/use-toast';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
-function ArrowRightIcon({ color = '#818185', size = 14 }: { color?: string; size?: number }) {
+function ArrowRightIcon({ color, size = 14 }: { color: string; size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <Path d="M5 12h14M12 5l7 7-7 7" />
@@ -28,7 +30,8 @@ function ArrowRightIcon({ color = '#818185', size = 14 }: { color?: string; size
 }
 
 export default function GoalsScreen() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const themeColors = useThemeColors();
   const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
     weight: t('bioGoals.weight'),
     waist: t('bioGoals.waist'),
@@ -41,6 +44,8 @@ export default function GoalsScreen() {
   const [goals, setGoals] = useState<InferSelectModel<typeof measurementGoals>[]>([]);
   const [allMetrics, setAllMetrics] = useState<BodyMetric[]>([]);
   const [latestMetrics, setLatestMetrics] = useState<Record<string, number | null>>({});
+  const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingGoalId, setEditingGoalId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,6 +72,8 @@ export default function GoalsScreen() {
 
   const loadGoals = async () => {
     try {
+      setLoading(true);
+      setHasError(false);
       const goalsData = await db.select().from(measurementGoals).orderBy(desc(measurementGoals.targetDate));
       setGoals(goalsData);
 
@@ -93,6 +100,9 @@ export default function GoalsScreen() {
       setLatestMetrics(latest);
     } catch (error) {
       logger.error('Error loading goals', error);
+      setHasError(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -213,7 +223,7 @@ export default function GoalsScreen() {
     return days > 0 ? days : 0;
   };
 
-  const getInitialValue = (goalType: string, startDate: number, metrics: BodyMetric[]) => {
+  const getInitialValue = (goalType: string, startDate: number, metrics: BodyMetric[]): number | null => {
     const historical = metrics
       .filter(m => m[goalType as keyof BodyMetric] !== null && m.date <= startDate)
       .sort((a, b) => b.date - a.date);
@@ -233,21 +243,27 @@ export default function GoalsScreen() {
     return null;
   };
 
-  const calculateProgress = (initial: number, current: number, target: number) => {
+  const calculateProgress = (initial: number | null, current: number, target: number): number | null => {
+    if (initial === null) return null;
     const totalChange = target - initial;
-    if (totalChange === 0) return 100;
-
+    if (totalChange === 0) return null;
     const currentChange = current - initial;
     const pct = (currentChange / totalChange) * 100;
     return Math.min(Math.max(Math.round(pct), 0), 100);
   };
 
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (hasError) {
+    return <ErrorState onRetry={loadGoals} />;
+  }
+
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: t('bioNav.goals') }} />
-
       <ScrollView className="flex-1 p-4" contentContainerStyle={{ gap: 16, paddingBottom: 24 }}>
-        {goals.length === 0 ? (
+        {!loading && !hasError && goals.length === 0 ? (
           <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
             <Text className="text-5xl mb-4">🎯</Text>
             <Text className="text-text text-lg font-bold text-center mb-2">{t("bioGoals.noGoals")}</Text>
@@ -272,7 +288,7 @@ export default function GoalsScreen() {
                 ? `${t('bioGoals.remaining') || 'Faltam'} ${diff.toFixed(1)} ${unit}`
                 : '—';
 
-            let progress = 0;
+            let progress: number | null = null;
             if (goal.achieved) {
               progress = 100;
             } else if (currentVal !== null && initialVal !== null) {
@@ -280,13 +296,13 @@ export default function GoalsScreen() {
             }
 
             const daysLeft = getDaysRemaining(goal.targetDate);
-            const deadlineFormatted = new Date(goal.targetDate).toLocaleDateString();
+            const deadlineFormatted = new Date(goal.targetDate).toLocaleDateString(getLocaleForLanguage(language));
 
             return (
               <Card key={goal.id}>
                 {/* Header row */}
                 <View className="flex-row justify-between items-center mb-3">
-                  <Text className="text-xs font-extrabold uppercase text-primaryText tracking-wider">
+                  <Text className="text-xs font-extrabold text-primaryText tracking-wider">
                     {MEASUREMENT_LABELS[goal.type as MeasurementType]}
                   </Text>
                   <Text className="text-xs text-subtext">
@@ -300,23 +316,27 @@ export default function GoalsScreen() {
                     {currentVal !== null ? currentVal.toFixed(1) : '—'}
                     <Text className="text-xs text-subtext font-medium"> {unit}</Text>
                   </Text>
-                  <ArrowRightIcon size={14} />
+                  <ArrowRightIcon size={14} color={themeColors.subtext} />
                   <Text className="text-sm text-subtext font-medium">
                     {goal.targetValue.toFixed(1)} {unit}
                   </Text>
                 </View>
 
-                {/* Progress bar track */}
-                <View className="bg-primary/5 rounded-full h-1.5 overflow-hidden w-full mb-2">
-                  <View style={{ width: `${progress}%` }} className="bg-primary rounded-full h-full" />
+                {/* Progress bar */}
+                <View className="w-full mb-2">
+                  <ProgressBar
+                    current={progress ?? 0}
+                    total={100}
+                    showLabel={false}
+                  />
                 </View>
 
                 {/* Progress info row */}
                 <View className="flex-row justify-between mb-3">
-                  <Text className="text-2xs font-bold text-subtext uppercase">
-                    {progress}% {t('bioGoals.completed') || 'concluído'}
+                  <Text className="text-2xs font-bold text-subtext">
+                    {progress !== null ? `${progress}% ${t('bioGoals.completed')}` : '—'}
                   </Text>
-                  <Text className="text-2xs font-bold text-subtext uppercase">
+                  <Text className="text-2xs font-bold text-subtext">
                     {remainingText}
                   </Text>
                 </View>
@@ -366,7 +386,7 @@ export default function GoalsScreen() {
       <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={closeModal}>
         <View className="flex-1 bg-background p-4">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-text text-xl font-bold uppercase">
+            <Text className="text-text text-xl font-bold">
               {editingGoalId !== null ? (t("bioGoals.editGoal") || 'Editar Meta') : (t("bioGoals.newGoal") || 'Nova Meta')}
             </Text>
             <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" disabled={isSaving} />
@@ -379,7 +399,7 @@ export default function GoalsScreen() {
             contentContainerStyle={{ gap: 16 }}
           >
             <View>
-              <Text className="text-subtext text-xs font-bold uppercase mb-3">{t("bioGoals.measurementType")}</Text>
+              <Text className="text-subtext text-xs font-bold mb-3">{t("bioGoals.measurementType")}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {(Object.keys(MEASUREMENT_LABELS) as MeasurementType[]).map((type) => {
                   const isActive = newGoal.type === type;
@@ -388,6 +408,8 @@ export default function GoalsScreen() {
                       key={type}
                       onPress={() => setNewGoal({ ...newGoal, type })}
                       activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: isActive }}
                       className={`px-4 py-2 rounded-full border min-h-[44px] items-center justify-center ${
                         isActive
                           ? 'bg-primary border-transparent'
@@ -395,7 +417,7 @@ export default function GoalsScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-xs font-bold uppercase ${
+                        className={`text-xs font-bold ${
                           isActive ? 'text-onPrimary' : 'text-subtext'
                         }`}
                       >

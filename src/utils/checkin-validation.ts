@@ -125,11 +125,11 @@ export function buildCheckinEntryData(params: {
   existingData?: Record<string, any>;
   photos: { front: string | null; back: string | null; side: string | null };
   photoNotes: Record<string, string>;
-  weight: number;
+  weight: number | null;
   date: number;
 }) {
   const { validated, existingData, photos, photoNotes, weight, date } = params;
-  const fallback = (field: string) => existingData?.[field] ?? 0;
+  const fallback = (field: string) => existingData?.[field] ?? null;
 
   return {
     date,
