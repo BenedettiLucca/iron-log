@@ -23,7 +23,7 @@ module.exports = {
     '^.+\.(js|jsx)$': 'babel-jest',
   },
   collectCoverageFrom: [
-    'utils/**/*.{js,jsx,ts,tsx}',
+    'src/utils/**/*.{js,jsx,ts,tsx}',
   ],
   coverageThreshold: {
     global: {
