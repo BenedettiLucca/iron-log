@@ -14,7 +14,7 @@ Implementation approved afterward:
 - Tailwind/NativeWind build fix: `96b31a4`
 - adjacent locale dependency fix: `a5ef1c8`
 
-Post-implementation evidence under Node `22.22.2` / npm `10.9.7`:
+Security and CI remediation checkpoint evidence under Node `22.22.2` / npm `10.9.7`:
 
 - clean `npm ci` succeeded;
 - Jest dependency graph is valid and fully deduplicated on `29.7.0`;

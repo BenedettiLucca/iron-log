@@ -279,6 +279,8 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 
 ### Android physical QA — pending
 
+Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
+
 - Validar Bio, Analytics, Evolution, Check-in e Goals em 320dp e font scale 1.3.
 - Confirmar labels/unidades dos gráficos, scroll horizontal sinalizado e eixo Y de peso sem clipping.
 - Validar estados vazio, parcial, erro/retry e histórico longo.
