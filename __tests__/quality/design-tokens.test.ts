@@ -164,6 +164,16 @@ describe('semantic design tokens', () => {
     }
   });
 
+  it('defines box shadows in Tailwind-compatible CSS syntax', () => {
+    const shadows = tailwindConfig.theme.extend.boxShadow;
+
+    expect(Object.keys(shadows)).toEqual(['xs', 'sm', 'md', 'lg', 'xl']);
+    for (const value of Object.values(shadows)) {
+      expect(typeof value).toBe('string');
+      expect(value).toMatch(/^-?\d/);
+    }
+  });
+
   it('does not use ambiguous semantic fill tokens as text colors', () => {
     const ambiguous = /\btext-(primary|secondary|accent|success|warning|danger)(?!Text)\b/g;
     const violations = collectUiFiles().flatMap((relativePath) => {
