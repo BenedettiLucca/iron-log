@@ -31,7 +31,7 @@ export function getWeekStart(epoch: number): number {
  * Extracted from AlexandriaExportService.formatEpochDate.
  */
 export function formatEpochDate(epoch: number | null): string | null {
-  if (!epoch) return null;
+  if (epoch === null) return null;
   const d = new Date(epoch);
   return d.toISOString().split('T')[0]; // YYYY-MM-DD
 }
