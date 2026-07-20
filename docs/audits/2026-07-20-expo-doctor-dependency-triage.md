@@ -18,7 +18,7 @@ Post-implementation evidence under Node `22.22.2` / npm `10.9.7`:
 
 - clean `npm ci` succeeded;
 - Jest dependency graph is valid and fully deduplicated on `29.7.0`;
-- 60 suites / 645 tests pass;
+- 61 suites / 651 tests pass;
 - typecheck and lint pass with zero warnings;
 - Expo compatibility check no longer reports Jest or `@types/jest`;
 - coverage now collects the real `src/utils/**` production tree: 83.47% statements, 80% branches, 81.98% functions and 87.65% lines;

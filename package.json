@@ -17,7 +17,10 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "audit:high": "npm audit --audit-level=high",
+    "export:android": "expo export --platform android --max-workers 1 --output-dir dist",
+    "verify:android-export": "node scripts/verify-android-export.js"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
