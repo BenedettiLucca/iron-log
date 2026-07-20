@@ -275,6 +275,17 @@ Antigravity handles the bulk in small flow-specific commits. Hermes reviews pers
 - Positive/negative meaning survives grayscale/color-blind interpretation.
 - Empty and partial data states look intentional.
 
+**Código concluído em `a1ade9f`; QA físico pendente.** As cinco telas Bio foram refatoradas para hierarquia densa, janelas temporais explícitas, estados nulos honestos, headers root-owned, i18n PT/EN/ES/ZH e controles acessíveis. A verificação estática final passou com 59 suites / 642 testes, typecheck, lint e `git diff --check`.
+
+### Android physical QA — pending
+
+- Validar Bio, Analytics, Evolution, Check-in e Goals em 320dp e font scale 1.3.
+- Confirmar labels/unidades dos gráficos, scroll horizontal sinalizado e eixo Y de peso sem clipping.
+- Validar estados vazio, parcial, erro/retry e histórico longo.
+- Conferir fotos front/back/side, comparação somente entre poses iguais e Android Back nos modais.
+- Exercitar PT e ES em light/dark; conferir nomes longos, valores outlier e CTA sem truncamento.
+- Passar TalkBack nos quick actions, Strength Score, toggle de galeria, chips de meta e barras de progresso.
+
 ---
 
 ## Sprint 5 — Forms, keyboard and workout-critical UX
