@@ -141,7 +141,7 @@ export default function EvolutionScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [t]);
+  }, [language, t]);
 
   useEffect(() => {
     loadData();
