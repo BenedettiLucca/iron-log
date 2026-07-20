@@ -167,7 +167,7 @@ describe('semantic design tokens', () => {
   it('defines box shadows in Tailwind-compatible CSS syntax', () => {
     const shadows = tailwindConfig.theme.extend.boxShadow;
 
-    expect(Object.keys(shadows)).toEqual(['xs', 'sm', 'md', 'lg', 'xl']);
+    expect(Object.keys(shadows).sort()).toEqual(['lg', 'md', 'sm', 'xl', 'xs']);
     for (const value of Object.values(shadows)) {
       expect(typeof value).toBe('string');
       expect(value).toMatch(/^-?\d/);

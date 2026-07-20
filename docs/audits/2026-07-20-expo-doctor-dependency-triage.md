@@ -18,7 +18,7 @@ Post-implementation evidence under Node `22.22.2` / npm `10.9.7`:
 
 - clean `npm ci` succeeded;
 - Jest dependency graph is valid and fully deduplicated on `29.7.0`;
-- 60 suites / 644 tests pass;
+- 60 suites / 645 tests pass;
 - typecheck and lint pass with zero warnings;
 - Expo compatibility check no longer reports Jest or `@types/jest`;
 - coverage now collects the real `src/utils/**` production tree: 83.47% statements, 80% branches, 81.98% functions and 87.65% lines;
@@ -215,13 +215,15 @@ Separate native downgrade and focused Supplements/DatePicker QA.
 
 Separate implementation plan, production-style Android build and real event verification.
 
-## Decision
+## Decision — implemented
 
-No dependency was changed during this triage.
+Batches 0–1 and the approved non-breaking remediation were completed in focused, independently reversible commits. The repository now has a reproducible toolchain, an Expo-compatible Jest graph, real coverage enforcement, no critical/high/low npm advisories, and a verified Android production export.
 
-Recommended immediate choice while physical QA is unavailable:
+Batches 2–5 remain deferred until the Sprint 4 physical-device QA window because they change native or runtime dependencies:
 
-1. approve Batch 0 + Batch 1 only; or
-2. leave the repository untouched until Sprint 4 physical QA.
+- Calendar 1.1314.0;
+- Expo SDK 54 patch matrix;
+- DateTimePicker 8.4.4;
+- Sentry 7.2 migration.
 
-Do not begin Batches 2–5 until there is a device/build verification window.
+Do not use `npm audit fix --force`: the 23 remaining moderate findings require an Expo 57 migration or a destructive `drizzle-kit` downgrade and must be handled as explicit future migrations.
