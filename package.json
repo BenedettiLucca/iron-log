@@ -2,6 +2,11 @@
   "name": "iron-log",
   "main": "expo-router/entry",
   "version": "3.13.0",
+  "packageManager": "npm@10.9.7",
+  "engines": {
+    "node": "22.22.2",
+    "npm": "10.9.7"
+  },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
