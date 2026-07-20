@@ -2,7 +2,31 @@
 
 ## Status
 
-Read-only triage. No dependency, lockfile or runtime code was changed.
+Initial triage was read-only. No dependency, lockfile or runtime code was changed during discovery.
+
+Implementation approved afterward:
+
+- Batch 0 — toolchain pin: `d6148ef`
+- Batch 1 — Jest 29 alignment: `99d2b61`
+- coverage collection fix: `f06e4ee`
+- direct Drizzle security fix: `4c4acc1`
+- non-breaking transitive security refresh: `dcfbc97`
+- Tailwind/NativeWind build fix: `96b31a4`
+- adjacent locale dependency fix: `a5ef1c8`
+
+Post-implementation evidence under Node `22.22.2` / npm `10.9.7`:
+
+- clean `npm ci` succeeded;
+- Jest dependency graph is valid and fully deduplicated on `29.7.0`;
+- 60 suites / 644 tests pass;
+- typecheck and lint pass with zero warnings;
+- Expo compatibility check no longer reports Jest or `@types/jest`;
+- coverage now collects the real `src/utils/**` production tree: 83.47% statements, 80% branches, 81.98% functions and 87.65% lines;
+- the direct `drizzle-orm` identifier-injection advisory was fixed by updating `0.45.1` to `0.45.2`;
+- all critical, high and low advisories with non-breaking fixes were removed. The general audit moved from 48 findings (including 2 critical and 14 high) to 23 moderate findings;
+- every remaining audit finding requires a breaking Expo 57 migration or destructive `drizzle-kit` downgrade, so none was force-applied;
+- production Android export succeeded across 2,743 modules and emitted an 8.59 MB Hermes bytecode bundle;
+- the export exposed and verified a separate root cause: React Native shadow objects in `tailwind.config.js` were invalid Tailwind values, causing Metro to stop at 0/1 while falsely exiting zero. The shadow tokens now use Tailwind-compatible CSS strings and have a regression contract.
 
 Baseline:
 
