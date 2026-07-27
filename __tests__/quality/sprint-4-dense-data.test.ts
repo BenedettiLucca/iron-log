@@ -42,7 +42,6 @@ const sprint4AnalyticsKeys = [
   'bioAnalytics.bodyWeight',
   'bioAnalytics.insights',
   'bioAnalytics.weightChartHint',
-  'bioAnalytics.scrollHint',
   'bioAnalytics.volumeDistribution',
   'bioAnalytics.byMuscleGroup',
   'bioAnalytics.noVolumeDistribution',
@@ -186,24 +185,25 @@ describe('Sprint 4 batch A — Analytics hierarchy, charts and comparison honest
     expect(estimatedRmSection).not.toContain('numberOfLines={1}');
   });
 
-  it('makes chart axes theme-aware, labels the unit, and signposts intentional overflow', () => {
+  it('makes chart axes theme-aware, labels the unit, and uses fixed viewport period chart', () => {
     for (const contract of [
       'yAxisTextStyle',
-      'xAxisLabelTextStyle',
+      'ChartXAxisLabels',
+      'xAxisLabelsHeight={0}',
       'yAxisLabelSuffix',
-      "t('bioAnalytics.scrollHint')",
+      "t('chartPeriods.accessibilityLabel')",
     ]) {
       expect(analyticsSource).toContain(contract);
     }
-    expect(analyticsSource).toMatch(/showsHorizontalScrollIndicator=\{[^}]*Overflow/);
-    expect(analyticsSource).toContain('contentOffset={{');
+    expect(analyticsSource).not.toContain('getScrollableChartWidth');
+    expect(analyticsSource).not.toContain('showsHorizontalScrollIndicator');
     expect(analyticsSource).toContain('yAxisLabelWidth');
   });
 
-  it('uses a real 30-day weight window instead of the last 30 lifetime records', () => {
-    expect(analyticsSource).toMatch(/\.date\s*>=\s*thirtyDaysAgoMs/);
+  it('retains complete valid weight history and buckets at render time instead of hardcoding 30 days', () => {
+    expect(analyticsSource).toContain('bucketChartSeries');
     expect(analyticsSource).not.toContain('}).slice(-30)');
-    expect(bodyWeightSection).toContain("t('bioAnalytics.period30d')");
+    expect(bodyWeightSection).toContain('SegmentedControl');
     expect(bodyWeightSection).toContain("t('bioAnalytics.weightChartHint')");
   });
 
@@ -213,7 +213,7 @@ describe('Sprint 4 batch A — Analytics hierarchy, charts and comparison honest
 
   it('shows intentional partial states for short weight history and empty volume distribution', () => {
     expect(analyticsSource).toContain('consistency.totalSessions === 0 && weightData.length === 0');
-    expect(analyticsSource).toContain('weightData.length < 2');
+    expect(analyticsSource).toContain('weightChart.populatedCount < 2');
     expect(analyticsSource).toContain("t('bioAnalytics.weightChartHint')");
     expect(analyticsSource).toContain('hasVolumeDistribution');
     expect(analyticsSource).toContain("t('bioAnalytics.noVolumeDistribution')");
@@ -264,5 +264,48 @@ describe('Sprint 4 batch A — Analytics hierarchy, charts and comparison honest
         expect(typeof getTranslation(locale as unknown as Record<string, unknown>, key)).toBe('string');
       }
     }
+  });
+});
+
+describe('Sprint 4 batch B — Goals progress and data integrity', () => {
+  const goalsSource = readSource('app/bio/goals.tsx');
+
+  it('uses calculateGoalProgress helper and removes local calculateProgress', () => {
+    expect(goalsSource).toContain("calculateGoalProgress, findGoalBaseline");
+    expect(goalsSource).toContain("calculateGoalProgress(");
+    expect(goalsSource).not.toContain("const calculateProgress =");
+  });
+
+  it('resets achieved status and achievedDate on edit update without resetting startDate', () => {
+    expect(goalsSource).toContain("achieved: false");
+    expect(goalsSource).toContain("achievedDate: null");
+    expect(goalsSource).not.toMatch(/startDate:\s*null/);
+  });
+
+  it('removes Portuguese fallback literals', () => {
+    expect(goalsSource).not.toMatch(/t\([^)]+\)\s*\|\|\s*['"]/);
+  });
+
+  it('adds contextual accessibility labels to edit/delete buttons', () => {
+    expect(goalsSource).toContain("accessibilityLabel={t('bioGoals.editActionLabel', { name: MEASUREMENT_LABELS[goal.type as MeasurementType] })}");
+    expect(goalsSource).toContain("accessibilityLabel={t('bioGoals.deleteActionLabel', { name: MEASUREMENT_LABELS[goal.type as MeasurementType] })}");
+  });
+
+  it('defines the goal action accessibility labels in all locales', () => {
+    const keys = [
+      'bioGoals.editActionLabel',
+      'bioGoals.deleteActionLabel',
+      'bioGoals.progressUnavailable',
+    ];
+    for (const locale of [pt, en, es, zh]) {
+      for (const key of keys) {
+        expect(typeof getTranslation(locale as unknown as Record<string, unknown>, key)).toBe('string');
+      }
+    }
+  });
+
+  it('does not announce unavailable progress as zero to assistive technology', () => {
+    expect(goalsSource).toContain("accessibilityLabel={progress === null ? t('bioGoals.progressUnavailable') : undefined}");
+    expect(goalsSource).toContain('isAccessible={progress !== null}');
   });
 });

@@ -250,7 +250,7 @@ export default function BioScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScrollView
-        className="px-4 pb-4"
+        className="px-4 pt-4 pb-4"
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"

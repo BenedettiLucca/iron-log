@@ -17,6 +17,7 @@ interface SegmentedControlProps {
   activeKey: string;
   onSelect: (key: string) => void;
   className?: string;
+  accessibilityLabel?: string;
 }
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -99,12 +100,17 @@ export function SegmentedControl({
   activeKey,
   onSelect,
   className = '',
+  accessibilityLabel,
 }: SegmentedControlProps) {
   const isReducedMotion = useReactiveReducedMotion();
 
   return (
     <View style={{ flexShrink: 0 }} className={className}>
-      <View className="flex-row items-stretch bg-primary/5 rounded-full p-0.5" accessibilityRole="tablist">
+      <View
+        className="flex-row items-stretch bg-primary/5 rounded-full p-0.5"
+        accessibilityRole="tablist"
+        accessibilityLabel={accessibilityLabel}
+      >
         {segments.map((segment) => (
           <SegmentOption
             key={segment.key}

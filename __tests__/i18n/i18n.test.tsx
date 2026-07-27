@@ -169,6 +169,8 @@ describe('i18n', () => {
       const { result } = renderHook(() => useI18n(), { wrapper: customWrapper });
 
       expect(result.current.t('common.save')).toBe(es.common.save);
+      expect(result.current.t('bioGoals.editActionLabel', { name: 'Cintura' })).toBe('Editar meta de Cintura');
+      expect(result.current.t('bioGoals.deleteActionLabel', { name: 'Cintura' })).toBe('Eliminar meta de Cintura');
     });
 
     it('returns Chinese translations when language is zh', () => {

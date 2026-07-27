@@ -16,13 +16,20 @@ import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { SectionHeader } from '../../components/SectionHeader';
+import { ChartXAxisLabels } from '../../components/ChartXAxisLabels';
 import {
-  CHART_END_SPACING,
-  CHART_INITIAL_SPACING,
-  MIN_CHART_POINT_SPACING,
   getChartViewportWidth,
-  getScrollableChartWidth,
 } from '../../src/utils/chart-layout';
+import {
+  bucketChartSeries,
+  buildPositionedChartSeries,
+  getChartYAxisScale,
+} from '../../src/utils/chart-periods';
+import type {
+  ChartBucketAggregation,
+  ChartPeriod,
+  TimestampedChartValue,
+} from '../../src/utils/chart-periods';
 
 // Helper to find the best matching photo pair (same pose preferred)
 const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
@@ -43,10 +50,11 @@ export default function EvolutionScreen() {
   const { width: screenWidth } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
-  const [weightData, setWeightData] = useState<{ value: number; label?: string; dataPointText?: string }[]>([]);
-  const [measuresData, setMeasuresData] = useState<Record<string, { value: number; label: string }[]>>({});
+  const [weightData, setWeightData] = useState<TimestampedChartValue[]>([]);
+  const [measuresData, setMeasuresData] = useState<Record<string, TimestampedChartValue[]>>({});
   const [photos, setPhotos] = useState<BodyMetric[]>([]);
   const [activeTab, setActiveTab] = useState<'weight' | 'measures' | 'photos' | 'analytics'>('weight');
+  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('month');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -69,35 +77,24 @@ export default function EvolutionScreen() {
     try {
       setIsLoading(true);
       setHasError(false);
-      // Carregar em ordem ASCENDENTE para calcular média móvel corretamente
+      // Keep ascending order so each period can select its latest real measurement.
       const data = await db.select().from(bodyMetrics).orderBy(asc(bodyMetrics.date));
 
-      // 1. Processar Peso (Média Móvel 7 Dias)
+      // 1. Preserve real weight measurements; chart bucketing selects the latest one.
       const weights = data.filter(m => m.weight && m.weight > 0);
-      const maData = weights.map((point, index, arr) => {
-          // Pegar janela de até 7 dias anteriores
-          const windowStart = Math.max(0, index - 6);
-          const window = arr.slice(windowStart, index + 1);
-          const avg = window.reduce((sum, item) => sum + item.weight!, 0) / window.length;
-
-          return {
-              value: parseFloat(avg.toFixed(1)),
-              label: new Date(point.date).getDate().toString(),
-              dataPointText: parseFloat(avg.toFixed(1)).toString()
-          };
-      });
-
-      // Pegar até 30 pontos para o gráfico não ficar poluído (aprox 30 dias)
-      setWeightData(maData.slice(-30));
+      setWeightData(weights.map(point => ({
+        timestamp: point.date,
+        value: point.weight!,
+      })));
 
       // 2. Processar Medidas
       const measures = data.filter(m => m.type === 'monthly');
       const processMeasure = (key: 'waist' | 'armRight' | 'chest' | 'calf') => measures
         .filter(m => m[key] != null)
         .map(m => ({
-          value: m[key] || 0,
-          label: new Date(m.date).toLocaleDateString(getLocaleForLanguage(language), { month: 'short' })
-        })).slice(-12); // Últimos 12 meses
+          timestamp: m.date,
+          value: m[key]!,
+        }));
 
       setMeasuresData({
           waist: processMeasure('waist'),
@@ -141,33 +138,59 @@ export default function EvolutionScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [language, t]);
+  }, [t]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  const renderChart = (data: { value: number; label?: string; dataPointText?: string }[], title: string, color: string, unit: string = '') => {
-      if (!data || data.length < 2) return (
+  const renderChart = (
+    data: TimestampedChartValue[],
+    title: string,
+    color: string,
+    unit: string = '',
+    aggregation: ChartBucketAggregation = 'average',
+  ) => {
+      const viewportWidth = getChartViewportWidth(screenWidth);
+      const locale = getLocaleForLanguage(language);
+      const buckets = bucketChartSeries(
+        data,
+        chartPeriod,
+        Date.now(),
+        viewportWidth,
+        aggregation,
+      );
+      const positioned = buildPositionedChartSeries(buckets, chartPeriod, locale, viewportWidth);
+      const values = positioned.data.map(point => point.value);
+
+      if (positioned.data.length < 2) return (
           <Card className="mb-6" style={{ height: 160, justifyContent: 'center', alignItems: 'center' }}>
               <Text className="text-subtext italic">{t("bioEvolution.insufficientData")} {title}</Text>
           </Card>
       );
 
-      const viewportWidth = getChartViewportWidth(screenWidth);
-      const chartWidth = getScrollableChartWidth(data.length, viewportWidth);
-      const hasOverflow = chartWidth > viewportWidth;
-
-      const initialVal = data[0]?.value || 0;
-      const currentVal = data[data.length - 1]?.value || 0;
+      const chartScale = getChartYAxisScale(values);
+      const initialVal = values[0] ?? 0;
+      const currentVal = values[values.length - 1] ?? 0;
       const deltaVal = currentVal - initialVal;
-      const avgVal = data.reduce((sum, item) => sum + item.value, 0) / data.length;
+      const avgVal = values.reduce((sum, value) => sum + value, 0) / values.length;
       const formattedDelta = `${deltaVal >= 0 ? '+' : ''}${deltaVal.toFixed(1)}`;
 
       const initialLabel = t('bioEvolution.initial');
       const currentLabel = t('bioEvolution.current');
       const deltaLabel = t('bioEvolution.delta');
       const averageLabel = t('bioEvolution.average');
+      const chartPeriodLabel = chartPeriod === 'week'
+        ? t('chartPeriods.week')
+        : chartPeriod === 'month'
+          ? t('chartPeriods.month')
+          : t('chartPeriods.year');
+      const chartAccessibilityLabel = [
+        title,
+        chartPeriodLabel,
+        `${currentLabel}: ${currentVal.toFixed(1)}${unit}`,
+        `${deltaLabel}: ${formattedDelta}${unit}`,
+      ].join('. ');
 
       return (
         <Card className="mb-6">
@@ -177,31 +200,44 @@ export default function EvolutionScreen() {
                 {currentLabel}: {currentVal.toFixed(1)}{unit} ({formattedDelta}{unit})
               </Text>
             </View>
-            <ScrollView
-              horizontal
-              nestedScrollEnabled
-              bounces={false}
-              showsHorizontalScrollIndicator={hasOverflow}
-              contentContainerStyle={{ minWidth: viewportWidth }}
+            <View
+              accessible
+              accessibilityRole="image"
+              accessibilityLabel={chartAccessibilityLabel}
             >
               <LineChart
-                  data={data}
-                  color={color}
-                  thickness={3}
-                  dataPointsColor={color}
-                  textColor={theme.subtext}
-                  hideRules
-                  yAxisColor="transparent"
-                  xAxisColor="transparent"
-                  height={180}
-                  width={chartWidth}
-                  disableScroll
-                  initialSpacing={CHART_INITIAL_SPACING}
-                  endSpacing={CHART_END_SPACING}
-                  spacing={MIN_CHART_POINT_SPACING}
-                  textFontSize={10}
+                data={positioned.data}
+                color={color}
+                thickness={3}
+                dataPointsColor={color}
+                hideRules={false}
+                rulesColor={theme.border}
+                rulesThickness={1}
+                yAxisColor="transparent"
+                yAxisThickness={0}
+                xAxisColor={theme.border}
+                height={180}
+                width={viewportWidth}
+                disableScroll
+                initialSpacing={positioned.initialSpacing}
+                endSpacing={positioned.endSpacing}
+                yAxisOffset={chartScale.yAxisOffset}
+                maxValue={chartScale.maxValue}
+                noOfSections={4}
+                showFractionalValues
+                roundToDigits={1}
+                yAxisTextStyle={{ color: theme.subtext, fontSize: 10 }}
+                xAxisLabelsHeight={0}
+                yAxisLabelSuffix={unit ? ` ${unit}` : ''}
+                yAxisLabelWidth={48}
+            />
+              <ChartXAxisLabels
+                axisLabels={positioned.axisLabels}
+                slotSpacing={positioned.slotSpacing}
+                viewportWidth={viewportWidth}
+                yAxisLabelWidth={48}
               />
-            </ScrollView>
+            </View>
             <View className="flex-row gap-2 mt-4">
               <View className="flex-1 bg-card/50 rounded-xl p-2 items-center">
                  <Text className="text-2xs font-bold text-subtext">{initialLabel}</Text>
@@ -273,6 +309,11 @@ export default function EvolutionScreen() {
     { key: 'photos', label: t('bioEvolution.photosTab') },
     { key: 'analytics', label: t('bioEvolution.analysisTab') },
   ];
+  const chartPeriodSegments = [
+    { key: 'week', label: t('chartPeriods.week') },
+    { key: 'month', label: t('chartPeriods.month') },
+    { key: 'year', label: t('chartPeriods.year') },
+  ];
 
   return (
     <View className="flex-1 bg-background">
@@ -286,12 +327,20 @@ export default function EvolutionScreen() {
         />
       </View>
 
+      {(activeTab === 'weight' || activeTab === 'measures') && (
+        <View className="px-4 mb-4">
+          <SegmentedControl
+            segments={chartPeriodSegments}
+            activeKey={chartPeriod}
+            onSelect={key => setChartPeriod(key as ChartPeriod)}
+            accessibilityLabel={t('chartPeriods.accessibilityLabel')}
+          />
+        </View>
+      )}
+
       <ScrollView className="flex-1 px-4" nestedScrollEnabled contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
-              <>
-                <Text className="text-subtext text-xs mb-4 text-center font-medium">{t("bioEvolution.movingAverageLabel")}</Text>
-                {renderChart(weightData, t('bio.weightEvolution'), theme.primaryText, 'kg')}
-              </>
+              renderChart(weightData, t('bio.weightEvolution'), theme.primaryText, 'kg', 'latest')
           )}
 
           {activeTab === 'measures' && (

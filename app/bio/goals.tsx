@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { db } from '../../src/db/client';
 import { measurementGoals, bodyMetrics } from '../../src/db/schema';
 import { desc, eq, InferSelectModel } from 'drizzle-orm';
-import { BodyMetric } from '@/src/types';
+import { BodyMetric, MeasurementGoalType } from '@/src/types';
 import { Card } from '@/components/Card';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
@@ -18,6 +18,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { Toast } from '@/components/Toast';
 import { useToast } from '@/hooks/use-toast';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { calculateGoalProgress, findGoalBaseline } from '../../src/utils/goal-progress';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
@@ -137,6 +138,8 @@ export default function GoalsScreen() {
             type: validation.data.type,
             targetValue: validation.data.targetValue,
             targetDate,
+            achieved: false,
+            achievedDate: null,
           })
           .where(eq(measurementGoals.id, editingGoalId));
       } else {
@@ -223,35 +226,6 @@ export default function GoalsScreen() {
     return days > 0 ? days : 0;
   };
 
-  const getInitialValue = (goalType: string, startDate: number, metrics: BodyMetric[]): number | null => {
-    const historical = metrics
-      .filter(m => m[goalType as keyof BodyMetric] !== null && m.date <= startDate)
-      .sort((a, b) => b.date - a.date);
-
-    if (historical.length > 0) {
-      return historical[0][goalType as keyof BodyMetric] as number;
-    }
-
-    const oldest = metrics
-      .filter(m => m[goalType as keyof BodyMetric] !== null)
-      .sort((a, b) => a.date - b.date);
-
-    if (oldest.length > 0) {
-      return oldest[0][goalType as keyof BodyMetric] as number;
-    }
-
-    return null;
-  };
-
-  const calculateProgress = (initial: number | null, current: number, target: number): number | null => {
-    if (initial === null) return null;
-    const totalChange = target - initial;
-    if (totalChange === 0) return null;
-    const currentChange = current - initial;
-    const pct = (currentChange / totalChange) * 100;
-    return Math.min(Math.max(Math.round(pct), 0), 100);
-  };
-
   if (loading) {
     return <LoadingState />;
   }
@@ -272,28 +246,22 @@ export default function GoalsScreen() {
         ) : (
           goals.map((goal) => {
             const currentVal = latestMetrics[goal.type] ?? null;
-            const initialVal = getInitialValue(goal.type, goal.startDate, allMetrics);
+            const initialVal = findGoalBaseline(allMetrics, goal.type as MeasurementGoalType, goal.startDate);
 
-            const isCompleted = goal.achieved || (currentVal !== null && initialVal !== null && (
-              goal.targetValue > initialVal
-                ? currentVal >= goal.targetValue
-                : currentVal <= goal.targetValue
-            ));
+            const { progress, isCompleted } = calculateGoalProgress(
+              initialVal,
+              currentVal,
+              goal.targetValue,
+              goal.achieved
+            );
 
             const diff = currentVal !== null ? Math.abs(goal.targetValue - currentVal) : null;
             const unit = goal.type === 'weight' ? 'kg' : 'cm';
             const remainingText = isCompleted
-              ? (t('bioGoals.achieved') || 'Meta atingida!')
+              ? t('bioGoals.achieved')
               : diff !== null
-                ? `${t('bioGoals.remaining') || 'Faltam'} ${diff.toFixed(1)} ${unit}`
+                ? `${t('bioGoals.remaining')} ${diff.toFixed(1)} ${unit}`
                 : '—';
-
-            let progress: number | null = null;
-            if (goal.achieved) {
-              progress = 100;
-            } else if (currentVal !== null && initialVal !== null) {
-              progress = calculateProgress(initialVal, currentVal, goal.targetValue);
-            }
 
             const daysLeft = getDaysRemaining(goal.targetDate);
             const deadlineFormatted = new Date(goal.targetDate).toLocaleDateString(getLocaleForLanguage(language));
@@ -323,11 +291,16 @@ export default function GoalsScreen() {
                 </View>
 
                 {/* Progress bar */}
-                <View className="w-full mb-2">
+                <View
+                  className="w-full mb-2"
+                  accessible={progress === null}
+                  accessibilityLabel={progress === null ? t('bioGoals.progressUnavailable') : undefined}
+                >
                   <ProgressBar
                     current={progress ?? 0}
                     total={100}
                     showLabel={false}
+                    isAccessible={progress !== null}
                   />
                 </View>
 
@@ -345,7 +318,8 @@ export default function GoalsScreen() {
                 <View className="flex-row gap-2 mt-2">
                   <View className="flex-1">
                     <Button
-                      title={t("common.edit") || 'Editar'}
+                      title={t("common.edit")}
+                      accessibilityLabel={t('bioGoals.editActionLabel', { name: MEASUREMENT_LABELS[goal.type as MeasurementType] })}
                       onPress={() => openEditModal(goal)}
                       variant="ghost"
                       size="sm"
@@ -355,7 +329,8 @@ export default function GoalsScreen() {
                   </View>
                   <View className="flex-1">
                     <Button
-                      title={t("common.delete") || 'Excluir'}
+                      title={t("common.delete")}
+                      accessibilityLabel={t('bioGoals.deleteActionLabel', { name: MEASUREMENT_LABELS[goal.type as MeasurementType] })}
                       onPress={() => deleteGoal(goal.id)}
                       variant="danger"
                       size="sm"
@@ -387,7 +362,7 @@ export default function GoalsScreen() {
         <View className="flex-1 bg-background p-4">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-text text-xl font-bold">
-              {editingGoalId !== null ? (t("bioGoals.editGoal") || 'Editar Meta') : (t("bioGoals.newGoal") || 'Nova Meta')}
+              {editingGoalId !== null ? t("bioGoals.editGoal") : t("bioGoals.newGoal")}
             </Text>
             <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" disabled={isSaving} />
           </View>
@@ -446,7 +421,7 @@ export default function GoalsScreen() {
             />
 
             <Button
-              title={editingGoalId !== null ? (t("common.save") || 'Salvar') : (t("bioGoals.createGoal") || 'Criar Meta')}
+              title={editingGoalId !== null ? t("common.save") : t("bioGoals.createGoal")}
               onPress={saveGoal}
               variant="success"
               size="lg"

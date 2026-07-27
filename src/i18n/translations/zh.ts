@@ -18,6 +18,13 @@ export const zh = {
     bio: '生物特征',
     settings: '设置',
   },
+  chartPeriods: {
+    week: '每周',
+    month: '每月',
+    year: '每年',
+    accessibilityLabel: '图表周期',
+  },
+
   common: {
     save: '保存',
     cancel: '取消',
@@ -744,7 +751,6 @@ export const zh = {
     avgDuration: '平均时长',
     bodyWeight: '体重',
     lastEntries: '最近 {count} 次记录',
-    scrollHint: '左右滑动查看历史记录',
     volumeDistribution: '训练量分布',
     byMuscleGroup: '按肌群分布（30 天）',
     insights: '分析与洞察',
@@ -842,7 +848,10 @@ export const zh = {
     editGoal: '编辑目标',
     remaining: '还差',
     completed: '已完成',
+    progressUnavailable: '进度不可用',
     dateRequired: '目标日期为必填项',
+    editActionLabel: '编辑{name}目标',
+    deleteActionLabel: '删除{name}目标',
   },
 
   services: {

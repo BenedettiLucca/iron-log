@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, RefreshControl, useWindowDimensions, useColorScheme } from 'react-native';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import type { DashboardAnalytics } from '../../services/AnalyticsService';
 import { Card } from '../../components/Card';
@@ -15,6 +15,7 @@ import { asc, isNull } from 'drizzle-orm';
 import { SectionHeader } from '../../components/SectionHeader';
 import { LineChart } from 'react-native-gifted-charts';
 import { ProgressBar } from '../../components/ProgressBar';
+import { ChartXAxisLabels } from '../../components/ChartXAxisLabels';
 import {
   getMetricTrend,
   getPercentageTrend,
@@ -22,12 +23,16 @@ import {
 } from '../../src/utils/body-metrics';
 import type { MetricTrend } from '../../src/utils/body-metrics';
 import {
-  CHART_END_SPACING,
-  CHART_INITIAL_SPACING,
-  MIN_CHART_POINT_SPACING,
   getChartViewportWidth,
-  getScrollableChartWidth,
 } from '../../src/utils/chart-layout';
+import {
+  bucketChartSeries,
+  buildPositionedChartSeries,
+  getChartYAxisScale,
+} from '../../src/utils/chart-periods';
+import type { ChartPeriod } from '../../src/utils/chart-periods';
+import { formatCompactKilograms } from '../../src/utils/formatters';
+import { SegmentedControl } from '../../components/SegmentedControl';
 
 const getMuscleGroup = (name: string) => {
   const n = name.toLowerCase();
@@ -82,7 +87,8 @@ export default function AnalyticsScreen() {
     other: 0,
   });
 
-  const [weightData, setWeightData] = useState<{ value: number; label: string }[]>([]);
+  const [weightData, setWeightData] = useState<{ timestamp: number; value: number }[]>([]);
+  const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('month');
 
   const getMuscleGroupLabel = (group: string) => {
     return t(`muscleGroup.${group}`);
@@ -165,19 +171,13 @@ export default function AnalyticsScreen() {
           }
         });
 
-      // Weight chart data
-      const recentWeights = weights.filter(
-        metric => metric.date >= thirtyDaysAgoMs
-          && isDisplayableBodyMetricValue(metric.weight)
-          && metric.weight > 0,
-      );
-      const chartWeights = recentWeights.map(point => {
-        const d = new Date(point.date);
-        return {
+      // Keep the complete valid history; the selected calendar period is applied at render time.
+      const chartWeights = weights
+        .filter(metric => isDisplayableBodyMetricValue(metric.weight) && metric.weight > 0)
+        .map(point => ({
+          timestamp: point.date,
           value: point.weight!,
-          label: d.toLocaleDateString(getLocaleForLanguage(language), { day: 'numeric', month: 'short' })
-        };
-      });
+        }));
 
       setKeyStats({
         recentVolume,
@@ -202,7 +202,7 @@ export default function AnalyticsScreen() {
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, []);
 
   useEffect(() => {
     loadAnalytics();
@@ -213,6 +213,36 @@ export default function AnalyticsScreen() {
     await loadAnalytics();
     setRefreshing(false);
   }, [loadAnalytics]);
+
+  const weightViewportWidth = getChartViewportWidth(screenWidth);
+  const weightChart = useMemo(() => {
+    const locale = getLocaleForLanguage(language);
+    const buckets = bucketChartSeries(
+      weightData,
+      chartPeriod,
+      Date.now(),
+      weightViewportWidth,
+      'latest',
+    );
+    const positioned = buildPositionedChartSeries(buckets, chartPeriod, locale, weightViewportWidth);
+    const values = positioned.data.map(point => point.value);
+
+    return {
+      data: positioned.data,
+      axisLabels: positioned.axisLabels,
+      slotSpacing: positioned.slotSpacing,
+      populatedCount: positioned.data.length,
+      scale: getChartYAxisScale(values),
+      initialSpacing: positioned.initialSpacing,
+      endSpacing: positioned.endSpacing,
+    };
+  }, [chartPeriod, language, weightData, weightViewportWidth]);
+
+  const chartPeriodSegments = [
+    { key: 'week', label: t('chartPeriods.week') },
+    { key: 'month', label: t('chartPeriods.month') },
+    { key: 'year', label: t('chartPeriods.year') },
+  ];
 
   if (loading && !data) {
     return (
@@ -336,9 +366,18 @@ export default function AnalyticsScreen() {
     icon: '⏱️'
   });
 
-  const weightViewportWidth = getChartViewportWidth(screenWidth);
-  const weightChartWidth = getScrollableChartWidth(weightData.length, weightViewportWidth);
-  const hasWeightOverflow = weightChartWidth > weightViewportWidth;
+  const chartScale = weightChart.scale;
+  const weightChartValues = weightChart.data.map(point => point.value);
+  const weightChartInitial = weightChartValues[0] ?? 0;
+  const weightChartCurrent = weightChartValues[weightChartValues.length - 1] ?? 0;
+  const weightChartDelta = weightChartCurrent - weightChartInitial;
+  const weightChartPeriodLabel = chartPeriodSegments.find(segment => segment.key === chartPeriod)?.label ?? '';
+  const weightChartAccessibilityLabel = [
+    t('bioAnalytics.bodyWeight'),
+    weightChartPeriodLabel,
+    `${t('bioEvolution.current')}: ${weightChartCurrent.toFixed(1)} kg`,
+    `${t('bioEvolution.delta')}: ${weightChartDelta >= 0 ? '+' : ''}${weightChartDelta.toFixed(1)} kg`,
+  ].join('. ');
   const hasWeeklyVolume = volumeTrends.some(week => week.totalVolume > 0);
   const hasVolumeDistribution = Object.values(volDist).some(value => value > 0);
 
@@ -371,7 +410,7 @@ export default function AnalyticsScreen() {
             {
               key: 'volume',
               label: `${t('bioAnalytics.volume')} · ${t('bioAnalytics.period30d')}`,
-              value: keyStats.recentVolume >= 1000 ? `${(keyStats.recentVolume / 1000).toFixed(1)}k kg` : `${keyStats.recentVolume.toFixed(0)} kg`,
+              value: formatCompactKilograms(keyStats.recentVolume),
               trend: volTrend,
               unit: '%',
               decimals: 1,
@@ -451,7 +490,7 @@ export default function AnalyticsScreen() {
                       />
                     </View>
                     <Text className="text-subtext text-2xs font-mono w-14 text-right">
-                      {week.totalVolume >= 1000 ? `${(week.totalVolume / 1000).toFixed(1)}k` : week.totalVolume}kg
+                      {formatCompactKilograms(week.totalVolume)}
                     </Text>
                   </View>
                 );
@@ -463,53 +502,57 @@ export default function AnalyticsScreen() {
 
       {/* Body Weight Chart */}
       <Card>
-        <View className="mb-4">
+        <View className="mb-4 gap-3">
           <SectionHeader label={t('bioAnalytics.bodyWeight')} />
-          <Text className="text-xs text-subtext pl-1 mt-1">
-            {t('bioAnalytics.period30d')}
-          </Text>
+          <SegmentedControl
+            segments={chartPeriodSegments}
+            activeKey={chartPeriod}
+            onSelect={key => setChartPeriod(key as ChartPeriod)}
+            accessibilityLabel={t('chartPeriods.accessibilityLabel')}
+          />
         </View>
-        {weightData.length < 2 ? (
+        {weightChart.populatedCount < 2 ? (
           <View className="items-center py-6">
             <Text className="text-subtext text-xs">{t('bioAnalytics.weightChartHint')}</Text>
           </View>
         ) : (
-          <View>
-            <ScrollView
-              horizontal
-              nestedScrollEnabled
-              bounces={false}
-              showsHorizontalScrollIndicator={hasWeightOverflow}
-              contentOffset={{ x: Math.max(weightChartWidth - weightViewportWidth, 0), y: 0 }}
-              contentContainerStyle={{ minWidth: weightViewportWidth }}
-            >
-              <LineChart
-                data={weightData}
-                color={theme.primaryText}
-                thickness={3}
-                dataPointsColor={theme.primaryText}
-                textColor={theme.subtext}
-                hideRules
-                yAxisColor="transparent"
-                xAxisColor="transparent"
-                height={120}
-                width={weightChartWidth}
-                disableScroll
-                initialSpacing={CHART_INITIAL_SPACING}
-                endSpacing={CHART_END_SPACING}
-                spacing={MIN_CHART_POINT_SPACING}
-                textFontSize={10}
-                yAxisTextStyle={{ color: theme.subtext, fontSize: 10 }}
-                xAxisLabelTextStyle={{ color: theme.subtext, fontSize: 10 }}
-                yAxisLabelSuffix=" kg"
-                yAxisLabelWidth={36}
-              />
-            </ScrollView>
-            {hasWeightOverflow && (
-              <Text className="text-2xs text-subtext text-center mt-2">
-                {t('bioAnalytics.scrollHint')}
-              </Text>
-            )}
+          <View
+            accessible
+            accessibilityRole="image"
+            accessibilityLabel={weightChartAccessibilityLabel}
+          >
+            <LineChart
+              data={weightChart.data}
+              color={theme.primaryText}
+              thickness={3}
+              dataPointsColor={theme.primaryText}
+              hideRules={false}
+              rulesColor={theme.border}
+              rulesThickness={1}
+              yAxisColor="transparent"
+              yAxisThickness={0}
+              xAxisColor={theme.border}
+              height={150}
+              width={weightViewportWidth}
+              disableScroll
+              initialSpacing={weightChart.initialSpacing}
+              endSpacing={weightChart.endSpacing}
+              yAxisOffset={chartScale.yAxisOffset}
+              maxValue={chartScale.maxValue}
+              noOfSections={4}
+              showFractionalValues
+              roundToDigits={1}
+              yAxisTextStyle={{ color: theme.subtext, fontSize: 10 }}
+              xAxisLabelsHeight={0}
+              yAxisLabelSuffix=" kg"
+              yAxisLabelWidth={48}
+            />
+            <ChartXAxisLabels
+              axisLabels={weightChart.axisLabels}
+              slotSpacing={weightChart.slotSpacing}
+              viewportWidth={weightViewportWidth}
+              yAxisLabelWidth={48}
+            />
           </View>
         )}
       </Card>
@@ -539,7 +582,7 @@ export default function AnalyticsScreen() {
                     <View className="bg-primary h-full rounded-full" style={{ width: `${barWidth}%` }} />
                   </View>
                   <Text className="text-xs font-mono text-subtext w-14 text-right">
-                    {vol >= 1000 ? `${(vol / 1000).toFixed(1)}k` : vol.toFixed(0)}kg
+                    {formatCompactKilograms(vol)}
                   </Text>
                 </View>
               );

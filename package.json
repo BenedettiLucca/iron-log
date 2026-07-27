@@ -18,7 +18,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "audit:high": "npm audit --audit-level=high",
+    "audit:high": "node scripts/audit-high.js",
     "export:android": "expo export --platform android --max-workers 1 --output-dir dist",
     "verify:android-export": "node scripts/verify-android-export.js"
   },
@@ -88,8 +88,21 @@
     "eslint-config-expo": "~10.0.0",
     "jest": "~29.7.0",
     "jest-expo": "^54.0.17",
+    "react-test-renderer": "19.1.0",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "minimatch@3.1.5": {
+      "brace-expansion": "1.1.16"
+    },
+    "minimatch@9.0.9": {
+      "brace-expansion": "2.1.2"
+    },
+    "minimatch@10.2.5": {
+      "brace-expansion": "5.0.8"
+    },
+    "postcss": "8.5.23"
   },
   "private": true
 }

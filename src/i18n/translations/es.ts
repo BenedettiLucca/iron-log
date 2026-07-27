@@ -18,6 +18,13 @@ export const es = {
     bio: 'Biometría',
     settings: 'Ajustes',
   },
+  chartPeriods: {
+    week: 'Semanal',
+    month: 'Mensual',
+    year: 'Anual',
+    accessibilityLabel: 'Período del gráfico',
+  },
+
   common: {
     save: 'Guardar',
     cancel: 'Cancelar',
@@ -744,7 +751,6 @@ export const es = {
     avgDuration: 'Duración media',
     bodyWeight: 'Peso corporal',
     lastEntries: 'Últimos {count} registros',
-    scrollHint: 'Desliza horizontalmente para ver el historial',
     volumeDistribution: 'Distribución de volumen',
     byMuscleGroup: 'Por grupo muscular (30 días)',
     insights: 'Insights',
@@ -842,7 +848,10 @@ export const es = {
     editGoal: 'Editar Meta',
     remaining: 'Faltan',
     completed: 'completado',
+    progressUnavailable: 'Progreso no disponible',
     dateRequired: 'La fecha objetivo es obligatoria',
+    editActionLabel: 'Editar meta de {name}',
+    deleteActionLabel: 'Eliminar meta de {name}',
   },
 
   services: {

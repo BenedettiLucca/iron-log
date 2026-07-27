@@ -20,6 +20,13 @@ export const pt = {
     settings: 'Ajustes',
   },
 
+  chartPeriods: {
+    week: 'Semanal',
+    month: 'Mensal',
+    year: 'Anual',
+    accessibilityLabel: 'Período do gráfico',
+  },
+
   // Common
   common: {
     save: 'Salvar',
@@ -775,7 +782,6 @@ export const pt = {
     avgDuration: 'Duração média',
     bodyWeight: 'Peso corporal',
     lastEntries: 'Últimos {count} registros',
-    scrollHint: 'Deslize horizontalmente para ver o histórico',
     volumeDistribution: 'Distribuição de volume',
     byMuscleGroup: 'Por grupo muscular (30 dias)',
     insights: 'Insights',
@@ -873,7 +879,10 @@ export const pt = {
     editGoal: 'Editar Meta',
     remaining: 'Faltam',
     completed: 'concluído',
+    progressUnavailable: 'Progresso indisponível',
     dateRequired: 'A data alvo é obrigatória',
+    editActionLabel: 'Editar meta de {name}',
+    deleteActionLabel: 'Excluir meta de {name}',
   },
 
   services: {

@@ -18,6 +18,13 @@ export const en = {
     bio: 'Biometrics',
     settings: 'Settings',
   },
+  chartPeriods: {
+    week: 'Weekly',
+    month: 'Monthly',
+    year: 'Yearly',
+    accessibilityLabel: 'Chart period',
+  },
+
   common: {
     save: 'Save',
     cancel: 'Cancel',
@@ -744,7 +751,6 @@ export const en = {
     avgDuration: 'Avg duration',
     bodyWeight: 'Body weight',
     lastEntries: 'Last {count} entries',
-    scrollHint: 'Swipe horizontally to view history',
     volumeDistribution: 'Volume distribution',
     byMuscleGroup: 'By muscle group (30 days)',
     insights: 'Insights',
@@ -842,7 +848,10 @@ export const en = {
     editGoal: 'Edit Goal',
     remaining: 'Remaining',
     completed: 'completed',
+    progressUnavailable: 'Progress unavailable',
     dateRequired: 'Target date is required',
+    editActionLabel: 'Edit {name} goal',
+    deleteActionLabel: 'Delete {name} goal',
   },
 
   services: {

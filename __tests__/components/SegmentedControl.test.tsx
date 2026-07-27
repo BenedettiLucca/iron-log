@@ -79,6 +79,22 @@ describe('SegmentedControl', () => {
     });
   });
 
+  it('passes an optional group accessibilityLabel to the tablist', () => {
+    const { UNSAFE_getAllByType } = render(
+      <SegmentedControl
+        segments={segments}
+        activeKey="training"
+        onSelect={jest.fn()}
+        accessibilityLabel="Chart period"
+      />
+    );
+
+    const tablist = UNSAFE_getAllByType('View' as any).find(
+      (node) => node.props.accessibilityRole === 'tablist'
+    );
+    expect(tablist?.props.accessibilityLabel).toBe('Chart period');
+  });
+
   it('wraps long translated labels adaptively without changing their accessible copy', () => {
     const longSegments = [
       { key: 'daily', label: 'Diario' },
