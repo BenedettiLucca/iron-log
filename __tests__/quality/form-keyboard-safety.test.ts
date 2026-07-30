@@ -26,10 +26,12 @@ describe('shared form keyboard safety', () => {
     }
   );
 
-  it('scrolls every routine exercise field above the Android keyboard when focused', () => {
+  it('scrolls every routine exercise field above the Android keyboard and fixed footer when focused', () => {
     const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
 
     expect(editor).toContain('scrollResponderScrollNativeHandleToKeyboard');
+    expect(editor).toContain('footerHeightRef.current + 24');
+    expect(editor).toContain('footerHeightRef.current = event.nativeEvent.layout.height');
     expect(editor.match(/onFocus=\{handleExerciseInputFocus\}/g) ?? []).toHaveLength(3);
   });
 

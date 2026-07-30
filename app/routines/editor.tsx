@@ -65,6 +65,7 @@ export default function RoutineEditorScreen() {
 
   const nameInputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  const footerHeightRef = useRef(0);
   const initialSnapshotRef = useRef<readonly unknown[]>(['', '', '[]']);
   const bypassRef = useRef(false);
   const pendingActionRef = useRef<NavigationAction | null>(null);
@@ -351,7 +352,11 @@ export default function RoutineEditorScreen() {
   const handleExerciseInputFocus = (event: FocusEvent) => {
     const target = event.target;
     requestAnimationFrame(() => {
-      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(target, 24, true);
+      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(
+        target,
+        footerHeightRef.current + 24,
+        true
+      );
     });
   };
 
@@ -468,6 +473,9 @@ export default function RoutineEditorScreen() {
       <View
         className="p-4 border-t border-border bg-background shadow-lg gap-2"
         style={{ paddingBottom: 16 + insets.bottom }}
+        onLayout={(event) => {
+          footerHeightRef.current = event.nativeEvent.layout.height;
+        }}
       >
         <Button 
           title={t("common.save")}
