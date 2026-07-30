@@ -214,8 +214,9 @@ describe('RestTimer', () => {
     renderTimer();
 
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 6 })).toBe(false);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 15 })).toBe(false);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 20 })).toBe(true);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 20 })).toBe(false);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 20, dy: 25 })).toBe(false);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 30 })).toBe(true);
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 20, dy: 2 })).toBe(false);
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 0, dy: -20 })).toBe(false);
   });

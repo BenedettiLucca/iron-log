@@ -368,14 +368,26 @@ export default function RoutineEditorScreen() {
       'keyboardDidShow',
       scrollFocusedExerciseInputIntoView
     );
+    const keyboardDidHide = Keyboard.addListener('keyboardDidHide', () => {
+      focusedExerciseInputRef.current = null;
+    });
 
-    return () => keyboardDidShow.remove();
+    return () => {
+      keyboardDidShow.remove();
+      keyboardDidHide.remove();
+    };
   }, [scrollFocusedExerciseInputIntoView]);
 
   const handleExerciseInputFocus = (event: FocusEvent) => {
     focusedExerciseInputRef.current = event.target;
     if (Keyboard.isVisible()) {
       scrollFocusedExerciseInputIntoView();
+    }
+  };
+
+  const handleExerciseInputBlur = (event: FocusEvent) => {
+    if (focusedExerciseInputRef.current === event.target) {
+      focusedExerciseInputRef.current = null;
     }
   };
 
@@ -459,6 +471,7 @@ export default function RoutineEditorScreen() {
                         placeholder={t("routines.targetPlaceholder")}
                         value={ex.target}
                         onFocus={handleExerciseInputFocus}
+                        onBlur={handleExerciseInputBlur}
                         onChangeText={(t) => updateExerciseField(index, 'target', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
                     />
@@ -468,6 +481,7 @@ export default function RoutineEditorScreen() {
                         placeholder={t("routines.notesPlaceholder")}
                         value={ex.notes}
                         onFocus={handleExerciseInputFocus}
+                        onBlur={handleExerciseInputBlur}
                         onChangeText={(t) => updateExerciseField(index, 'notes', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
                     />
@@ -480,6 +494,7 @@ export default function RoutineEditorScreen() {
                     keyboardType="numeric"
                     value={ex.restSeconds?.toString()}
                     onFocus={handleExerciseInputFocus}
+                    onBlur={handleExerciseInputBlur}
                     onChangeText={(t) => updateExerciseField(index, 'restSeconds', t)}
                     style={{ fontSize: 12, paddingVertical: 8, minHeight: 36, width: 60, textAlign: 'center' }}
                     containerStyle={{ flex: 0 }}

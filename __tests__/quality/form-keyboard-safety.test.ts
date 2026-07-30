@@ -30,12 +30,15 @@ describe('shared form keyboard safety', () => {
     const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
 
     expect(editor).toMatch(/Keyboard\.addListener\(\s*['"]keyboardDidShow['"]/);
+    expect(editor).toMatch(/Keyboard\.addListener\(\s*['"]keyboardDidHide['"]/);
     expect(editor).toContain('Keyboard.isVisible()');
     expect(editor).toContain('focusedExerciseInputRef.current = event.target');
+    expect(editor).toContain('focusedExerciseInputRef.current = null');
     expect(editor).toContain('scrollResponderScrollNativeHandleToKeyboard');
     expect(editor).toContain('footerHeightRef.current + 24');
     expect(editor).toContain('footerHeightRef.current = event.nativeEvent.layout.height');
     expect(editor.match(/onFocus=\{handleExerciseInputFocus\}/g) ?? []).toHaveLength(3);
+    expect(editor.match(/onBlur=\{handleExerciseInputBlur\}/g) ?? []).toHaveLength(3);
   });
 
   it('keeps real scroll-content spacing between the last routine card and footer', () => {

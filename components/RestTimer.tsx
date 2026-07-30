@@ -19,7 +19,7 @@ interface RestTimerProps {
 }
 
 const isDownwardDismissGesture = (gestureState: PanResponderGestureState) =>
-  gestureState.dy > 16 && gestureState.dy > Math.abs(gestureState.dx);
+  gestureState.dy > 24 && gestureState.dy > Math.abs(gestureState.dx) * 1.25;
 
 const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
   gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
