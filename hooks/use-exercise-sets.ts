@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../src/db/schema';
 import { eq, and, desc, isNull, ne } from 'drizzle-orm';
@@ -12,6 +12,7 @@ import { useHaptics } from './use-haptics';
 import { checkPersonalRecords } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
+import { SessionDraft } from '../src/utils/session-draft';
 
 export interface RoutineExerciseListItem {
   id: number;
@@ -40,6 +41,8 @@ export function useExerciseSets({
   const { t, language } = useI18n();
   const { trigger } = useHaptics();
 
+  const restoredDraftRef = useRef(false);
+
   const [exerciseType, setExerciseType] = useState('strength');
   const [currentName, setCurrentName] = useState(exerciseName);
   const [weight, setWeight] = useState('');
@@ -52,7 +55,11 @@ export function useExerciseSets({
   const [isWarmupMode, setIsWarmupMode] = useState(false);
 
   /** True once the user has manually edited any strength input field. */
-  const [isDirty, setIsDirty] = useState(false);
+  const [isDirty, setIsDirtyState] = useState(false);
+  const setIsDirty = useCallback((dirty: boolean) => {
+    if (dirty) restoredDraftRef.current = true;
+    setIsDirtyState(dirty);
+  }, []);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<{ sessionId: number; date: number; weight: number | null; reps: number | null; duration: number | null; rir: number | null }[]>([]);
@@ -63,8 +70,20 @@ export function useExerciseSets({
     timerSeconds, timerStatus, 
     setTimerSeconds, setTimerTarget, setTimerStatus, 
     addTime, activeSetTime, 
-    isActiveSetRunning, toggleActiveSet 
+    isActiveSetRunning, toggleActiveSet,
+    restoreActiveSetTime, resetActiveSet
   } = timer;
+
+  const restoreDraft = useCallback((draft: SessionDraft) => {
+    restoredDraftRef.current = true;
+    setWeight(draft.weight);
+    setReps(draft.reps);
+    setDuration(draft.duration);
+    setRir(draft.rir);
+    setIsWarmupMode(draft.isWarmupMode);
+    setIsDirty(draft.isDirty);
+    restoreActiveSetTime(draft.activeSetTime);
+  }, [restoreActiveSetTime]);
 
   // Undo Hook
   const { 
@@ -110,14 +129,14 @@ export function useExerciseSets({
         .orderBy(sets.setNumber);
       setSessionSets(data);
 
-      if (data.length === 0) {
+      if (data.length === 0 && !restoredDraftRef.current) {
         const lastSet = await db.select({ weight: sets.weightKg })
           .from(sets)
           .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
           .orderBy(desc(sets.createdAt))
           .limit(1);
 
-        if (lastSet.length > 0 && lastSet[0].weight) {
+        if (lastSet.length > 0 && lastSet[0].weight && !restoredDraftRef.current) {
           // Pre-fill from history: does NOT mark dirty
           setWeight(lastSet[0].weight.toString());
         }
@@ -266,6 +285,7 @@ export function useExerciseSets({
       setDuration('');
       // Clear dirty after successful save
       setIsDirty(false);
+      resetActiveSet();
 
       if (!isDuration) {
         const restTime = routineRest || 90;
@@ -281,7 +301,7 @@ export function useExerciseSets({
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet]);
 
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({
@@ -404,6 +424,7 @@ export function useExerciseSets({
     handleSaveEditedSet,
     loadData,
     loadHistory,
+    restoreDraft,
     t,
     language,
   };

@@ -14,6 +14,8 @@ interface UseSessionTimerReturn {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   toggleActiveSet: () => void;
+  restoreActiveSetTime: (seconds: number) => void;
+  resetActiveSet: () => void;
 }
 
 export function useSessionTimer(): UseSessionTimerReturn {
@@ -76,6 +78,18 @@ export function useSessionTimer(): UseSessionTimerReturn {
     }
   }, [activeSetStart]);
 
+  const restoreActiveSetTime = useCallback((seconds: number) => {
+    if (typeof seconds === 'number' && Number.isFinite(seconds) && seconds >= 0) {
+      setActiveSetStart(null);
+      setActiveSetTime(seconds);
+    }
+  }, []);
+
+  const resetActiveSet = useCallback(() => {
+    setActiveSetStart(null);
+    setActiveSetTime(0);
+  }, []);
+
   const addTime = useCallback((sec: number) => {
     if (timerStatus === 'running' && timerTarget) {
       setTimerTarget(timerTarget + sec * 1000);
@@ -96,5 +110,7 @@ export function useSessionTimer(): UseSessionTimerReturn {
     activeSetTime,
     isActiveSetRunning,
     toggleActiveSet,
+    restoreActiveSetTime,
+    resetActiveSet,
   };
 }
