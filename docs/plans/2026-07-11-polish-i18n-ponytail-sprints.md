@@ -328,6 +328,8 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 - Reduce Motion and TalkBack passes critical flow.
 - No session behavior/hook regression.
 
+**Código concluído em `66aac5e`; QA Android físico pendente.** Os seis batches e o gate de fixes integrados da Sprint 5 entregaram footers inset-aware, formulários protegidos por dirty state, foco/scroll de validação, progresso sem warm-ups, recuperação de draft, operações de sessão fail-closed, ações de séries descobríveis, animações locais/reduced-motion-safe e warm-up toggle nativo. O gate integrado passou com 85 suites / 785 testes, cobertura acima do threshold, typecheck, lint, audit baseline e Android Hermes export verificados. Runbook: `docs/qa/2026-07-30-sprint-5-android-runbook.md`.
+
 ---
 
 ## Sprint 6 — i18n, content fit and accessibility completion
