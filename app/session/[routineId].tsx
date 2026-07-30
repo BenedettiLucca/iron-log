@@ -12,7 +12,7 @@ import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
-import { parseTargetSets } from '../../src/utils/exercise';
+import { parseTargetSets, countCompletedRoutineExercises } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
@@ -457,24 +457,10 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
       .orderBy(sets.id)
   );
 
-  // Count sets per exercise
-  const setsPerExercise = new Map<number, number>();
-  allSets?.forEach(set => {
-    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
-    setsPerExercise.set(set.exerciseId, currentCount + 1);
-  });
-
-  // Count exercises that have met their target sets
-  const completedCount = routineExs.reduce((count, exercise) => {
-    const targetSets = parseTargetSets(exercise.target);
-    const doneSets = setsPerExercise.get(exercise.id) || 0;
-
-    // Exercise is complete if target is met, or if no target and at least one set done
-    if (targetSets !== null) {
-      return doneSets >= targetSets ? count + 1 : count;
-    }
-    return doneSets > 0 ? count + 1 : count;
-  }, 0);
+  const completedCount = countCompletedRoutineExercises(
+    routineExs,
+    allSets || []
+  );
 
   const totalCount = routineExs.length;
 

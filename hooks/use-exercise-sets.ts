@@ -3,7 +3,7 @@ import { db } from '../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../src/db/schema';
 import { eq, and, desc, isNull, ne } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { parseTargetSets } from '../src/utils/exercise';
+import { parseTargetSets, countCompletedRoutineExercises } from '../src/utils/exercise';
 import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { setInputSchema } from '../src/validators/forms';
@@ -82,23 +82,17 @@ export function useExerciseSets({
   const [editingSet, setEditingSet] = useState<Set | null>(null);
   const [showSetEditor, setShowSetEditor] = useState(false);
 
-  // Track completed exercises by target sets
+  // Count completed exercises (based on target sets met)
   const { data: allSessionSets } = useLiveQuery(
-    db.select({ exerciseId: sets.exerciseId })
+    db.select({ exerciseId: sets.exerciseId, isWarmup: sets.isWarmup })
       .from(sets)
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
   );
 
-  // Count completed exercises (based on target sets met)
-  const completedExercisesCount = allExercises.reduce((count, exercise) => {
-    const targetSets = parseTargetSets(exercise.target);
-    const doneSets = allSessionSets?.filter(s => s.exerciseId === exercise.id).length || 0;
-
-    if (targetSets !== null) {
-      return doneSets >= targetSets ? count + 1 : count;
-    }
-    return doneSets > 0 ? count + 1 : count;
-  }, 0);
+  const completedExercisesCount = countCompletedRoutineExercises(
+    allExercises,
+    allSessionSets || []
+  );
 
   const loadData = useCallback(async () => {
     try {
