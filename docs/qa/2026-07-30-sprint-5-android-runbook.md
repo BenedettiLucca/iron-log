@@ -64,79 +64,80 @@ Não corrompa SQLite, não edite o banco manualmente e não reutilize IDs antigo
 
 ### Editor de rotina
 
-- [ ] Abra uma rotina existente, foque cada campo e confirme que teclado não cobre o input nem o CTA.
-- [ ] Tente salvar com nome inválido; o erro deve aparecer inline e o campo inválido deve receber foco/scroll.
-- [ ] Corrija o nome e salve; toque rapidamente duas vezes e confirme uma única operação/navegação.
-- [ ] Faça nova alteração e pressione Android Back; o diálogo de descarte deve abrir.
-- [ ] Cancele o diálogo: valores permanecem. Abra novamente e descarte: tela fecha sem salvar a alteração.
-- [ ] Confirme inputs e ações com pelo menos 44dp; nenhum footer entra sob a navigation bar.
+- [ ] Abra uma rotina existente, foque cada campo e confirme que teclado não cobre o input nem o CTA. => Teclado cobre campos de texto de exercicios principalmente os do fim da tela. (Meta, notas, desca)
+- [ ] Tente salvar com nome inválido; o erro deve aparecer inline e o campo inválido deve receber foco/scroll. => Ok
+- [ ] Corrija o nome e salve; toque rapidamente duas vezes e confirme uma única operação/navegação. => Ok
+- [ ] Faça nova alteração e pressione Android Back; o diálogo de descarte deve abrir. => Ok
+- [ ] Cancele o diálogo: valores permanecem. Abra novamente e descarte: tela fecha sem salvar a alteração. => Ok
+- [ ] Confirme inputs e ações com pelo menos 44dp; nenhum footer entra sob a navigation bar. => footer dos cards nao fica abaixo da barra de navegacao mas nao ha spacing suficiente entre o ultimo card e a barra com os botoes de salvar e salvar como template
 
 ### Criar programa
 
-- [ ] Percorra os campos com o teclado sem perder o submit CTA.
-- [ ] Force erro de validação; mensagem e foco devem apontar o campo correto.
-- [ ] Faça alteração e pressione Android Back; cancelar preserva e descartar fecha.
-- [ ] Salve uma vez com dois taps rápidos; deve existir apenas um programa e uma navegação.
-- [ ] Confirme que nome/descrição longos não empurram ações para fora da tela.
+- [ ] Percorra os campos com o teclado sem perder o submit CTA. => Ok
+- [ ] Force erro de validação; mensagem e foco devem apontar o campo correto. => Ok
+- [ ] Faça alteração e pressione Android Back; cancelar preserva e descartar fecha. => Ok
+- [ ] Salve uma vez com dois taps rápidos; deve existir apenas um programa e uma navegação. => ok
+- [ ] Confirme que nome/descrição longos não empurram ações para fora da tela. => ok
 
 ### Suplementos e Metas
 
-- [ ] Abra criação/edição de suplemento; teclado, erro inline e CTA permanecem visíveis acima do inset inferior.
-- [ ] Altere um valor e tente fechar pelo backdrop e Android Back; dirty dialog deve proteger a mudança.
-- [ ] Cancele o descarte e confirme preservação; depois descarte e confirme reset ao reabrir.
-- [ ] Salve com taps rápidos e confirme uma única mutação.
-- [ ] Repita o fluxo no modal de meta, incluindo o date picker e um erro de valor/data.
-- [ ] O date picker deve anunciar/mostrar o valor selecionado e não sobrepor o CTA.
+- [ ] Abra criação/edição de suplemento; teclado, erro inline e CTA permanecem visíveis acima do inset inferior. => Ok
+- [ ] Altere um valor e tente fechar pelo backdrop e Android Back; dirty dialog deve proteger a mudança. => Ok
+- [ ] Cancele o descarte e confirme preservação; depois descarte e confirme reset ao reabrir. => ok
+- [ ] Salve com taps rápidos e confirme uma única mutação. => ok
+- [ ] Repita o fluxo no modal de meta, incluindo o date picker e um erro de valor/data. => ok
+- [ ] O date picker deve anunciar/mostrar o valor selecionado e não sobrepor o CTA. => ok
 
 ### Sessão ativa e progresso
 
-- [ ] Inicie uma sessão e confirme que o progresso começa em `0/N`.
-- [ ] Registre apenas uma série de aquecimento; o progresso de séries de trabalho não deve avançar.
-- [ ] Registre uma série normal; o progresso deve avançar exatamente uma vez.
-- [ ] Navegue entre exercícios e volte; contagem e estado permanecem estáveis.
-- [ ] Em exercício de duração, iniciar/parar/salvar funciona e avançar fica bloqueado enquanto o timer da série roda.
+- [ ] Inicie uma sessão e confirme que o progresso começa em `0/N`. => ok
+- [ ] Registre apenas uma série de aquecimento; o progresso de séries de trabalho não deve avançar. => ok
+- [ ] Registre uma série normal; o progresso deve avançar exatamente uma vez. => ok
+- [ ] Navegue entre exercícios e volte; contagem e estado permanecem estáveis. => ok
+- [ ] Em exercício de duração, iniciar/parar/salvar funciona e avançar fica bloqueado enquanto o timer da série roda. => ok
+- Obs: clicar duas vezes rapidamente em um exercicio abre a tela de registro de series duas vezes.
 
 ### Warm-up toggle
 
-- [ ] O controle inteiro responde com target confortável; estado visual e TalkBack `checked` mudam juntos.
-- [ ] O thumb anima uma vez entre os lados, sem salto, overshoot ou animação de entrada ao abrir a tela.
-- [ ] Alterar o toggle marca a série seguinte como aquecimento; desligar marca a seguinte como normal.
+- [ ] O controle inteiro responde com target confortável; estado visual e TalkBack `checked` mudam juntos. => ok
+- [ ] O thumb anima uma vez entre os lados, sem salto, overshoot ou animação de entrada ao abrir a tela. => ok
+- [ ] Alterar o toggle marca a série seguinte como aquecimento; desligar marca a seguinte como normal. => ok
 
 ### Séries: 20-set session
 
-- [ ] Registre até 20 séries sem travamento perceptível ou scroll quebrado.
-- [ ] Só a série inserida/alterada anima; rerender comum não anima a lista inteira.
-- [ ] Role uma série para fora da viewport e volte; ela não deve replayar a animação.
-- [ ] O botão visível de ações abre opções nativas de editar/excluir.
-- [ ] Swipe continua disponível e executa os mesmos caminhos.
-- [ ] Edite peso/reps/duração/RIR e confirme persistência após sair e voltar.
-- [ ] Exclua uma série e confirme; cancele outra exclusão e confirme que ela permanece.
-- [ ] Status combinados usam texto único, por exemplo `Aquecimento · Editado`, sem badge morto de PR.
+- [ ] Registre até 20 séries sem travamento perceptível ou scroll quebrado.=> ok
+- [ ] Só a série inserida/alterada anima; rerender comum não anima a lista inteira.=> ok
+- [ ] Role uma série para fora da viewport e volte; ela não deve replayar a animação.=> ok
+- [ ] O botão visível de ações abre opções nativas de editar/excluir.=> ok
+- [ ] Swipe continua disponível e executa os mesmos caminhos.=> ok
+- [ ] Edite peso/reps/duração/RIR e confirme persistência após sair e voltar.=> ok
+- [ ] Exclua uma série e confirme; cancele outra exclusão e confirme que ela permanece.=> ok
+- [ ] Status combinados usam texto único, por exemplo `Aquecimento · Editado`, sem badge morto de PR. => ok
 
 ### Timer de descanso
 
-- [ ] Após salvar série, timer abre e o número é legível com o aparelho à distância do braço.
-- [ ] `+30s`, `-10s` e `Pular/Continuar` respondem com uma mão e ficam acima da navigation bar.
-- [ ] Swipe para baixo, backdrop e Android Back fecham sem prender foco ou teclado.
-- [ ] Nome longo do próximo exercício não corta nem empurra as ações.
-- [ ] Ao chegar em zero, estado final aparece e não dispara anúncios repetidos visualmente/sonoramente.
+- [ ] Após salvar série, timer abre e o número é legível com o aparelho à distância do braço. => ok
+- [ ] `+30s`, `-10s` e `Pular/Continuar` respondem com uma mão e ficam acima da navigation bar. => ok
+- [ ] Swipe para baixo, backdrop e Android Back fecham sem prender foco ou teclado. => parcialmente ok, swipe para baixo nao fechou o timer na execução do teste.
+- [ ] Nome longo do próximo exercício não corta nem empurra as ações. => ok
+- [ ] Ao chegar em zero, estado final aparece e não dispara anúncios repetidos visualmente/sonoramente. => ok
 
 ### Interrupção e recuperação
 
-- [ ] Digite carga/reps, altere RIR e warm-up, mas não salve a série.
-- [ ] Pressione Android Back; a saída só acontece depois de persistir o draft.
-- [ ] Reabra o mesmo exercício; todos os valores pendentes reaparecem e não são sobrescritos pelo histórico.
-- [ ] Repita deixando o app em background e removendo-o dos recentes; reabra a sessão e valide o draft.
-- [ ] Com série pendente, avance para o próximo exercício; a série salva uma vez antes da navegação ou a navegação não ocorre se salvar falhar.
-- [ ] Um draft de outro exercício/sessão nunca aparece na tela atual.
+- [ ] Digite carga/reps, altere RIR e warm-up, mas não salve a série. => ok
+- [ ] Pressione Android Back; a saída só acontece depois de persistir o draft. => ok
+- [ ] Reabra o mesmo exercício; todos os valores pendentes reaparecem e não são sobrescritos pelo histórico. => ok
+- [ ] Repita deixando o app em background e removendo-o dos recentes; reabra a sessão e valide o draft. => ok
+- [ ] Com série pendente, avance para o próximo exercício; a série salva uma vez antes da navegação ou a navegação não ocorre se salvar falhar. => ok
+- [ ] Um draft de outro exercício/sessão nunca aparece na tela atual. => ok
 
 ### Finalizar e descartar sessão
 
-- [ ] Abra finalizar sessão: estatísticas, sRPE e CTA permanecem visíveis e honestos.
-- [ ] Slider sRPE muda de 1 a 10 e o texto descritivo acompanha.
-- [ ] Confirmação de finalizar mostra resumo legível e ações claras.
-- [ ] Cancelar devolve ao formulário sem perder dados; confirmar finaliza uma única vez.
-- [ ] Diálogo de descarte usa ação destrutiva inequívoca; cancelar continua treino, confirmar remove a sessão correta.
+- [ ] Abra finalizar sessão: estatísticas, sRPE e CTA permanecem visíveis e honestos. => ok
+- [ ] Slider sRPE muda de 1 a 10 e o texto descritivo acompanha. => ok
+- [ ] Confirmação de finalizar mostra resumo legível e ações claras. => ok
+- [ ] Cancelar devolve ao formulário sem perder dados; confirmar finaliza uma única vez. => ok
+- [ ] Diálogo de descarte usa ação destrutiva inequívoca; cancelar continua treino, confirmar remove a sessão correta. => ok
 
 ## Pass B — ES, dark, font 1.3 / maior display size
 
@@ -150,25 +151,53 @@ Passagem focada; não repita todo o CRUD:
 - [ ] Finish: stats, sRPE e dialogs não cortam texto nem ações.
 - [ ] Contraste de texto muted, warning, success, danger e disabled permanece legível no dark theme.
 
+Tudo igual ao light mode
+
 ## Pass C — Reduce Motion
 
-- [ ] Ative Remove animations/Reduce Motion no Android e reabra o fluxo crítico.
-- [ ] Warm-up toggle muda imediatamente, sem timing residual.
-- [ ] Novas/alteradas séries aparecem sem animação local.
-- [ ] Rest timer e dialogs abrem/fecham sem spring/fade obrigatório.
-- [ ] Desative Reduce Motion sem mudar o toggle; ele não deve animar sozinho.
+- [ ] Ative Remove animations/Reduce Motion no Android e reabra o fluxo crítico. => ok
+- [ ] Warm-up toggle muda imediatamente, sem timing residual. => ok
+- [ ] Novas/alteradas séries aparecem sem animação local. => ok
+- [ ] Rest timer e dialogs abrem/fecham sem spring/fade obrigatório. => ok
+- [ ] Desative Reduce Motion sem mudar o toggle; ele não deve animar sozinho. => ok
 
 ## TalkBack
 
-- [ ] ProgressBar anuncia contexto e progresso (`X de N`), não apenas “barra de progresso”.
-- [ ] Warm-up anuncia role switch e estado marcado/desmarcado.
-- [ ] RIR anuncia label, hint e valor/meaning de 0 a 5.
-- [ ] sRPE anuncia valor de 1 a 10 e descrição de esforço.
-- [ ] Ação visível da série anuncia botão/contexto; ações accessibility de editar/excluir continuam disponíveis.
-- [ ] Rest timer anuncia título, valor consultável e estado final apenas uma vez por descanso.
-- [ ] Dialogs recebem foco no título, permitem escape e devolvem foco sem trap.
-- [ ] Inputs com erro anunciam a mensagem e o foco retorna ao campo correto.
-- [ ] Ordem de foco segue a ordem visual em forms e exercício ativo.
+- [ ] ProgressBar anuncia contexto e progresso (`X de N`), não apenas “barra de progresso”. => ok
+- [ ] Warm-up anuncia role switch e estado marcado/desmarcado. => ok
+- [ ] RIR anuncia label, hint e valor/meaning de 0 a 5. => ok
+- [ ] sRPE anuncia valor de 1 a 10 e descrição de esforço. => ok
+- [ ] Ação visível da série anuncia botão/contexto; ações accessibility de editar/excluir continuam disponíveis. => ok
+- [ ] Rest timer anuncia título, valor consultável e estado final apenas uma vez por descanso. => ok
+- [ ] Dialogs recebem foco no título, permitem escape e devolvem foco sem trap. => ok
+- [ ] Inputs com erro anunciam a mensagem e o foco retorna ao campo correto. => ok
+- [ ] Ordem de foco segue a ordem visual em forms e exercício ativo. => ok
+
+## Resultado da execução — 2026-07-30
+
+**Status: BLOCKED — quatro findings abertos, sendo dois bloqueadores funcionais.**
+
+A execução usou evidência textual no próprio runbook. Screenshots foram dispensados pelo executor; isso não impede a triagem funcional, mas o finding visual de spacing deverá ser revalidado no aparelho depois da correção.
+
+| ID | Severidade | Categoria | Finding | Reprodução | Mapeamento inicial |
+| --- | --- | --- | --- | --- | --- |
+| `S5-QA-01` | Alta | Funcional / teclado | O teclado cobre campos `meta`, `notas` e `descanso` dos exercícios no fim do editor de rotina. | Adicionar exercícios suficientes para ocupar a tela e focar os inputs dos últimos cards. | `app/routines/editor.tsx`: o `ScrollView` depende apenas de `automaticallyAdjustKeyboardInsets`; os inputs internos não têm scroll-to-focus explícito. |
+| `S5-QA-02` | Alta | Funcional / navegação | Double tap em um card de exercício abre a tela de registro duas vezes. | Na sessão ativa, tocar rapidamente duas vezes no mesmo exercício. | `app/session/[routineId].tsx`: o `onPress` chama `router.push` diretamente, sem lock síncrono de navegação. |
+| `S5-QA-03` | Média | Funcional / UX | Swipe para baixo não fecha o timer de descanso; backdrop e Android Back funcionam. | Abrir o RestTimer e arrastar o bottom sheet para baixo. | `components/RestTimer.tsx`: o PanResponder está apenas no bubble phase e compete com os controles filhos; o dismissal exige `dy > 100`. |
+| `S5-QA-04` | Baixa | Visual / spacing | Falta respiro entre o último card de exercício e o footer com `Salvar` / `Salvar como template`. Não há sobreposição com a navigation bar. | Rolar o editor até o último card. | `app/routines/editor.tsx`: conteúdo termina com padding inferior mínimo enquanto o footer é um sibling fixo. |
+
+### Diagnósticos não bloqueantes observados no Metro
+
+- warning de depreciação de `SafeAreaView`;
+- warning de atualização lenta de `VirtualizedList` durante a sessão longa, sem travamento perceptível reportado no QA;
+- avisos de versões recomendadas do Expo, mantidos fora do escopo desta Sprint.
+
+### Reteste obrigatório após os fixes
+
+- editor de rotina com vários cards e teclado aberto nos três inputs do último exercício;
+- double tap repetido no card de exercício, confirmando uma única rota;
+- swipe do RestTimer começando no handle, no conteúdo e próximo às ações;
+- spacing do último card em PT/light e ES/dark com fonte 1.3.
 
 ## Screenshots obrigatórios
 
@@ -180,6 +209,8 @@ Passagem focada; não repita todo o CRUD:
 - [ ] Rest timer — light/PT, running com próximo exercício.
 - [ ] Warm-up toggle — Reduce Motion ligado, estado on.
 - [ ] Finish — dark/ES, sRPE e confirmação.
+
+Sem necessidade de tirar screenshots tudo descrito no doc
 
 ## Reset e verificação do dataset
 
