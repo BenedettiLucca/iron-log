@@ -25,4 +25,17 @@ describe('shared form keyboard safety', () => {
       expect(countKeyboardSafeContainers(source)).toBeGreaterThanOrEqual(containers);
     }
   );
+
+  it('scrolls every routine exercise field above the Android keyboard when focused', () => {
+    const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
+
+    expect(editor).toContain('scrollResponderScrollNativeHandleToKeyboard');
+    expect(editor.match(/onFocus=\{handleExerciseInputFocus\}/g) ?? []).toHaveLength(3);
+  });
+
+  it('keeps real scroll-content spacing between the last routine card and footer', () => {
+    const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
+
+    expect(editor).toContain('contentContainerStyle={{ gap: 16, paddingBottom: 24 }}');
+  });
 });

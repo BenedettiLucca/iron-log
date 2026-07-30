@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView, TextInput } from 'react-native';
+import type { FocusEvent } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import type { NavigationAction } from '@react-navigation/native';
 import { db } from '../../src/db/client';
@@ -347,6 +348,13 @@ export default function RoutineEditorScreen() {
       }));
   };
 
+  const handleExerciseInputFocus = (event: FocusEvent) => {
+    const target = event.target;
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(target, 24, true);
+    });
+  };
+
   if (isHydrating) {
     return <LoadingState />;
   }
@@ -363,7 +371,7 @@ export default function RoutineEditorScreen() {
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{ gap: 16 }}
+        contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
       >
         <Input
             ref={nameInputRef}
@@ -426,6 +434,7 @@ export default function RoutineEditorScreen() {
                     <Input 
                         placeholder={t("routines.targetPlaceholder")}
                         value={ex.target}
+                        onFocus={handleExerciseInputFocus}
                         onChangeText={(t) => updateExerciseField(index, 'target', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
                     />
@@ -434,6 +443,7 @@ export default function RoutineEditorScreen() {
                     <Input 
                         placeholder={t("routines.notesPlaceholder")}
                         value={ex.notes}
+                        onFocus={handleExerciseInputFocus}
                         onChangeText={(t) => updateExerciseField(index, 'notes', t)}
                         style={{ fontSize: 12, paddingVertical: 8, minHeight: 36 }}
                     />
@@ -445,6 +455,7 @@ export default function RoutineEditorScreen() {
                     placeholder="90"
                     keyboardType="numeric"
                     value={ex.restSeconds?.toString()}
+                    onFocus={handleExerciseInputFocus}
                     onChangeText={(t) => updateExerciseField(index, 'restSeconds', t)}
                     style={{ fontSize: 12, paddingVertical: 8, minHeight: 36, width: 60, textAlign: 'center' }}
                     containerStyle={{ flex: 0 }}
