@@ -1,13 +1,11 @@
 import { memo, useRef } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '../src/i18n/index';
 import { getRirColor } from '@/src/utils/exercise';
 import { Colors } from '@/constants/colors';
-import Svg, { Polyline } from 'react-native-svg';
-
 
 interface SetCardProps {
   setNumber: number;
@@ -15,10 +13,9 @@ interface SetCardProps {
   reps?: number;
   duration?: number;
   rir?: number | null;
-  isPR?: boolean;
   isWarmup?: boolean;
   isEdited?: boolean;
-  index?: number;
+  animateEntry?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onPress?: () => void;
@@ -30,10 +27,9 @@ function SetCard({
   reps,
   duration,
   rir,
-  isPR = false,
   isWarmup = false,
   isEdited = false,
-  index = 0,
+  animateEntry = false,
   onEdit,
   onDelete,
   onPress,
@@ -41,6 +37,42 @@ function SetCard({
   const { t } = useI18n();
   const swipeableRef = useRef<Swipeable | null>(null);
   const { trigger } = useHaptics();
+
+  const handleEdit = () => {
+    trigger('medium');
+    swipeableRef.current?.close();
+    onEdit?.();
+  };
+
+  const handleDelete = () => {
+    trigger('warning');
+    swipeableRef.current?.close();
+    onDelete?.();
+  };
+
+  const handleOpenActions = () => {
+    trigger('selection');
+    const buttons = [];
+    if (onEdit) {
+      buttons.push({
+        text: t('common.edit'),
+        onPress: handleEdit,
+      });
+    }
+    if (onDelete) {
+      buttons.push({
+        text: t('common.delete'),
+        style: 'destructive' as const,
+        onPress: handleDelete,
+      });
+    }
+    buttons.push({
+      text: t('common.cancel'),
+      style: 'cancel' as const,
+    });
+
+    Alert.alert(t('setCard.actionsTitle'), undefined, buttons);
+  };
 
   const weightLabel = weight > 0 ? `${weight}kg` : t('setCard.noWeight');
   const performanceLabel = duration !== undefined
@@ -50,12 +82,15 @@ function SetCard({
     weightLabel,
     performanceLabel,
     rir !== null && rir !== undefined ? t('setCard.rir', { rir }) : undefined,
-    isPR ? t('setCard.personalRecord') : undefined,
     isWarmup ? t('setCard.warmup') : undefined,
   ].filter(Boolean).join(', ');
 
-  const renderRightActions = () => {
+  const statusLabels = [
+    isWarmup ? t('setCard.warmup') : undefined,
+    isEdited ? t('setCard.edited') : undefined,
+  ].filter((label): label is string => Boolean(label));
 
+  const renderRightActions = () => {
     if (!onEdit && !onDelete) return null;
 
     return (
@@ -63,11 +98,7 @@ function SetCard({
         {onEdit && (
           <TouchableOpacity
             className="w-16 h-full justify-center items-center bg-secondary rounded-l-2xl"
-            onPress={() => {
-              trigger('medium');
-              swipeableRef.current?.close();
-              onEdit();
-            }}
+            onPress={handleEdit}
             accessibilityLabel={t("session.editSet")}
             accessibilityRole="button"
           >
@@ -77,11 +108,7 @@ function SetCard({
         {onDelete && (
           <TouchableOpacity
             className={`w-16 h-full justify-center items-center bg-danger ${!onEdit ? 'rounded-l-2xl' : ''} rounded-r-2xl`}
-            onPress={() => {
-              trigger('warning');
-              swipeableRef.current?.close();
-              onDelete();
-            }}
+            onPress={handleDelete}
             accessibilityLabel={t("session.deleteSet")}
             accessibilityRole="button"
           >
@@ -92,8 +119,8 @@ function SetCard({
     );
   };
 
-  const getRirColorClass = (rir: number) => {
-    const color = getRirColor(rir);
+  const getRirColorClass = (rirValue: number) => {
+    const color = getRirColor(rirValue);
     if (color === Colors.red400) return 'text-dangerText bg-dangerSurface border-dangerText/30';
     if (color === Colors.success) return 'text-successText bg-successSurface border-successText/30';
     return 'text-secondaryText bg-secondarySurface border-secondaryText/30';
@@ -101,7 +128,7 @@ function SetCard({
 
   const content = (
     <Animated.View
-      entering={FadeInDown.delay(index * 50).springify()}
+      entering={animateEntry ? FadeInDown.springify() : undefined}
       className="mb-2"
     >
       <TouchableOpacity
@@ -117,60 +144,44 @@ function SetCard({
         onAccessibilityAction={(event) => {
           switch (event.nativeEvent.actionName) {
             case 'edit':
-              if (onEdit) {
-                trigger('medium');
-                swipeableRef.current?.close();
-                onEdit();
-              }
+              if (onEdit) handleEdit();
               break;
             case 'delete':
-              if (onDelete) {
-                trigger('warning');
-                swipeableRef.current?.close();
-                onDelete();
-              }
+              if (onDelete) handleDelete();
               break;
           }
         }}
         className={`p-3 rounded-2xl border flex-row items-center min-h-[52px] shadow-sm ${
-          isPR ? 'bg-accentSurface border-accentText' : isWarmup ? 'bg-warningSurface border-warningText/30 border-dashed' : 'bg-card border-border'
+          isWarmup ? 'bg-warningSurface border-warningText/30 border-dashed' : 'bg-card border-border'
         }`}
       >
         <View className="mr-4 items-center justify-center">
           <View className="w-8 h-8 rounded-full bg-primary items-center justify-center">
             <Text className="text-onPrimary font-bold text-sm">{setNumber}</Text>
           </View>
-          {isPR && (
-            <View className="bg-accent px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 transform rotate-12 shadow-sm">
-              <Text className="text-onAccent text-2xs font-bold">PR</Text>
-            </View>
-          )}
-          {isWarmup && (
-            <View className="bg-warning/80 px-1.5 py-0.5 rounded mt-1 absolute -top-2 -right-2 shadow-sm">
-              <Text className="text-onWarning text-2xs font-bold uppercase">🔥</Text>
-            </View>
-          )}
-          {isEdited && (
-            <View className="bg-secondary px-1 py-0.5 rounded mt-1">
-              <Text className="text-onSecondary text-2xs font-bold">{t("common.edit")}</Text>
-            </View>
-          )}
         </View>
 
-        <View className="flex-1 flex-row items-baseline gap-1">
-          <Text className="text-text text-2xl font-black tracking-tight">
-            {weight > 0 ? weight : '-'}
-          </Text>
-          <Text className="text-subtext text-xs font-bold uppercase mr-2">kg</Text>
+        <View className="flex-1">
+          <View className="flex-row items-baseline gap-1">
+            <Text className="text-text text-2xl font-black tracking-tight">
+              {weight > 0 ? weight : '-'}
+            </Text>
+            <Text className="text-subtext text-xs font-bold uppercase mr-2">kg</Text>
 
-          <Text className="text-subtext/50 text-lg font-light">×</Text>
+            <Text className="text-subtext/50 text-lg font-light">×</Text>
 
-          <Text className="text-text text-2xl font-black tracking-tight ml-2">
-             {duration !== undefined ? duration : (reps || 0)}
-          </Text>
-          <Text className="text-subtext text-xs font-bold uppercase">
-            {duration !== undefined ? 's' : t('exercise.reps')}
-          </Text>
+            <Text className="text-text text-2xl font-black tracking-tight ml-2">
+              {duration !== undefined ? duration : (reps || 0)}
+            </Text>
+            <Text className="text-subtext text-xs font-bold uppercase">
+              {duration !== undefined ? 's' : t('exercise.reps')}
+            </Text>
+          </View>
+          {statusLabels.length > 0 && (
+            <Text className="text-subtext text-xs font-medium mt-0.5">
+              {statusLabels.join(' · ')}
+            </Text>
+          )}
         </View>
 
         <View className="ml-3 flex-row items-center gap-2">
@@ -181,11 +192,16 @@ function SetCard({
               </Text>
             </View>
           )}
-          <View className="w-8 h-8 rounded-full bg-success items-center justify-center">
-            <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={Colors.onSuccess} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-              <Polyline points="20 6 9 17 4 12" />
-            </Svg>
-          </View>
+          {(onEdit || onDelete) && (
+            <TouchableOpacity
+              onPress={handleOpenActions}
+              accessibilityRole="button"
+              accessibilityLabel={t('setCard.openActions')}
+              className="w-11 h-11 items-center justify-center rounded-xl bg-background border border-border"
+            >
+              <Text className="text-subtext font-bold text-base tracking-widest">•••</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </TouchableOpacity>
     </Animated.View>

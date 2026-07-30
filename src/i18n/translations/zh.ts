@@ -423,13 +423,15 @@ export const zh = {
   // Set Card
   setCard: {
     accessibilityLabel: '第 {setNumber} 组，{details}',
-    actionsHint: '向左滑动可编辑或删除，或使用辅助功能操作。',
+    actionsHint: '向左滑动或使用操作按钮以编辑或删除。',
+    actionsTitle: '组操作',
+    openActions: '打开组操作',
     noWeight: '无负重',
     durationSeconds: '{duration}秒',
     repsCount: '{reps} 次',
     rir: 'RIR {rir}',
-    personalRecord: '个人纪录',
     warmup: '热身',
+    edited: '已编辑',
     editAction: '编辑动作',
     deleteAction: '删除动作',
   },

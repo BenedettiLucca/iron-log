@@ -66,6 +66,7 @@ export default function ExerciseScreen() {
     rir,
     setRir,
     sessionSets,
+    hasLoadedSessionSets,
     nextExercise,
     allExercises,
     isWarmupMode,
@@ -426,6 +427,7 @@ export default function ExerciseScreen() {
 
         <SetList
           sessionSets={sessionSets}
+          hasLoadedSessionSets={hasLoadedSessionSets}
           t={t}
           handleEditSet={handleEditSet}
           handleDeleteSet={handleDeleteSet}

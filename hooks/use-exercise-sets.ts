@@ -50,6 +50,7 @@ export function useExerciseSets({
   const [duration, setDuration] = useState('');
   const [rir, setRir] = useState(2);
   const [sessionSets, setSessionSets] = useState<Set[]>([]);
+  const [hasLoadedSessionSets, setHasLoadedSessionSets] = useState(false);
   const [nextExercise, setNextExercise] = useState<RoutineExerciseListItem | null>(null);
   const [allExercises, setAllExercises] = useState<RoutineExerciseListItem[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
@@ -128,6 +129,7 @@ export function useExerciseSets({
         .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
         .orderBy(sets.setNumber);
       setSessionSets(data);
+      setHasLoadedSessionSets(true);
 
       if (data.length === 0 && !restoredDraftRef.current) {
         const lastSet = await db.select({ weight: sets.weightKg })
@@ -197,6 +199,7 @@ export function useExerciseSets({
   }, [exerciseId, sessionId, t]);
 
   useEffect(() => {
+    setHasLoadedSessionSets(false);
     loadData();
     loadHistory();
   }, [loadData, loadHistory]);
@@ -417,6 +420,7 @@ export function useExerciseSets({
     setEditingSet,
     showSetEditor,
     setShowSetEditor,
+    hasLoadedSessionSets,
     completedExercisesCount,
     handleSaveSet,
     handleDeleteSet,
