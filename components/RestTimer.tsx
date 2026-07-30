@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, Animated, PanResponder, Modal, Keyboard, AccessibilityInfo } from 'react-native';
+import type { PanResponderGestureState } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
@@ -16,6 +17,12 @@ interface RestTimerProps {
   onAddTime: (sec: number) => void;
   nextExerciseName?: string;
 }
+
+const isDownwardDismissGesture = (gestureState: PanResponderGestureState) =>
+  gestureState.dy > 5 && gestureState.dy > Math.abs(gestureState.dx);
+
+const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
+  gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
 
 export function RestTimer({
   visible,
@@ -46,16 +53,15 @@ export function RestTimer({
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        return Math.abs(gestureState.dy) > 5 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx);
-      },
+      onMoveShouldSetPanResponder: (_, gestureState) => isDownwardDismissGesture(gestureState),
+      onMoveShouldSetPanResponderCapture: (_, gestureState) => isDownwardDismissGesture(gestureState),
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dy > 0) {
           slideAnim.setValue(gestureState.dy / 500);
         }
       },
       onPanResponderRelease: (evt, gestureState) => {
-        if (gestureState.dy > 100) {
+        if (shouldDismissFromGesture(gestureState)) {
           slideAnim.stopAnimation();
           if (reducedMotionRef.current) {
             slideAnim.setValue(1);

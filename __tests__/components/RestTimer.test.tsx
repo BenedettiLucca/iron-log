@@ -210,6 +210,30 @@ describe('RestTimer', () => {
     expect(mockSpring).not.toHaveBeenCalled();
   });
 
+  it('captures downward swipes before child controls claim the responder', () => {
+    renderTimer();
+
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 20 })).toBe(true);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 20, dy: 2 })).toBe(false);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 0, dy: -20 })).toBe(false);
+  });
+
+  it('dismisses on a short fast downward swipe', () => {
+    const onClose = jest.fn();
+    renderTimer({ onClose });
+
+    act(() => {
+      mockPanResponderConfig.onPanResponderRelease?.({}, { dy: 60, vy: 1.2 });
+    });
+
+    expect(mockTiming).toHaveBeenCalledWith(mockAnimatedValue, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('uses the shared 200ms timing for an accepted swipe dismissal', () => {
     const onClose = jest.fn();
     renderTimer({ onClose });
