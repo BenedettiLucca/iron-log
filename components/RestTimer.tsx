@@ -19,7 +19,7 @@ interface RestTimerProps {
 }
 
 const isDownwardDismissGesture = (gestureState: PanResponderGestureState) =>
-  gestureState.dy > 5 && gestureState.dy > Math.abs(gestureState.dx);
+  gestureState.dy > 16 && gestureState.dy > Math.abs(gestureState.dx);
 
 const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
   gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
@@ -50,6 +50,21 @@ export function RestTimer({
     reducedMotionRef.current = reducedMotion;
   }, [reducedMotion]);
 
+  const resetSlidePosition = () => {
+    slideAnim.stopAnimation();
+    if (reducedMotionRef.current) {
+      slideAnim.setValue(0);
+      return;
+    }
+
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    }).start();
+  };
+
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => false,
@@ -79,19 +94,10 @@ export function RestTimer({
             });
           }
         } else {
-          slideAnim.stopAnimation();
-          if (reducedMotionRef.current) {
-            slideAnim.setValue(0);
-          } else {
-            Animated.spring(slideAnim, {
-              toValue: 0,
-              useNativeDriver: true,
-              tension: 65,
-              friction: 11,
-            }).start();
-          }
+          resetSlidePosition();
         }
       },
+      onPanResponderTerminate: resetSlidePosition,
     })
   ).current;
 

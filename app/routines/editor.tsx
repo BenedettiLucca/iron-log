@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView, TextInput, Keyboard } from 'react-native';
 import type { FocusEvent } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import type { NavigationAction } from '@react-navigation/native';
@@ -66,6 +66,7 @@ export default function RoutineEditorScreen() {
   const nameInputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const footerHeightRef = useRef(0);
+  const focusedExerciseInputRef = useRef<FocusEvent['target'] | null>(null);
   const initialSnapshotRef = useRef<readonly unknown[]>(['', '', '[]']);
   const bypassRef = useRef(false);
   const pendingActionRef = useRef<NavigationAction | null>(null);
@@ -349,8 +350,10 @@ export default function RoutineEditorScreen() {
       }));
   };
 
-  const handleExerciseInputFocus = (event: FocusEvent) => {
-    const target = event.target;
+  const scrollFocusedExerciseInputIntoView = useCallback(() => {
+    const target = focusedExerciseInputRef.current;
+    if (target == null) return;
+
     requestAnimationFrame(() => {
       scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(
         target,
@@ -358,6 +361,22 @@ export default function RoutineEditorScreen() {
         true
       );
     });
+  }, []);
+
+  useEffect(() => {
+    const keyboardDidShow = Keyboard.addListener(
+      'keyboardDidShow',
+      scrollFocusedExerciseInputIntoView
+    );
+
+    return () => keyboardDidShow.remove();
+  }, [scrollFocusedExerciseInputIntoView]);
+
+  const handleExerciseInputFocus = (event: FocusEvent) => {
+    focusedExerciseInputRef.current = event.target;
+    if (Keyboard.isVisible()) {
+      scrollFocusedExerciseInputIntoView();
+    }
   };
 
   if (isHydrating) {

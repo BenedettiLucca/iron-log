@@ -210,12 +210,30 @@ describe('RestTimer', () => {
     expect(mockSpring).not.toHaveBeenCalled();
   });
 
-  it('captures downward swipes before child controls claim the responder', () => {
+  it('captures deliberate downward swipes without stealing normal tap drift from child controls', () => {
     renderTimer();
 
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 6 })).toBe(false);
+    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 15 })).toBe(false);
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 20 })).toBe(true);
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 20, dy: 2 })).toBe(false);
     expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 0, dy: -20 })).toBe(false);
+  });
+
+  it('returns the sheet to rest when another responder interrupts the swipe', () => {
+    renderTimer();
+    mockSpring.mockClear();
+
+    act(() => {
+      mockPanResponderConfig.onPanResponderTerminate?.();
+    });
+
+    expect(mockSpring).toHaveBeenCalledWith(mockAnimatedValue, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    });
   });
 
   it('dismisses on a short fast downward swipe', () => {
