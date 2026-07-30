@@ -25,4 +25,33 @@ describe('active set timer recovery', () => {
     expect(result.current.activeSetTime).toBe(0);
     expect(result.current.isActiveSetRunning).toBe(false);
   });
+
+  it('restores a running duration timer from its persisted start timestamp', () => {
+    const now = jest.spyOn(Date, 'now').mockReturnValue(100_000);
+    const { result } = renderHook(() => useSessionTimer());
+
+    act(() => result.current.restoreActiveSetTime(2, 95_000));
+
+    expect(result.current.activeSetTime).toBe(5);
+    expect(result.current.isActiveSetRunning).toBe(true);
+    expect(result.current.activeSetStart).toBe(95_000);
+    now.mockRestore();
+  });
+
+  it('never reduces recovered elapsed time when the wall clock moves backward', () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(100_000);
+    const { result, unmount } = renderHook(() => useSessionTimer());
+
+    act(() => result.current.restoreActiveSetTime(5, 95_000));
+    expect(result.current.activeSetTime).toBe(5);
+
+    jest.setSystemTime(90_000);
+    act(() => jest.advanceTimersByTime(1_000));
+    expect(result.current.activeSetTime).toBe(5);
+
+    unmount();
+    expect(jest.getTimerCount()).toBe(0);
+    jest.useRealTimers();
+  });
 });

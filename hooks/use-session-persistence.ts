@@ -41,6 +41,8 @@ interface SessionContext {
   isWarmupMode: boolean;
   isDirty: boolean;
   activeSetTime: number;
+  isActiveSetRunning: boolean;
+  activeSetStartedAt: number | null;
 }
 
 interface SessionPersistenceOptions {
@@ -57,6 +59,8 @@ interface SessionPersistenceOptions {
   isWarmupMode: boolean;
   isDirty: boolean;
   activeSetTime: number;
+  isActiveSetRunning: boolean;
+  activeSetStartedAt: number | null;
   startTime: number;
   target?: string;
   notes?: string;
@@ -81,6 +85,8 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
     isWarmupMode: opts.isWarmupMode,
     isDirty: opts.isDirty,
     activeSetTime: opts.activeSetTime,
+    isActiveSetRunning: opts.isActiveSetRunning,
+    activeSetStartedAt: opts.activeSetStartedAt,
   };
 }
 

@@ -413,10 +413,11 @@ export default function RoutineEditorScreen() {
                 
                 <Button 
                     title="X"
+                    accessibilityLabel={t('common.delete')}
                     onPress={() => removeExercise(index)}
                     variant="danger"
                     size="sm"
-                    style={{ minHeight: 32, paddingVertical: 4, paddingHorizontal: 12 }}
+                    style={{ minWidth: 44 }}
                 />
             </View>
 

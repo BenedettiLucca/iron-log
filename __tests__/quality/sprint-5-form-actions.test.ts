@@ -37,4 +37,13 @@ describe('Sprint 5 inset-aware form actions', () => {
     expect(actions).not.toContain('bottom-6');
     expect(actions).toContain('bottom: 24 + insets.bottom');
   });
+
+  it('does not override the routine remove action below the 44dp button floor', () => {
+    const removeAction = section(routineSource, 'title="X"', '/>');
+
+    expect(removeAction).not.toContain('minHeight: 32');
+    expect(removeAction).not.toContain('paddingVertical: 4');
+    expect(removeAction).toContain('minWidth: 44');
+    expect(removeAction).toContain("accessibilityLabel={t('common.delete')}");
+  });
 });

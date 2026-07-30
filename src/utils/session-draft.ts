@@ -6,12 +6,15 @@ export interface SessionDraft {
   isWarmupMode: boolean;
   isDirty: boolean;
   activeSetTime: number;
+  isActiveSetRunning: boolean;
+  activeSetStartedAt: number | null;
 }
 
 type SessionDraftState = {
   isDirty?: boolean;
   activeSetTime?: number;
   isActiveSetRunning?: boolean;
+  activeSetStartedAt?: number | null;
 };
 
 export function hasPendingSessionDraft(state: SessionDraftState): boolean {
@@ -19,7 +22,8 @@ export function hasPendingSessionDraft(state: SessionDraftState): boolean {
   return Boolean(
     state.isDirty ||
     (typeof state.activeSetTime === 'number' && state.activeSetTime > 0) ||
-    state.isActiveSetRunning
+    state.isActiveSetRunning ||
+    (typeof state.activeSetStartedAt === 'number' && Number.isFinite(state.activeSetStartedAt))
   );
 }
 
@@ -95,6 +99,33 @@ export function resolveSessionDraft(
     return null;
   }
 
+  const rawActiveSetStartedAt = obj.activeSetStartedAt;
+  const rawIsActiveSetRunning = obj.isActiveSetRunning;
+  const hasRunningField = rawIsActiveSetRunning !== undefined;
+  const hasStartedAtField = rawActiveSetStartedAt !== undefined;
+  if (hasRunningField !== hasStartedAtField) return null;
+
+  if (
+    rawActiveSetStartedAt !== undefined &&
+    rawActiveSetStartedAt !== null &&
+    (
+      typeof rawActiveSetStartedAt !== 'number' ||
+      !Number.isFinite(rawActiveSetStartedAt) ||
+      rawActiveSetStartedAt < 0
+    )
+  ) {
+    return null;
+  }
+  const activeSetStartedAt = typeof rawActiveSetStartedAt === 'number'
+    ? rawActiveSetStartedAt
+    : null;
+
+  if (rawIsActiveSetRunning !== undefined && typeof rawIsActiveSetRunning !== 'boolean') {
+    return null;
+  }
+  const isActiveSetRunning = rawIsActiveSetRunning ?? false;
+  if (isActiveSetRunning !== (activeSetStartedAt !== null)) return null;
+
   if (!hasPendingSessionDraft(obj)) return null;
 
   return {
@@ -105,5 +136,7 @@ export function resolveSessionDraft(
     isWarmupMode,
     isDirty,
     activeSetTime,
+    isActiveSetRunning,
+    activeSetStartedAt,
   };
 }

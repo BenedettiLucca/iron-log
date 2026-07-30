@@ -25,6 +25,8 @@ describe('session draft recovery', () => {
       isWarmupMode: true,
       isDirty: true,
       activeSetTime: 0,
+      isActiveSetRunning: false,
+      activeSetStartedAt: null,
     });
 
     expect(resolveSessionDraft(persisted, { sessionId: 99, exerciseId: 7 })).toBeNull();
@@ -43,7 +45,38 @@ describe('session draft recovery', () => {
       isWarmupMode: true,
       isDirty: false,
       activeSetTime: 73,
+      isActiveSetRunning: false,
+      activeSetStartedAt: null,
     });
+  });
+
+  it('restores a running duration draft only with a valid start timestamp', () => {
+    const running = {
+      ...persisted,
+      isDirty: true,
+      activeSetTime: 0,
+      isActiveSetRunning: true,
+      activeSetStartedAt: 123_000,
+    };
+
+    expect(resolveSessionDraft(running, { sessionId: 42, exerciseId: 7 })).toEqual(
+      expect.objectContaining({
+        isActiveSetRunning: true,
+        activeSetStartedAt: 123_000,
+      }),
+    );
+    expect(resolveSessionDraft(
+      { ...running, activeSetStartedAt: null },
+      { sessionId: 42, exerciseId: 7 },
+    )).toBeNull();
+    expect(resolveSessionDraft(
+      { ...persisted, activeSetStartedAt: 123_000 },
+      { sessionId: 42, exerciseId: 7 },
+    )).toBeNull();
+    expect(resolveSessionDraft(
+      { ...persisted, isActiveSetRunning: false, activeSetStartedAt: 123_000 },
+      { sessionId: 42, exerciseId: 7 },
+    )).toBeNull();
   });
 
   it('ignores clean, malformed, and invalid persisted contexts', () => {

@@ -3,7 +3,7 @@ import { db } from '../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../src/db/schema';
 import { eq, and, desc, isNull, ne } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { parseTargetSets, countCompletedRoutineExercises } from '../src/utils/exercise';
+import { countCompletedRoutineExercises } from '../src/utils/exercise';
 import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { setInputSchema } from '../src/validators/forms';
@@ -70,7 +70,7 @@ export function useExerciseSets({
   const { 
     timerSeconds, timerStatus, 
     setTimerSeconds, setTimerTarget, setTimerStatus, 
-    addTime, activeSetTime, 
+    addTime, activeSetStart, activeSetTime,
     isActiveSetRunning, toggleActiveSet,
     restoreActiveSetTime, resetActiveSet
   } = timer;
@@ -83,7 +83,10 @@ export function useExerciseSets({
     setRir(draft.rir);
     setIsWarmupMode(draft.isWarmupMode);
     setIsDirty(draft.isDirty);
-    restoreActiveSetTime(draft.activeSetTime);
+    restoreActiveSetTime(
+      draft.activeSetTime,
+      draft.activeSetStartedAt,
+    );
   }, [restoreActiveSetTime]);
 
   // Undo Hook
@@ -406,6 +409,7 @@ export function useExerciseSets({
     setTimerSeconds,
     setTimerStatus,
     addTime,
+    activeSetStart,
     activeSetTime,
     isActiveSetRunning,
     toggleActiveSet,

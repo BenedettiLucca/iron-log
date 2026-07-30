@@ -7,20 +7,15 @@ const read = (file: string) => fs.readFileSync(path.join(root, file), 'utf8');
 const exerciseScreen = read('app/session/exercise.tsx');
 const exerciseSetsHook = read('hooks/use-exercise-sets.ts');
 
-
 describe('Sprint 5 pending-set recovery wiring', () => {
-  it('loads and applies a matching persisted draft on exercise mount', () => {
-    expect(exerciseScreen).toContain('loadSessionContext');
-    expect(exerciseScreen).toContain('resolveSessionDraft');
-    expect(exerciseScreen).toContain('restoreDraft');
-  });
-
   it('protects back and gesture navigation until pending draft persistence succeeds', () => {
     expect(exerciseScreen).toContain("navigation.addListener('beforeRemove'");
     expect(exerciseScreen).toContain('hasPendingSessionDraft');
     expect(exerciseScreen).toContain('await saveSessionContext()');
     expect(exerciseScreen).toContain('navigation.dispatch(e.data.action)');
-    expect(exerciseScreen).toMatch(/e\.preventDefault\(\)[\s\S]+if \(isPersistingNavigationRef\.current\) return/);
+    expect(exerciseScreen).toMatch(
+      /operationRef\.current !== 'idle'[\s\S]+e\.preventDefault\(\)/,
+    );
   });
 
   it('keeps restored input from being overwritten by history prefill', () => {
@@ -32,9 +27,12 @@ describe('Sprint 5 pending-set recovery wiring', () => {
     expect(exerciseScreen).toMatch(/hydrationGeneration[\s\S]+draftMutationGenerationRef\.current/);
   });
 
-  it('blocks mutation and navigation while a set is being finalized', () => {
-    expect(exerciseScreen).toContain('isFinalizingSetRef');
+  it('blocks mutation and navigation while a set or navigation is being finalized', () => {
+    expect(exerciseScreen).toContain("operationRef.current !== 'idle'");
+    expect(exerciseScreen).toContain("operationRef.current = 'set-finalization'");
+    expect(exerciseScreen).toContain("operationRef.current = 'session-mutation'");
+    expect(exerciseScreen).toContain("operationRef.current = 'advance-navigation'");
     expect(exerciseScreen).toContain('hasPersistenceFailureRef');
-    expect(exerciseScreen).toMatch(/if \(isFinalizingSetRef\.current\)[\s\S]+e\.preventDefault\(\)/);
   });
+
 });

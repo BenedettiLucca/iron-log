@@ -7,7 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { SetEditor } from '../../components/SetEditor';
@@ -36,6 +36,14 @@ import {
   resolveSessionDraft,
 } from '@/src/utils/session-draft';
 import { logger } from '../../services/logger';
+
+type SessionOperation =
+  | 'idle'
+  | 'set-finalization'
+  | 'session-mutation'
+  | 'removal-navigation'
+  | 'advance-navigation'
+  | 'navigating';
 
 export default function ExerciseScreen() {
   const router = useRouter();
@@ -80,6 +88,7 @@ export default function ExerciseScreen() {
     setTimerSeconds,
     setTimerStatus,
     addTime,
+    activeSetStart,
     activeSetTime,
     isActiveSetRunning,
     toggleActiveSet,
@@ -122,16 +131,54 @@ export default function ExerciseScreen() {
 
   const { activeProgram, progressionStatus } = useProgression(exerciseId, exerciseName);
   const draftMutationGenerationRef = useRef(0);
-  const isFinalizingSetRef = useRef(false);
+  const operationRef = useRef<SessionOperation>('idle');
   const hasPersistenceFailureRef = useRef(false);
   const markDraftMutation = useCallback(() => {
     draftMutationGenerationRef.current += 1;
   }, []);
   const beginDraftMutation = useCallback(() => {
-    if (isFinalizingSetRef.current) return false;
+    if (operationRef.current !== 'idle') return false;
     markDraftMutation();
     return true;
   }, [markDraftMutation]);
+
+  const runSessionMutation = useCallback(async <T,>(
+    mutation: () => Promise<T>,
+    blockedResult: T,
+  ): Promise<T> => {
+    if (operationRef.current !== 'idle') return blockedResult;
+    operationRef.current = 'session-mutation';
+    markDraftMutation();
+    try {
+      return await mutation();
+    } finally {
+      if (operationRef.current === 'session-mutation') {
+        operationRef.current = 'idle';
+      }
+    }
+  }, [markDraftMutation]);
+
+  const guardedHandleUndo = useCallback(async () => {
+    await runSessionMutation(handleUndo, undefined);
+  }, [handleUndo, runSessionMutation]);
+  const guardedHandleRestoreDeletedSet = useCallback(async () => {
+    await runSessionMutation(handleRestoreDeletedSet, undefined);
+  }, [handleRestoreDeletedSet, runSessionMutation]);
+  const guardedHandleDeleteSet = useCallback(async (setId: number) => {
+    await runSessionMutation(() => handleDeleteSet(setId), undefined);
+  }, [handleDeleteSet, runSessionMutation]);
+  const guardedHandleEditSet = useCallback(async (setId: number) => {
+    await runSessionMutation(() => handleEditSet(setId), undefined);
+  }, [handleEditSet, runSessionMutation]);
+  const guardedHandleSaveEditedSet = useCallback((
+    editedWeight: number,
+    editedReps?: number,
+    editedDuration?: number,
+    editedRir?: number,
+  ): Promise<boolean> => runSessionMutation(
+    () => handleSaveEditedSet(editedWeight, editedReps, editedDuration, editedRir),
+    false,
+  ), [handleSaveEditedSet, runSessionMutation]);
 
   // Persistence Hook
   const { saveSessionContext, loadSessionContext, clearSessionContext } = useSessionPersistence({
@@ -148,6 +195,8 @@ export default function ExerciseScreen() {
     isWarmupMode,
     isDirty,
     activeSetTime,
+    isActiveSetRunning,
+    activeSetStartedAt: activeSetStart,
     startTime,
     target,
     notes,
@@ -162,7 +211,11 @@ export default function ExerciseScreen() {
       const context = await loadSessionContext();
       if (!isMounted || !context) return;
       const draft = resolveSessionDraft(context, { sessionId, exerciseId });
-      if (draft && hydrationGeneration === draftMutationGenerationRef.current) {
+      if (
+        draft &&
+        operationRef.current === 'idle' &&
+        hydrationGeneration === draftMutationGenerationRef.current
+      ) {
         restoreDraft(draft);
       }
     })();
@@ -172,21 +225,14 @@ export default function ExerciseScreen() {
   }, [sessionId, exerciseId, loadSessionContext, restoreDraft]);
 
   const navigation = useNavigation();
-  const isNavigatingRef = useRef(false);
-  const isPersistingNavigationRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      if (isNavigatingRef.current) {
+      if (operationRef.current === 'navigating') {
         return;
       }
 
-      const actionType = e.data.action.type;
-      if (actionType !== 'GO_BACK' && actionType !== 'POP') {
-        return;
-      }
-
-      if (isFinalizingSetRef.current) {
+      if (operationRef.current !== 'idle') {
         e.preventDefault();
         return;
       }
@@ -202,18 +248,17 @@ export default function ExerciseScreen() {
       }
 
       e.preventDefault();
-
-      if (isPersistingNavigationRef.current) return;
-      isPersistingNavigationRef.current = true;
+      operationRef.current = 'removal-navigation';
 
       (async () => {
         try {
           await saveSessionContext();
           hasPersistenceFailureRef.current = false;
-          isNavigatingRef.current = true;
+          operationRef.current = 'navigating';
           navigation.dispatch(e.data.action);
         } catch {
-          isPersistingNavigationRef.current = false;
+          hasPersistenceFailureRef.current = true;
+          operationRef.current = 'idle';
           setToast({
             visible: true,
             message: t('common.operationError'),
@@ -226,9 +271,13 @@ export default function ExerciseScreen() {
     return unsubscribe;
   }, [navigation, isDirty, activeSetTime, isActiveSetRunning, saveSessionContext, setToast, t]);
 
-  const saveSetAndClearDraft = useCallback(async (overrideDuration?: number): Promise<boolean> => {
-    if (isFinalizingSetRef.current) return false;
-    isFinalizingSetRef.current = true;
+  const saveSetAndClearDraft = useCallback(async (
+    overrideDuration?: number,
+    owner: 'user' | 'advance' = 'user',
+  ): Promise<boolean> => {
+    const expectedOperation = owner === 'advance' ? 'advance-navigation' : 'idle';
+    if (operationRef.current !== expectedOperation) return false;
+    if (owner === 'user') operationRef.current = 'set-finalization';
     markDraftMutation();
 
     try {
@@ -242,6 +291,8 @@ export default function ExerciseScreen() {
             duration: '',
             isDirty: false,
             activeSetTime: 0,
+            isActiveSetRunning: false,
+            activeSetStartedAt: null,
           },
           { clearOnFailure: true },
         );
@@ -258,64 +309,97 @@ export default function ExerciseScreen() {
         return false;
       }
     } finally {
-      isFinalizingSetRef.current = false;
+      if (owner === 'user' && operationRef.current === 'set-finalization') {
+        operationRef.current = 'idle';
+      }
     }
   }, [handleSaveSet, markDraftMutation, saveSessionContext, setToast, t]);
 
   const goToNextOrFinish = useCallback(async () => {
-    if (isFinalizingSetRef.current || isSaving || isActiveSetRunning) return;
+    if (
+      operationRef.current !== 'idle' ||
+      isSaving ||
+      isActiveSetRunning
+    ) return;
 
-    const needsSave = shouldSavePendingSet({
-      isDirty,
-      exerciseType,
-      activeSetTime,
-      isActiveSetRunning,
-    });
-    if (!needsSave) markDraftMutation();
-    const saveSucceeded = needsSave
-      ? await saveSetAndClearDraft(exerciseType === 'duration' ? activeSetTime : undefined)
-      : true;
+    operationRef.current = 'advance-navigation';
+    let navigationStarted = false;
 
-    if (!canNavigateAfterPendingSave(needsSave, saveSucceeded)) return;
-
-    if (nextExercise) {
-      await saveSessionContext({
-        exerciseId: nextExercise.id,
-        exerciseName: nextExercise.name,
-        target: nextExercise.target ?? undefined,
-        notes: nextExercise.notes ?? undefined,
-        restSeconds: nextExercise.restSeconds,
-        exerciseType: nextExercise.type,
-        weight: '',
-        reps: '',
-        duration: '',
-        rir: 2,
-        isWarmupMode: false,
-        isDirty: false,
-        activeSetTime: 0,
+    try {
+      const needsSave = shouldSavePendingSet({
+        isDirty,
+        exerciseType,
+        activeSetTime,
+        isActiveSetRunning,
       });
-      hasPersistenceFailureRef.current = false;
-      router.replace({
-        pathname: '/session/exercise',
-        params: {
-          sessionId,
-          routineId,
+      if (!needsSave) markDraftMutation();
+      const saveSucceeded = needsSave
+        ? await saveSetAndClearDraft(
+          exerciseType === 'duration' ? activeSetTime : undefined,
+          'advance',
+        )
+        : true;
+
+      if (!canNavigateAfterPendingSave(needsSave, saveSucceeded)) return;
+
+      if (nextExercise) {
+        await saveSessionContext({
           exerciseId: nextExercise.id,
           exerciseName: nextExercise.name,
-          target: nextExercise.target,
-          notes: nextExercise.notes,
-          restSeconds: nextExercise.restSeconds?.toString(),
-          startTime: startTime.toString()
-        }
-      });
-    } else {
-      // Clear incomplete session when navigating to finish
-      await clearSessionContext();
+          target: nextExercise.target ?? undefined,
+          notes: nextExercise.notes ?? undefined,
+          restSeconds: nextExercise.restSeconds,
+          exerciseType: nextExercise.type,
+          weight: '',
+          reps: '',
+          duration: '',
+          rir: 2,
+          isWarmupMode: false,
+          isDirty: false,
+          activeSetTime: 0,
+          isActiveSetRunning: false,
+          activeSetStartedAt: null,
+        });
+      } else {
+        // Clear incomplete session when navigating to finish
+        await clearSessionContext();
+      }
+
       hasPersistenceFailureRef.current = false;
-      router.replace({
-        pathname: '/session/finish',
-        params: { sessionId, startTime: startTime.toString() }
+      operationRef.current = 'navigating';
+      if (nextExercise) {
+        router.replace({
+          pathname: '/session/exercise',
+          params: {
+            sessionId,
+            routineId,
+            exerciseId: nextExercise.id,
+            exerciseName: nextExercise.name,
+            target: nextExercise.target,
+            notes: nextExercise.notes,
+            restSeconds: nextExercise.restSeconds?.toString(),
+            startTime: startTime.toString()
+          }
+        });
+      } else {
+        router.replace({
+          pathname: '/session/finish',
+          params: { sessionId, startTime: startTime.toString() }
+        });
+      }
+      navigationStarted = true;
+    } catch (error) {
+      hasPersistenceFailureRef.current = true;
+      logger.error('Failed to persist session navigation', error);
+      setToast({
+        visible: true,
+        message: t('common.operationError'),
+        type: 'error',
       });
+    } finally {
+      if (!navigationStarted) {
+        operationRef.current = 'idle';
+      }
     }
   }, [
     activeSetTime,
@@ -331,7 +415,9 @@ export default function ExerciseScreen() {
     saveSessionContext,
     saveSetAndClearDraft,
     sessionId,
+    setToast,
     startTime,
+    t,
   ]);
 
   const calculateTarget = useCallback(() => {
@@ -377,7 +463,7 @@ export default function ExerciseScreen() {
         {lastSavedSet && (
           <View className="mx-4 mt-2">
             <TouchableOpacity
-              onPress={handleUndo}
+              onPress={guardedHandleUndo}
               className="bg-warning/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
               {...a11y.undo}
             >
@@ -389,7 +475,7 @@ export default function ExerciseScreen() {
         {lastDeletedSet && (
           <View className="mx-4 mt-2">
             <TouchableOpacity
-              onPress={handleRestoreDeletedSet}
+              onPress={guardedHandleRestoreDeletedSet}
               className="bg-danger/90 p-3 rounded-xl shadow-lg flex-row items-center justify-center gap-2"
               accessibilityRole="button"
               accessibilityLabel={t('exercise.undoDeletedSet')}
@@ -429,8 +515,8 @@ export default function ExerciseScreen() {
           sessionSets={sessionSets}
           hasLoadedSessionSets={hasLoadedSessionSets}
           t={t}
-          handleEditSet={handleEditSet}
-          handleDeleteSet={handleDeleteSet}
+          handleEditSet={guardedHandleEditSet}
+          handleDeleteSet={guardedHandleDeleteSet}
         />
 
         {/* Input Area */}
@@ -475,6 +561,7 @@ export default function ExerciseScreen() {
               <TouchableOpacity
                 onPress={() => {
                   if (!beginDraftMutation()) return;
+                  setIsDirty(true);
                   toggleActiveSet();
                 }}
                 className="rounded-2xl items-center py-5 px-16 shadow-lg"
@@ -664,7 +751,7 @@ export default function ExerciseScreen() {
           initialDuration={editingSet?.durationSeconds ?? undefined}
           initialRir={editingSet?.rir}
           isDuration={exerciseType === 'duration'}
-          onSave={handleSaveEditedSet}
+          onSave={guardedHandleSaveEditedSet}
           onCancel={() => {
             setShowSetEditor(false);
             setEditingSet(null);

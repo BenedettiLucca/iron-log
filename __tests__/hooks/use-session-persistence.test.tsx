@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, renderHook } from '@testing-library/react-native';
 import { useSessionPersistence } from '@/hooks/use-session-persistence';
+import { resolveSessionDraft } from '@/src/utils/session-draft';
 
 jest.mock('react-native/Libraries/AppState/AppState', () => ({
   __esModule: true,
@@ -32,6 +33,8 @@ const opts = {
   isWarmupMode: true,
   isDirty: true,
   activeSetTime: 37,
+  isActiveSetRunning: false,
+  activeSetStartedAt: null,
   startTime: 123456,
   target: '3x8',
   notes: 'Controle',
@@ -61,7 +64,37 @@ describe('session persistence', () => {
       isWarmupMode: true,
       isDirty: true,
       activeSetTime: 37,
+      isActiveSetRunning: false,
+      activeSetStartedAt: null,
     }));
+  });
+
+  it('persists an immediately started duration draft at zero elapsed seconds', async () => {
+    const durationOpts = {
+      ...opts,
+      exerciseType: 'duration',
+      weight: '',
+      reps: '',
+      isDirty: true,
+      activeSetTime: 0,
+      isActiveSetRunning: true,
+      activeSetStartedAt: 123_000,
+    };
+    const { result } = renderHook(() => useSessionPersistence(durationOpts));
+
+    await act(async () => {
+      await result.current.saveSessionContext();
+    });
+
+    const stored = JSON.parse((AsyncStorage.setItem as jest.Mock).mock.calls[0][1]);
+    expect(resolveSessionDraft(stored, { sessionId: 42, exerciseId: 7 })).toEqual(
+      expect.objectContaining({
+        isDirty: true,
+        activeSetTime: 0,
+        isActiveSetRunning: true,
+        activeSetStartedAt: 123_000,
+      }),
+    );
   });
 
   it('loads the persisted context for screen-level validation', async () => {
