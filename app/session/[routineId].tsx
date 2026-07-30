@@ -29,7 +29,6 @@ export default function SessionScreen() {
   const { t } = useI18n();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
-    warmupSwitch: t('a11y.warmupSwitch'),
     undoLastSetLabel: t('exercise.undoLastSet'),
     undoLastSetHint: t('a11y.undoLastSetHint'),
     durationStart: t('a11y.durationStart'),
@@ -346,7 +345,6 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
-    warmupSwitch: t('a11y.warmupSwitch'),
     undoLastSetLabel: t('exercise.undoLastSet'),
     undoLastSetHint: t('a11y.undoLastSetHint'),
     durationStart: t('a11y.durationStart'),

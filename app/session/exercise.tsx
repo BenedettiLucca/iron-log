@@ -24,6 +24,7 @@ import { useSessionPersistence } from '../../hooks/use-session-persistence';
 import { ExerciseHeader } from '../../components/session/ExerciseHeader';
 import { SetList } from '../../components/session/SetList';
 import { RestTimer } from '../../components/RestTimer';
+import { WarmupToggle } from '../../components/session/WarmupToggle';
 import { ExerciseHistoryModal } from '../../components/session/ExerciseHistoryModal';
 import { RirExplainerModal } from '../../components/session/RirExplainerModal';
 import {
@@ -111,7 +112,6 @@ export default function ExerciseScreen() {
 
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
-    warmupSwitch: t('a11y.warmupSwitch'),
     undoLastSetLabel: t('exercise.undoLastSet'),
     undoLastSetHint: t('a11y.undoLastSetHint'),
     durationStart: t('a11y.durationStart'),
@@ -438,26 +438,16 @@ export default function ExerciseScreen() {
           className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg"
           style={{ paddingBottom: 12 + insets.bottom }}
         >
-          {/* Warm-Up Mode Toggle */}
-          <View className="flex-row items-center justify-between mb-3 py-1.5 bg-background rounded-lg px-3">
-            <View className="flex-row items-center gap-2">
-              <Text className="text-lg">🔥</Text>
-              <Text className="text-text font-bold text-xs">{t('exerciseSession.warmup')}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                if (!beginDraftMutation()) return;
-                setIsWarmupMode(!isWarmupMode);
-                setIsDirty(true);
-              }}
-              className={`w-12 h-7 rounded-full p-0.5 ${isWarmupMode ? 'bg-warning' : 'bg-border'}`}
-              {...a11y.warmupSwitch(isWarmupMode)}
-            >
-              <View
-                className={`w-5 h-5 rounded-full bg-white shadow-sm transition-all ${isWarmupMode ? 'translate-x-5' : 'translate-x-0'}`}
-              />
-            </TouchableOpacity>
-          </View>
+          <WarmupToggle
+            value={isWarmupMode}
+            label={t('exerciseSession.warmup')}
+            accessibilityLabel={t('a11y.warmupSwitch')}
+            onValueChange={(nextValue) => {
+              if (!beginDraftMutation()) return;
+              setIsWarmupMode(nextValue);
+              setIsDirty(true);
+            }}
+          />
           {exerciseType === 'duration' ? (
             <View className="items-center mb-4">
               <Text className="text-text font-mono text-6xl font-bold mb-4">
