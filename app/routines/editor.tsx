@@ -13,6 +13,7 @@ import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionHeader } from '@/components/SectionHeader';
 import {
   buildRoutineExerciseRows,
@@ -48,6 +49,7 @@ export default function RoutineEditorScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = useRef(false);
   const { toast, setToast } = useToast();
+  const insets = useSafeAreaInsets();
 
 
   const loadRoutineData = useCallback(async () => {
@@ -262,7 +264,7 @@ export default function RoutineEditorScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScrollView
-        className="px-4 pb-4"
+        className="flex-1 px-4 pb-4"
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -344,11 +346,12 @@ export default function RoutineEditorScreen() {
             </View>
           </Card>
         ))}
-
-        <View className="h-40" />
       </ScrollView>
 
-      <View className="p-4 border-t border-border bg-background absolute bottom-0 w-full shadow-lg gap-2">
+      <View
+        className="p-4 border-t border-border bg-background shadow-lg gap-2"
+        style={{ paddingBottom: 16 + insets.bottom }}
+      >
         <Button 
           title={t("common.save")}
           onPress={handleSave}

@@ -18,6 +18,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { Toast } from '@/components/Toast';
 import { useToast } from '@/hooks/use-toast';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { calculateGoalProgress, findGoalBaseline } from '../../src/utils/goal-progress';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
@@ -33,6 +34,7 @@ function ArrowRightIcon({ color, size = 14 }: { color: string; size?: number }) 
 export default function GoalsScreen() {
   const { t, language } = useI18n();
   const themeColors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const MEASUREMENT_LABELS: Record<MeasurementType, string> = {
     weight: t('bioGoals.weight'),
     waist: t('bioGoals.waist'),
@@ -346,7 +348,7 @@ export default function GoalsScreen() {
       </ScrollView>
 
       {/* Add Goal Button as Bottom CTA */}
-      <View className="p-4 bg-background border-t border-border/20">
+      <View className="p-4 bg-background border-t border-border/20" style={{ paddingBottom: 16 + insets.bottom }}>
         <Button
           title={t("bioGoals.newGoal")}
           onPress={openAddModal}

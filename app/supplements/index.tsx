@@ -18,6 +18,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Polyline, Line } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 import { SegmentedControl } from '@/components/SegmentedControl';
@@ -49,6 +50,7 @@ const PlusIcon = ({ color = Colors.onPrimary }: { color?: string }) => (
 export default function SupplementsScreen() {
   const { t, language } = useI18n();
   const theme = useThemeColors();
+  const insets = useSafeAreaInsets();
   const listLabel = useMemo(() => {
     switch (language) {
       case 'pt':
@@ -404,7 +406,8 @@ export default function SupplementsScreen() {
       {/* FAB */}
       <TouchableOpacity
         onPress={openAddModal}
-        className="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/30"
+        className="absolute right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/30"
+        style={{ bottom: 24 + insets.bottom }}
         accessibilityRole="button"
         accessibilityLabel={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')}
       >
