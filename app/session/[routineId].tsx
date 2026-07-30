@@ -15,7 +15,7 @@ import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets, countCompletedRoutineExercises } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
-import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
+import { createNavigationGate, resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { resolveScreenState } from '../../src/utils/screen-state';
@@ -55,10 +55,12 @@ export default function SessionScreen() {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const lastBackPressTime = useRef<number>(0);
+  const exerciseNavigationGateRef = useRef(createNavigationGate());
 
   // Force refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
+      exerciseNavigationGateRef.current.reset();
       setRefreshKey(prev => prev + 1);
       return () => {};
     }, [])
@@ -266,18 +268,20 @@ export default function SessionScreen() {
             exercise={item}
             sessionId={sessionId}
             index={index}
-            onPress={() => router.push({
-              pathname: '/session/exercise',
-              params: {
-                  sessionId,
-                  routineId: rIdStr,
-                  exerciseId: item.id,
-                  exerciseName: item.name,
-                  target: item.target,
-                  notes: item.notes,
-                  restSeconds: item.restSeconds?.toString(),
-                  startTime: startTime.toString()
-              }
+            onPress={() => exerciseNavigationGateRef.current.run(() => {
+              router.push({
+                pathname: '/session/exercise',
+                params: {
+                    sessionId,
+                    routineId: rIdStr,
+                    exerciseId: item.id,
+                    exerciseName: item.name,
+                    target: item.target,
+                    notes: item.notes,
+                    restSeconds: item.restSeconds?.toString(),
+                    startTime: startTime.toString()
+                }
+              });
             })}
           />
         )}

@@ -12,9 +12,36 @@ type SessionStartRoute = {
   };
 };
 
+type NavigationGate = {
+  run: (navigate: () => void) => boolean;
+  reset: () => void;
+};
+
 function normalizeName(name: string | null | undefined): string | null {
   const trimmed = name?.trim() ?? '';
   return trimmed.length > 0 ? trimmed : null;
+}
+
+export function createNavigationGate(): NavigationGate {
+  let locked = false;
+
+  return {
+    run(navigate) {
+      if (locked) return false;
+      locked = true;
+
+      try {
+        navigate();
+        return true;
+      } catch (error) {
+        locked = false;
+        throw error;
+      }
+    },
+    reset() {
+      locked = false;
+    },
+  };
 }
 
 export function buildSessionStartRoute(
