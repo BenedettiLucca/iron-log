@@ -26,6 +26,9 @@ export const en = {
   },
 
   common: {
+    discardChangesTitle: 'Discard changes?',
+    discardChangesMessage: 'Unsaved changes will be lost.',
+    discardChanges: 'Discard',
     save: 'Save',
     cancel: 'Cancel',
     delete: 'Delete',
@@ -850,6 +853,7 @@ export const en = {
     completed: 'completed',
     progressUnavailable: 'Progress unavailable',
     dateRequired: 'Target date is required',
+    dateInvalid: 'Target date must be in the future',
     editActionLabel: 'Edit {name} goal',
     deleteActionLabel: 'Delete {name} goal',
   },

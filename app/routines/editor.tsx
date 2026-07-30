@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView, TextInput } from 'react-native';
+import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
+import type { NavigationAction } from '@react-navigation/native';
 import { db } from '../../src/db/client';
 import { routines, routineExercises, exercises } from '../../src/db/schema';
 import { eq } from 'drizzle-orm';
@@ -9,12 +10,15 @@ import { Toast } from '../../components/Toast';
 import { Input } from '../../components/Input';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
+import { Dialog } from '../../components/Dialog';
+import { ErrorState, LoadingState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionHeader } from '@/components/SectionHeader';
+import { isFormDirty } from '@/src/utils/form-dirty';
 import {
   buildRoutineExerciseRows,
   buildSaveAsTemplateValues,
@@ -37,6 +41,7 @@ type SelectedExercise = {
 export default function RoutineEditorScreen() {
   const { t } = useI18n();
   const router = useRouter();
+  const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const isEditing = !!id;
 
@@ -51,14 +56,24 @@ export default function RoutineEditorScreen() {
   const { toast, setToast } = useToast();
   const insets = useSafeAreaInsets();
 
+  const [nameError, setNameError] = useState('');
+  const [exerciseError, setExerciseError] = useState('');
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [isHydrating, setIsHydrating] = useState(isEditing);
+  const [hydrationFailed, setHydrationFailed] = useState(false);
 
-  const loadRoutineData = useCallback(async () => {
+  const nameInputRef = useRef<TextInput>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const initialSnapshotRef = useRef<readonly unknown[]>(['', '', '[]']);
+  const bypassRef = useRef(false);
+  const pendingActionRef = useRef<NavigationAction | null>(null);
+  const hydrationGenerationRef = useRef(0);
+
+  const loadRoutineData = useCallback(async (generation: number) => {
     try {
       const routineData = await db.select().from(routines).where(eq(routines.id, Number(id)));
-      if (routineData.length > 0) {
-        setName(routineData[0].name);
-        setDescription(routineData[0].description || '');
-      }
+      const loadedRoutine = routineData[0];
+      if (!loadedRoutine) throw new Error('Routine not found');
 
       const joins = await db.select({
         id: exercises.id,
@@ -73,32 +88,101 @@ export default function RoutineEditorScreen() {
       .where(eq(routineExercises.routineId, Number(id)))
       .orderBy(routineExercises.orderIndex);
 
-      setSelectedExercises(joins.map(j => ({
+      const loadedExercises = joins.map(j => ({
           id: j.id,
           name: j.name,
           target: j.target || '',
           notes: j.notes || '',
           restSeconds: j.restSeconds || undefined
-      })));
-    } catch {
+      }));
+
+      if (generation !== hydrationGenerationRef.current) return;
+      const loadedName = loadedRoutine.name;
+      const loadedDescription = loadedRoutine.description || '';
+      setName(loadedName);
+      setDescription(loadedDescription);
+      setSelectedExercises(loadedExercises);
+      initialSnapshotRef.current = [loadedName, loadedDescription, JSON.stringify(loadedExercises)];
+      setHydrationFailed(false);
+    } catch (error) {
+      if (generation !== hydrationGenerationRef.current) return;
+      logger.error('Failed to load routine editor', error);
+      setHydrationFailed(true);
       setToast({ visible: true, message: t('routines.loadError'), type: 'error' });
+    } finally {
+      if (generation === hydrationGenerationRef.current) {
+        setIsHydrating(false);
+      }
     }
   }, [id, t, setToast]);
 
+  const startHydration = useCallback(() => {
+    const generation = ++hydrationGenerationRef.current;
+    setIsHydrating(true);
+    setHydrationFailed(false);
+    void loadRoutineData(generation);
+  }, [loadRoutineData]);
+
   useEffect(() => {
-    if (isEditing) {
-      loadRoutineData();
+    if (!isEditing) {
+      setIsHydrating(false);
+      setHydrationFailed(false);
+      return;
     }
-  }, [id, isEditing, loadRoutineData]);
+
+    startHydration();
+    return () => {
+      hydrationGenerationRef.current += 1;
+    };
+  }, [id, isEditing, startHydration]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (bypassRef.current) return;
+      if (!['GO_BACK', 'POP'].includes(e.data.action.type)) return;
+      const currentSnapshot = [name, description, JSON.stringify(selectedExercises)];
+      if (!isFormDirty(currentSnapshot, initialSnapshotRef.current)) return;
+      e.preventDefault();
+      if (!pendingActionRef.current) {
+        pendingActionRef.current = e.data.action;
+        setShowDiscardDialog(true);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, name, description, selectedExercises]);
+
+  const handleConfirmDiscard = () => {
+    bypassRef.current = true;
+    setShowDiscardDialog(false);
+    if (pendingActionRef.current) {
+      const action = pendingActionRef.current;
+      pendingActionRef.current = null;
+      navigation.dispatch(action);
+    }
+  };
+
+  const handleCancelDiscard = () => {
+    setShowDiscardDialog(false);
+    pendingActionRef.current = null;
+  };
 
   const validateForm = (): boolean => {
-    const nameValidation = routineNameSchema.safeParse({ name, description });
+    setNameError('');
+    setExerciseError('');
+    const nameValidation = routineNameSchema.safeParse({ name: name.trim(), description });
     if (!nameValidation.success) {
-      setToast({ visible: true, message: nameValidation.error.issues[0]?.message || t('common.invalidName'), type: 'error' });
+      const msg = t('common.invalidName');
+      setNameError(msg);
+      nameInputRef.current?.focus();
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      setToast({ visible: true, message: msg, type: 'error' });
       return false;
     }
     if (selectedExercises.length === 0) {
-      setToast({ visible: true, message: t('common.addAtLeastOneExercise'), type: 'error' });
+      const msg = t('common.addAtLeastOneExercise');
+      setExerciseError(msg);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+      setToast({ visible: true, message: msg, type: 'error' });
       return false;
     }
     return true;
@@ -151,6 +235,7 @@ export default function RoutineEditorScreen() {
           .run();
       });
 
+      bypassRef.current = true;
       router.back();
     } catch (e) {
       if (isRoutineNameUniqueConstraintError(e)) {
@@ -230,6 +315,7 @@ export default function RoutineEditorScreen() {
       });
 
       setPendingToast({ message: t('routines.savedAsTemplate'), type: 'success' });
+      bypassRef.current = true;
       router.back();
     } catch (e) {
       if (isRoutineNameUniqueConstraintError(e)) {
@@ -261,9 +347,18 @@ export default function RoutineEditorScreen() {
       }));
   };
 
+  if (isHydrating) {
+    return <LoadingState />;
+  }
+
+  if (hydrationFailed) {
+    return <ErrorState message={t('routines.loadError')} onRetry={startHydration} />;
+  }
+
   return (
     <View className="flex-1 bg-background">
       <ScrollView
+        ref={scrollViewRef}
         className="flex-1 px-4 pb-4"
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
@@ -271,9 +366,14 @@ export default function RoutineEditorScreen() {
         contentContainerStyle={{ gap: 16 }}
       >
         <Input
+            ref={nameInputRef}
             label={t("routines.routineName")}
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => {
+              setName(text);
+              if (nameError) setNameError('');
+            }}
+            error={nameError}
             placeholder={t("routines.namePlaceholder")}
         />
 
@@ -293,6 +393,11 @@ export default function RoutineEditorScreen() {
             size="sm"
           />
         </View>
+        {exerciseError ? (
+          <Text className="text-dangerText text-xs -mt-2 mb-1" accessibilityLiveRegion="polite">
+            {exerciseError}
+          </Text>
+        ) : null}
 
         {selectedExercises.map((ex, index) => (
           <Card key={`${ex.id}-${index}`}>
@@ -377,8 +482,19 @@ export default function RoutineEditorScreen() {
         onClose={() => setModalVisible(false)}
         onSelect={(ex) => {
           setSelectedExercises(prev => [...prev, ex]);
+          setExerciseError('');
           setModalVisible(false);
         }}
+      />
+
+      <Dialog
+        visible={showDiscardDialog}
+        title={t('common.discardChangesTitle')}
+        message={t('common.discardChangesMessage')}
+        confirmText={t('common.discardChanges')}
+        type="destructive"
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
       />
 
       <Modal visible={!!renamingEx} transparent animationType="fade">

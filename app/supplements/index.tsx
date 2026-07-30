@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform, TextInput } from 'react-native';
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
 import { Colors } from '@/constants/colors';
@@ -15,6 +15,7 @@ import { LoadingState, ErrorState } from '@/components/ScreenState';
 import { resolveScreenState } from '@/src/utils/screen-state';
 import { Supplement, SupplementFrequency } from '@/src/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { isFormDirty } from '@/src/utils/form-dirty';
 
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
@@ -92,7 +93,7 @@ export default function SupplementsScreen() {
   const operationLockRef = useRef(false);
   const togglingIdsRef = useRef<Set<number>>(new Set());
 
-  // Form state
+  // Form state & refs
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('');
   const [timing, setTiming] = useState('');
@@ -101,6 +102,17 @@ export default function SupplementsScreen() {
   const [isNighttime, setIsNighttime] = useState(false);
   const [emoji, setEmoji] = useState('💊');
   const [showTimePicker, setShowTimePicker] = useState(false);
+
+  const [nameError, setNameError] = useState('');
+  const [dosageError, setDosageError] = useState('');
+  const [timingError, setTimingError] = useState('');
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+  const nameInputRef = useRef<TextInput>(null);
+  const dosageInputRef = useRef<TextInput>(null);
+  const timingInputRef = useRef<TextInput>(null);
+  const modalScrollViewRef = useRef<ScrollView>(null);
+  const initialSnapshotRef = useRef<readonly unknown[]>([]);
 
   const { toast, showToast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
@@ -146,8 +158,7 @@ export default function SupplementsScreen() {
     }
   };
 
-  const openAddModal = () => {
-    setEditingSupplement(null);
+  const resetFormFields = () => {
     setName('');
     setDosage('');
     setTiming('');
@@ -155,6 +166,41 @@ export default function SupplementsScreen() {
     setReminderTime(null);
     setIsNighttime(false);
     setEmoji('💊');
+    setShowTimePicker(false);
+    setNameError('');
+    setDosageError('');
+    setTimingError('');
+  };
+
+  const closeAndResetModal = () => {
+    setModalVisible(false);
+    setEditingSupplement(null);
+    resetFormFields();
+  };
+
+  const requestCloseModal = () => {
+    if (isSaving || isDeleting || operationLockRef.current) return;
+    const currentSnapshot = [name, dosage, timing, frequency, reminderTime, isNighttime, emoji];
+    if (!isFormDirty(currentSnapshot, initialSnapshotRef.current)) {
+      closeAndResetModal();
+    } else {
+      setShowDiscardDialog(true);
+    }
+  };
+
+  const handleConfirmDiscard = () => {
+    setShowDiscardDialog(false);
+    closeAndResetModal();
+  };
+
+  const handleCancelDiscard = () => {
+    setShowDiscardDialog(false);
+  };
+
+  const openAddModal = () => {
+    setEditingSupplement(null);
+    resetFormFields();
+    initialSnapshotRef.current = ['', '', '', 'daily', null, false, '💊'];
     setModalVisible(true);
   };
 
@@ -166,16 +212,44 @@ export default function SupplementsScreen() {
     setFrequency(item.frequency);
     setReminderTime(item.reminderTime);
     setIsNighttime(item.isNighttime);
-    setEmoji(item.emoji || '💊');
+    const itemEmoji = item.emoji || '💊';
+    setEmoji(itemEmoji);
+    setNameError('');
+    setDosageError('');
+    setTimingError('');
+    initialSnapshotRef.current = [item.name, item.dosage, item.timing, item.frequency, item.reminderTime, item.isNighttime, itemEmoji];
     setModalVisible(true);
   };
 
   const handleSave = async () => {
-    if (!name || !dosage || !timing) {
-      showToast(
-        !name ? t('supplements.nameRequired') : !dosage ? t('supplements.dosageRequired') : t('supplements.timingRequired'),
-        'error'
-      );
+    setNameError('');
+    setDosageError('');
+    setTimingError('');
+
+    if (!name.trim()) {
+      const msg = t('supplements.nameRequired');
+      setNameError(msg);
+      nameInputRef.current?.focus();
+      modalScrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      showToast(msg, 'error');
+      return;
+    }
+
+    if (!dosage.trim()) {
+      const msg = t('supplements.dosageRequired');
+      setDosageError(msg);
+      dosageInputRef.current?.focus();
+      modalScrollViewRef.current?.scrollTo({ y: 50, animated: true });
+      showToast(msg, 'error');
+      return;
+    }
+
+    if (!timing.trim()) {
+      const msg = t('supplements.timingRequired');
+      setTimingError(msg);
+      timingInputRef.current?.focus();
+      modalScrollViewRef.current?.scrollTo({ y: 100, animated: true });
+      showToast(msg, 'error');
       return;
     }
 
@@ -415,20 +489,21 @@ export default function SupplementsScreen() {
       </TouchableOpacity>
 
       {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal}>
         <View className="flex-1 bg-background">
           <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
             <SectionHeader label={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')} />
-            <Button 
-              title={t('common.close')} 
-              onPress={() => setModalVisible(false)} 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              title={t('common.close')}
+              onPress={requestCloseModal}
+              variant="ghost"
+              size="sm"
               disabled={isSaving || isDeleting}
             />
           </View>
 
           <ScrollView
+            ref={modalScrollViewRef}
             className="p-5"
             automaticallyAdjustKeyboardInsets
             keyboardShouldPersistTaps="handled"
@@ -446,25 +521,40 @@ export default function SupplementsScreen() {
               </View>
               <View className="flex-1">
                 <Input
+                  ref={nameInputRef}
                   label={t('supplements.name')}
                   value={name}
-                  onChangeText={setName}
+                  onChangeText={(text) => {
+                    setName(text);
+                    if (nameError) setNameError('');
+                  }}
+                  error={nameError}
                   placeholder={t('supplements.name')}
                 />
               </View>
             </View>
 
             <Input
+              ref={dosageInputRef}
               label={t('supplements.dosage')}
               value={dosage}
-              onChangeText={setDosage}
+              onChangeText={(text) => {
+                setDosage(text);
+                if (dosageError) setDosageError('');
+              }}
+              error={dosageError}
               placeholder={t('supplements.dosagePlaceholder')}
             />
 
             <Input
+              ref={timingInputRef}
               label={t('supplements.timing')}
               value={timing}
-              onChangeText={setTiming}
+              onChangeText={(text) => {
+                setTiming(text);
+                if (timingError) setTimingError('');
+              }}
+              error={timingError}
               placeholder={t('supplements.timingPlaceholder')}
             />
 
@@ -557,6 +647,16 @@ export default function SupplementsScreen() {
         message={dialog.message}
         onConfirm={dialog.onConfirm}
         onCancel={() => setDialog({ ...dialog, visible: false })}
+      />
+
+      <Dialog
+        visible={showDiscardDialog}
+        title={t('common.discardChangesTitle')}
+        message={t('common.discardChangesMessage')}
+        confirmText={t('common.discardChanges')}
+        type="destructive"
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
       />
     </View>
   );

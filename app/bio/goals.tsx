@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { db } from '../../src/db/client';
 import { measurementGoals, bodyMetrics } from '../../src/db/schema';
@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { calculateGoalProgress, findGoalBaseline } from '../../src/utils/goal-progress';
+import { isFormDirty } from '@/src/utils/form-dirty';
 
 type MeasurementType = 'weight' | 'waist' | 'armRight' | 'thighRight' | 'chest' | 'calf';
 
@@ -56,6 +57,14 @@ export default function GoalsScreen() {
   const operationLockRef = useRef(false);
   const { toast, showToast, setToast } = useToast();
 
+  const [targetValueError, setTargetValueError] = useState('');
+  const [targetDateError, setTargetDateError] = useState('');
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+  const targetValueInputRef = useRef<TextInput>(null);
+  const modalScrollViewRef = useRef<ScrollView>(null);
+  const initialSnapshotRef = useRef<readonly unknown[]>([]);
+
   const [newGoal, setNewGoal] = useState({
     type: 'weight' as MeasurementType,
     targetValue: '',
@@ -72,6 +81,41 @@ export default function GoalsScreen() {
   useEffect(() => {
     loadGoals();
   }, []);
+
+  const resetGoalForm = () => {
+    setEditingGoalId(null);
+    setNewGoal({
+      type: 'weight',
+      targetValue: '',
+      targetDate: null,
+    });
+    setTargetValueError('');
+    setTargetDateError('');
+  };
+
+  const closeAndResetModal = () => {
+    setModalVisible(false);
+    resetGoalForm();
+  };
+
+  const requestCloseModal = () => {
+    if (isSaving || isDeleting || operationLockRef.current) return;
+    const currentSnapshot = [newGoal.type, newGoal.targetValue, newGoal.targetDate ? newGoal.targetDate.getTime() : null];
+    if (!isFormDirty(currentSnapshot, initialSnapshotRef.current)) {
+      closeAndResetModal();
+    } else {
+      setShowDiscardDialog(true);
+    }
+  };
+
+  const handleConfirmDiscard = () => {
+    setShowDiscardDialog(false);
+    closeAndResetModal();
+  };
+
+  const handleCancelDiscard = () => {
+    setShowDiscardDialog(false);
+  };
 
   const loadGoals = async () => {
     try {
@@ -112,19 +156,36 @@ export default function GoalsScreen() {
   const saveGoal = async () => {
     if (operationLockRef.current || isSaving) return;
 
-    if (!newGoal.targetDate) {
-      showToast(t('bioGoals.dateRequired'), 'error');
-      return;
-    }
+    setTargetValueError('');
+    setTargetDateError('');
 
     const validation = goalInputSchema.safeParse({
       type: newGoal.type,
       targetValue: newGoal.targetValue,
       targetDate: newGoal.targetDate,
     });
+
     if (!validation.success) {
-      const msg = validation.error.issues[0]?.message || t('common.invalidData');
-      logger.warn('Goal validation failed:', msg);
+      const issues = validation.error.issues;
+      const valueIssue = issues.find(i => i.path.includes('targetValue'));
+      const dateIssue = issues.find(i => i.path.includes('targetDate'));
+
+      if (valueIssue) {
+        const msg = t('common.invalidData');
+        setTargetValueError(msg);
+        targetValueInputRef.current?.focus();
+        showToast(msg, 'error');
+        return;
+      }
+
+      if (dateIssue) {
+        const msg = newGoal.targetDate ? t('bioGoals.dateInvalid') : t('bioGoals.dateRequired');
+        setTargetDateError(msg);
+        modalScrollViewRef.current?.scrollToEnd({ animated: true });
+        showToast(msg, 'error');
+        return;
+      }
+
       showToast(t('common.invalidData'), 'error');
       return;
     }
@@ -132,13 +193,14 @@ export default function GoalsScreen() {
     operationLockRef.current = true;
     setIsSaving(true);
     try {
-      const targetDate = validation.data.targetDate.getTime();
+      const validData = validation.data;
+      const targetDate = validData.targetDate.getTime();
 
       if (editingGoalId !== null) {
         await db.update(measurementGoals)
           .set({
-            type: validation.data.type,
-            targetValue: validation.data.targetValue,
+            type: validData.type,
+            targetValue: validData.targetValue,
             targetDate,
             achieved: false,
             achievedDate: null,
@@ -146,8 +208,8 @@ export default function GoalsScreen() {
           .where(eq(measurementGoals.id, editingGoalId));
       } else {
         await db.insert(measurementGoals).values({
-          type: validation.data.type,
-          targetValue: validation.data.targetValue,
+          type: validData.type,
+          targetValue: validData.targetValue,
           startDate: Date.now(),
           targetDate,
           achieved: false,
@@ -155,9 +217,7 @@ export default function GoalsScreen() {
       }
 
       await loadGoals();
-      setModalVisible(false);
-      setEditingGoalId(null);
-      setNewGoal({ type: 'weight', targetValue: '', targetDate: null });
+      closeAndResetModal();
       showToast(t('common.saveSuccess'), 'success');
     } catch (error) {
       logger.error('Error saving goal', error);
@@ -195,33 +255,25 @@ export default function GoalsScreen() {
 
   const openEditModal = (goal: InferSelectModel<typeof measurementGoals>) => {
     setEditingGoalId(goal.id);
+    const targetDateObj = new Date(goal.targetDate);
+    const valStr = goal.targetValue.toString();
     setNewGoal({
       type: goal.type as MeasurementType,
-      targetValue: goal.targetValue.toString(),
-      targetDate: new Date(goal.targetDate),
+      targetValue: valStr,
+      targetDate: targetDateObj,
     });
+    setTargetValueError('');
+    setTargetDateError('');
+    initialSnapshotRef.current = [goal.type as MeasurementType, valStr, targetDateObj.getTime()];
     setModalVisible(true);
   };
 
   const openAddModal = () => {
-    setEditingGoalId(null);
-    setNewGoal({
-      type: 'weight',
-      targetValue: '',
-      targetDate: null,
-    });
+    resetGoalForm();
+    initialSnapshotRef.current = ['weight', '', null];
     setModalVisible(true);
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
-    setEditingGoalId(null);
-    setNewGoal({
-      type: 'weight',
-      targetValue: '',
-      targetDate: null,
-    });
-  };
 
   const getDaysRemaining = (targetDate: number) => {
     const days = Math.ceil((targetDate - Date.now()) / (1000 * 60 * 60 * 24));
@@ -360,16 +412,17 @@ export default function GoalsScreen() {
       </View>
 
       {/* Add/Edit Goal Modal */}
-      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={closeModal}>
+      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal}>
         <View className="flex-1 bg-background p-4">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-text text-xl font-bold">
               {editingGoalId !== null ? t("bioGoals.editGoal") : t("bioGoals.newGoal")}
             </Text>
-            <Button title={t("common.close")} onPress={closeModal} variant="ghost" size="sm" disabled={isSaving} />
+            <Button title={t("common.close")} onPress={requestCloseModal} variant="ghost" size="sm" disabled={isSaving} />
           </View>
 
           <ScrollView
+            ref={modalScrollViewRef}
             automaticallyAdjustKeyboardInsets
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
@@ -383,7 +436,10 @@ export default function GoalsScreen() {
                   return (
                     <TouchableOpacity
                       key={type}
-                      onPress={() => setNewGoal({ ...newGoal, type })}
+                      onPress={() => {
+                        setNewGoal({ ...newGoal, type });
+                        if (targetValueError) setTargetValueError('');
+                      }}
                       activeOpacity={0.7}
                       accessibilityRole="button"
                       accessibilityState={{ selected: isActive }}
@@ -407,17 +463,26 @@ export default function GoalsScreen() {
             </View>
 
             <Input
+              ref={targetValueInputRef}
               label={t('bioGoals.targetValue')}
               keyboardType="numeric"
               value={newGoal.targetValue}
-              onChangeText={(text) => setNewGoal({ ...newGoal, targetValue: text })}
+              onChangeText={(text) => {
+                setNewGoal({ ...newGoal, targetValue: text });
+                if (targetValueError) setTargetValueError('');
+              }}
+              error={targetValueError}
               placeholder="00.0"
             />
 
             <DatePicker
               label={t('bioGoals.targetDate')}
               value={newGoal.targetDate}
-              onChange={(date) => setNewGoal({ ...newGoal, targetDate: date })}
+              onChange={(date) => {
+                setNewGoal({ ...newGoal, targetDate: date });
+                if (targetDateError) setTargetDateError('');
+              }}
+              error={targetDateError}
               placeholder={t("bioGoals.selectDate")}
               minimumDate={new Date()}
             />
@@ -449,6 +514,16 @@ export default function GoalsScreen() {
         message={dialog.message}
         onConfirm={dialog.onConfirm}
         onCancel={() => setDialog({ ...dialog, visible: false })}
+      />
+
+      <Dialog
+        visible={showDiscardDialog}
+        title={t('common.discardChangesTitle')}
+        message={t('common.discardChangesMessage')}
+        confirmText={t('common.discardChanges')}
+        type="destructive"
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
       />
     </View>
   );

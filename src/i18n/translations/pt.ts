@@ -29,6 +29,9 @@ export const pt = {
 
   // Common
   common: {
+    discardChangesTitle: 'Descartar alterações?',
+    discardChangesMessage: 'As alterações não salvas serão perdidas.',
+    discardChanges: 'Descartar',
     save: 'Salvar',
     cancel: 'Cancelar',
     delete: 'Excluir',
@@ -881,6 +884,7 @@ export const pt = {
     completed: 'concluído',
     progressUnavailable: 'Progresso indisponível',
     dateRequired: 'A data alvo é obrigatória',
+    dateInvalid: 'A data alvo deve estar no futuro',
     editActionLabel: 'Editar meta de {name}',
     deleteActionLabel: 'Excluir meta de {name}',
   },

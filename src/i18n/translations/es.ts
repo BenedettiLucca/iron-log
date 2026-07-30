@@ -26,6 +26,9 @@ export const es = {
   },
 
   common: {
+    discardChangesTitle: '¿Descartar cambios?',
+    discardChangesMessage: 'Los cambios no guardados se perderán.',
+    discardChanges: 'Descartar',
     save: 'Guardar',
     cancel: 'Cancelar',
     delete: 'Eliminar',
@@ -850,6 +853,7 @@ export const es = {
     completed: 'completado',
     progressUnavailable: 'Progreso no disponible',
     dateRequired: 'La fecha objetivo es obligatoria',
+    dateInvalid: 'La fecha objetivo debe estar en el futuro',
     editActionLabel: 'Editar meta de {name}',
     deleteActionLabel: 'Eliminar meta de {name}',
   },

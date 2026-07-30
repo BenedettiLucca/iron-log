@@ -1,20 +1,24 @@
-import { useState, useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { useRouter, useNavigation } from 'expo-router';
+import type { NavigationAction } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Toast } from '../../components/Toast';
 import { Input } from '../../components/Input';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { DatePicker } from '../../components/DatePicker';
+import { Dialog } from '../../components/Dialog';
 import { usePrograms } from '@/hooks/use-programs';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
 import { SectionHeader } from '@/components/SectionHeader';
+import { isFormDirty } from '@/src/utils/form-dirty';
 
 const GOALS = ['hypertrophy', 'strength', 'endurance'] as const;
 export default function CreateProgramScreen() {
   const router = useRouter();
+  const navigation = useNavigation();
   const { t, language } = useI18n();
   const insets = useSafeAreaInsets();
   const { createProgram } = usePrograms();
@@ -27,44 +31,97 @@ export default function CreateProgramScreen() {
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [nameError, setNameError] = useState('');
+  const [weeksError, setWeeksError] = useState('');
+  const [deloadError, setDeloadError] = useState('');
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
   const { toast, setToast } = useToast();
+
+  const nameInputRef = useRef<TextInput>(null);
+  const weeksInputRef = useRef<TextInput>(null);
+  const deloadInputRef = useRef<TextInput>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const initialSnapshotRef = useRef<readonly unknown[]>(['', '', 'hypertrophy', '6', '', startDate.getTime()]);
+  const bypassRef = useRef(false);
+  const pendingActionRef = useRef<NavigationAction | null>(null);
+  const isSubmittingRef = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (bypassRef.current) return;
+      if (!['GO_BACK', 'POP'].includes(e.data.action.type)) return;
+      const currentSnapshot = [name, description, goal, weeksDuration, deloadWeek, startDate.getTime()];
+      if (!isFormDirty(currentSnapshot, initialSnapshotRef.current)) return;
+      e.preventDefault();
+      if (!pendingActionRef.current) {
+        pendingActionRef.current = e.data.action;
+        setShowDiscardDialog(true);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, name, description, goal, weeksDuration, deloadWeek, startDate]);
+
+  const handleConfirmDiscard = () => {
+    bypassRef.current = true;
+    setShowDiscardDialog(false);
+    if (pendingActionRef.current) {
+      const action = pendingActionRef.current;
+      pendingActionRef.current = null;
+      navigation.dispatch(action);
+    }
+  };
+
+  const handleCancelDiscard = () => {
+    setShowDiscardDialog(false);
+    pendingActionRef.current = null;
+  };
 
   // Auto-calculate end date
   const endDate = useMemo(() => {
+    const parsedWeeksDuration = Number(weeksDuration);
+    const safeWeeksDuration = Number.isFinite(parsedWeeksDuration) ? parsedWeeksDuration : 0;
     const date = new Date(startDate);
-    date.setDate(date.getDate() + parseInt(weeksDuration || '0', 10) * 7);
+    date.setDate(date.getDate() + safeWeeksDuration * 7);
     return date;
   }, [startDate, weeksDuration]);
 
-  const validate = useCallback((): boolean => {
-    if (!name.trim()) {
-      setNameError(t('programs.errors.nameRequired'));
-      return false;
-    }
-    setNameError('');
-    return true;
-  }, [name, t]);
-
   const handleSubmit = useCallback(async () => {
-    if (!validate()) return;
+    if (isSubmittingRef.current) return;
+    setNameError('');
+    setWeeksError('');
+    setDeloadError('');
 
+    if (!name.trim()) {
+      const message = t('programs.errors.nameRequired');
+      setNameError(message);
+      nameInputRef.current?.focus();
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      setToast({ visible: true, message, type: 'error' });
+      return;
+    }
+
+    const weeks = Number(weeksDuration);
+    if (!Number.isInteger(weeks) || weeks < 1 || weeks > 16) {
+      const message = t('programs.errors.invalidWeeks');
+      setWeeksError(message);
+      weeksInputRef.current?.focus();
+      scrollViewRef.current?.scrollTo({ y: 100, animated: true });
+      setToast({ visible: true, message, type: 'error' });
+      return;
+    }
+
+    const deload = deloadWeek.trim() ? Number(deloadWeek) : undefined;
+    if (deload !== undefined && (!Number.isInteger(deload) || deload < 1 || deload >= weeks)) {
+      const message = t('programs.errors.invalidDeload');
+      setDeloadError(message);
+      deloadInputRef.current?.focus();
+      scrollViewRef.current?.scrollTo({ y: 150, animated: true });
+      setToast({ visible: true, message, type: 'error' });
+      return;
+    }
+
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
-      const weeks = parseInt(weeksDuration, 10);
-      const deload = deloadWeek ? parseInt(deloadWeek, 10) : undefined;
-
-      if (isNaN(weeks) || weeks < 1) {
-        setToast({ visible: true, message: t('programs.errors.invalidWeeks'), type: 'error' });
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (deload !== undefined && (deload < 1 || deload > weeks)) {
-        setToast({ visible: true, message: t('programs.errors.invalidDeload'), type: 'error' });
-        setIsSubmitting(false);
-        return;
-      }
-
       const program = await createProgram({
         name: name.trim(),
         description: description.trim() || undefined,
@@ -76,19 +133,17 @@ export default function CreateProgramScreen() {
       });
 
       if (program) {
-        setToast({ visible: true, message: t('programs.createSuccess'), type: 'success' });
-        setTimeout(() => {
-          router.push(`/programs/detail?programId=${program.id}` as any);
-        }, 500);
+        router.replace(`/programs/detail?programId=${program.id}` as any);
       } else {
         setToast({ visible: true, message: t('programs.createError'), type: 'error' });
       }
     } catch {
       setToast({ visible: true, message: t('programs.createError'), type: 'error' });
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
-  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t, validate, setToast]);
+  }, [name, description, goal, weeksDuration, deloadWeek, startDate, endDate, createProgram, router, t, setToast]);
 
   return (
     <View className="flex-1 bg-background">
@@ -101,6 +156,7 @@ export default function CreateProgramScreen() {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         className="flex-1"
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
@@ -113,6 +169,7 @@ export default function CreateProgramScreen() {
       >
         {/* Program Name */}
         <Input
+          ref={nameInputRef}
           label={t('programs.form.nameLabel')}
           placeholder={t('programs.form.namePlaceholder')}
           value={name}
@@ -166,20 +223,30 @@ export default function CreateProgramScreen() {
 
         {/* Duration in Weeks */}
         <Input
+          ref={weeksInputRef}
           label={t('programs.form.durationLabel')}
           placeholder="6"
           value={weeksDuration}
-          onChangeText={setWeeksDuration}
+          onChangeText={(text) => {
+            setWeeksDuration(text);
+            if (weeksError) setWeeksError('');
+          }}
+          error={weeksError}
           keyboardType="number-pad"
           maxLength={2}
         />
 
         {/* Deload Week */}
         <Input
+          ref={deloadInputRef}
           label={t('programs.form.deloadLabel')}
           placeholder={t('programs.form.deloadPlaceholder')}
           value={deloadWeek}
-          onChangeText={setDeloadWeek}
+          onChangeText={(text) => {
+            setDeloadWeek(text);
+            if (deloadError) setDeloadError('');
+          }}
+          error={deloadError}
           keyboardType="number-pad"
           maxLength={2}
         />
@@ -226,7 +293,7 @@ export default function CreateProgramScreen() {
           size="lg"
           fullWidth
           loading={isSubmitting}
-          disabled={!name.trim() || isSubmitting}
+          disabled={isSubmitting}
         />
       </View>
 
@@ -235,6 +302,16 @@ export default function CreateProgramScreen() {
         message={toast.message}
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <Dialog
+        visible={showDiscardDialog}
+        title={t('common.discardChangesTitle')}
+        message={t('common.discardChangesMessage')}
+        confirmText={t('common.discardChanges')}
+        type="destructive"
+        onConfirm={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
       />
     </View>
   );

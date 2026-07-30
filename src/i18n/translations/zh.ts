@@ -26,6 +26,9 @@ export const zh = {
   },
 
   common: {
+    discardChangesTitle: '放弃修改？',
+    discardChangesMessage: '未保存的修改将会丢失。',
+    discardChanges: '放弃',
     save: '保存',
     cancel: '取消',
     delete: '删除',
@@ -850,6 +853,7 @@ export const zh = {
     completed: '已完成',
     progressUnavailable: '进度不可用',
     dateRequired: '目标日期为必填项',
+    dateInvalid: '目标日期必须是未来日期',
     editActionLabel: '编辑{name}目标',
     deleteActionLabel: '删除{name}目标',
   },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import {
   TextInput,
   View,
@@ -19,23 +19,26 @@ interface InputProps extends TextInputProps {
   className?: string;
 }
 
-export function Input({
-  label,
-  error,
-  containerStyle,
-  style,
-  maxLength,
-  showCharacterCount = false,
-  value,
-  editable = true,
-  onFocus,
-  onBlur,
-  className = '',
-  accessibilityState,
-  accessibilityLabel,
-  accessibilityHint,
-  ...textInputProps
-}: InputProps) {
+export const Input = forwardRef<TextInput, InputProps>(function Input(
+  {
+    label,
+    error,
+    containerStyle,
+    style,
+    maxLength,
+    showCharacterCount = false,
+    value,
+    editable = true,
+    onFocus,
+    onBlur,
+    className = '',
+    accessibilityState,
+    accessibilityLabel,
+    accessibilityHint,
+    ...textInputProps
+  },
+  ref
+) {
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
   const [isFocused, setIsFocused] = useState(false);
@@ -83,6 +86,7 @@ export function Input({
       )}
       <View className="relative">
         <TextInput
+          ref={ref}
           className={finalClassName}
           style={[
             {
@@ -118,4 +122,4 @@ export function Input({
       )}
     </View>
   );
-}
+});

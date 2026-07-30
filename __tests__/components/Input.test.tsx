@@ -1,11 +1,12 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 import { Input } from '@/components/Input';
 
 (global as typeof globalThis & { React: typeof React }).React = React;
 
 const mockTrigger = jest.fn();
+const mockNativeInput = { focus: jest.fn() };
 const theme = {
   primaryText: '#9E422E',
   dangerText: '#B42332',
@@ -34,7 +35,13 @@ jest.mock('react-native/Libraries/StyleSheet/StyleSheet', () => {
 });
 jest.mock('react-native/Libraries/Components/TextInput/TextInput', () => ({
   __esModule: true,
-  default: 'TextInput',
+  default: (jest.requireActual('react') as typeof React).forwardRef(
+    (props: Record<string, unknown>, ref: React.ForwardedRef<typeof mockNativeInput>) => {
+      const mockReact = jest.requireActual('react') as typeof React;
+      mockReact.useImperativeHandle(ref, () => mockNativeInput);
+      return mockReact.createElement('TextInput', props);
+    }
+  ),
 }));
 jest.mock('react-native/Libraries/Components/View/View', () => ({
   __esModule: true,
@@ -178,6 +185,13 @@ describe('Input', () => {
     expect(input.props.submitBehavior).toBe('submit');
     input.props.onSubmitEditing({ nativeEvent: { text: '85' } });
     expect(onSubmitEditing).toHaveBeenCalledTimes(1);
+  });
+
+  it('forwards a native ref so invalid fields can receive focus', () => {
+    const ref = React.createRef<TextInput>();
+    render(<Input ref={ref} value="" onChangeText={jest.fn()} />);
+
+    expect(ref.current).toBe(mockNativeInput);
   });
 
   it('preserves character count behavior', () => {
