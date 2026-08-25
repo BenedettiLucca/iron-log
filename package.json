@@ -94,13 +94,13 @@
   },
   "overrides": {
     "minimatch@3.1.5": {
-      "brace-expansion": "1.1.16"
+      "brace-expansion": "1.1.18"
     },
     "minimatch@9.0.9": {
-      "brace-expansion": "2.1.2"
+      "brace-expansion": "2.1.4"
     },
     "minimatch@10.2.5": {
-      "brace-expansion": "5.0.8"
+      "brace-expansion": "5.0.9"
     },
     "postcss": "8.5.23"
   },
