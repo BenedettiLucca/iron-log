@@ -6,8 +6,6 @@ import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 import { focusAccessibilityNode } from '@/src/utils/accessibility';
 import { formatTimer } from '@/src/utils/timer';
 import { useI18n } from '../src/i18n/index';
-
-
 interface RestTimerProps {
   visible: boolean;
   seconds: number;
@@ -18,13 +16,8 @@ interface RestTimerProps {
   nextExerciseName?: string;
 }
 
-// Dismissal is decided on RELEASE from the full gesture state: vertical
-// extent or speed with intent. Inside an Android Modal the sheet must claim
-// the responder at touch START — otherwise native swallows the stream after
-// the first move event and JS never sees the gesture (device-verified: only
-// one moveShouldCapture at 0.4px, then silence). Child buttons still win:
-// capture stays false, and the Touchables sit deeper in the tree and
-// negotiate first at start.
+// Android Modal swallows the stream unless the sheet claims at touch START.
+// Capture stays false so deeper child buttons win responder negotiation.
 const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
   gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
 
