@@ -46,7 +46,7 @@ Formato do defeito: `[editor/state] esperado → atual` + screenshot.
 
 - [x] S5-QA-01 PASS em todos os três campos (nota Ag., nota Pr., descanso Pr.)
 - [x] S5-QA-03 PASS nas duas áreas de swipe; botões já haviam passado antes do fix final
-- [ ] Cleanup: zero itens `S5 QA` na busca; contagem de rotinas volta ao baseline
+- [~] Cleanup dispensado pelo product owner: banco local do Expo Go é ambiente de teste; fixtures `S5 QA` podem permanecer e devem ser consideradas no baseline de uma QA futura
 - [x] Nenhum novo defeito reportado
 
-Aprovado no device → finalizar cleanup, gate estático + reviews, merge FF para `feat/open-design-redesign`, push e PR único para `master`.
+Aprovado no device → gate estático + reviews, merge FF para `feat/open-design-redesign`, push e PR único para `master`.
