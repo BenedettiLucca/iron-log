@@ -7,7 +7,7 @@ const keyboardSafeForms = [
   { file: 'app/programs/create.tsx', containers: 1 },
   { file: 'app/supplements/index.tsx', containers: 1 },
   { file: 'app/bio/goals.tsx', containers: 1 },
-  { file: 'app/routines/editor.tsx', containers: 2 },
+  { file: 'app/routines/editor.tsx', containers: 1 },
   { file: 'app/(tabs)/bio.tsx', containers: 1 },
 ] as const;
 

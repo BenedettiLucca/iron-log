@@ -420,7 +420,6 @@ export default function RoutineEditorScreen() {
       <ScrollView
         ref={scrollViewRef}
         className="flex-1 px-4 pb-4"
-        automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
