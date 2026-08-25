@@ -6,6 +6,10 @@ const ALLOWED_ADVISORY_URLS = new Set([
   // Temporary: legacy brace-expansion v1/v2 have no published fix for CVE-2026-14257.
   // These copies are only used by Expo/Jest/ESLint build tooling with trusted patterns.
   'https://github.com/advisories/GHSA-mh99-v99m-4gvg',
+  // Temporary: image-size is only reached through Metro while processing trusted local assets.
+  // Expo SDK 54 cannot take the patched parser; remove these with the tracked SDK upgrade (#76).
+  'https://github.com/advisories/GHSA-w3rx-r6r6-pgpr',
+  'https://github.com/advisories/GHSA-5p2g-fcmc-qvqq',
 ]);
 
 function isNonBlockingAdvisory(advisory) {
@@ -88,7 +92,7 @@ function runAudit() {
 
   if (allowlisted.length > 0) {
     console.warn(
-      `Temporarily allowlisted GHSA-mh99-v99m-4gvg dependency chain (${allowlisted.length} packages).`,
+      `Temporarily allowlisted Expo toolchain advisory chains (${allowlisted.length} packages; tracked in #76).`,
     );
   }
 

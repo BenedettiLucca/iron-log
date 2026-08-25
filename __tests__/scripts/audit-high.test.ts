@@ -8,6 +8,19 @@ const allowedAdvisory = {
   severity: 'high',
 };
 
+const allowedImageSizeAdvisories = [
+  {
+    source: 1138808,
+    url: 'https://github.com/advisories/GHSA-w3rx-r6r6-pgpr',
+    severity: 'high',
+  },
+  {
+    source: 1138809,
+    url: 'https://github.com/advisories/GHSA-5p2g-fcmc-qvqq',
+    severity: 'high',
+  },
+];
+
 const moderateAdvisory = {
   source: 1119441,
   url: 'https://github.com/advisories/GHSA-moderate',
@@ -15,13 +28,15 @@ const moderateAdvisory = {
 };
 
 describe('audit-high allowlist', () => {
-  it('allows only dependency chains caused exclusively by the temporary brace-expansion advisory', () => {
+  it('allows only dependency chains caused exclusively by temporary Expo toolchain advisories', () => {
     const vulnerabilities = {
       'brace-expansion': { severity: 'high', via: [allowedAdvisory] },
+      'image-size': { severity: 'high', via: allowedImageSizeAdvisories },
       minimatch: { severity: 'high', via: ['brace-expansion'] },
       glob: { severity: 'high', via: ['minimatch'] },
-      expo: { severity: 'high', via: ['expo-cli', 'minimatch', moderateAdvisory] },
-      'expo-cli': { severity: 'high', via: ['expo', 'minimatch'] },
+      metro: { severity: 'high', via: ['image-size'] },
+      expo: { severity: 'high', via: ['expo-cli', 'metro', 'minimatch', moderateAdvisory] },
+      'expo-cli': { severity: 'high', via: ['expo', 'metro', 'minimatch'] },
     };
 
     expect(getBlockingVulnerabilities(vulnerabilities)).toEqual([]);
