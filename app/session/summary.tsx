@@ -196,7 +196,7 @@ export default function SummaryScreen() {
           <Text className="text-6xl mb-2">🎉</Text>
           <Text className="text-text text-3xl font-bold">{t("summary.workoutComplete")}</Text>
           <Text className="text-primaryText text-base font-semibold mt-1 mb-4">{getMotivationalMessage()}</Text>
-          
+
           <View className="border-t border-border/50 pt-4 w-full items-center">
             <Text className="text-text text-xl font-extrabold text-center mb-1">
               {sessionData?.routineName}

@@ -1,7 +1,7 @@
 # Sprint 4 — Android Physical QA Runbook
 
-**Scope:** Bio, Analytics, Evolution, Check-in and Goals  
-**Runtime baseline:** `17eceeb` (`feat/open-design-redesign`)  
+**Scope:** Bio, Analytics, Evolution, Check-in and Goals
+**Runtime baseline:** `17eceeb` (`feat/open-design-redesign`)
 **Goal:** approve the Sprint 4 dense-data redesign without mixing in Sprint 5 or native dependency changes.
 
 ## Evidence convention

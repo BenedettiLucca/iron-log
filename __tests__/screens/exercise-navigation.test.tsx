@@ -169,13 +169,13 @@ jest.mock('@/hooks', () => ({
 
 jest.mock('@/components/Button', () => ({
   Button: (props: Record<string, unknown>) =>
-    require('react').createElement('MockButton', props),
+    React.createElement('MockButton', props),
 }));
 
 jest.mock('@/components/Toast', () => ({ Toast: () => null }));
 jest.mock('@/components/SetEditor', () => ({
   SetEditor: (props: Record<string, unknown>) => props.visible
-    ? require('react').createElement('MockButton', {
+    ? React.createElement('MockButton', {
       title: 'test.saveEditedSet',
       onPress: () => (props.onSave as (...args: number[]) => unknown)(100, 8, 0, 2),
     })
@@ -183,14 +183,14 @@ jest.mock('@/components/SetEditor', () => ({
 }));
 jest.mock('@/components/session/ExerciseHeader', () => ({ ExerciseHeader: () => null }));
 jest.mock('@/components/session/SetList', () => ({
-  SetList: (props: Record<string, unknown>) => require('react').createElement(
+  SetList: (props: Record<string, unknown>) => React.createElement(
     'View',
     null,
-    require('react').createElement('MockButton', {
+    React.createElement('MockButton', {
       title: 'test.editSet',
       onPress: () => (props.handleEditSet as (id: number) => unknown)(1),
     }),
-    require('react').createElement('MockButton', {
+    React.createElement('MockButton', {
       title: 'test.deleteSet',
       onPress: () => (props.handleDeleteSet as (id: number) => unknown)(1),
     }),

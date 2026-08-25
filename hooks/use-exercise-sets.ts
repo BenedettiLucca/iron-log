@@ -87,7 +87,7 @@ export function useExerciseSets({
       draft.activeSetTime,
       draft.activeSetStartedAt,
     );
-  }, [restoreActiveSetTime]);
+  }, [restoreActiveSetTime, setIsDirty]);
 
   // Undo Hook
   const { 
@@ -307,7 +307,7 @@ export function useExerciseSets({
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
 
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({

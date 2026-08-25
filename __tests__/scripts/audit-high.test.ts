@@ -1,3 +1,5 @@
+// CommonJS production script intentionally loaded through its native module boundary.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { getBlockingVulnerabilities } = require('../../scripts/audit-high');
 
 const allowedAdvisory = {
