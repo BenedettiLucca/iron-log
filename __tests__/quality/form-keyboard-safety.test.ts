@@ -26,6 +26,14 @@ describe('shared form keyboard safety', () => {
     }
   );
 
+  it('resizes the routine editor viewport above the Android keyboard', () => {
+    const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
+
+    expect(editor).toContain('KeyboardAvoidingView');
+    expect(editor).toContain("behavior={Platform.OS === 'ios' ? 'padding' : 'height'}");
+    expect(editor).toContain("keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}");
+  });
+
   it('scrolls every routine exercise field above the Android keyboard and fixed footer when focused', () => {
     const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
 

@@ -1,5 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Modal, ScrollView, TextInput, Keyboard } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  Modal,
+  ScrollView,
+  TextInput,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import type { FocusEvent } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import type { NavigationAction } from '@react-navigation/native';
@@ -400,7 +411,12 @@ export default function RoutineEditorScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+    >
+      <View className="flex-1 bg-background">
       <ScrollView
         ref={scrollViewRef}
         className="flex-1 px-4 pb-4"
@@ -586,7 +602,8 @@ export default function RoutineEditorScreen() {
         type={toast.type}
         onHide={() => setToast({ ...toast, visible: false })}
       />
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 

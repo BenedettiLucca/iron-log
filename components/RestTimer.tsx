@@ -18,8 +18,12 @@ interface RestTimerProps {
   nextExerciseName?: string;
 }
 
+// A swipe is a deliberate downward drag: it must travel vertically AND stay
+// vertically dominant. 0.9 tolerance (≈48°) accepts natural diagonal drift —
+// the strict 1.25 ratio (≈38°) captured so late that the sheet never tracked
+// the finger and dismissed abruptly on release (S5 device QA regression).
 const isDownwardDismissGesture = (gestureState: PanResponderGestureState) =>
-  gestureState.dy > 24 && gestureState.dy > Math.abs(gestureState.dx) * 1.25;
+  gestureState.dy > 18 && gestureState.dy > Math.abs(gestureState.dx) * 0.9;
 
 const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
   gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
