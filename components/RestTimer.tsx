@@ -18,13 +18,13 @@ interface RestTimerProps {
   nextExerciseName?: string;
 }
 
-// A swipe is a deliberate downward drag: it must travel vertically AND stay
-// vertically dominant. 0.9 tolerance (≈48°) accepts natural diagonal drift —
-// the strict 1.25 ratio (≈38°) captured so late that the sheet never tracked
-// the finger and dismissed abruptly on release (S5 device QA regression).
-const isDownwardDismissGesture = (gestureState: PanResponderGestureState) =>
-  gestureState.dy > 18 && gestureState.dy > Math.abs(gestureState.dx) * 0.9;
-
+// Dismissal is decided on RELEASE from the full gesture state: vertical
+// extent or speed with intent. Inside an Android Modal the sheet must claim
+// the responder at touch START — otherwise native swallows the stream after
+// the first move event and JS never sees the gesture (device-verified: only
+// one moveShouldCapture at 0.4px, then silence). Child buttons still win:
+// capture stays false, and the Touchables sit deeper in the tree and
+// negotiate first at start.
 const shouldDismissFromGesture = (gestureState: PanResponderGestureState) =>
   gestureState.dy > 100 || (gestureState.dy > 40 && gestureState.vy > 0.8);
 
@@ -71,9 +71,8 @@ export function RestTimer({
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onMoveShouldSetPanResponder: (_, gestureState) => isDownwardDismissGesture(gestureState),
-      onMoveShouldSetPanResponderCapture: (_, gestureState) => isDownwardDismissGesture(gestureState),
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => false,
       onPanResponderMove: (evt, gestureState) => {
         if (gestureState.dy > 0) {
           slideAnim.setValue(gestureState.dy / 500);

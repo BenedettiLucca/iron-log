@@ -1,9 +1,10 @@
-# Sprint 5 — Reteste Físico Dirigido (pós-fixes round 2)
+# Sprint 5 — Reteste Físico Dirigido (resultado final)
 
-- **Scope:** somente os dois FAILs do reteste de 2026-08-25 — S5-QA-01 (teclado no editor) e S5-QA-03 (swipe do RestTimer). S5-QA-02 e S5-QA-04 já passaram no reteste de 2026-08-25; sem regressão visível esperada, verificação rápida apenas se houver tempo.
-- **Runtime baseline:** `a146d39` (`fix/sprint-5-device-retest`)
-- **Device record (do reteste anterior):** Samsung S23, Android 15 (One UI 7), Expo Go — mesma sessão de rede `192.168.0.68:8081`.
-- **Goal:** aprovar os dois fixes e destravar o landing do redesign no master.
+- **Scope:** somente os dois FAILs do reteste de 2026-08-25 — S5-QA-01 (teclado no editor) e S5-QA-03 (swipe do RestTimer). S5-QA-02 e S5-QA-04 já haviam passado.
+- **Runtime final:** `fix/sprint-5-device-retest` (commit final registrado após remoção dos logs de diagnóstico)
+- **Device record:** Samsung S23; versão do Android e versão do Expo Go não registradas.
+- **Execução:** Expo Go via LAN, Metro em `192.168.0.68:8081`.
+- **Resultado:** S5-QA-01 PASS; S5-QA-03 PASS após instrumentação provar que o `Modal` Android entregava apenas o primeiro move (~0,4 px) quando o responder não era reivindicado no touch start.
 
 ## Regra da coleta
 
@@ -43,9 +44,9 @@ Formato do defeito: `[editor/state] esperado → atual` + screenshot.
 
 ## Exit criteria
 
-- [ ] S5-QA-01 PASS em todos os três campos (nota Ag., nota Pr., descanso Pr.)
-- [ ] S5-QA-03 PASS nas duas áreas de swipe + botões sem ação dupla
+- [x] S5-QA-01 PASS em todos os três campos (nota Ag., nota Pr., descanso Pr.)
+- [x] S5-QA-03 PASS nas duas áreas de swipe; botões já haviam passado antes do fix final
 - [ ] Cleanup: zero itens `S5 QA` na busca; contagem de rotinas volta ao baseline
-- [ ] Nenhum novo defeito; se houver, capturar e reportar antes de qualquer fix
+- [x] Nenhum novo defeito reportado
 
-Aprovado → merge FF para `feat/open-design-redesign`, push, PR único para `master`.
+Aprovado no device → finalizar cleanup, gate estático + reviews, merge FF para `feat/open-design-redesign`, push e PR único para `master`.

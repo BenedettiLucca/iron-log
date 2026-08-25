@@ -210,14 +210,15 @@ describe('RestTimer', () => {
     expect(mockSpring).not.toHaveBeenCalled();
   });
 
-  it('captures deliberate downward swipes without stealing normal tap drift from child controls', () => {
+  it('claims the sheet responder at touch start but never steals button presses', () => {
     renderTimer();
 
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 6 })).toBe(false);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 2, dy: 20 })).toBe(true);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 20, dy: 25 })).toBe(true);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 30, dy: 25 })).toBe(false);
-    expect(mockPanResponderConfig.onMoveShouldSetPanResponderCapture?.({}, { dx: 0, dy: -20 })).toBe(false);
+    // Inside an Android Modal, if the sheet does not claim the responder at
+    // touch start, native claims the stream after the first move and JS never
+    // sees the rest of the gesture (device-verified S5 QA round 3).
+    expect(mockPanResponderConfig.onStartShouldSetPanResponder?.({}, {})).toBe(true);
+    // Capture must stay false so child buttons win the negotiation at start.
+    expect(mockPanResponderConfig.onStartShouldSetPanResponderCapture?.({}, {})).toBe(false);
   });
 
   it('returns the sheet to rest when another responder interrupts the swipe', () => {
