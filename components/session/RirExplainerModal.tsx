@@ -34,8 +34,8 @@ export function RirExplainerModal({
 
           <View className="space-y-4">
             <View className="flex-row items-start gap-3">
-              <View className="bg-danger/10 p-2 rounded-lg">
-                <Text className="text-2xl">0-1</Text>
+              <View className="bg-dangerSurface p-2 rounded-lg">
+                <Text className="text-dangerText text-2xl">0-1</Text>
               </View>
               <View className="flex-1">
                 <Text className="text-text font-bold text-base mb-1">{t("exercise.rirStrong")}</Text>
@@ -44,8 +44,8 @@ export function RirExplainerModal({
             </View>
 
             <View className="flex-row items-start gap-3">
-              <View className="bg-success/10 p-2 rounded-lg">
-                <Text className="text-2xl">2-3</Text>
+              <View className="bg-successSurface p-2 rounded-lg">
+                <Text className="text-successText text-2xl">2-3</Text>
               </View>
               <View className="flex-1">
                 <Text className="text-text font-bold text-base mb-1">{t("exercise.rirModerate")}</Text>
@@ -54,8 +54,8 @@ export function RirExplainerModal({
             </View>
 
             <View className="flex-row items-start gap-3">
-              <View className="bg-secondary/10 p-2 rounded-lg">
-                <Text className="text-2xl">4-5</Text>
+              <View className="bg-secondarySurface p-2 rounded-lg">
+                <Text className="text-secondaryText text-2xl">4-5</Text>
               </View>
               <View className="flex-1">
                 <Text className="text-text font-bold text-base mb-1">{t("exercise.rirLight")}</Text>
@@ -74,7 +74,7 @@ export function RirExplainerModal({
             onPress={onClose}
             className="mt-6 bg-primary p-3 rounded-xl items-center"
           >
-            <Text className="text-white font-bold text-base uppercase">{t('common.understood')}</Text>
+            <Text className="text-onPrimary font-bold text-base uppercase">{t('common.understood')}</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       </TouchableOpacity>

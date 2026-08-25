@@ -134,27 +134,30 @@ npx eas build --platform android --profile production
 ```
 iron-log/
 ├── app/
-│   ├── (drawer)/           # 侧边抽屉菜单
-│   │   ├── index.tsx       # 首页
-│   │   ├── bio/            # 身体追踪 + 数据分析
-│   │   │   ├── index.tsx   # 体重与尺寸
-│   │   │   ├── evolution.tsx # 图表
-│   │   │   ├── goals.tsx   # 目标
-│   │   │   ├── analytics.tsx # Strength Score、训练量、PRs
-│   │   │   └── checkin.tsx # 月度打卡照片对比
-│   │   ├── programs/       # 训练计划
-│   │   │   ├── index.tsx   # 计划列表
-│   │   │   ├── create.tsx  # 创建向导
-│   │   │   ├── detail.tsx  # 详情 + 周网格
-│   │   │   └── week-detail.tsx # 本周训练记录
-│   │   ├── supplements/    # 补剂清单
-│   │   │   └── index.tsx   # 每日清单 + 管理
-│   │   ├── reports/        # 报告
-│   │   │   └── weekly.tsx  # 周报 Markdown
-│   │   ├── routines/       # 训练方案增删查改 + 编辑器 + 模板
-│   │   ├── history/        # 日历 + 训练历史
-│   │   ├── settings.tsx    # 设置、备份、CSV 导出、语言
-│   │   └── about.tsx       # 关于应用
+│   ├── (tabs)/             # 主导航（底部标签栏）
+│   │   ├── index.tsx       # 首页 / 仪表盘
+│   │   ├── routines.tsx    # 训练方案管理 + 快捷入口（计划/模板）
+│   │   ├── history.tsx     # 日历 + 训练历史
+│   │   ├── bio.tsx         # 身体追踪（体重/尺寸/照片）
+│   │   └── settings.tsx    # 设置、备份、CSV 导出、语言
+│   ├── bio/                # 生物特征（根堆栈）
+│   │   ├── evolution.tsx   # 图表
+│   │   ├── goals.tsx       # 目标
+│   │   ├── analytics.tsx   # Strength Score、训练量、PRs
+│   │   └── checkin.tsx     # 月度打卡照片对比
+│   ├── programs/           # 训练计划（根堆栈）
+│   │   ├── index.tsx       # 计划列表
+│   │   ├── create.tsx      # 创建向导
+│   │   ├── detail.tsx      # 详情 + 周网格
+│   │   └── week-detail.tsx # 本周训练记录
+│   ├── routines/           # 编辑器和模板（根堆栈）
+│   │   ├── editor.tsx      # 创建/编辑训练方案
+│   │   └── templates.tsx   # 模板库
+│   ├── supplements/        # 补剂清单
+│   │   └── index.tsx       # 每日清单 + 管理
+│   ├── reports/            # 报告
+│   │   └── weekly.tsx      # 周报 Markdown
+│   ├── about.tsx           # 关于应用
 │   └── session/            # 训练流程（独立堆栈）
 ├── components/             # 22 个可复用 UI 组件
 ├── hooks/                  # 领域 hooks

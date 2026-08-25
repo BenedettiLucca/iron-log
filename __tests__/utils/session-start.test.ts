@@ -1,4 +1,9 @@
-import { buildSessionStartRoute, resolveCanonicalSessionRoutineName, resolveSessionRoutineName } from '@/src/utils/session-start';
+import {
+  buildSessionStartRoute,
+  createNavigationGate,
+  resolveCanonicalSessionRoutineName,
+  resolveSessionRoutineName,
+} from '@/src/utils/session-start';
 
 describe('session start metadata', () => {
   describe('buildSessionStartRoute', () => {
@@ -16,6 +21,40 @@ describe('session start metadata', () => {
     it('trims routine name before passing it to the session route', () => {
       expect(buildSessionStartRoute({ id: 11, name: '  Upper A  ' }, '1714000000001').params.routineName)
         .toBe('Upper A');
+    });
+  });
+
+  describe('createNavigationGate', () => {
+    it('runs only the first navigation attempt until reset', () => {
+      const gate = createNavigationGate();
+      const navigate = jest.fn();
+
+      expect(gate.run(navigate)).toBe(true);
+      expect(gate.run(navigate)).toBe(false);
+      expect(navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('allows navigation again after the screen regains focus', () => {
+      const gate = createNavigationGate();
+      const navigate = jest.fn();
+
+      gate.run(navigate);
+      gate.reset();
+
+      expect(gate.run(navigate)).toBe(true);
+      expect(navigate).toHaveBeenCalledTimes(2);
+    });
+
+    it('releases the lock when navigation throws synchronously', () => {
+      const gate = createNavigationGate();
+      const failedNavigation = jest.fn(() => {
+        throw new Error('invalid route');
+      });
+      const retryNavigation = jest.fn();
+
+      expect(() => gate.run(failedNavigation)).toThrow('invalid route');
+      expect(gate.run(retryNavigation)).toBe(true);
+      expect(retryNavigation).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -42,9 +42,8 @@ export interface ExerciseProgression {
   exerciseId: number;
   exerciseName: string;
   currentMaxWeight: number;
-  previousMaxWeight: number;
-  progress: number;       // percentage change
-
+  previousMaxWeight: number | null;
+  progress: number | null;       // percentage change
 }
 
 export interface DashboardAnalytics {
@@ -242,10 +241,7 @@ export const AnalyticsService = {
       };
     } catch (e) {
       logger.error('Failed to calculate consistency', e);
-      return {
-        weeklyFrequency: 0, currentStreak: 0, longestStreak: 0,
-        totalSessions: 0, sessionsThisWeek: 0, sessionsThisMonth: 0,
-      };
+      throw e;
     }
   },
 
@@ -304,7 +300,7 @@ export const AnalyticsService = {
       }));
     } catch (e) {
       logger.error('Failed to calculate volume trends', e);
-      return [];
+      throw e;
     }
   },
 
@@ -357,8 +353,10 @@ export const AnalyticsService = {
       // Build progressions
       const progressions: ExerciseProgression[] = [];
       for (const [exerciseId, data] of currentMax) {
-        const prevMax = previousMax.get(exerciseId) || 0;
-        const progress = prevMax > 0 ? Math.round(((data.maxWeight - prevMax) / prevMax) * 100) : 100;
+        const prevMax = previousMax.get(exerciseId) ?? null;
+        const progress = prevMax !== null && prevMax > 0
+          ? Math.round(((data.maxWeight - prevMax) / prevMax) * 100)
+          : null;
         progressions.push({
           exerciseId,
           exerciseName: data.name,
@@ -368,11 +366,21 @@ export const AnalyticsService = {
         });
       }
 
-      // Sort by progress descending, top 5
-      return progressions.sort((a, b) => b.progress - a.progress).slice(0, 5);
+      // Sort deterministically: numeric progress first (descending), then nulls last
+      return progressions.sort((a, b) => {
+        if (a.progress !== null && b.progress !== null) {
+          if (b.progress !== a.progress) {
+            return b.progress - a.progress;
+          }
+          return a.exerciseId - b.exerciseId;
+        }
+        if (a.progress !== null) return -1;
+        if (b.progress !== null) return 1;
+        return a.exerciseId - b.exerciseId;
+      }).slice(0, 5);
     } catch (e) {
       logger.error('Failed to calculate exercise progressions', e);
-      return [];
+      throw e;
     }
   },
 
@@ -382,8 +390,9 @@ export const AnalyticsService = {
       const result = await db.select({ count: sql<number>`count(*)` })
         .from(personalRecords);
       return result[0]?.count ?? 0;
-    } catch {
-      return 0;
+    } catch (e) {
+      logger.error('Failed to count personal records', e);
+      throw e;
     }
   },
 
@@ -418,7 +427,7 @@ export const AnalyticsService = {
         .slice(0, 10);
     } catch (e) {
       logger.error('Failed to calculate estimated 1RMs', e);
-      return [];
+      throw e;
     }
   },
 };

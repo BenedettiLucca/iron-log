@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, Modal, TextInput } from 'react-native';
 import { Card } from './Card';
 import { Button } from './Button';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '@/src/i18n/index';
+import { parseEditedSetInput } from '@/src/validators/forms';
 
 interface SetEditorProps {
   visible: boolean;
@@ -13,7 +14,8 @@ interface SetEditorProps {
   initialDuration?: number;
   initialRir?: number | null;
   isDuration: boolean;
-  onSave: (weight: number, reps?: number, duration?: number, rir?: number) => void;
+  /** Async contract: must resolve true on persistence success, false otherwise. */
+  onSave: (weight: number, reps?: number, duration?: number, rir?: number) => Promise<boolean>;
   onCancel: () => void;
 }
 
@@ -31,40 +33,83 @@ export function SetEditor({
   const { trigger } = useHaptics();
   const { t } = useI18n();
   const [weight, setWeight] = useState(initialWeight.toString());
-  const [reps, setReps] = useState(initialReps?.toString() || '');
-  const [duration, setDuration] = useState(initialDuration?.toString() || '');
-  const [rir, setRir] = useState(initialRir?.toString() || '2');
+  const [reps, setReps] = useState(initialReps?.toString() ?? '');
+  const [duration, setDuration] = useState(initialDuration?.toString() ?? '');
+  const [rir, setRir] = useState(initialRir?.toString() ?? '2');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Field-level error messages
+  const [weightError, setWeightError] = useState<string | undefined>();
+  const [repsError, setRepsError] = useState<string | undefined>();
+  const [durationError, setDurationError] = useState<string | undefined>();
+  const [rirError, setRirError] = useState<string | undefined>();
+
+  // Refs for focus management
+  const weightRef = useRef<TextInput>(null);
+  const repsRef = useRef<TextInput>(null);
+  const durationRef = useRef<TextInput>(null);
+  const rirRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (visible) {
       setWeight(initialWeight.toString());
-      setReps(initialReps?.toString() || '');
-      setDuration(initialDuration?.toString() || '');
-      setRir(initialRir?.toString() || '2');
+      setReps(initialReps?.toString() ?? '');
+      setDuration(initialDuration?.toString() ?? '');
+      setRir(initialRir?.toString() ?? '2');
+      setIsSaving(false);
+      setWeightError(undefined);
+      setRepsError(undefined);
+      setDurationError(undefined);
+      setRirError(undefined);
     }
   }, [visible, initialWeight, initialReps, initialDuration, initialRir]);
 
-  const handleSave = () => {
-    trigger('success');
-    
-    const weightValue = parseFloat(weight);
-    if (isNaN(weightValue) || weightValue < 0) {
-      return;
+  const clearErrors = () => {
+    setWeightError(undefined);
+    setRepsError(undefined);
+    setDurationError(undefined);
+    setRirError(undefined);
+  };
+
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    clearErrors();
+
+    const result = parseEditedSetInput({ weight, reps, duration, rir, isDuration });
+
+    if (!result.ok) {
+      // Show field-level errors
+      if (result.errors.weight) setWeightError(t('exercise.enterWeight'));
+      if (result.errors.reps) setRepsError(t('exercise.enterReps'));
+      if (result.errors.duration) setDurationError(t('exercise.enterDuration'));
+      if (result.errors.rir) setRirError(t('setEditor.invalidRir'));
+
+      // Focus first invalid field
+      switch (result.firstErrorField) {
+        case 'weight': weightRef.current?.focus(); break;
+        case 'reps': repsRef.current?.focus(); break;
+        case 'duration': durationRef.current?.focus(); break;
+        case 'rir': rirRef.current?.focus(); break;
+      }
+      return; // Keep modal open
     }
 
-    if (isDuration) {
-      const durationValue = parseInt(duration, 10);
-      if (isNaN(durationValue) || durationValue <= 0) {
-        return;
+    setIsSaving(true);
+    try {
+      const success = await onSave(
+        result.weightKg,
+        result.reps,
+        result.durationSeconds,
+        result.rir,
+      );
+      if (success) {
+        // Fire haptic only after confirmed persistence
+        trigger('success');
       }
-      onSave(weightValue, undefined, durationValue, undefined);
-    } else {
-      const repsValue = parseInt(reps, 10);
-      if (isNaN(repsValue) || repsValue <= 0) {
-        return;
-      }
-      const rirValue = parseInt(rir, 10);
-      onSave(weightValue, repsValue, undefined, isNaN(rirValue) ? 2 : rirValue);
+      // If false, modal stays open (caller sets error toast)
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -90,34 +135,46 @@ export function SetEditor({
                 <View>
                   <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('exercise.weight')}</Text>
                   <TextInput
+                    ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
                     keyboardType="numeric"
                     value={weight}
-                    onChangeText={setWeight}
+                    onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
                   />
+                  {weightError && (
+                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                  )}
                 </View>
 
                 <View>
                   <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('setEditor.repetitions')}</Text>
                   <TextInput
+                    ref={repsRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
                     keyboardType="numeric"
                     value={reps}
-                    onChangeText={setReps}
+                    onChangeText={(v) => { setReps(v); setRepsError(undefined); }}
                     placeholder="0"
                   />
+                  {repsError && (
+                    <Text className="text-dangerText text-xs mt-1">{repsError}</Text>
+                  )}
                 </View>
 
                 <View>
                   <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('exercise.rir')}</Text>
                   <TextInput
+                    ref={rirRef}
                     className="bg-background text-text text-xl font-bold p-3 rounded-xl border border-border text-center"
                     keyboardType="numeric"
                     value={rir}
-                    onChangeText={setRir}
+                    onChangeText={(v) => { setRir(v); setRirError(undefined); }}
                     placeholder="2"
                   />
+                  {rirError && (
+                    <Text className="text-dangerText text-xs mt-1">{rirError}</Text>
+                  )}
                 </View>
               </>
             ) : (
@@ -125,23 +182,31 @@ export function SetEditor({
                 <View>
                   <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('setEditor.extraWeight')}</Text>
                   <TextInput
+                    ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
                     keyboardType="numeric"
                     value={weight}
-                    onChangeText={setWeight}
+                    onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
                   />
+                  {weightError && (
+                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                  )}
                 </View>
 
                 <View>
                   <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('setEditor.duration')}</Text>
                   <TextInput
+                    ref={durationRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
                     keyboardType="numeric"
                     value={duration}
-                    onChangeText={setDuration}
+                    onChangeText={(v) => { setDuration(v); setDurationError(undefined); }}
                     placeholder="0"
                   />
+                  {durationError && (
+                    <Text className="text-dangerText text-xs mt-1">{durationError}</Text>
+                  )}
                 </View>
               </>
             )}
@@ -154,14 +219,17 @@ export function SetEditor({
               size="sm"
               onPress={onCancel}
               className="flex-1"
+              disabled={isSaving}
             />
 
             <Button
-              title={t('common.save')}
+              title={isSaving ? t('exercise.saving') : t('common.save')}
               variant="primary"
               size="sm"
               onPress={handleSave}
               className="flex-1"
+              disabled={isSaving}
+              loading={isSaving}
             />
           </View>
         </Card>

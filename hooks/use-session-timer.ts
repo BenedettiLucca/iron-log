@@ -14,6 +14,11 @@ interface UseSessionTimerReturn {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   toggleActiveSet: () => void;
+  restoreActiveSetTime: (
+    seconds: number,
+    startedAt?: number | null,
+  ) => void;
+  resetActiveSet: () => void;
 }
 
 export function useSessionTimer(): UseSessionTimerReturn {
@@ -32,8 +37,8 @@ export function useSessionTimer(): UseSessionTimerReturn {
     let interval: ReturnType<typeof setInterval> | undefined;
     if (activeSetStart !== null) {
       const tick = () => {
-        const elapsed = Math.floor((Date.now() - activeSetStart) / 1000);
-        setActiveSetTime(elapsed);
+        const elapsed = Math.max(0, Math.floor((Date.now() - activeSetStart) / 1000));
+        setActiveSetTime((previous) => Math.max(previous, elapsed));
       };
       tick();
       interval = setInterval(tick, 1000);
@@ -76,6 +81,28 @@ export function useSessionTimer(): UseSessionTimerReturn {
     }
   }, [activeSetStart]);
 
+  const restoreActiveSetTime = useCallback((
+    seconds: number,
+    startedAt: number | null = null,
+  ) => {
+    if (typeof seconds === 'number' && Number.isFinite(seconds) && seconds >= 0) {
+      const validStart = typeof startedAt === 'number'
+        && Number.isFinite(startedAt)
+        && startedAt >= 0
+        ? startedAt
+        : null;
+      setActiveSetStart(validStart);
+      setActiveSetTime(validStart === null
+        ? seconds
+        : Math.max(seconds, Math.floor((Date.now() - validStart) / 1000)));
+    }
+  }, []);
+
+  const resetActiveSet = useCallback(() => {
+    setActiveSetStart(null);
+    setActiveSetTime(0);
+  }, []);
+
   const addTime = useCallback((sec: number) => {
     if (timerStatus === 'running' && timerTarget) {
       setTimerTarget(timerTarget + sec * 1000);
@@ -96,5 +123,7 @@ export function useSessionTimer(): UseSessionTimerReturn {
     activeSetTime,
     isActiveSetRunning,
     toggleActiveSet,
+    restoreActiveSetTime,
+    resetActiveSet,
   };
 }

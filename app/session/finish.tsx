@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
@@ -16,13 +17,18 @@ import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
+import { SectionHeader } from '../../components/SectionHeader';
+import { Card } from '../../components/Card';
+import { StatTile } from '../../components/StatTile';
 import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
 import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
+import { canActOnFinishStats } from '@/src/utils/session-trust';
 
 interface NoteTemplate {
   label: string;
@@ -33,6 +39,7 @@ interface NoteTemplate {
 
 export default function FinishSessionScreen() {
   const { t, language } = useI18n();
+  const theme = useThemeColors();
   const { toast, setToast } = useToast();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
@@ -72,12 +79,16 @@ export default function FinishSessionScreen() {
     prCount: 0,
   });
   const [isFinishing, setIsFinishing] = useState(false);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
+  const [statsLoadError, setStatsLoadError] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
     const loadData = async () => {
+      setIsStatsLoading(true);
+      setStatsLoadError(false);
       try {
         // Load last weight
         const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
@@ -100,7 +111,7 @@ export default function FinishSessionScreen() {
         // Get the session details
         const sessionDataResult = await db.select().from(sessions).where(eq(sessions.id, sessionIdNum));
         const session = sessionDataResult[0];
-        if (!session) return;
+        if (!session) throw new Error('Session not found');
 
         // Get all sets for this session
         const sessionSets = await db.select()
@@ -149,6 +160,9 @@ export default function FinishSessionScreen() {
 
       } catch (e) {
         logger.error('Erro ao carregar dados do finish', e);
+        setStatsLoadError(true);
+      } finally {
+        setIsStatsLoading(false);
       }
     };
     loadData();
@@ -169,7 +183,7 @@ export default function FinishSessionScreen() {
   }, []);
 
   const handleFinish = () => {
-    if (isFinishing) return;
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     if (sessionStats.totalSets === 0) {
       setShowDiscardDialog(true);
       return;
@@ -178,6 +192,7 @@ export default function FinishSessionScreen() {
   };
 
   const confirmDiscard = async () => {
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setShowDiscardDialog(false);
     setIsFinishing(true);
     try {
@@ -189,7 +204,7 @@ export default function FinishSessionScreen() {
         .set({ deletedAt: Date.now() })
         .where(eq(sessions.id, Number(sessionId)));
       await AsyncStorage.removeItem('incomplete_session');
-      router.replace('/(drawer)' as any);
+      router.replace('/(tabs)' as any);
     } catch (e) {
       logger.error(t('finish.finishError'), e);
       setToast({ visible: true, message: t('finish.finishError'), type: 'error' });
@@ -198,6 +213,7 @@ export default function FinishSessionScreen() {
   };
 
   const confirmFinish = async () => {
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setIsFinishing(true);
     setShowConfirmDialog(false);
 
@@ -259,43 +275,65 @@ export default function FinishSessionScreen() {
         <Text className="text-text text-3xl font-bold mb-2">{t('finish.title')}</Text>
         <Text className="text-subtext mb-6">{t('finish.review')}</Text>
 
-        {/* Session Statistics Card */}
-        <View className="bg-card p-4 rounded-xl border border-border mb-6">
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('finish.sessionStats')}</Text>
-          <View className="flex-row justify-around">
-            <View className="items-center">
-              <Text className="text-text text-3xl font-bold">{sessionStats.totalSets}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('finish.sets')}</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-text text-3xl font-bold">{sessionStats.totalExercises}</Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('routineDetail.exercises')}</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-text text-3xl font-bold">
-                {sessionStats.totalVolume >= 1000
-                  ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
-                  : sessionStats.totalVolume}
-              </Text>
-              <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('finish.volumeKg')}</Text>
-            </View>
+        {/* Session Statistics Header */}
+        {isStatsLoading ? (
+          <View className="items-center justify-center py-10 mb-6" accessibilityRole="progressbar">
+            <ActivityIndicator color={theme.primaryText} size="large" />
+            <Text className="text-subtext text-sm mt-3">{t('common.loading')}</Text>
           </View>
-        </View>
+        ) : statsLoadError ? (
+          <Card className="mb-6 border-danger/30">
+            <Text className="text-dangerText text-sm font-semibold text-center">
+              {t('common.operationError')}
+            </Text>
+          </Card>
+        ) : (
+          <View className="flex-row flex-wrap gap-3 mb-6">
+            <StatTile
+              value={sessionStats.totalSets}
+              label={t('finish.sets')}
+              accentColor="primary"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={
+                sessionStats.totalVolume >= 1000
+                  ? `${(sessionStats.totalVolume / 1000).toFixed(1)}k`
+                  : sessionStats.totalVolume
+              }
+              label={t('finish.volumeKg')}
+              accentColor="secondary"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={sessionStats.totalExercises}
+              label={t('routineDetail.exercises')}
+              accentColor="success"
+              className="flex-1 min-w-[45%]"
+            />
+            <StatTile
+              value={sessionStats.prCount}
+              label="PRs"
+              accentColor="warning"
+              className="flex-1 min-w-[45%]"
+            />
+          </View>
+        )}
 
         {/* Session Duration */}
-        <View className="bg-card p-4 rounded-xl border border-border mb-6 flex-row items-center justify-between">
+        <Card className="mb-6 flex-row items-center justify-between">
           <View>
-            <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-1">{t('finish.duration')}</Text>
+            <SectionHeader label={t('finish.duration')} className="mb-1 pl-0" />
             <View className="flex-row items-center gap-2">
               <Stopwatch startTime={Number(startTime)} />
             </View>
           </View>
-        </View>
+        </Card>
 
         {/* Peso Corporal */}
-        <View className="mb-6">
+        <Card className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.bodyWeight')}</Text>
+            <SectionHeader label={t('finish.bodyWeight')} className="pl-0" />
             {lastWeightDate && previousWeight && (
               <Text className="text-subtext text-xs">{t('finish.lastWeight', { weight: previousWeight, date: lastWeightDate })}</Text>
             )}
@@ -303,7 +341,7 @@ export default function FinishSessionScreen() {
 
           <View className="flex-row items-center gap-3">
             <TextInput
-              className="flex-1 bg-card text-text text-4xl font-bold py-4 px-5 rounded-xl border border-border text-center"
+              className="flex-1 bg-background text-text text-4xl font-bold py-4 px-5 rounded-xl border border-border text-center"
               keyboardType="numeric"
               placeholder="82.5"
               placeholderTextColor={Colors.darkSubtext}
@@ -314,7 +352,7 @@ export default function FinishSessionScreen() {
 
             <View className="gap-2">
               <TouchableOpacity
-                className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
+                className="bg-card px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(-0.5)}
                 accessibilityLabel={t('finish.decreaseWeight')}
                 accessibilityRole="button"
@@ -322,7 +360,7 @@ export default function FinishSessionScreen() {
                 <Text className="text-text text-sm font-semibold">-0.5</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className="bg-background px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
+                className="bg-card px-4 py-3 rounded-lg border border-border min-w-[60px] items-center"
                 onPress={() => adjustWeight(0.5)}
                 accessibilityLabel={t('finish.increaseWeight')}
                 accessibilityRole="button"
@@ -333,18 +371,18 @@ export default function FinishSessionScreen() {
           </View>
 
           {weightDiff !== null && (
-            <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-success' : 'text-danger'}`}>
+            <Text className={`text-xs font-semibold mt-2 ${weightDiff > 0 ? 'text-successText' : 'text-dangerText'}`}>
               {weightDiff > 0 ? '↑' : '↓'} {t('finish.weightVsPrevious', { weight: Math.abs(weightDiff).toFixed(1) })}
             </Text>
           )}
-        </View>
+        </Card>
 
         {/* sRPE Selector */}
-        <View className="mb-6">
+        <Card className="mb-6">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.perceivedEffort')}</Text>
+            <SectionHeader label={t('finish.perceivedEffort')} className="pl-0" />
             <View className="bg-primary px-4 py-1.5 rounded-full">
-              <Text className="text-white font-bold text-xl">{sRpe}</Text>
+              <Text className="text-onPrimary font-bold text-xl">{sRpe}</Text>
             </View>
           </View>
 
@@ -380,23 +418,23 @@ export default function FinishSessionScreen() {
             <Text className="text-text text-center font-semibold text-lg">
               {SRPE_DESCRIPTIONS[sRpe] || t('finish.sRPEModerate')}
             </Text>
-            <Text className="text-subtext text-center text-xs mt-1">
+            <Text className="text-subtext text-center text-sm mt-1">
               {sRpe <= 4 ? t('finish.lightWorkout') :
                 sRpe <= 6 ? t('finish.moderateWorkout') :
                   sRpe <= 8 ? t('finish.intenseWorkout') :
                     t('finish.extremeWorkout')}
             </Text>
           </View>
-        </View>
+        </Card>
 
         {/* Note Templates */}
-        <View className="mb-6">
-          <Text className="text-subtext font-bold mb-2 uppercase text-sm tracking-wider">{t("finish.quickNotes")}</Text>
+        <Card className="mb-6">
+          <SectionHeader label={t("finish.quickNotes")} className="mb-2 pl-0" />
           <View className="flex-row flex-wrap gap-2">
             {NOTE_TEMPLATES.map((template) => (
               <TouchableOpacity
                 key={template.label}
-                className="bg-card px-3 py-2.5 rounded-lg border border-border flex-row items-center gap-1.5"
+                className="bg-card border border-border rounded-xl p-3 flex-row items-center gap-2"
                 onPress={() => insertTemplate(template)}
               >
                 <Text className="text-base">{template.emoji}</Text>
@@ -404,12 +442,12 @@ export default function FinishSessionScreen() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+        </Card>
 
         {/* Notas */}
-        <View className="mb-6">
+        <Card className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-subtext font-bold uppercase text-sm tracking-wider">{t('finish.observations')}</Text>
+            <SectionHeader label={t('finish.observations')} className="pl-0" />
             {notes.length > 0 && (
               <Text className="text-subtext text-xs">{t('finish.characterCount', { count: notes.length })}</Text>
             )}
@@ -423,17 +461,31 @@ export default function FinishSessionScreen() {
             onChangeText={setNotes}
             textAlignVertical="top"
           />
-        </View>
+        </Card>
 
-        <Button
-          title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
-          onPress={handleFinish}
-          variant="success"
-          size="lg"
-          fullWidth
-          disabled={isFinishing}
-          style={{ marginTop: 8 }}
-        />
+        <View className="gap-3 mt-4">
+          <Button
+            title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
+            onPress={handleFinish}
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+            loading={isFinishing}
+          />
+          <Button
+            title={t('finish.discardButton')}
+            onPress={() => {
+              if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                setShowDiscardDialog(true);
+              }
+            }}
+            variant="danger"
+            size="md"
+            fullWidth
+            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+          />
+        </View>
 
       </ScrollView>
 

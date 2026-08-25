@@ -12,6 +12,8 @@ import { and, eq, isNull } from 'drizzle-orm';
 import * as Clipboard from 'expo-clipboard';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
+import { SectionHeader } from '../../components/SectionHeader';
+import { StatTile } from '../../components/StatTile';
 import { Toast } from '../../components/Toast';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
@@ -189,131 +191,136 @@ export default function SummaryScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScrollView contentContainerClassName="p-5">
-        {/* Header */}
-        <View className="items-center mb-6 pt-5">
-          <Text className="text-6xl">🎉</Text>
-          <Text className="text-text text-3xl font-bold mt-2">{t("summary.workoutComplete")}</Text>
-          <Text className="text-primary text-base font-semibold mt-1">{getMotivationalMessage()}</Text>
-        </View>
+        {/* Summary Header Card */}
+        <Card className="mb-5 items-center">
+          <Text className="text-6xl mb-2">🎉</Text>
+          <Text className="text-text text-3xl font-bold">{t("summary.workoutComplete")}</Text>
+          <Text className="text-primaryText text-base font-semibold mt-1 mb-4">{getMotivationalMessage()}</Text>
 
-        {/* Stats Dashboard */}
+          <View className="border-t border-border/50 pt-4 w-full items-center">
+            <Text className="text-text text-xl font-extrabold text-center mb-1">
+              {sessionData?.routineName}
+            </Text>
+            <Text className="text-subtext text-xs text-center font-medium">
+              {sessionData?.startTime ? new Date(sessionData.startTime).toLocaleDateString(getLocaleForLanguage(language)) : ''}
+              {sessionData?.durationMinutes ? ` • ${sessionData.durationMinutes} min` : ''}
+            </Text>
+          </View>
+        </Card>
+
+        {/* Stats Grid */}
         <View className="flex-row flex-wrap gap-3 mb-5">
-          <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-4xl font-bold">{stats.totalSets}</Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t("common.sets")}</Text>
-          </Card>
-
-          <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-4xl font-bold">
-              {stats.totalVolume >= 1000
+          <StatTile
+            value={stats.totalSets}
+            label={t("common.sets")}
+            accentColor="primary"
+            className="flex-1 min-w-[45%]"
+          />
+          <StatTile
+            value={
+              stats.totalVolume >= 1000
                 ? `${(stats.totalVolume / 1000).toFixed(1)}k`
-                : stats.totalVolume}
-            </Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.volume')}</Text>
-          </Card>
-
-          <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-4xl font-bold">{sessionData?.sRpe || '-'}</Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">sRPE</Text>
-          </Card>
-
-          <Card className="flex-1 min-w-[45%] items-center py-5">
-            <Text className="text-text text-4xl font-bold">{sessionData?.durationMinutes || 0}</Text>
-            <Text className="text-subtext text-xs font-semibold mt-1 uppercase">{t('summary.minutes')}</Text>
-          </Card>
+                : stats.totalVolume
+            }
+            label={t('summary.volume')}
+            accentColor="secondary"
+            className="flex-1 min-w-[45%]"
+          />
+          <StatTile
+            value={stats.averageIntensity > 0 ? `${stats.averageIntensity.toFixed(1)} kg` : '-'}
+            label={t('analytics.intensity')}
+            accentColor="success"
+            className="flex-1 min-w-[45%]"
+          />
+          <StatTile
+            value={stats.bestSet ? `${stats.bestSet.weight}kg × ${stats.bestSet.reps}` : '-'}
+            label={t('summary.bestSet')}
+            accentColor="warning"
+            delta={stats.bestSet?.exercise || undefined}
+            className="flex-1 min-w-[45%]"
+          />
         </View>
-
-        {/* Best Performance */}
-        {stats.bestSet && (
-          <Card className="items-center p-4 mb-5 bg-accent/10 border-accent">
-            <Text className="text-subtext text-xs font-bold uppercase mb-2">🏆 {t('summary.bestSet')}</Text>
-            <Text className="text-text text-2xl font-bold">
-              {stats.bestSet.weight}kg × {stats.bestSet.reps} reps
-            </Text>
-            <Text className="text-primary text-sm font-medium mt-1">{stats.bestSet.exercise}</Text>
-          </Card>
-        )}
 
         {/* Coaching Verdicts */}
         {verdicts.length > 0 && (
-          <Card className="mb-5">
-            <Text className="text-text text-sm font-semibold mb-3">🧠 {t('summary.verdicts.title')}</Text>
-            <View className="gap-3">
-              {verdicts.map((v) => {
-                let verdictKey = '';
-                if (v.verdict === 'increase') verdictKey = 'summary.verdicts.verdictIncrease';
-                else if (v.verdict === 'hold') verdictKey = 'summary.verdicts.verdictHold';
-                else if (v.verdict === 'review_fatigue') verdictKey = 'summary.verdicts.verdictReviewFatigue';
-                else if (v.verdict === 'check_logging') verdictKey = 'summary.verdicts.verdictCheckLogging';
-                const verdictStr = verdictKey ? t(verdictKey) : v.verdict;
+          <View className="mb-5">
+            <SectionHeader label="Análise por Exercício" className="mb-3 pl-0" />
+            {verdicts.map((v) => {
+              const targetStr = v.targetRange
+                ? `${v.targetRange.sets}x${v.targetRange.minReps === v.targetRange.maxReps ? v.targetRange.minReps : `${v.targetRange.minReps}-${v.targetRange.maxReps}`}`
+                : '-';
+              const actualStr = v.workingSets.map(s => `${s.weightKg}kg x ${s.reps}`).join(', ');
 
-                let resultKey = '';
-                if (v.result === 'top') resultKey = 'summary.verdicts.resultTop';
-                else if (v.result === 'within') resultKey = 'summary.verdicts.resultWithin';
-                else if (v.result === 'below') resultKey = 'summary.verdicts.resultBelow';
-                else if (v.result === 'no_target') resultKey = 'summary.verdicts.resultNoTarget';
-                const resultStr = resultKey ? t(resultKey) : v.result;
-                const showVerdict = v.result !== 'no_target';
+              const getBadgeStyles = (verdict: typeof v) => {
+                if (verdict.verdict === 'increase') {
+                  return {
+                    bgClass: 'bg-primarySurface',
+                    textClass: 'text-primaryText',
+                    label: t('summary.verdicts.verdictIncrease')
+                  };
+                } else if (verdict.verdict === 'review_fatigue' || verdict.result === 'below') {
+                  return {
+                    bgClass: 'bg-warningSurface',
+                    textClass: 'text-warningText',
+                    label: verdict.verdict === 'review_fatigue' ? t('summary.verdicts.verdictReviewFatigue') : t('summary.verdicts.resultBelow')
+                  };
+                } else {
+                  return {
+                    bgClass: 'bg-successSurface',
+                    textClass: 'text-successText',
+                    label: verdict.result === 'no_target' ? t('summary.verdicts.resultNoTarget') : t('summary.verdicts.verdictHold')
+                  };
+                }
+              };
 
-                let badgeColor = 'bg-subtext/15 text-subtext';
-                if (showVerdict && v.verdict === 'increase') badgeColor = 'bg-success/15 text-success';
-                else if (showVerdict && v.verdict === 'hold') badgeColor = 'bg-primary/15 text-primary';
-                else if (showVerdict && v.verdict === 'review_fatigue') badgeColor = 'bg-warning/15 text-warning';
-                else if (showVerdict && v.verdict === 'check_logging') badgeColor = 'bg-danger/15 text-danger';
+              const { bgClass, textClass, label: badgeLabel } = getBadgeStyles(v);
 
-                return (
-                  <View key={v.exerciseId} className="border-b border-border/50 pb-3 last:border-b-0 last:pb-0">
-                    <View className="flex-row justify-between items-center mb-1">
-                      <Text className="text-text font-bold text-sm flex-1 mr-2">{v.exerciseName}</Text>
-                      <View className={`px-2 py-0.5 rounded-full ${badgeColor}`}>
-                        <Text className="text-xs font-semibold">{showVerdict ? verdictStr : resultStr}</Text>
-                      </View>
+              return (
+                <Card key={v.exerciseId} className="mb-3">
+                  <View className="flex-row justify-between items-center mb-1">
+                    <Text className="text-text font-bold text-base flex-1 mr-2">{v.exerciseName}</Text>
+                    <View className={`px-2.5 py-1 rounded-full ${bgClass}`}>
+                      <Text className={`text-xs font-bold ${textClass}`}>{badgeLabel}</Text>
                     </View>
-
-                    <Text className="text-subtext text-xs mt-1">
-                      📊 {t('summary.verdicts.result')}: <Text className="text-text font-semibold">{resultStr}</Text>
-                    </Text>
-
-                    {showVerdict && (
-                      <Text className="text-subtext text-xs mt-1">
-                        🧠 {t('summary.verdicts.verdict')}: <Text className="text-text font-semibold">{verdictStr}</Text>
-                      </Text>
-                    )}
-
-                    {showVerdict && v.nextLoadSuggestion && (
-                      <Text className="text-subtext text-xs mt-1">
-                        🎯 {t('summary.verdicts.nextLoad')}: <Text className="text-text font-semibold">{v.nextLoadSuggestion}</Text>
-                      </Text>
-                    )}
-
-                    {v.flags.length > 0 && (
-                      <View className="flex-row flex-wrap gap-1 mt-1.5">
-                        {v.flags.map((flag) => {
-                          let flagText = flag;
-                          if (flag === 'rir_inversion') flagText = t('summary.verdicts.flagRirInversion');
-                          else if (flag === 'abrupt_rep_drop') flagText = t('summary.verdicts.flagAbruptRepDrop');
-                          else if (flag === 'extra_sets') flagText = t('summary.verdicts.flagExtraSets');
-                          else if (flag === 'repeated_below_range') flagText = t('summary.verdicts.flagRepeatedBelowRange');
-                          return (
-                            <View key={flag} className="bg-danger/10 border border-danger/20 rounded px-1.5 py-0.5">
-                              <Text className="text-[10px] text-danger font-semibold">⚠️ {flagText}</Text>
-                            </View>
-                          );
-                        })}
-                      </View>
-                    )}
                   </View>
-                );
-              })}
-            </View>
-          </Card>
+
+                  <Text className="text-xs text-subtext mt-1">
+                    Meta: {targetStr} • Feito: {actualStr}
+                  </Text>
+
+                  {v.nextLoadSuggestion && (
+                    <Text className="text-subtext text-xs mt-1.5 font-medium">
+                      🎯 {t('summary.verdicts.nextLoad')}: <Text className="text-text font-semibold">{v.nextLoadSuggestion}</Text>
+                    </Text>
+                  )}
+
+                  {v.flags.length > 0 && (
+                    <View className="flex-row flex-wrap gap-1 mt-2">
+                      {v.flags.map((flag) => {
+                        let flagText = flag;
+                        if (flag === 'rir_inversion') flagText = t('summary.verdicts.flagRirInversion');
+                        else if (flag === 'abrupt_rep_drop') flagText = t('summary.verdicts.flagAbruptRepDrop');
+                        else if (flag === 'extra_sets') flagText = t('summary.verdicts.flagExtraSets');
+                        else if (flag === 'repeated_below_range') flagText = t('summary.verdicts.flagRepeatedBelowRange');
+                        return (
+                          <View key={flag} className="bg-dangerSurface border border-danger/20 rounded px-1.5 py-0.5">
+                            <Text className="text-2xs text-dangerText font-semibold">⚠️ {flagText}</Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
+                </Card>
+              );
+            })}
+          </View>
         )}
 
-        {/* Markdown Report */}
+        {/* Report Preview */}
         <Card className="mb-5">
-          <Text className="text-text text-sm font-semibold mb-3">📄 {t('summary.fullReport')}</Text>
-          <View className="bg-background rounded-xl p-3 border border-border">
-            <Text className="text-text text-xs leading-5 font-mono select-text" numberOfLines={20}>
+          <SectionHeader label={t('summary.fullReport')} className="mb-3 pl-0" />
+          <View className="bg-primary/5 rounded-xl p-3 border border-border">
+            <Text className="text-text text-xs font-mono leading-5" numberOfLines={20}>
               {report}
             </Text>
           </View>
@@ -324,7 +331,7 @@ export default function SummaryScreen() {
           <Button
             title={copied ? t('summary.copied') : t('summary.copyText')}
             onPress={copyToClipboard}
-            variant="primary"
+            variant="secondary"
             size="lg"
             fullWidth
           />
@@ -332,7 +339,7 @@ export default function SummaryScreen() {
           <Button
             title={t('summary.share')}
             onPress={nativeShare}
-            variant="secondary"
+            variant="primary"
             size="lg"
             fullWidth
           />

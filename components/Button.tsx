@@ -1,11 +1,24 @@
 import type { ReactNode } from 'react';
 import { Text, ActivityIndicator, View, ViewStyle, TextStyle, Pressable } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-import { useHaptics } from '@/hooks/use-haptics';
-import { Colors } from '@/constants/colors';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { useHaptics, type HapticFeedbackType } from '@/hooks/use-haptics';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'success';
 export type ButtonSize = 'sm' | 'md' | 'lg';
+
+const HAPTIC_BY_VARIANT: Record<ButtonVariant, HapticFeedbackType> = {
+  primary: 'medium',
+  secondary: 'light',
+  danger: 'warning',
+  ghost: 'light',
+  success: 'medium',
+};
 
 interface ButtonProps {
   title: string;
@@ -20,6 +33,7 @@ interface ButtonProps {
   textStyle?: TextStyle;
   className?: string;
   accessibilityLabel?: string;
+  onAccessibilityEscape?: () => void;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -37,8 +51,11 @@ export function Button({
   textStyle,
   className = '',
   accessibilityLabel,
+  onAccessibilityEscape,
 }: ButtonProps) {
+  const theme = useThemeColors();
   const scale = useSharedValue(1);
+  const isReducedMotion = useReactiveReducedMotion();
   const { trigger } = useHaptics();
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -46,24 +63,23 @@ export function Button({
   }));
 
   const handlePressIn = () => {
-    if (disabled || loading) return;
-    scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+    if (disabled || loading || isReducedMotion) return;
+    scale.value = withTiming(0.98, { duration: 80 });
   };
 
   const handlePressOut = () => {
-    if (disabled || loading) return;
-    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+    if (disabled || loading || isReducedMotion) {
+      scale.value = 1;
+      return;
+    }
+    scale.value = withTiming(1, { duration: 120 });
   };
 
   const handlePress = () => {
     if (disabled || loading) return;
 
     // Trigger haptic feedback based on variant
-    if (variant === 'danger') {
-      trigger('warning');
-    } else {
-      trigger('medium');
-    }
+    trigger(HAPTIC_BY_VARIANT[variant]);
 
     onPress();
   };
@@ -83,12 +99,12 @@ export function Button({
   const getTextSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'text-xs font-bold tracking-wider uppercase';
+        return 'text-xs font-bold';
       case 'lg':
-        return 'text-lg font-bold tracking-widest uppercase';
+        return 'text-lg font-bold';
       case 'md':
       default:
-        return 'text-sm font-bold tracking-wider uppercase';
+        return 'text-sm font-bold';
     }
   };
 
@@ -97,7 +113,7 @@ export function Button({
 
     switch (variant) {
       case 'secondary':
-        return `${baseClasses} bg-background border-2 border-secondary/20 active:bg-secondary/10`;
+        return `${baseClasses} bg-background border-2 border-secondary/20 active:bg-secondarySurface`;
       case 'danger':
         return `${baseClasses} bg-danger active:opacity-90`;
       case 'ghost':
@@ -113,11 +129,13 @@ export function Button({
   const getTextClasses = () => {
     switch (variant) {
       case 'secondary':
-        return 'text-secondary';
+        return 'text-secondaryText';
       case 'danger':
+        return 'text-onDanger';
       case 'success':
+        return 'text-onSuccess';
       case 'primary':
-        return 'text-white';
+        return 'text-onPrimary';
       case 'ghost':
       default:
         return 'text-subtext';
@@ -132,6 +150,7 @@ export function Button({
       disabled={disabled || loading}
       accessibilityLabel={accessibilityLabel || title}
       accessibilityRole="button"
+      onAccessibilityEscape={onAccessibilityEscape}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       style={[
         animatedStyle,
@@ -142,7 +161,19 @@ export function Button({
       className={`${getVariantClasses()} ${getSizeClasses()} ${className}`}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' || variant === 'ghost' ? Colors.secondary : Colors.white} />
+        <ActivityIndicator
+          color={
+            variant === 'secondary'
+              ? theme.secondaryText
+              : variant === 'ghost'
+              ? theme.subtext
+              : variant === 'danger'
+              ? theme.onDanger
+              : variant === 'success'
+              ? theme.onSuccess
+              : theme.onPrimary
+          }
+        />
       ) : (
         <>
           {icon && <View className="mr-2">{icon}</View>}

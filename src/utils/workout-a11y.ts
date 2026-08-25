@@ -1,6 +1,5 @@
 export interface WorkoutA11yLabels {
   endSession: string;
-  warmupSwitch: string;
   undoLastSetLabel: string;
   undoLastSetHint: string;
   durationStart: string;
@@ -28,11 +27,6 @@ export function buildWorkoutA11y(labels: WorkoutA11yLabels) {
         },
       };
     },
-    warmupSwitch: (isWarmupMode: boolean) => ({
-      accessibilityRole: 'switch' as const,
-      accessibilityLabel: labels.warmupSwitch,
-      accessibilityState: { checked: isWarmupMode },
-    }),
     undo: {
       accessibilityRole: 'button' as const,
       accessibilityLabel: labels.undoLastSetLabel,

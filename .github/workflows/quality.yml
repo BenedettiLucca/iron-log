@@ -6,6 +6,7 @@ on:
       - master
       - main
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Typecheck, lint, and test
+    name: Audit, typecheck, lint, test, and Android export
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -27,17 +28,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version-file: .node-version
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Security audit
+        run: npm run audit:high
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint -- --max-warnings=0
 
-      - name: Test
-        run: npm test -- --runInBand --watchAll=false
+      - name: Test and coverage
+        run: npm run test:coverage -- --runInBand --watchAll=false
+
+      - name: Export Android bundle
+        run: npm run export:android
+
+      - name: Verify Android bundle
+        run: npm run verify:android-export

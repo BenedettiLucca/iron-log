@@ -3,7 +3,6 @@ import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 describe('workout-a11y', () => {
   const labels = {
     endSession: 'End session',
-    warmupSwitch: 'Warm-up mode',
     undoLastSetLabel: 'Undo last set',
     undoLastSetHint: 'Removes the last registered set',
     durationStart: 'Start set timer',
@@ -73,19 +72,6 @@ describe('workout-a11y', () => {
     });
   });
 
-  it('builds warmup switch a11y props', () => {
-    const a11y = buildWorkoutA11y(labels);
-    expect(a11y.warmupSwitch(true)).toEqual({
-      accessibilityRole: 'switch',
-      accessibilityLabel: 'Warm-up mode',
-      accessibilityState: { checked: true }
-    });
-    expect(a11y.warmupSwitch(false)).toEqual({
-      accessibilityRole: 'switch',
-      accessibilityLabel: 'Warm-up mode',
-      accessibilityState: { checked: false }
-    });
-  });
 
   it('builds undo a11y props', () => {
     const a11y = buildWorkoutA11y(labels);

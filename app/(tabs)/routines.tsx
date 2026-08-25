@@ -1,0 +1,348 @@
+import { useState, useCallback } from 'react';
+import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { db } from '../../src/db/client';
+import { exercises, routines as routinesTable, routineExercises } from '../../src/db/schema';
+import { eq, like } from 'drizzle-orm';
+import * as Clipboard from 'expo-clipboard';
+import { Toast } from '../../components/Toast';
+import { Dialog } from '../../components/Dialog';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { RoutinePreview } from '../../components/RoutinePreview';
+import { SkeletonList } from '../../components/Skeleton';
+import { logger } from '@/services/logger';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useRoutines } from '@/hooks/use-routines';
+import { useI18n } from '../../src/i18n/index';
+import { buildSessionStartRoute } from '../../src/utils/session-start';
+import { useToast } from '../../hooks/use-toast';
+import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
+import { SectionHeader } from '@/components/SectionHeader';
+import { consumePendingToast } from '@/src/utils/flash-toast';
+import Svg, { Path } from 'react-native-svg';
+export default function RoutinesListScreen() {
+  const router = useRouter();
+  const theme = useThemeColors();
+  const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
+  const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
+  const { toast, setToast } = useToast();
+  const { dialog, setDialog } = useConfirmDialog();
+  const [refreshing, setRefreshing] = useState(false);
+  const { t } = useI18n();
+  const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRoutines();
+      const pendingToast = consumePendingToast();
+      if (pendingToast) {
+        setToast({ visible: true, ...pendingToast });
+      } else {
+        setToast({ visible: false, message: '', type: 'success' });
+      }
+    }, [fetchRoutines, setToast])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchRoutines();
+    setRefreshing(false);
+  }, [fetchRoutines]);
+
+  const filteredRoutines = getFilteredRoutines(selectedFolder);
+
+  const handleDelete = (id: number, name: string) => {
+    setDialog({
+      visible: true,
+      title: t('routines.deleteRoutineTitle'),
+      message: t('routines.deleteRoutineMessage', { name }),
+      onConfirm: async () => {
+        const success = await deleteRoutine(id);
+        if (!success) {
+          setToast({ visible: true, message: t('routines.deleteError'), type: 'error' });
+        }
+      }
+    });
+  };
+
+  const handleDuplicate = async (id: number, name: string) => {
+    const newName = `${name} (${t('routines.copy')})`;
+    const success = await duplicateRoutine(id, newName);
+    if (success) {
+      setToast({ visible: true, message: t('routines.duplicateSuccess', { name: newName }), type: 'success' });
+    } else {
+      setToast({ visible: true, message: t('routines.duplicateError'), type: 'error' });
+    }
+  };
+
+  const handleQuickStart = (routineId: number, routineName: string) => {
+    router.push(buildSessionStartRoute({ id: routineId, name: routineName }));
+  };
+
+  const handleImportFromClipboard = async () => {
+    try {
+      const content = await Clipboard.getStringAsync();
+      if (!content) {
+        setToast({ visible: true, message: t('routines.emptyClipboard'), type: 'error' });
+        return;
+      }
+
+      let data;
+      try {
+          data = JSON.parse(content);
+      } catch {
+          return setToast({ visible: true, message: t('routines.invalidJson'), type: 'error' });
+      }
+
+      if (!data.name || !Array.isArray(data.exercises)) {
+          return setToast({ visible: true, message: t('routines.invalidJsonStructure'), type: 'error' });
+      }
+
+      const existingRoutine = await db.select().from(routinesTable).where(eq(routinesTable.name, data.name));
+      if (existingRoutine.length > 0) {
+        return setToast({ visible: true, message: t('routines.duplicateName', { name: data.name }), type: 'error' });
+      }
+
+      const routineRes = await db.insert(routinesTable).values({
+          name: data.name,
+          description: data.description || ''
+      }).returning();
+      const routineId = routineRes[0].id;
+
+      let order = 1;
+      for (const item of data.exercises) {
+        if (!item.name) continue;
+
+        const exName = item.name.trim();
+        const type = item.type === 'duration' ? 'duration' : 'strength';
+
+        const existing = await db.select().from(exercises).where(like(exercises.name, exName));
+        let exerciseId;
+
+        if (existing.length > 0) {
+            exerciseId = existing[0].id;
+        } else {
+            try {
+                const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
+                exerciseId = newEx[0].id;
+            } catch (err) {
+                logger.error(t('common.createExerciseError'), err);
+                continue;
+            }
+        }
+
+        if (exerciseId) {
+            await db.insert(routineExercises).values({
+                routineId,
+                exerciseId,
+                orderIndex: order++,
+                target: item.target || null,
+                notes: item.notes || null,
+                restSeconds: item.rest ? Number(item.rest) : null
+            });
+        }
+      }
+
+      fetchRoutines();
+      setToast({ visible: true, message: t('routines.importedWithExercises', { name: data.name, count: order - 1 }), type: 'success' });
+
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+      setToast({ visible: true, message: t('routines.importError'), type: 'error' });
+    }
+  };
+
+  return (
+    <View className="flex-1 bg-background">
+      <View className="px-4 pb-0 pt-4">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
+          <TouchableOpacity
+            onPress={() => router.push('/programs')}
+            activeOpacity={0.7}
+            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+          >
+            <Text className="text-subtext text-sm font-semibold">{t('programs.title')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push('/routines/templates')}
+            activeOpacity={0.7}
+            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+          >
+            <Text className="text-subtext text-sm font-semibold">{t('routines.tabTemplates')}</Text>
+          </TouchableOpacity>
+          {folders.map(folder => {
+            const displayFolder = folder === 'Todos' ? t('routines.tabAll')
+              : folder === 'Geral' ? t('routines.tabGeneral')
+              : folder;
+            const isActive = selectedFolder === folder;
+            return (
+              <TouchableOpacity
+                key={folder}
+                onPress={() => setSelectedFolder(folder)}
+                activeOpacity={0.7}
+                className={`rounded-full py-1.5 px-3.5 border ${
+                  isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
+                }`}
+              >
+                <Text className={`text-sm font-semibold ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
+                  {displayFolder}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      <FlatList
+        data={isLoading ? [] : filteredRoutines}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={theme.primaryText}
+            colors={[theme.primaryText]}
+          />
+        }
+        ListHeaderComponent={
+            isLoading ? null : (
+            <Card contentPadding={false} className="mb-6" style={{ backgroundColor: 'rgba(224,122,95,0.03)' }}>
+              <View className="p-3 gap-2">
+                <SectionHeader label={t('routines.jsonImportHint')} />
+                <Text className="text-subtext text-xs leading-5" numberOfLines={3}>
+                    {t('routines.jsonFormatHint')}{"\n"}
+                    <Text className="font-mono text-xs text-text">
+                        {`{ "name": "Treino A", "exercises": [ { "name": "Supino", "target": "4x10", "rest": 90 } ] }`}
+                    </Text>
+                </Text>
+              </View>
+            </Card>
+            )
+        }
+        ListEmptyComponent={
+          isLoading ? (
+            <SkeletonList count={4} />
+          ) : (
+            <Text className="text-subtext text-center mt-10">{t('home.noRoutines')}</Text>
+          )
+        }
+        renderItem={({ item }) => isLoading ? null : (
+          <Card className="overflow-hidden">
+            <TouchableOpacity 
+              onPress={() => setPreviewRoutine({ id: item.id, name: item.name })}
+              className="p-4 -m-4"
+              accessibilityRole="button"
+              accessibilityLabel={t('routines.previewRoutineLabel', { name: item.name })}
+              accessibilityHint={t('routines.previewRoutineHint')}
+            >
+              <View className="flex-row justify-between items-start mb-3">
+                <View className="flex-1 mr-4">
+                  <View className="flex-row items-center gap-2 mb-1 flex-wrap">
+                    <Text className="text-text text-lg font-bold">{item.name}</Text>
+                    {item.folder && item.folder !== 'Geral' && (
+                      <View className="bg-background px-2.5 py-0.5 rounded-full border border-border">
+                        <Text className="text-2xs text-subtext font-semibold">{item.folder}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-subtext text-sm" numberOfLines={1}>{item.description}</Text>
+                </View>
+                <TouchableOpacity 
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleQuickStart(item.id, item.name);
+                  }}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityLabel={t("routines.quickStartLabel", { name: item.name })}
+                  accessibilityHint={t("routines.quickStartHint")}
+                  accessibilityRole="button"
+                  className="bg-successSurface px-3 py-1.5 rounded-lg flex-row items-center gap-1"
+                >
+                  <Text className="text-successText text-xs font-bold uppercase">{t("routines.start")}</Text>
+                  <Svg width="10" height="10" viewBox="0 0 24 24">
+                    <Path d="M8 5v14l11-7z" fill={theme.successText} />
+                  </Svg>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+            <View className="flex-row gap-2 border-t border-border/50 pt-3 mt-2">
+              <Button 
+                title={t("routines.duplicate")}
+                onPress={() => handleDuplicate(item.id, item.name)}
+                variant="ghost"
+                size="sm"
+                style={{ flex: 1 }}
+              />
+              <Button 
+                title={t("common.edit")}
+                onPress={() => router.push({ pathname: '/routines/editor', params: { id: item.id } })}
+                variant="ghost"
+                size="sm"
+                style={{ flex: 1 }}
+              />
+              <Button 
+                title={t("common.delete")}
+                onPress={() => handleDelete(item.id, item.name)}
+                variant="danger"
+                size="sm"
+                style={{ flex: 1 }}
+              />
+            </View>
+          </Card>
+        )}
+      />
+
+      <View className="p-4 border-t border-border bg-card shadow-lg">
+        <View className="flex-row gap-3">
+            <Button 
+            title={t('routines.import')}
+            onPress={handleImportFromClipboard}
+            variant="secondary"
+            size="sm"
+            style={{ flex: 1, minHeight: 44 }}
+            />
+            <Button
+            title={t('routines.createNewRoutine')}
+            onPress={() => router.push('/routines/editor')}
+            variant="primary"
+            size="sm"
+            style={{ flex: 2, minHeight: 44 }}
+            />
+        </View>
+      </View>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
+      />
+
+      <Dialog
+        visible={dialog.visible}
+        title={dialog.title}
+        message={dialog.message}
+        onConfirm={() => {
+          dialog.onConfirm();
+          setDialog({ ...dialog, visible: false });
+        }}
+        onCancel={() => setDialog({ ...dialog, visible: false })}
+      />
+
+      <RoutinePreview
+        visible={!!previewRoutine}
+        routineId={previewRoutine?.id || null}
+        routineName={previewRoutine?.name}
+        onClose={() => setPreviewRoutine(null)}
+        onStart={() => {
+          if (previewRoutine) {
+            handleQuickStart(previewRoutine.id, previewRoutine.name);
+          }
+          setPreviewRoutine(null);
+        }}
+      />
+    </View>
+  );
+}

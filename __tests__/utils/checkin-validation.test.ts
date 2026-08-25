@@ -4,6 +4,7 @@ import {
   strictMonthlyCheckinSchema,
   getMonthlyCheckinDateRange,
   resolveCurrentMonthCheckin,
+  hasMonthlyCheckinContent,
 } from '../../src/utils/checkin-validation';
 
 describe('validateMonthlyCheckin', () => {
@@ -101,18 +102,53 @@ describe('buildCheckinEntryData', () => {
     expect(entry.photoBack).toBeNull();
   });
 
-  it('falls back to 0 when no existing data and no validated value', () => {
+  it('preserves missing measurements as null instead of inventing zeros', () => {
     const entry = buildCheckinEntryData({
       validated: { waist: undefined, armRight: undefined, thighRight: undefined, chest: undefined, calf: undefined },
       photos: { front: null, back: null, side: null },
       photoNotes: { front: '', back: '', side: '' },
-      weight: 80,
+      weight: null,
       date: 1234567890,
     });
 
-    expect(entry.waist).toBe(0);
-    expect(entry.armRight).toBe(0);
+    expect(entry.weight).toBeNull();
+    expect(entry.waist).toBeNull();
+    expect(entry.armRight).toBeNull();
     expect(entry.photoFront).toBeNull();
+  });
+});
+
+describe('hasMonthlyCheckinContent', () => {
+  const emptyPhotos = { front: null, back: null, side: null };
+  const emptyNotes = { front: '', back: '  ', side: '' };
+
+  it('rejects a fully empty check-in', () => {
+    expect(hasMonthlyCheckinContent({
+      validated: {},
+      photos: emptyPhotos,
+      photoNotes: emptyNotes,
+    })).toBe(false);
+  });
+
+  it('accepts an intentional zero measurement', () => {
+    expect(hasMonthlyCheckinContent({
+      validated: { waist: 0 },
+      photos: emptyPhotos,
+      photoNotes: emptyNotes,
+    })).toBe(true);
+  });
+
+  it('accepts a photo or a non-empty note', () => {
+    expect(hasMonthlyCheckinContent({
+      validated: {},
+      photos: { ...emptyPhotos, front: 'front.jpg' },
+      photoNotes: emptyNotes,
+    })).toBe(true);
+    expect(hasMonthlyCheckinContent({
+      validated: {},
+      photos: emptyPhotos,
+      photoNotes: { ...emptyNotes, side: 'Progress' },
+    })).toBe(true);
   });
 });
 
@@ -162,13 +198,14 @@ describe('monthly check-in current-month resolution', () => {
       existingData: currentMonthEntry,
       photos: { front: null, back: null, side: null },
       photoNotes: { front: '', back: '', side: '' },
-      weight: 0,
+      weight: null,
       date: reference,
     });
 
     expect(currentMonthEntry).toBeUndefined();
-    expect(entry.waist).toBe(0);
-    expect(entry.armRight).toBe(0);
+    expect(entry.weight).toBeNull();
+    expect(entry.waist).toBeNull();
+    expect(entry.armRight).toBeNull();
     expect(entry.photoFront).toBeNull();
     expect(entry.photoBack).toBeNull();
     expect(entry.photoSide).toBeNull();

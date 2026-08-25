@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../src/db/schema';
 import { eq, and, desc, isNull, ne } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { parseTargetSets } from '../src/utils/exercise';
+import { countCompletedRoutineExercises } from '../src/utils/exercise';
 import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { setInputSchema } from '../src/validators/forms';
@@ -12,10 +12,12 @@ import { useHaptics } from './use-haptics';
 import { checkPersonalRecords } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
+import { SessionDraft } from '../src/utils/session-draft';
 
 export interface RoutineExerciseListItem {
   id: number;
   name: string;
+  type: string;
   target: string | null;
   notes: string | null;
   restSeconds: number | null;
@@ -39,6 +41,8 @@ export function useExerciseSets({
   const { t, language } = useI18n();
   const { trigger } = useHaptics();
 
+  const restoredDraftRef = useRef(false);
+
   const [exerciseType, setExerciseType] = useState('strength');
   const [currentName, setCurrentName] = useState(exerciseName);
   const [weight, setWeight] = useState('');
@@ -46,9 +50,17 @@ export function useExerciseSets({
   const [duration, setDuration] = useState('');
   const [rir, setRir] = useState(2);
   const [sessionSets, setSessionSets] = useState<Set[]>([]);
+  const [hasLoadedSessionSets, setHasLoadedSessionSets] = useState(false);
   const [nextExercise, setNextExercise] = useState<RoutineExerciseListItem | null>(null);
   const [allExercises, setAllExercises] = useState<RoutineExerciseListItem[]>([]);
   const [isWarmupMode, setIsWarmupMode] = useState(false);
+
+  /** True once the user has manually edited any strength input field. */
+  const [isDirty, setIsDirtyState] = useState(false);
+  const setIsDirty = useCallback((dirty: boolean) => {
+    if (dirty) restoredDraftRef.current = true;
+    setIsDirtyState(dirty);
+  }, []);
 
   const [historyVisible, setHistoryVisible] = useState(false);
   const [historyData, setHistoryData] = useState<{ sessionId: number; date: number; weight: number | null; reps: number | null; duration: number | null; rir: number | null }[]>([]);
@@ -58,13 +70,29 @@ export function useExerciseSets({
   const { 
     timerSeconds, timerStatus, 
     setTimerSeconds, setTimerTarget, setTimerStatus, 
-    addTime, activeSetTime, 
-    isActiveSetRunning, toggleActiveSet 
+    addTime, activeSetStart, activeSetTime,
+    isActiveSetRunning, toggleActiveSet,
+    restoreActiveSetTime, resetActiveSet
   } = timer;
+
+  const restoreDraft = useCallback((draft: SessionDraft) => {
+    restoredDraftRef.current = true;
+    setWeight(draft.weight);
+    setReps(draft.reps);
+    setDuration(draft.duration);
+    setRir(draft.rir);
+    setIsWarmupMode(draft.isWarmupMode);
+    setIsDirty(draft.isDirty);
+    restoreActiveSetTime(
+      draft.activeSetTime,
+      draft.activeSetStartedAt,
+    );
+  }, [restoreActiveSetTime, setIsDirty]);
 
   // Undo Hook
   const { 
-    lastSavedSet, setLastSavedSet, undoTimeoutRef, handleUndo: hookHandleUndo 
+    lastSavedSet, setLastSavedSet, lastDeletedSet, registerDeletedSet,
+    undoTimeoutRef, handleUndo: hookHandleUndo, handleRestoreDeleted,
   } = useSessionUndo();
 
   // Loading state
@@ -77,23 +105,17 @@ export function useExerciseSets({
   const [editingSet, setEditingSet] = useState<Set | null>(null);
   const [showSetEditor, setShowSetEditor] = useState(false);
 
-  // Track completed exercises by target sets
+  // Count completed exercises (based on target sets met)
   const { data: allSessionSets } = useLiveQuery(
-    db.select({ exerciseId: sets.exerciseId })
+    db.select({ exerciseId: sets.exerciseId, isWarmup: sets.isWarmup })
       .from(sets)
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
   );
 
-  // Count completed exercises (based on target sets met)
-  const completedExercisesCount = allExercises.reduce((count, exercise) => {
-    const targetSets = parseTargetSets(exercise.target);
-    const doneSets = allSessionSets?.filter(s => s.exerciseId === exercise.id).length || 0;
-
-    if (targetSets !== null) {
-      return doneSets >= targetSets ? count + 1 : count;
-    }
-    return doneSets > 0 ? count + 1 : count;
-  }, 0);
+  const completedExercisesCount = countCompletedRoutineExercises(
+    allExercises,
+    allSessionSets || []
+  );
 
   const loadData = useCallback(async () => {
     try {
@@ -110,15 +132,17 @@ export function useExerciseSets({
         .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
         .orderBy(sets.setNumber);
       setSessionSets(data);
+      setHasLoadedSessionSets(true);
 
-      if (data.length === 0) {
+      if (data.length === 0 && !restoredDraftRef.current) {
         const lastSet = await db.select({ weight: sets.weightKg })
           .from(sets)
           .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
           .orderBy(desc(sets.createdAt))
           .limit(1);
 
-        if (lastSet.length > 0 && lastSet[0].weight) {
+        if (lastSet.length > 0 && lastSet[0].weight && !restoredDraftRef.current) {
+          // Pre-fill from history: does NOT mark dirty
           setWeight(lastSet[0].weight.toString());
         }
       }
@@ -127,6 +151,7 @@ export function useExerciseSets({
         const routineList = await db.select({
           id: exercises.id,
           name: exercises.name,
+          type: exercises.type,
           target: routineExercises.target,
           notes: routineExercises.notes,
           restSeconds: routineExercises.restSeconds
@@ -177,12 +202,13 @@ export function useExerciseSets({
   }, [exerciseId, sessionId, t]);
 
   useEffect(() => {
+    setHasLoadedSessionSets(false);
     loadData();
     loadHistory();
   }, [loadData, loadHistory]);
 
-  const handleSaveSet = useCallback(async (overrideDuration?: number) => {
-    if (isSaving) return;
+  const handleSaveSet = useCallback(async (overrideDuration?: number): Promise<boolean> => {
+    if (isSaving) return false;
 
     const isDuration = exerciseType === 'duration';
 
@@ -191,7 +217,7 @@ export function useExerciseSets({
 
     // Validate with Zod
     const setValidation = setInputSchema.safeParse({
-      weightKg: Number(weight) || 0,
+      weightKg: Number(weight),
       reps: isDuration ? 0 : finalReps,
       durationSeconds: isDuration ? finalDuration : null,
       rir: isDuration ? null : Number(rir),
@@ -200,20 +226,20 @@ export function useExerciseSets({
     if (!setValidation.success) {
       const msg = setValidation.error.issues[0]?.message || t('common.invalidData');
       setToast({ visible: true, message: msg, type: 'error' });
-      return;
+      return false;
     }
     // Extra business logic validation
     if (isDuration && finalDuration <= 0) {
       setToast({ visible: true, message: t('exercise.enterDuration'), type: 'error' });
-      return;
+      return false;
     }
     if (!isDuration && finalReps <= 0) {
       setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
-      return;
+      return false;
     }
     if (!isDuration && !weight) {
       setToast({ visible: true, message: t('exercise.enterWeight'), type: 'error' });
-      return;
+      return false;
     }
 
     setIsSaving(true);
@@ -263,6 +289,9 @@ export function useExerciseSets({
 
       setReps('');
       setDuration('');
+      // Clear dirty after successful save
+      setIsDirty(false);
+      resetActiveSet();
 
       if (!isDuration) {
         const restTime = routineRest || 90;
@@ -270,13 +299,15 @@ export function useExerciseSets({
         setTimerStatus('running');
       }
 
+      return true;
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.saveSetError'), type: 'error' });
+      return false;
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
 
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({
@@ -291,14 +322,20 @@ export function useExerciseSets({
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
+      const deletedSet = sessionSets.find(set => set.id === setId);
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
+      if (deletedSet) registerDeletedSet(deletedSet);
       await loadData();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [loadData, t]);
+  }, [loadData, registerDeletedSet, sessionSets, t]);
+
+  const handleRestoreDeletedSet = useCallback(async () => {
+    await handleRestoreDeleted({ exerciseId, sessionId, setSessionSets, setToast });
+  }, [exerciseId, handleRestoreDeleted, sessionId]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {
@@ -313,16 +350,17 @@ export function useExerciseSets({
     }
   }, [t]);
 
-  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number) => {
-    if (!editingSet) return;
+  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number): Promise<boolean> => {
+    if (!editingSet) return false;
     
     try {
       await db.update(sets)
         .set({
           weightKg: weight,
-          reps: reps || editingSet.reps,
-          durationSeconds: duration || editingSet.durationSeconds,
-          rir: rir || editingSet.rir,
+          // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
+          reps: reps ?? editingSet.reps,
+          durationSeconds: duration ?? editingSet.durationSeconds,
+          rir: rir ?? editingSet.rir,
           isEdited: true,
         })
         .where(eq(sets.id, editingSet.id));
@@ -331,13 +369,17 @@ export function useExerciseSets({
       setShowSetEditor(false);
       setEditingSet(null);
       setToast({ visible: true, message: t('exercise.setEdited'), type: 'success' });
+      return true;
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
+      return false;
     }
   }, [editingSet, loadData, t]);
 
   return {
+    isDirty,
+    setIsDirty,
     exerciseType,
     setExerciseType,
     currentName,
@@ -367,11 +409,14 @@ export function useExerciseSets({
     setTimerSeconds,
     setTimerStatus,
     addTime,
+    activeSetStart,
     activeSetTime,
     isActiveSetRunning,
     toggleActiveSet,
     lastSavedSet,
     handleUndo,
+    lastDeletedSet,
+    handleRestoreDeletedSet,
     isSaving,
     toast,
     setToast,
@@ -379,6 +424,7 @@ export function useExerciseSets({
     setEditingSet,
     showSetEditor,
     setShowSetEditor,
+    hasLoadedSessionSets,
     completedExercisesCount,
     handleSaveSet,
     handleDeleteSet,
@@ -386,6 +432,7 @@ export function useExerciseSets({
     handleSaveEditedSet,
     loadData,
     loadHistory,
+    restoreDraft,
     t,
     language,
   };

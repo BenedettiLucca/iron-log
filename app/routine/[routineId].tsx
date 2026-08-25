@@ -1,17 +1,26 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useFocusEffect } from 'expo-router';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { db } from '../../src/db/client';
-import { routineExercises, exercises, personalRecords, sets, sessions } from '../../src/db/schema';
+import { routineExercises, exercises, personalRecords, sets, sessions, routines } from '../../src/db/schema';
 import { eq, desc, and, sql, isNull, max } from 'drizzle-orm';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
+import { Toast } from '../../components/Toast';
 import { EmptyState } from '../../components/EmptyState';
+import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { estimateE1RM } from '../../services/AnalyticsService';
 import { parseTargetSets } from '../../src/utils/exercise';
-import { useI18n } from '../../src/i18n/index';
+import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SectionHeader } from '@/components/SectionHeader';
+import { StatTile } from '@/components/StatTile';
+import { safeParseParams, routinePreviewParamsSchema } from '@/src/validators/routes';
+import { useToast } from '@/hooks/use-toast';
+import { consumePendingToast } from '@/src/utils/flash-toast';
+import Svg, { Polyline } from 'react-native-svg';
 
 interface ExerciseWithStats {
   id: number;
@@ -39,23 +48,58 @@ interface RoutineStats {
   bestSession: { date: number; volume: number } | null;
 }
 
+type ScreenState = 'loading' | 'invalid' | 'not-found' | 'error' | 'empty' | 'content';
+
 export default function RoutinePreviewScreen() {
-  const { t } = useI18n();
-  const { routineId, routineName } = useLocalSearchParams<{ routineId: string; routineName: string }>();
+  const { t, language } = useI18n();
+  const theme = useThemeColors();
+  const insets = useSafeAreaInsets();
+  const rawParams = useLocalSearchParams<{ routineId: string; routineName: string }>();
   const router = useRouter();
+  const { toast, setToast } = useToast();
+  const rawRoutineId = rawParams.routineId;
+  const rawRoutineName = rawParams.routineName;
+
+  const params = useMemo(
+    () => safeParseParams(
+      routinePreviewParamsSchema,
+      { routineId: rawRoutineId, routineName: rawRoutineName },
+      'RoutinePreview',
+    ),
+    [rawRoutineId, rawRoutineName],
+  );
+
+  const [screenState, setScreenState] = useState<ScreenState>('loading');
+  const [routineName, setRoutineName] = useState(rawRoutineName || '');
   const [exercisesData, setExercisesData] = useState<ExerciseWithStats[]>([]);
   const [stats, setStats] = useState<RoutineStats>({
     totalSessions: 0, lastSessionDate: null, avgDuration: 0, avgVolume: 0, bestSession: null,
   });
-  const [loading, setLoading] = useState(true);
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!routineId) return;
-    const rId = Number(routineId);
+    if (!params) {
+      setScreenState('invalid');
+      return;
+    }
+    const rId = params.routineId;
 
+    setScreenState('loading');
     try {
-      // 1. Load exercises for this routine
+      // Verify routine exists
+      const routineRow = await db.select({ id: routines.id, name: routines.name })
+        .from(routines)
+        .where(eq(routines.id, rId))
+        .limit(1);
+
+      if (routineRow.length === 0) {
+        setScreenState('not-found');
+        return;
+      }
+
+      setRoutineName(routineRow[0].name ?? rawRoutineName ?? '');
+
+      // Load exercises for this routine
       const exData = await db.select({
         id: exercises.id,
         name: exercises.name,
@@ -70,10 +114,9 @@ export default function RoutinePreviewScreen() {
         .where(eq(routineExercises.routineId, rId))
         .orderBy(routineExercises.orderIndex);
 
-      // 2. For each exercise, load stats
+      // For each exercise, load stats
       const exercisesWithStats = await Promise.all(
         exData.map(async (ex) => {
-          // Last performed set
           const lastSets = await db.select({
             weightKg: sets.weightKg,
             reps: sets.reps,
@@ -86,7 +129,6 @@ export default function RoutinePreviewScreen() {
 
           const lastSet = lastSets[0];
 
-          // PRs
           const prWeightResult = await db.select({ value: personalRecords.value })
             .from(personalRecords)
             .where(and(eq(personalRecords.exerciseId, ex.id), eq(personalRecords.recordType, 'weight')))
@@ -97,12 +139,10 @@ export default function RoutinePreviewScreen() {
             .where(and(eq(personalRecords.exerciseId, ex.id), eq(personalRecords.recordType, 'reps')))
             .limit(1);
 
-          // Session count (how many times this exercise was performed)
           const sessionCountResult = await db.select({ count: sql<number>`COUNT(DISTINCT ${sets.sessionId})` })
             .from(sets)
             .where(and(eq(sets.exerciseId, ex.id), isNull(sets.deletedAt), sql`NOT ${sets.isWarmup}`));
 
-          // Weight history (last 10 sessions)
           const weightHistory = await db.select({
             startTime: sessions.startTime,
             weightKg: max(sets.weightKg),
@@ -130,7 +170,7 @@ export default function RoutinePreviewScreen() {
             weightHistory: weightHistory
               .filter(w => w.weightKg !== null)
               .map(w => ({
-                date: new Date(w.startTime).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                date: new Date(w.startTime).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit' }),
                 weight: w.weightKg!,
               }))
               .reverse(),
@@ -140,7 +180,7 @@ export default function RoutinePreviewScreen() {
 
       setExercisesData(exercisesWithStats);
 
-      // 3. Load routine stats
+      // Load routine stats
       const sessionStats = await db.select({
         id: sessions.id,
         startTime: sessions.startTime,
@@ -157,25 +197,33 @@ export default function RoutinePreviewScreen() {
         : 0;
 
       setStats({ totalSessions, lastSessionDate, avgDuration, avgVolume: 0, bestSession: null });
-
+      setScreenState(exData.length === 0 ? 'empty' : 'content');
     } catch (e) {
       logger.error('Failed to load routine preview', e);
-    } finally {
-      setLoading(false);
+      setScreenState('error');
     }
-  }, [routineId]);
+  }, [params, rawRoutineName, language]);
 
   useFocusEffect(
     useCallback(() => {
+      const pendingToast = consumePendingToast();
+      if (pendingToast) {
+        setToast({ visible: true, ...pendingToast });
+      } else {
+        setToast({ visible: false, message: '', type: 'success' });
+      }
+      setScreenState('loading');
+      setExpandedExercise(null);
       loadData();
-    }, [loadData])
+    }, [loadData, setToast])
   );
 
   const handleStartWorkout = () => {
+    if (!params) return;
     router.push({
       pathname: '/session/[routineId]',
       params: {
-        routineId,
+        routineId: String(params.routineId),
         routineName: routineName || '',
         _ts: Date.now().toString(),
       },
@@ -183,15 +231,16 @@ export default function RoutinePreviewScreen() {
   };
 
   const handleEdit = () => {
+    if (!params) return;
     router.push({
       pathname: '/routines/editor',
-      params: { id: routineId },
+      params: { id: String(params.routineId) },
     });
   };
 
   const formatDate = (epoch: number | null) => {
     if (!epoch) return '—';
-    return new Date(epoch).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return new Date(epoch).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit', year: '2-digit' });
   };
 
   const formatRest = (seconds: number | null) => {
@@ -200,104 +249,138 @@ export default function RoutinePreviewScreen() {
     return `${Math.floor(seconds / 60)}m`;
   };
 
-  if (loading) {
+  if (screenState === 'invalid') {
     return (
-      <View className="flex-1 bg-background justify-center items-center">
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
+      <ErrorState
+        title={t('routineDetail.invalidRoute')}
+        message={t('states.errorBody')}
+      />
+    );
+  }
+
+  if (screenState === 'loading') {
+    return <LoadingState />;
+  }
+
+  if (screenState === 'not-found') {
+    return (
+      <ErrorState
+        icon="🔍"
+        title={t('routineDetail.notFound')}
+      />
+    );
+  }
+
+  if (screenState === 'error') {
+    return (
+      <ErrorState
+        message={t('routineDetail.queryError')}
+        onRetry={loadData}
+      />
     );
   }
 
   const totalExercises = exercisesData.length;
 
-  // Estimate workout duration including rest periods between sets
   const estimatedDuration = Math.round(
     exercisesData.reduce((total, ex) => {
-      const sets = parseTargetSets(ex.target) || 3;
+      const numSets = parseTargetSets(ex.target) || 3;
       const restSeconds = ex.restSeconds || 90;
-      const setDuration = 30; // ~30s per set
-      const setupTime = 60; // ~1min setup between exercises
-      // Time for this exercise: all sets + rest between sets + setup
-      return total + (sets * setDuration) + ((sets - 1) * restSeconds) + setupTime;
+      const setDuration = 30;
+      const setupTime = 60;
+      return total + (numSets * setDuration) + ((numSets - 1) * restSeconds) + setupTime;
     }, 0) / 60
   );
 
-  const exercisesWithPRs = exercisesData.filter(e => e.prWeight !== null).length;
-
   return (
     <View className="flex-1 bg-background">
-    <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, gap: 16 }}>
       <Stack.Screen options={{ title: routineName || t('routineDetail.title') }} />
+      <ScrollView className="flex-1 bg-background" contentContainerStyle={{ padding: 16, paddingBottom: 96 + insets.bottom, gap: 16 }}>
 
-      {/* Quick Stats Row */}
-      <View className="flex-row gap-3">
-        <View className="flex-1 gap-3">
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{totalExercises}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.exercises')}</Text>
-          </Card>
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">~{estimatedDuration}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.min')}</Text>
-          </Card>
-        </View>
-        <View className="flex-1 gap-3">
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{stats.totalSessions}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.workouts')}</Text>
-          </Card>
-          <Card className="items-center py-3">
-            <Text className="text-primary text-2xl font-black">{exercisesWithPRs}</Text>
-            <Text className="text-subtext text-xs font-bold uppercase mt-0.5">{t('routineDetail.prs')}</Text>
-          </Card>
-        </View>
-      </View>
-
-      {/* Last Session */}
-      {stats.lastSessionDate && (
+        {/* Summary Card */}
         <Card>
-          <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-2">{t('routineDetail.lastWorkout')}</Text>
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="text-text text-lg font-bold">{formatDate(stats.lastSessionDate)}</Text>
-              {stats.avgDuration > 0 && (
-                <Text className="text-subtext text-xs">{t('routineDetail.avgDuration', { duration: stats.avgDuration })}</Text>
-              )}
+          <View className="flex-row items-center gap-x-4 gap-y-1 flex-wrap">
+            <Text className="text-text text-sm">
+              {t(totalExercises === 1 ? 'routineDetail.exerciseCountSingle' : 'routineDetail.exerciseCount', { count: totalExercises })}
+            </Text>
+            <Text className="text-text text-sm">
+              {t(stats.totalSessions === 1 ? 'routineDetail.workoutCountSingle' : 'routineDetail.workoutCount', { count: stats.totalSessions })}
+            </Text>
+            {estimatedDuration > 0 && (
+              <Text className="text-text text-sm">
+                {t('routineDetail.estimatedMinutes', { minutes: estimatedDuration })}
+              </Text>
+            )}
+          </View>
+
+          {stats.lastSessionDate && (
+            <>
+              <View className="border-t border-border/60 my-3" />
+              <View className="flex-row justify-between items-center flex-wrap gap-2">
+                <View>
+                  <Text className="text-subtext text-xs">{t('routineDetail.lastWorkout')}</Text>
+                  <Text className="text-text text-sm font-semibold mt-0.5">{formatDate(stats.lastSessionDate)}</Text>
+                </View>
+                {stats.avgDuration > 0 && (
+                  <Text className="text-subtext text-xs">
+                    {t('routineDetail.avgDurationLabel', { duration: stats.avgDuration })}
+                  </Text>
+                )}
+              </View>
+            </>
+          )}
+        </Card>
+
+        {/* PRs Section */}
+        {exercisesData.some(e => e.prWeight !== null) && (
+          <View>
+            <SectionHeader label={t('routineDetail.personalRecords')} className="mb-3" />
+            <View className="flex-row flex-wrap gap-2.5">
+              {exercisesData.filter(e => e.prWeight !== null).slice(0, 4).map(ex => (
+                <StatTile
+                  key={ex.id}
+                  value={`${ex.prWeight}kg`}
+                  label={ex.name}
+                  accentColor="warning"
+                  className="w-[calc(50%-5px)]"
+                  delta={ex.lastDate ? formatDate(ex.lastDate) : undefined}
+                />
+              ))}
             </View>
           </View>
-        </Card>
-      )}
+        )}
 
-      {/* Exercise List */}
-      <View>
-        <Text className="text-subtext text-xs font-bold uppercase tracking-widest mb-3">{t('routineDetail.exercises')}</Text>
+        {/* Exercise List */}
+        <View>
+          <SectionHeader label={t('routineDetail.exercises')} className="mb-3" />
 
-        {exercisesData.length === 0 ? (
-          <EmptyState
-            icon="📋"
-            title={t("routines.noExercises")}
-            description={t("routines.addExercisesHint")}
-          />
-        ) : (
-          <View className="gap-3">
-            {exercisesData.map((ex, index) => (
-              <TouchableOpacity
-                key={ex.id}
-                onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}
-                activeOpacity={0.7}
-              >
-                <Card className={expandedExercise === ex.id ? 'border-primary/40' : ''}>
+          {screenState === 'empty' ? (
+            <EmptyState
+              icon="📋"
+              title={t('routines.noExercises')}
+              description={t('routines.addExercisesHint')}
+            />
+          ) : (
+            <View className="gap-3">
+              {exercisesData.map((ex, index) => (
+                <Card
+                  key={ex.id}
+                  pressable
+                  onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}
+                  className={expandedExercise === ex.id ? 'border-primary/40' : ''}
+                  accessibilityLabel={`${ex.name}, ${expandedExercise === ex.id ? t('routineDetail.collapseDetails') : t('routineDetail.expandDetails')}`}
+                >
                   {/* Header Row */}
                   <View className="flex-row items-start">
-                    <View className="w-8 h-8 rounded-full bg-primary/10 justify-center items-center mr-3 mt-0.5">
-                      <Text className="text-primary font-bold text-sm">{index + 1}</Text>
+                    <View className="w-8 h-8 rounded-full bg-primarySurface justify-center items-center mr-3 mt-0.5">
+                      <Text className="text-primaryText font-bold text-sm">{index + 1}</Text>
                     </View>
 
                     <View className="flex-1 mr-2">
                       <Text className="text-text font-bold text-base" numberOfLines={2}>{ex.name}</Text>
                       <View className="flex-row items-center gap-2 mt-0.5 flex-wrap">
                         {ex.target && (
-                          <Text className="text-primary text-xs bg-primary/5 px-2 py-0.5 rounded border border-primary/10 font-bold uppercase">
+                          <Text className="text-primaryText text-xs font-semibold">
                             {ex.target}
                           </Text>
                         )}
@@ -305,40 +388,47 @@ export default function RoutinePreviewScreen() {
                           <Text className="text-subtext text-xs">⏱ {formatRest(ex.restSeconds)}</Text>
                         ) : null}
                         {ex.type === 'duration' && (
-                          <Text className="text-secondary text-xs">⏱ {t('exercise.duration')}</Text>
+                          <Text className="text-secondaryText text-xs">⏱ {t('exercise.duration')}</Text>
                         )}
                       </View>
                     </View>
 
                     {/* Last Performance */}
                     {ex.lastWeight !== null ? (
-                      <View className="items-end min-w-[50px]">
+                      <View className="items-end min-w-[50px] mr-2">
                         <Text className="text-text font-bold text-sm">{ex.lastWeight}kg</Text>
-                        <Text className="text-subtext text-xs">{ex.lastReps} reps</Text>
+                        <Text className="text-subtext text-xs">{t('routineDetail.repsCount', { count: ex.lastReps ?? 0 })}</Text>
                       </View>
                     ) : (
-                      <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center">
+                      <View className="bg-subtext/10 px-2 py-1 rounded-full min-w-[50px] items-center mr-2">
                         <Text className="text-subtext/70 text-xs font-bold">{t('routineDetail.new')}</Text>
                       </View>
                     )}
+
+                    {/* Chevron SVG */}
+                    <View className="justify-center h-8">
+                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedExercise === ex.id ? '90deg' : '0deg' }] }}>
+                        <Polyline points="9 18 15 12 9 6" />
+                      </Svg>
+                    </View>
                   </View>
 
                   {/* PR & Stats Badges */}
                   {ex.sessionCount > 0 && (
-                    <View className="flex-row gap-2 mt-2 flex-wrap">
+                    <View className="flex-row items-center gap-x-3 gap-y-0.5 mt-2 flex-wrap">
                       {ex.prWeight !== null && (
-                        <View className="bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                          <Text className="text-amber-600 text-xs font-bold">🏆 PR: {ex.prWeight}kg</Text>
-                        </View>
+                        <Text className="text-accentText text-xs font-semibold">
+                          {t('routineDetail.personalRecordWeight', { weight: `${ex.prWeight}kg` })}
+                        </Text>
                       )}
                       {ex.estimated1RM !== null && (
-                        <View className="bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
-                          <Text className="text-purple-500 text-xs font-bold">💪 1RM: {ex.estimated1RM}kg</Text>
-                        </View>
+                        <Text className="text-primaryText text-xs font-semibold">
+                          {t('routineDetail.estimatedOneRepMax', { weight: `${ex.estimated1RM}kg` })}
+                        </Text>
                       )}
-                      <View className="bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">
-                        <Text className="text-blue-500 text-xs font-bold">{t('routineDetail.timesTrained', { count: ex.sessionCount })}</Text>
-                      </View>
+                      <Text className="text-secondaryText text-xs font-semibold">
+                        {t('routineDetail.timesTrainedCount', { count: ex.sessionCount })}
+                      </Text>
                     </View>
                   )}
 
@@ -350,7 +440,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: Weight Evolution Chart */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 1 && (
                     <View className="mt-3 pt-3 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-2">{t('routineDetail.weightEvolution')}</Text>
+                      <SectionHeader label={t('routineDetail.weightEvolution')} className="mb-2" />
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
                         {(() => {
                           const maxW = Math.max(...ex.weightHistory.map(w => w.weight));
@@ -378,7 +468,7 @@ export default function RoutinePreviewScreen() {
                   {/* Expanded: History Table */}
                   {expandedExercise === ex.id && ex.weightHistory.length > 0 && (
                     <View className="mt-2 pt-2 border-t border-border">
-                      <Text className="text-subtext text-xs font-bold uppercase tracking-wider mb-1">{t('routineDetail.recentHistory')}</Text>
+                      <SectionHeader label={t('routineDetail.recentHistory')} className="mb-1" />
                       {ex.weightHistory.slice(-5).reverse().map((h, i) => (
                         <View key={i} className="flex-row justify-between py-0.5">
                           <Text className="text-subtext text-xs">{h.date}</Text>
@@ -388,35 +478,38 @@ export default function RoutinePreviewScreen() {
                     </View>
                   )}
                 </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
+              ))}
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
-      <View className="h-24" />
-    </ScrollView>
-
-    {/* Floating Bottom Actions */}
-    <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: 24 }}>
-      <View className="flex-row gap-3">
-        <Button
-          title={t("common.edit")}
-          onPress={handleEdit}
-          variant="secondary"
-          size="lg"
-          className="flex-1"
-        />
-        <Button
-          title={t("routineDetail.startWorkout")}
-          onPress={handleStartWorkout}
-          variant="primary"
-          size="lg"
-          className="flex-[2]"
-          disabled={exercisesData.length === 0}
-        />
+      {/* Floating Bottom Actions */}
+      <View className="absolute bottom-0 left-0 right-0 bg-card/95 border-t border-border px-4 py-3 gap-2" style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
+        <View className="flex-row gap-3">
+          <Button
+            title={t('common.edit')}
+            onPress={handleEdit}
+            variant="secondary"
+            size="lg"
+            className="flex-1"
+          />
+          <Button
+            title={t('routineDetail.startWorkout')}
+            onPress={handleStartWorkout}
+            variant="primary"
+            size="lg"
+            className="flex-[2]"
+            disabled={!params || screenState !== 'content'}
+          />
+        </View>
       </View>
-    </View>
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast((current) => ({ ...current, visible: false }))}
+      />
     </View>
   );
 }

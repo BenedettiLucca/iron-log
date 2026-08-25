@@ -1,37 +1,68 @@
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import Animated, { useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  useAnimatedStyle,
+  cancelAnimation,
+} from 'react-native-reanimated';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface SkeletonProps {
-  width?: string | number;
+  width?: number | `${number}%`;
   height?: number;
   className?: string;
 }
 
 export function Skeleton({ width = '100%', height = 40, className = '' }: SkeletonProps) {
-  const opacity = useSharedValue(0.5);
+  const theme = useThemeColors();
+  const isReducedMotion = useReactiveReducedMotion();
+  const opacity = useSharedValue(0.6);
 
-  // Animate opacity for skeleton effect
-  opacity.value = withRepeat(
-    withSequence(
+  useEffect(() => {
+    if (isReducedMotion) {
+      opacity.value = 0.5;
+      return;
+    }
+    opacity.value = withRepeat(
       withTiming(0.3, { duration: 800 }),
-      withTiming(0.6, { duration: 800 })
-    ),
-    -1 // Infinite loop
-  );
+      -1,
+      true
+    );
+    return () => {
+      cancelAnimation(opacity);
+    };
+  }, [isReducedMotion, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    };
+  });
 
   return (
-    <Animated.View
-      style={[
-        { height, opacity },
-        getSkeletonWidth(width),
-      ]}
-      className={`bg-border rounded-lg ${className}`}
-    />
+    <View
+      style={{ width, height }}
+      className={className}
+      accessible={false}
+      accessibilityElementsHidden={true}
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Animated.View
+        style={[
+          {
+            width: '100%',
+            height: '100%',
+            backgroundColor: theme.border,
+            borderRadius: 8,
+          },
+          animatedStyle,
+        ]}
+      />
+    </View>
   );
-}
-
-function getSkeletonWidth(width: string | number) {
-  return typeof width === 'number' ? { width } : {};
 }
 
 interface SkeletonCardProps {

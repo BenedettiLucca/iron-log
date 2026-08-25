@@ -50,7 +50,7 @@ export function useSupplements() {
     }
   }, []);
 
-  const toggleSupplement = useCallback(async (supplementId: number) => {
+  const toggleSupplement = useCallback(async (supplementId: number): Promise<boolean> => {
     try {
       const today = getStartOfDay();
       const existing = await db
@@ -76,35 +76,43 @@ export function useSupplements() {
         });
       }
       await fetchTodayLogs();
+      return true;
     } catch (e) {
       logger.error('Failed to toggle supplement', e);
+      return false;
     }
   }, [fetchTodayLogs]);
 
-  const addSupplement = useCallback(async (supplement: Omit<Supplement, 'id'>) => {
+  const addSupplement = useCallback(async (supplement: Omit<Supplement, 'id'>): Promise<boolean> => {
     try {
       await db.insert(supplements).values(supplement);
       await fetchSupplements();
+      return true;
     } catch (e) {
       logger.error('Failed to add supplement', e);
+      return false;
     }
   }, [fetchSupplements]);
 
-  const updateSupplement = useCallback(async (id: number, updates: Partial<Supplement>) => {
+  const updateSupplement = useCallback(async (id: number, updates: Partial<Supplement>): Promise<boolean> => {
     try {
       await db.update(supplements).set(updates).where(eq(supplements.id, id));
       await fetchSupplements();
+      return true;
     } catch (e) {
       logger.error('Failed to update supplement', e);
+      return false;
     }
   }, [fetchSupplements]);
 
-  const deleteSupplement = useCallback(async (id: number) => {
+  const deleteSupplement = useCallback(async (id: number): Promise<boolean> => {
     try {
       await db.update(supplements).set({ isActive: false }).where(eq(supplements.id, id));
       await fetchSupplements();
+      return true;
     } catch (e) {
       logger.error('Failed to delete supplement', e);
+      return false;
     }
   }, [fetchSupplements]);
 
@@ -212,7 +220,7 @@ export function useSupplements() {
     }
   }, [items]);
 
-  const seedDefaultSupplements = useCallback(async () => {
+  const seedDefaultSupplements = useCallback(async (): Promise<boolean> => {
     try {
       const count = await db.select().from(supplements).limit(1);
       if (count.length === 0) {
@@ -230,8 +238,10 @@ export function useSupplements() {
         }
         await fetchSupplements();
       }
+      return true;
     } catch (e) {
       logger.error('Failed to seed supplements', e);
+      return false;
     }
   }, [fetchSupplements]);
 

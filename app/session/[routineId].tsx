@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
@@ -12,19 +12,23 @@ import { Dialog } from '../../components/Dialog';
 import { Toast } from '../../components/Toast';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import Animated, { FadeInLeft } from 'react-native-reanimated';
-import { parseTargetSets } from '../../src/utils/exercise';
+import { parseTargetSets, countCompletedRoutineExercises } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
-import { resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
+import { createNavigationGate, resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { resolveScreenState } from '../../src/utils/screen-state';
+import { SectionHeader } from '../../components/SectionHeader';
+import { Card } from '../../components/Card';
+import { Colors } from '../../constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import Svg, { Line, Polyline } from 'react-native-svg';
 
 export default function SessionScreen() {
   const { t } = useI18n();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
-    warmupSwitch: t('a11y.warmupSwitch'),
     undoLastSetLabel: t('exercise.undoLastSet'),
     undoLastSetHint: t('a11y.undoLastSetHint'),
     durationStart: t('a11y.durationStart'),
@@ -51,10 +55,12 @@ export default function SessionScreen() {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const lastBackPressTime = useRef<number>(0);
+  const exerciseNavigationGateRef = useRef(createNavigationGate());
 
   // Force refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
+      exerciseNavigationGateRef.current.reset();
       setRefreshKey(prev => prev + 1);
       return () => {};
     }, [])
@@ -203,21 +209,38 @@ export default function SessionScreen() {
   return (
     <View className="flex-1 bg-background">
       <Stack.Screen options={{
-        headerTitle: () => <Stopwatch startTime={startTime} className="text-white" />,
+        headerTitle: () => <Stopwatch startTime={startTime} className="text-onPrimary" />,
+        headerLeft: () => (
+          <Button
+            title=""
+            onPress={() => {
+              setShowExitDialog(true);
+            }}
+            variant="ghost"
+            icon={
+              <Svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={Colors.onPrimary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <Line x1="18" y1="6" x2="6" y2="18" />
+                <Line x1="6" y1="6" x2="18" y2="18" />
+              </Svg>
+            }
+            accessibilityLabel={t('common.exit')}
+          />
+        ),
         headerRight: () => (
           <Button
             title={t('session.end')}
             onPress={finishSession}
-            variant="danger"
+            variant="primary"
             size="sm"
+            style={{ borderRadius: 8 }}
             accessibilityLabel={a11y.endSession.accessibilityLabel}
           />
         ),
         }} />
 
       <View className="p-4 bg-card border-b border-border shadow-sm mb-2 z-10">
-        <Text className="text-subtext uppercase text-xs font-black tracking-widest mb-1">{t('session.activeWorkout')}</Text>
-        <Text className="text-text text-2xl font-black mb-3 tracking-tight" numberOfLines={2}>{sessionRoutineName}</Text>
+        <SectionHeader label={t('session.activeWorkout')} className="mb-1 pl-0" />
+        <Text className="text-text text-xl font-extrabold mb-3 tracking-tight" numberOfLines={2}>{sessionRoutineName}</Text>
 
         <SessionProgress key={`progress-${sessionId}-${refreshKey}`} sessionId={sessionId} routineExs={routineExs} />
       </View>
@@ -245,18 +268,20 @@ export default function SessionScreen() {
             exercise={item}
             sessionId={sessionId}
             index={index}
-            onPress={() => router.push({
-              pathname: '/session/exercise',
-              params: {
-                  sessionId,
-                  routineId: rIdStr,
-                  exerciseId: item.id,
-                  exerciseName: item.name,
-                  target: item.target,
-                  notes: item.notes,
-                  restSeconds: item.restSeconds?.toString(),
-                  startTime: startTime.toString()
-              }
+            onPress={() => exerciseNavigationGateRef.current.run(() => {
+              router.push({
+                pathname: '/session/exercise',
+                params: {
+                    sessionId,
+                    routineId: rIdStr,
+                    exerciseId: item.id,
+                    exerciseName: item.name,
+                    target: item.target,
+                    notes: item.notes,
+                    restSeconds: item.restSeconds?.toString(),
+                    startTime: startTime.toString()
+                }
+              });
             })}
           />
         )}
@@ -288,6 +313,8 @@ export default function SessionScreen() {
           }
           if (pendingNavigation) {
             navigation.dispatch(pendingNavigation);
+          } else {
+            router.replace('/(tabs)');
           }
         }}
         onCancel={() => {
@@ -319,9 +346,9 @@ export default function SessionScreen() {
 
 function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   const { t } = useI18n();
+  const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
     endSession: t('a11y.endSession'),
-    warmupSwitch: t('a11y.warmupSwitch'),
     undoLastSetLabel: t('exercise.undoLastSet'),
     undoLastSetHint: t('a11y.undoLastSetHint'),
     durationStart: t('a11y.durationStart'),
@@ -349,69 +376,81 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
 
   return (
     <Animated.View entering={FadeInLeft.delay(index * 100).springify()}>
-      <TouchableOpacity
+      <Card
+        pressable={true}
         onPress={onPress}
-        activeOpacity={0.7}
-        className={`p-5 rounded-2xl border flex-row justify-between items-center transition-all ${
+        variant={isActive ? 'default' : 'bordered'}
+        className={`transition-all ${
           isActive
-            ? 'bg-card border-primary shadow-md'
-            : 'bg-card border-border shadow-sm'
+            ? 'border-primary shadow-md'
+            : 'border-border shadow-sm'
         }`}
-        {...a11y.exerciseCard({
+        contentPadding={true}
+        accessibilityLabel={
+          a11y.exerciseCard({
             name: exercise.name,
             progress: progressLabel,
             status: statusLabel,
             isActive: isActive,
             isComplete: isComplete
-        })}
+          }).accessibilityLabel
+        }
+        accessibilityRole="button"
       >
-        <View className="flex-1">
-          <View className="flex-row items-center gap-2 mb-1">
-            <Text className={`flex-1 text-base font-black tracking-tight ${isActive ? 'text-text' : 'text-subtext'}`} numberOfLines={2}>
-              {exercise.name}
-            </Text>
-            {isActive && (
-              <View className="bg-success/10 px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
-                <Text className="text-success text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
-                  {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
-                </Text>
+        <View className="flex-row justify-between items-center w-full">
+          <View className="flex-1">
+            <View className="flex-row items-center gap-2 mb-1">
+              <Text className="flex-1 text-base font-bold text-text" numberOfLines={2}>
+                {exercise.name}
+              </Text>
+              {isActive && (
+                <View className="bg-successSurface px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
+                  <Text className="text-successText text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
+                    {t('session.setsProgress', { done: doneSets, target: targetSets || '?' })}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {(exercise.target || exercise.notes) && (
+              <View className="mt-2 flex-row flex-wrap gap-2">
+                {exercise.target && (
+                  <Text className="bg-primarySurface text-primaryText rounded-full px-2 py-0.5 text-xs font-bold">
+                    {exercise.target}
+                  </Text>
+                )}
+                {exercise.notes && (
+                  <Text className="text-subtext text-xs italic" numberOfLines={1}>
+                    📝 {exercise.notes}
+                  </Text>
+                )}
               </View>
             )}
+
+            <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
+              {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
+            </Text>
           </View>
 
-          {(exercise.target || exercise.notes) && (
-              <View className="mt-2 flex-row flex-wrap gap-2">
-                  {exercise.target && (
-                      <Text className="text-primary text-xs bg-primary/5 px-2 py-1 rounded-md border border-primary/10 font-bold uppercase tracking-wide">
-                          {t('session.goal')}: {exercise.target}
-                      </Text>
-                  )}
-                  {exercise.notes && (
-                      <Text className="text-subtext text-xs italic" numberOfLines={1}>
-                        📝 {exercise.notes}
-                      </Text>
-                  )}
-              </View>
-          )}
-
-          <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
-            {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
-          </Text>
-        </View>
-
-        {isComplete && (
           <View className="ml-4">
-              <View className="w-6 h-6 bg-success rounded-full border-[3px] border-white shadow-sm items-center justify-center">
-                <Text className="text-white text-2xs font-bold">✓</Text>
+            {isComplete ? (
+              <View className="w-6 h-6 bg-successSurface rounded-full items-center justify-center">
+                <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={theme.successText} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                  <Polyline points="20 6 9 17 4 12" />
+                </Svg>
               </View>
+            ) : (
+              <View className="w-6 h-6 border border-border rounded-full" />
+            )}
           </View>
-        )}
-      </TouchableOpacity>
+        </View>
+      </Card>
     </Animated.View>
   );
 }
 
 function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
+  const { t } = useI18n();
   // Fetch all sets for the session - selecting all columns for better live query support
   const { data: allSets } = useLiveQuery(
     db.select()
@@ -420,36 +459,36 @@ function SessionProgress({ sessionId, routineExs }: { sessionId: number, routine
       .orderBy(sets.id)
   );
 
-  // Count sets per exercise
-  const setsPerExercise = new Map<number, number>();
-  allSets?.forEach(set => {
-    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
-    setsPerExercise.set(set.exerciseId, currentCount + 1);
-  });
-
-  // Count exercises that have met their target sets
-  const completedCount = routineExs.reduce((count, exercise) => {
-    const targetSets = parseTargetSets(exercise.target);
-    const doneSets = setsPerExercise.get(exercise.id) || 0;
-
-    // Exercise is complete if target is met, or if no target and at least one set done
-    if (targetSets !== null) {
-      return doneSets >= targetSets ? count + 1 : count;
-    }
-    return doneSets > 0 ? count + 1 : count;
-  }, 0);
+  const completedCount = countCompletedRoutineExercises(
+    routineExs,
+    allSets || []
+  );
 
   const totalCount = routineExs.length;
 
   if (totalCount === 0) return null;
 
+  const progressLabel = t(
+    totalCount === 1
+      ? 'session.exercisesCompletedProgressSingular'
+      : 'session.exercisesCompletedProgressPlural',
+    { current: completedCount, total: totalCount }
+  );
+
   return (
     <View className="mt-4">
+      <View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <SectionHeader label={progressLabel} className="mb-2 pl-0" />
+      </View>
       <ProgressBar
         current={completedCount}
         total={totalCount}
         variant="header"
-        showLabel={true}
+        showLabel={false}
+        label={progressLabel}
       />
     </View>
   );

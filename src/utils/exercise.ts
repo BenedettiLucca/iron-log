@@ -17,6 +17,33 @@ export function parseTargetSets(target: string | null | undefined): number | nul
 }
 
 /**
+ * Count completed routine exercises based on target sets met and working sets.
+ * Excludes warm-up sets from completion counts.
+ */
+export function countCompletedRoutineExercises(
+  exercises: { id: number; target: string | null | undefined }[],
+  sessionSets: { exerciseId: number; isWarmup?: boolean | null }[]
+): number {
+  const setsPerExercise = new Map<number, number>();
+
+  sessionSets.forEach(set => {
+    if (set.isWarmup === true) return;
+    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
+    setsPerExercise.set(set.exerciseId, currentCount + 1);
+  });
+
+  return exercises.reduce((count, exercise) => {
+    const targetSets = parseTargetSets(exercise.target);
+    const doneSets = setsPerExercise.get(exercise.id) || 0;
+
+    if (targetSets !== null) {
+      return doneSets >= targetSets ? count + 1 : count;
+    }
+    return doneSets > 0 ? count + 1 : count;
+  }, 0);
+}
+
+/**
  * Returns the hex color string associated with a given Reps in Reserve (RiR) value.
  */
 export function getRirColor(rir: number): string {

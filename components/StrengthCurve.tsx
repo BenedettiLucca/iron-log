@@ -16,11 +16,11 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet }: Stren
   const minWeight = Math.min(...previousWeights, currentWeight);
 
   const trend = currentWeight >= avgWeight ? t('strengthCurve.trendUp') : t('strengthCurve.trendDown');
-  const trendColor = currentWeight >= avgWeight ? 'text-success' : 'text-danger';
+  const trendColor = currentWeight >= avgWeight ? 'text-successText' : 'text-dangerText';
 
   return (
     <Card className="border-l border-accent/20 mt-4">
-      <Text className="text-accent text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.title')}</Text>
+      <Text className="text-accentText text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.title')}</Text>
 
       {/* Current Stats */}
       <View className="mb-6">
@@ -53,7 +53,7 @@ export function StrengthCurve({ currentWeight, previousWeights, bestSet }: Stren
       {/* Best Performance */}
       {bestSet && (
         <Card className="border-l border-success/20 mt-4">
-          <Text className="text-success text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.bestSet')}</Text>
+          <Text className="text-successText text-xs font-bold uppercase mb-3 tracking-widest">{t('strengthCurve.bestSet')}</Text>
 
           <View className="mb-6">
             <View className="flex-row justify-between items-center mb-4">

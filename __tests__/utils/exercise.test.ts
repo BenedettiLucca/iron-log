@@ -1,4 +1,7 @@
-import { parseTargetSets } from '@/src/utils/exercise';
+import {
+  countCompletedRoutineExercises,
+  parseTargetSets,
+} from '@/src/utils/exercise';
 
 describe('parseTargetSets', () => {
   it('returns null for null input', () => {
@@ -39,5 +42,45 @@ describe('parseTargetSets', () => {
 
   it('extracts sets from "10x3" (high sets)', () => {
     expect(parseTargetSets('10x3')).toBe(10);
+  });
+});
+
+describe('countCompletedRoutineExercises', () => {
+  const exercises = [
+    { id: 1, target: '3x8' },
+    { id: 2, target: null },
+  ];
+
+  it('does not complete targeted or targetless exercises with warm-up sets alone', () => {
+    const sessionSets = [
+      { exerciseId: 1, isWarmup: true },
+      { exerciseId: 1, isWarmup: true },
+      { exerciseId: 1, isWarmup: true },
+      { exerciseId: 2, isWarmup: true },
+    ];
+
+    expect(countCompletedRoutineExercises(exercises, sessionSets)).toBe(0);
+  });
+
+  it('completes exercises from working sets while ignoring additional warm-ups', () => {
+    const sessionSets = [
+      { exerciseId: 1, isWarmup: true },
+      { exerciseId: 1, isWarmup: false },
+      { exerciseId: 1, isWarmup: false },
+      { exerciseId: 1, isWarmup: false },
+      { exerciseId: 2, isWarmup: false },
+    ];
+
+    expect(countCompletedRoutineExercises(exercises, sessionSets)).toBe(2);
+  });
+
+  it('keeps progress isolated per exercise', () => {
+    const sessionSets = [
+      { exerciseId: 1, isWarmup: false },
+      { exerciseId: 1, isWarmup: false },
+      { exerciseId: 2, isWarmup: false },
+    ];
+
+    expect(countCompletedRoutineExercises(exercises, sessionSets)).toBe(1);
   });
 });

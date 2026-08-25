@@ -6,78 +6,108 @@ import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { useI18n } from '../src/i18n';
 
+type ToastSetter = (toast: {
+  visible: boolean;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}) => void;
+
+type SessionSetState = {
+  exerciseId: number;
+  sessionId: number;
+  setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
+  setToast?: ToastSetter;
+};
+
 interface UseSessionUndoReturn {
   lastSavedSet: Set | null;
-  setLastSavedSet: (s: Set | null) => void;
+  setLastSavedSet: (set: Set | null) => void;
+  lastDeletedSet: Set | null;
+  registerDeletedSet: (set: Set) => void;
   undoTimeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
-  handleUndo: (opts: {
-    exerciseId: number;
-    sessionId: number;
+  handleUndo: (opts: SessionSetState & {
     exerciseType: string;
-    setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
     setCurrentName?: (name: string) => void;
-    setToast?: (t: { visible: boolean; message: string; type: 'success' | 'error' | 'info' }) => void;
   }) => Promise<void>;
+  handleRestoreDeleted: (opts: SessionSetState) => Promise<void>;
 }
 
 export function useSessionUndo(): UseSessionUndoReturn {
   const { t } = useI18n();
   const [lastSavedSet, setLastSavedSet] = useState<Set | null>(null);
+  const [lastDeletedSet, setLastDeletedSet] = useState<Set | null>(null);
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const restoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Cleanup undo timeout
-  useEffect(() => {
-    const ref = undoTimeoutRef;
-    return () => {
-      if (ref.current) {
-        clearTimeout(ref.current);
-      }
-    };
+  useEffect(() => () => {
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
   }, []);
 
-  const handleUndo = useCallback(async (opts: {
-    exerciseId: number;
-    sessionId: number;
+  const refreshSessionSets = useCallback(async (opts: SessionSetState) => {
+    const data = await db.select()
+      .from(sets)
+      .where(and(
+        eq(sets.sessionId, opts.sessionId),
+        eq(sets.exerciseId, opts.exerciseId),
+        isNull(sets.deletedAt),
+      ))
+      .orderBy(sets.setNumber);
+    opts.setSessionSets(data);
+  }, []);
+
+  const registerDeletedSet = useCallback((deletedSet: Set) => {
+    if (lastSavedSet?.id === deletedSet.id) setLastSavedSet(null);
+    setLastDeletedSet(deletedSet);
+    if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
+    restoreTimeoutRef.current = setTimeout(() => setLastDeletedSet(null), 10000);
+  }, [lastSavedSet]);
+
+  const handleUndo = useCallback(async (opts: SessionSetState & {
     exerciseType: string;
-    setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
     setCurrentName?: (name: string) => void;
-    setToast?: (t: { visible: boolean; message: string; type: 'success' | 'error' | 'info' }) => void;
   }) => {
-    const { exerciseId, sessionId, setSessionSets, setCurrentName, setToast } = opts;
     if (!lastSavedSet) return;
 
     try {
-      // Soft delete the set
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id));
       setLastSavedSet(null);
 
-      // Restore state (similar to loadData)
-      const exData = await db.select().from(exercises).where(eq(exercises.id, exerciseId));
-      if (exData.length > 0 && setCurrentName) {
-        setCurrentName(exData[0].name);
+      const exData = await db.select().from(exercises).where(eq(exercises.id, opts.exerciseId));
+      if (exData.length > 0 && opts.setCurrentName) {
+        opts.setCurrentName(exData[0].name);
       }
 
-      const data = await db.select()
-        .from(sets)
-        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
-        .orderBy(sets.setNumber);
-      setSessionSets(data);
-
-      if (setToast) {
-        setToast({ visible: true, message: t('exercise.lastSetRemoved'), type: 'success' });
-      }
+      await refreshSessionSets(opts);
+      opts.setToast?.({ visible: true, message: t('exercise.lastSetRemoved'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
-      if (setToast) {
-        setToast({ visible: true, message: t('exercise.undoError'), type: 'error' });
-      }
+      opts.setToast?.({ visible: true, message: t('exercise.undoError'), type: 'error' });
     }
-  }, [lastSavedSet, t]);
+  }, [lastSavedSet, refreshSessionSets, t]);
+
+  const handleRestoreDeleted = useCallback(async (opts: SessionSetState) => {
+    if (!lastDeletedSet) return;
+
+    try {
+      await db.update(sets).set({ deletedAt: null }).where(eq(sets.id, lastDeletedSet.id));
+      setLastDeletedSet(null);
+      if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
+      await refreshSessionSets(opts);
+      opts.setToast?.({ visible: true, message: t('exercise.setRestored'), type: 'success' });
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+      opts.setToast?.({ visible: true, message: t('exercise.restoreSetError'), type: 'error' });
+    }
+  }, [lastDeletedSet, refreshSessionSets, t]);
 
   return {
     lastSavedSet,
     setLastSavedSet,
+    lastDeletedSet,
+    registerDeletedSet,
     undoTimeoutRef,
     handleUndo,
+    handleRestoreDeleted,
   };
 }

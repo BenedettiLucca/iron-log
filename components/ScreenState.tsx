@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { Button } from './Button';
 import { SkeletonList } from './Skeleton';
-import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useI18n } from '../src/i18n/index';
 
 interface LoadingStateProps {
@@ -12,6 +12,7 @@ interface LoadingStateProps {
 
 export function LoadingState({ title, type = 'centered' }: LoadingStateProps) {
   const { t } = useI18n();
+  const theme = useThemeColors();
 
   if (type === 'list') {
     return (
@@ -24,7 +25,7 @@ export function LoadingState({ title, type = 'centered' }: LoadingStateProps) {
 
   return (
     <View className="flex-1 justify-center items-center p-8">
-      <ActivityIndicator size="large" color={Colors.primary} />
+      <ActivityIndicator size="large" color={theme.primaryText} />
       <Text className="text-subtext mt-4 text-center">
         {title || t('states.loadingBody')}
       </Text>

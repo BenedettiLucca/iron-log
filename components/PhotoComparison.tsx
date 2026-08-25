@@ -97,7 +97,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               className="absolute top-1/2 w-8 h-8 bg-card border border-primary rounded-full shadow-lg justify-center items-center"
               style={{ left: clipWidth - 16, marginTop: -16 }}
             >
-              <Text className="text-primary text-xs font-bold">⟨⟩</Text>
+              <Text className="text-primaryText text-xs font-bold">⟨⟩</Text>
             </View>
 
             {/* Labels */}

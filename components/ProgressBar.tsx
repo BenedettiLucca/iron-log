@@ -1,31 +1,59 @@
-import { View, Text, Animated } from 'react-native';
-import { useEffect, useRef } from 'react';
+import { View, Text } from 'react-native';
+import { useEffect } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
 import { useI18n } from '../src/i18n/index';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface ProgressBarProps {
   current: number;
   total: number;
   variant?: 'header' | 'modal' | 'compact';
   showLabel?: boolean;
+  label?: string;
+  accessibilityLabel?: string;
+  isAccessible?: boolean;
 }
+
+const AnimatedView = Animated.createAnimatedComponent(View);
 
 export function ProgressBar({
   current,
   total,
   variant = 'header',
   showLabel = true,
+  label,
+  accessibilityLabel,
+  isAccessible = true,
 }: ProgressBarProps) {
   const { t } = useI18n();
-  const progressAnim = useRef(new Animated.Value(0)).current;
-  const percentage = total > 0 ? Math.min((current / total) * 100, 100) : 0;
+  const theme = useThemeColors();
+  const progressValue = useSharedValue(0);
+  const isReducedMotion = useReactiveReducedMotion();
+
+  const safeTotal = (Number.isFinite(total) && total > 0) ? total : 0;
+  const safeCurrent = (Number.isFinite(current) && safeTotal > 0) ? Math.max(0, Math.min(current, safeTotal)) : 0;
+  const roundedPercentage = safeTotal > 0 ? Math.round((safeCurrent / safeTotal) * 100) : 0;
+  const progress = safeTotal > 0 ? (safeCurrent / safeTotal) : 0;
 
   useEffect(() => {
-    Animated.timing(progressAnim, {
-      toValue: percentage,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
-  }, [percentage, progressAnim]);
+    if (isReducedMotion) {
+      progressValue.value = progress;
+    } else {
+      progressValue.value = withTiming(progress, { duration: 300 });
+    }
+  }, [progress, isReducedMotion, progressValue]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transformOrigin: 'left center',
+      transform: [{ scaleX: progressValue.value }],
+    };
+  });
 
   const getVariantClasses = () => {
     switch (variant) {
@@ -39,22 +67,35 @@ export function ProgressBar({
     }
   };
 
+  const progressText = label ?? t('common.progressCount', { current: safeCurrent, total: safeTotal });
+  const fillHeight = variant === 'modal' ? 8 : variant === 'compact' ? 4 : 6;
+
   return (
-    <View className="w-full">
-      {showLabel && variant !== 'compact' && (
-        <Text className="text-text text-xs font-bold uppercase tracking-widest mb-2">
-          {current} de {total} {total === 1 ? t('common.exerciseSingular') : t('common.exercisePlural')}
+    <View
+      className="w-full"
+      accessible={isAccessible}
+      accessibilityElementsHidden={!isAccessible}
+      importantForAccessibility={isAccessible ? 'yes' : 'no-hide-descendants'}
+      accessibilityRole={isAccessible ? 'progressbar' : undefined}
+      accessibilityLabel={isAccessible ? accessibilityLabel ?? t('common.progress') : undefined}
+      accessibilityValue={
+        isAccessible
+          ? { min: 0, max: 100, now: roundedPercentage, text: progressText }
+          : undefined
+      }
+    >
+      {showLabel && (
+        <Text className="text-text text-xs font-bold mb-2">
+          {progressText}
         </Text>
       )}
       <View className={`bg-border overflow-hidden ${getVariantClasses()}`}>
-        <Animated.View
-          className={`bg-primary ${getVariantClasses()}`}
-          style={{
-            width: progressAnim.interpolate({
-              inputRange: [0, 100],
-              outputRange: ['0%', '100%'],
-            }),
-          }}
+        <AnimatedView
+          testID="progress-fill"
+          style={[
+            { backgroundColor: theme.primary, width: '100%', height: fillHeight },
+            animatedStyle,
+          ]}
         />
       </View>
     </View>

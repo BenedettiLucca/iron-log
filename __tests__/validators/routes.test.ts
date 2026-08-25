@@ -3,6 +3,7 @@ import {
   sessionParamsSchema,
   summaryParamsSchema,
   finishParamsSchema,
+  weekDetailParamsSchema,
   safeParseParams,
 } from '@/src/validators/routes';
 
@@ -154,6 +155,72 @@ describe('Route Param Schemas', () => {
     it('returns null for invalid params', () => {
       const result = safeParseParams(summaryParamsSchema, { sessionId: 'abc' }, 'Test');
       expect(result).toBeNull();
+    });
+  });
+
+  describe('weekDetailParamsSchema', () => {
+    it('accepts valid positive integer params', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '3', weekNumber: '7' });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.programId).toBe(3);
+        expect(result.data.weekNumber).toBe(7);
+      }
+    });
+
+    it('accepts string "1" for both params', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1', weekNumber: '1' });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects missing programId', () => {
+      const result = weekDetailParamsSchema.safeParse({ weekNumber: '2' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects missing weekNumber', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects NaN programId', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: 'abc', weekNumber: '1' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects NaN weekNumber', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1', weekNumber: 'xyz' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects zero programId', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '0', weekNumber: '1' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects zero weekNumber', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1', weekNumber: '0' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects negative programId', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '-1', weekNumber: '1' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects negative weekNumber', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1', weekNumber: '-5' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects fractional programId', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1.5', weekNumber: '1' });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects fractional weekNumber', () => {
+      const result = weekDetailParamsSchema.safeParse({ programId: '1', weekNumber: '2.7' });
+      expect(result.success).toBe(false);
     });
   });
 });

@@ -134,27 +134,30 @@ Para Google Drive Backup funcionar no release, configure `EXPO_PUBLIC_GOOGLE_CLI
 ```
 iron-log/
 ├── app/
-│   ├── (drawer)/           # Menu lateral
-│   │   ├── index.tsx       # Home
-│   │   ├── bio/            # Bio-Tracking + Analytics
-│   │   │   ├── index.tsx   # Peso e medidas
-│   │   │   ├── evolution.tsx # Gráficos
-│   │   │   ├── goals.tsx   # Metas
-│   │   │   ├── analytics.tsx # Strength Score, Volume, PRs
-│   │   │   └── checkin.tsx # Check-in mensal com comparação de fotos
-│   │   ├── programs/       # Programas de treino
-│   │   │   ├── index.tsx   # Lista de programas
-│   │   │   ├── create.tsx  # Wizard de criação
-│   │   │   ├── detail.tsx  # Detalhe + grade semanal
-│   │   │   └── week-detail.tsx # Sessões da semana
-│   │   ├── supplements/    # Checklist de suplementos
-│   │   │   └── index.tsx   # Checklist diário + gestão
-│   │   ├── reports/        # Relatórios
-│   │   │   └── weekly.tsx  # Relatório semanal Markdown
-│   │   ├── routines/       # CRUD de rotinas + editor + templates
-│   │   ├── history/        # Calendário + histórico de sessões
-│   │   ├── settings.tsx    # Config, backup, export CSV, idioma
-│   │   └── about.tsx       # Sobre o app
+│   ├── (tabs)/             # Navegação principal (bottom tabs)
+│   │   ├── index.tsx       # Home / Dashboard
+│   │   ├── routines.tsx    # CRUD de rotinas + atalhos (programas/templates)
+│   │   ├── history.tsx     # Calendário + histórico de sessões
+│   │   ├── bio.tsx         # Bio-Tracking (peso/medidas/fotos)
+│   │   └── settings.tsx    # Config, backup, export CSV, idioma
+│   ├── bio/                # Biometria (Stack raiz)
+│   │   ├── evolution.tsx   # Gráficos
+│   │   ├── goals.tsx       # Metas
+│   │   ├── analytics.tsx   # Strength Score, Volume, PRs
+│   │   └── checkin.tsx     # Check-in mensal com comparação de fotos
+│   ├── programs/           # Programas de treino (Stack raiz)
+│   │   ├── index.tsx       # Lista de programas
+│   │   ├── create.tsx      # Wizard de criação
+│   │   ├── detail.tsx      # Detalhe + grade semanal
+│   │   └── week-detail.tsx # Sessões da semana
+│   ├── routines/           # Editor e templates (Stack raiz)
+│   │   ├── editor.tsx      # Criar/editar rotinas
+│   │   └── templates.tsx   # Biblioteca de templates
+│   ├── supplements/        # Checklist de suplementos
+│   │   └── index.tsx       # Checklist diário + gestão
+│   ├── reports/            # Relatórios
+│   │   └── weekly.tsx      # Relatório semanal Markdown
+│   ├── about.tsx           # Sobre o app
 │   └── session/            # Fluxo de treino (Stack isolada)
 │       ├── [routineId].tsx # Seleção de exercícios
 │       ├── exercise.tsx    # Execução do exercício

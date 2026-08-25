@@ -169,6 +169,8 @@ describe('i18n', () => {
       const { result } = renderHook(() => useI18n(), { wrapper: customWrapper });
 
       expect(result.current.t('common.save')).toBe(es.common.save);
+      expect(result.current.t('bioGoals.editActionLabel', { name: 'Cintura' })).toBe('Editar meta de Cintura');
+      expect(result.current.t('bioGoals.deleteActionLabel', { name: 'Cintura' })).toBe('Eliminar meta de Cintura');
     });
 
     it('returns Chinese translations when language is zh', () => {
@@ -206,6 +208,56 @@ describe('i18n', () => {
       expect(result.current.t('photoComparison.title')).toBe(pt.photoComparison.title);
       expect(result.current.t('strengthCurve.title')).toBe(pt.strengthCurve.title);
       expect(result.current.t('summary.workoutReport')).toBe(pt.summary.workoutReport);
+    });
+  });
+
+  describe('button copy contract', () => {
+    const sentenceCaseLabels = [
+      {
+        language: 'pt',
+        translations: pt,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finalizar treino',
+          'exercise.saveBtn': 'Salvar',
+          'exercise.saving': 'Salvando...',
+          'routines.createNewRoutine': 'Criar nova rotina',
+          'routines.createTemplate': 'Criar template',
+          'routines.import': 'Importar',
+          'session.end': 'Fim',
+        },
+      },
+      {
+        language: 'en',
+        translations: en,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finish workout',
+          'exercise.saveBtn': 'Save',
+          'exercise.saving': 'Saving...',
+          'routines.createNewRoutine': 'Create new routine',
+          'routines.createTemplate': 'Create template',
+          'routines.import': 'Import',
+          'session.end': 'End',
+        },
+      },
+      {
+        language: 'es',
+        translations: es,
+        expected: {
+          'exercise.finishWorkoutLabel': 'Finalizar entrenamiento',
+          'exercise.saveBtn': 'Guardar',
+          'exercise.saving': 'Guardando...',
+          'routines.createNewRoutine': 'Crear nueva rutina',
+          'routines.createTemplate': 'Crear plantilla',
+          'routines.import': 'Importar',
+          'session.end': 'Fin',
+        },
+      },
+    ] as const;
+
+    it.each(sentenceCaseLabels)('keeps CTA labels in sentence case for $language', ({ translations, expected }) => {
+      for (const [key, value] of Object.entries(expected)) {
+        expect(getNestedValue(translations, key)).toBe(value);
+      }
     });
   });
 

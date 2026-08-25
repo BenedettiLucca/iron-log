@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Platform, Pressable, Modal, View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Platform, Pressable, Modal, View, Text, StyleSheet, useColorScheme } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { getThemeColors } from '@/constants/colors';
 import { useI18n, getLocaleForLanguage } from '@/src/i18n';
+import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
 
 interface DatePickerProps {
   label?: string;
@@ -11,6 +12,9 @@ interface DatePickerProps {
   placeholder?: string;
   minimumDate?: Date;
   mode?: 'date' | 'time';
+  error?: string;
+  disabled?: boolean;
+  accessibilityLabel?: string;
 }
 
 export function DatePicker({
@@ -20,16 +24,28 @@ export function DatePicker({
   placeholder,
   minimumDate,
   mode = 'date',
+  error,
+  disabled = false,
+  accessibilityLabel,
 }: DatePickerProps) {
   const { t, language } = useI18n();
+  const reducedMotion = useReactiveReducedMotion();
   const [show, setShow] = useState(false);
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
+  const isOpen = show && !disabled;
+
+  useEffect(() => {
+    if (disabled) setShow(false);
+  }, [disabled]);
 
   const displayPlaceholder = placeholder || t('datePicker.placeholder');
   const locale = getLocaleForLanguage(language);
 
   const showMode = () => {
+    if (disabled) return;
     setShow(true);
   };
 
@@ -38,9 +54,8 @@ export function DatePicker({
       setShow(false);
     }
 
-    if (selectedDate) {
-      onChange(selectedDate);
-    }
+    if (disabledRef.current || event.type === 'dismissed') return;
+    if (selectedDate) onChange(selectedDate);
   };
 
   const formatDate = (date: Date) => {
@@ -51,12 +66,21 @@ export function DatePicker({
     });
   };
 
-  const borderColor = value ? theme.primary : theme.border;
+  const borderColor = error
+    ? theme.dangerText
+    : isOpen
+    ? theme.primaryText
+    : theme.border;
+
+  const mergedAccessibilityLabel = accessibilityLabel ?? label ?? displayPlaceholder;
+  const displayValue = value ? formatDate(value) : displayPlaceholder;
 
   return (
     <View className="mb-4">
       {label && (
-        <Text className="text-subtext text-xs font-bold uppercase mb-2">{label}</Text>
+        <Text className="text-text text-xs font-semibold mb-1.5 uppercase tracking-wider">
+          {label}
+        </Text>
       )}
 
       {Platform.OS === 'ios' ? (
@@ -64,29 +88,41 @@ export function DatePicker({
         <>
           <Pressable
             onPress={showMode}
+            disabled={disabled}
+            className={disabled ? 'opacity-60' : 'active:opacity-[0.92]'}
+            accessibilityRole="button"
+            accessibilityLabel={mergedAccessibilityLabel}
+            accessibilityValue={{ text: displayValue }}
+            accessibilityState={{ disabled, expanded: isOpen }}
+            accessibilityHint={error}
             style={[
               styles.pickerButton,
               { borderColor: borderColor }
             ]}
           >
             <Text className={value ? 'text-text text-base' : 'text-subtext text-base'}>
-              {value ? formatDate(value) : displayPlaceholder}
+              {displayValue}
             </Text>
           </Pressable>
 
           <Modal
-            visible={show}
+            visible={isOpen}
             transparent
-            animationType="slide"
+            animationType={reducedMotion ? 'none' : 'slide'}
             onRequestClose={() => setShow(false)}
           >
             <View style={[styles.modalOverlay, { backgroundColor: theme.overlay }]}>
               <View className="bg-background rounded-t-3xl p-4">
                 <View className="flex-row justify-between items-center mb-4">
                   <Text className="text-text text-lg font-bold uppercase">{t('datePicker.title')}</Text>
-                  <TouchableOpacity onPress={() => setShow(false)}>
-                    <Text className="text-primary font-bold text-base">{t('datePicker.done')}</Text>
-                  </TouchableOpacity>
+                  <Pressable
+                    onPress={() => setShow(false)}
+                    className="min-h-[44px] min-w-[44px] items-center justify-center active:opacity-[0.92]"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('datePicker.done')}
+                  >
+                    <Text className="text-primaryText font-bold text-base">{t('datePicker.done')}</Text>
+                  </Pressable>
                 </View>
                 <View className="min-h-[200px]">
                   <DateTimePicker
@@ -97,7 +133,7 @@ export function DatePicker({
                     minimumDate={minimumDate}
                     style={{ width: '100%' }}
                     locale={locale}
-                    textColor={theme.primary}
+                    textColor={theme.primaryText}
                   />
                 </View>
               </View>
@@ -109,17 +145,24 @@ export function DatePicker({
         <>
           <Pressable
             onPress={showMode}
+            disabled={disabled}
+            className={disabled ? 'opacity-60' : 'active:opacity-[0.92]'}
+            accessibilityRole="button"
+            accessibilityLabel={mergedAccessibilityLabel}
+            accessibilityValue={{ text: displayValue }}
+            accessibilityState={{ disabled, expanded: isOpen }}
+            accessibilityHint={error}
             style={[
               styles.pickerButton,
               { borderColor: borderColor }
             ]}
           >
             <Text className={value ? 'text-text text-base' : 'text-subtext text-base'}>
-              {value ? formatDate(value) : displayPlaceholder}
+              {displayValue}
             </Text>
           </Pressable>
 
-          {show && (
+          {isOpen && (
             <DateTimePicker
               value={value || new Date()}
               mode={mode}
@@ -130,6 +173,12 @@ export function DatePicker({
             />
           )}
         </>
+      )}
+
+      {error && (
+        <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">
+          {error}
+        </Text>
       )}
     </View>
   );

@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react-native';
-import { initCrashReporting } from '@/services/crash-reporting';
+import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
 import { Stack, useRouter } from 'expo-router';
 
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
@@ -10,7 +10,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import '../global.css';
 import { useEffect, useState } from 'react';
 import { notificationService } from '@/services/NotificationService';
-import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { and, eq, isNull } from 'drizzle-orm';
 import { sessions } from '../src/db/schema';
@@ -23,6 +22,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
 import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
 import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
 
 // Initialize Sentry as early as possible
@@ -39,16 +39,37 @@ function AppStack({ colorScheme }: { colorScheme: string }) {
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.primary },
-        headerTintColor: Colors.white,
+        headerTintColor: Colors.onPrimary,
+        statusBarStyle: 'light',
         headerTitleStyle: { fontWeight: 'bold' },
         contentStyle: { backgroundColor: colorScheme === 'dark' ? Colors.darkBackground : Colors.lightBackground },
         animation: 'default',
       }}
     >
-      <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="routines/editor" options={{ title: t('drawer.editorTitle') }} />
+      <Stack.Screen name="routines/templates" options={{ title: t('routines.templateLibrary') }} />
+      <Stack.Screen name="programs/index" options={{ title: t('programs.title') }} />
+      <Stack.Screen name="programs/create" options={{ title: t('programs.createTitle') }} />
+      <Stack.Screen name="programs/detail" options={{ title: t('programs.detail') }} />
+      <Stack.Screen name="programs/week-detail" options={{ title: t('programs.weekDetail') }} />
+      <Stack.Screen name="bio/evolution" options={{ title: t('bioNav.evolution') }} />
+      <Stack.Screen name="bio/goals" options={{ title: t('goals.title') }} />
+      <Stack.Screen name="bio/analytics" options={{ title: t('analytics.title') }} />
+      <Stack.Screen name="bio/checkin" options={{ title: t('bio.checkin') }} />
+      <Stack.Screen name="supplements/index" options={{ title: t('supplements.title') }} />
+      <Stack.Screen name="reports/weekly" options={{ title: t('reports.title') }} />
+      <Stack.Screen name="about" options={{ title: t('drawer.about') }} />
       <Stack.Screen name="routine/[routineId]" options={{ title: t('routineDetail.title') }} />
       <Stack.Screen name="session/[routineId]" options={{ title: t('session.activeWorkout') }} />
-      <Stack.Screen name="session/exercise" options={{ title: 'Exercise', headerShown: false }} />
+      <Stack.Screen
+        name="session/exercise"
+        options={{
+          title: 'Exercise',
+          headerShown: false,
+          statusBarStyle: colorScheme === 'dark' ? 'light' : 'dark',
+        }}
+      />
       <Stack.Screen name="session/finish" options={{ title: t('finish.title') }} />
       <Stack.Screen name="session/summary" options={{ title: t('summary.title') }} />
     </Stack>
@@ -114,7 +135,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
             accessibilityHint={a11y.dontAskAgainCheckbox.accessibilityHint}
           >
             <View className={`w-5 h-5 rounded border-2 mr-3 justify-center items-center ${dontShowAgain ? 'bg-primary border-primary' : 'border-border bg-card'}`}>
-              {dontShowAgain && <Text className="text-white text-xs font-bold">✓</Text>}
+              {dontShowAgain && <Text className="text-onPrimary text-xs font-bold">✓</Text>}
             </View>
             <Text className="text-subtext text-sm">{dontAskAgainLabel}</Text>
           </TouchableOpacity>
@@ -125,7 +146,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
               accessibilityRole={a11y.actions.resume.accessibilityRole}
               accessibilityLabel={a11y.actions.resume.accessibilityLabel}
             >
-              <Text className="text-white font-semibold text-base">{resumeLabel}</Text>
+              <Text className="text-onPrimary font-semibold text-base">{resumeLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-success"
@@ -133,7 +154,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
               accessibilityRole={a11y.actions.save.accessibilityRole}
               accessibilityLabel={a11y.actions.save.accessibilityLabel}
             >
-              <Text className="text-white font-semibold text-base">{saveWorkoutLabel}</Text>
+              <Text className="text-onSuccess font-semibold text-base">{saveWorkoutLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="py-3 px-4 rounded-xl items-center bg-background border border-border"
@@ -153,6 +174,7 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
 function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme() ?? 'light';
+  const theme = useThemeColors();
   const router = useRouter();
 
   // Session recovery state
@@ -211,21 +233,7 @@ function Layout() {
     }
   }, [success]);
 
-  // Set up notification response listener for deep linking
-  useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const url = response.notification.request.content.data?.url;
-        if (url) {
-          // Navigate to the URL when notification is tapped
-          // The router will handle the navigation
-          logger.debug('Notification tapped, navigating to:', url);
-        }
-      }
-    );
 
-    return () => subscription.remove();
-  }, []);
 
   const handleResumeSession = () => {
     if (!recoverySession) return;
@@ -280,8 +288,8 @@ function Layout() {
   if (error) {
     return (
       <View className="flex-1 justify-center items-center bg-background p-4">
-        <Text className="text-danger text-lg font-bold">{getNestedValue(ptTranslations, 'common.dbMigrationError') || 'Erro na Migração do Banco de Dados'}</Text>
-        <Text className="text-danger mt-2">{error.message}</Text>
+        <Text className="text-dangerText text-lg font-bold">{getNestedValue(ptTranslations, 'common.dbMigrationError') || 'Erro na Migração do Banco de Dados'}</Text>
+        <Text className="text-dangerText mt-2">{error.message}</Text>
       </View>
     );
   }
@@ -289,7 +297,7 @@ function Layout() {
   if (!success) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={theme.primaryText} />
         <Text className="text-text mt-4">{getNestedValue(ptTranslations, 'common.preparingApp') || 'Preparando Iron Log...'}</Text>
       </View>
     );
@@ -315,4 +323,4 @@ function Layout() {
   );
 }
 
-export default Sentry.wrap(Layout);
+export default isCrashReportingEnabled ? Sentry.wrap(Layout) : Layout;

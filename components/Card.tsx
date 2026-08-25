@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { View, TouchableOpacity, ViewStyle } from 'react-native';
-import { useHaptics } from '@/hooks/use-haptics';
+import { View, Pressable, ViewStyle } from 'react-native';
 
 export type CardVariant = 'default' | 'bordered';
 
@@ -27,22 +26,12 @@ export function Card({
   accessibilityLabel,
   accessibilityRole,
 }: CardProps) {
-  const { trigger } = useHaptics();
-
   const getVariantClasses = () => {
     switch (variant) {
       case 'bordered':
-        return 'bg-card border border-border';
       case 'default':
       default:
-        return 'bg-card border border-border shadow-sm';
-    }
-  };
-
-  const handlePress = () => {
-    if (onPress) {
-      trigger('medium');
-      onPress();
+        return 'bg-card border border-border';
     }
   };
 
@@ -52,16 +41,15 @@ export function Card({
 
   if (pressable && onPress) {
     return (
-      <TouchableOpacity
-        onPress={handlePress}
-        className={cardClasses}
-        activeOpacity={0.7}
+      <Pressable
+        onPress={onPress}
+        className={`${cardClasses} active:opacity-[0.92]`}
         style={style}
         accessibilityLabel={accessibilityLabel}
         accessibilityRole={accessibilityRole || 'button'}
       >
         {children}
-      </TouchableOpacity>
+      </Pressable>
     );
   }
 
