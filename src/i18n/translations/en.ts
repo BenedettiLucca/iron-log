@@ -58,6 +58,7 @@ export const en = {
     select: 'Select',
     understood: 'Got it!',
     view: 'View',
+    use: 'Use',
     sets: 'sets',
     exercise: 'exercise',
     exercises: 'exercises',

@@ -214,14 +214,14 @@ export default function TemplateLibraryScreen() {
       {/* Card Actions */}
       <View className="flex-row justify-between items-center mt-auto pt-2 border-t border-border/50">
         <Button
-          title={t('common.delete') || 'Excluir'}
+          title={t('common.delete')}
           onPress={() => handleDeleteTemplate(item.id, item.name)}
           variant="ghost"
           textStyle={{ color: theme.dangerText }}
           size="sm"
         />
         <Button
-          title="Usar"
+          title={t('common.use')}
           onPress={() => handleLoadFromTemplate(item)}
           variant="primary"
           size="sm"
