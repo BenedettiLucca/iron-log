@@ -28,11 +28,11 @@ export function ExerciseHistoryModal({
   language,
 }: ExerciseHistoryModalProps) {
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" accessibilityViewIsModal onRequestClose={onClose}>
       <View className="flex-1 bg-background p-4">
         <View className="flex-row justify-between items-center mb-4 mt-2">
-          <Text className="text-text text-xl font-bold uppercase">{t("exerciseSession.history")}</Text>
-          <TouchableOpacity onPress={onClose}>
+          <Text className="text-text text-xl font-bold uppercase" accessibilityRole="header">{t("exerciseSession.history")}</Text>
+          <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel={t('common.close')}>
             <Text className="text-primaryText font-bold uppercase">{t("common.close")}</Text>
           </TouchableOpacity>
         </View>

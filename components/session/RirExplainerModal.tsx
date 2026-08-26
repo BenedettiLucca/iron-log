@@ -14,7 +14,7 @@ export function RirExplainerModal({
   t,
 }: RirExplainerModalProps) {
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose} accessibilityViewIsModal>
       <TouchableOpacity
         activeOpacity={1}
         className="flex-1 justify-center items-center bg-black/40 p-6"
@@ -26,8 +26,8 @@ export function RirExplainerModal({
           onPress={(e) => e.stopPropagation()}
         >
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-text text-xl font-bold">{t('exercise.rirQuestion')}</Text>
-            <TouchableOpacity onPress={onClose}>
+            <Text className="text-text text-xl font-bold" accessibilityRole="header">{t('exercise.rirQuestion')}</Text>
+            <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel={t('common.close')}>
               <Text className="text-subtext text-2xl font-bold">✕</Text>
             </TouchableOpacity>
           </View>
@@ -73,6 +73,8 @@ export function RirExplainerModal({
           <TouchableOpacity
             onPress={onClose}
             className="mt-6 bg-primary p-3 rounded-xl items-center"
+            accessibilityRole="button"
+            accessibilityLabel={t('common.understood')}
           >
             <Text className="text-onPrimary font-bold text-base uppercase">{t('common.understood')}</Text>
           </TouchableOpacity>
