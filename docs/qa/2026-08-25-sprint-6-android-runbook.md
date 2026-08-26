@@ -1,7 +1,7 @@
 # Sprint 6 — QA física Android: i18n, content fit e acessibilidade
 
-- **Status:** PENDING — executar todos os blocos antes de corrigir qualquer novo defeito.
-- **Runtime candidate:** `feat/sprint-6-i18n-a11y` @ `81e1f63ccec0294e3cd5349483dfa00a9eb51e90`.
+- **Status:** PASS (2026-08-26) — QA física no Samsung S23 via Expo Go. Único achado: botão "Próximo exercício" com caps e tamanho acima do "Salvar" — corrigido em `4ec8f61` (size lg→md + title case nos 4 idiomas). Sem outros defeitos relatados.
+- **Runtime candidate:** `feat/sprint-6-i18n-a11y` @ `4ec8f61` (QA física PASS no S23; fix de botão incluído).
 - **Baseline estático:** 93 suites / 837 testes; typecheck, Expo lint e audit policy verdes no candidate. Android Hermes export verificado: `entry-9ad41548ef55adf6396d3f13b0b2c008.hbc` (8.627.478 bytes).
 - **Device alvo:** Samsung S23 físico via Expo Go.
 - **Registrar antes de começar:** Android/build, versão do Expo Go, tema inicial, escala de fonte inicial e valor original de **Menor largura** nas Opções do desenvolvedor.

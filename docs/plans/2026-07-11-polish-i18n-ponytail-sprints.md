@@ -362,9 +362,9 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 - Critical screens pass all four languages at 320dp.
 - All interactive controls have accessible name/role/state as applicable.
 
-**Código concluído em `81e1f63` (branch até `24e7bbd`); QA Android físico pendente.** A implementação removeu os fallbacks/branches manuais e mensagens de validação presas a um locale, corrigiu copy ES/ZH/PT e fechou semântica TalkBack em componentes, sessão, modais, tabs, programas, rotinas e suplementos. Revisão focada de correctness PASS + Ponytail cleanup aplicado (helpers AST deduplicados). O gate final passou com 93 suites / 837 testes, typecheck, Expo lint, audit policy e Android Hermes export verificados (`entry-9ad41548…hbc`, 8.627.478 bytes). Runbook: `docs/qa/2026-08-25-sprint-6-android-runbook.md`.
+**Código concluído em `4ec8f61`; QA física Android PASS (S23, 2026-08-26).** A implementação removeu os fallbacks/branches manuais e mensagens de validação presas a um locale, corrigiu copy ES/ZH/PT e fechou semântica TalkBack em componentes, sessão, modais, tabs, programas, rotinas e suplementos. Revisão focada de correctness PASS + Ponytail cleanup aplicado (helpers AST deduplicados). QA física: único defeito (botão "Próximo exercício" em caps/oversized) corrigido in-sprint. Gate final: 93 suites / 837 testes, typecheck, Expo lint, audit policy e Android Hermes export verificados. Runbook: `docs/qa/2026-08-25-sprint-6-android-runbook.md`.
 
-**Para a QA física:** dev server do PC atende em `192.168.0.68:8081` (LAN) ou `100.124.6.38:8081` (Tailscale). adb está instalado mas **nenhum device está conectado** agora, então a execução é manual no S23 quando tu plugar — com o dev server rodando (`npx expo start`) e o S23 na mesma rede (ou via Tailscale).
+**Sprint 6 concluída.**
 
 ---
 
