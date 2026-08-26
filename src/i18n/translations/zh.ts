@@ -915,6 +915,7 @@ export const zh = {
     noSetsYet: '尚未记录任何组数。',
     warmup: '热身',
     next: '接近力竭',
+    elapsedTime: '已用时间',
   },
 
   // Programs / 周期化训练

@@ -48,6 +48,9 @@ export function StatTile({
     <View
       style={accentColorHex ? { borderTopWidth: 3, borderTopColor: accentColorHex } : undefined}
       className={`bg-card border border-border rounded-2xl p-3.5 items-center flex-shrink-0 ${className}`}
+      accessible
+      accessibilityRole="summary"
+      accessibilityLabel={`${label}: ${value}${delta ? `, ${delta}` : ''}`}
     >
       {icon && (
         <View className={`w-8 h-8 rounded-full items-center justify-center mb-1.5 ${getBgClass()}`}>

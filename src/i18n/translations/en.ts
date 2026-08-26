@@ -915,6 +915,7 @@ export const en = {
     noSetsYet: 'No sets registered yet.',
     warmup: 'Warm-up',
     next: 'Almost muscular failure',
+    elapsedTime: 'Elapsed time',
   },
 
   // Programs / Periodization

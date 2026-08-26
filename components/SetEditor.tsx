@@ -119,10 +119,11 @@ export function SetEditor({
       animationType="fade"
       transparent
       onRequestClose={onCancel}
+      accessibilityViewIsModal
     >
       <View className="flex-1 justify-center items-center bg-black/40 p-6">
         <Card className="w-full max-w-sm p-6">
-          <Text className="text-text text-2xl font-bold mb-2 text-center">
+          <Text className="text-text text-2xl font-bold mb-2 text-center" accessibilityRole="header">
             {t('setEditor.title', { number: setNumber })}
           </Text>
           <Text className="text-subtext text-sm mb-6 text-center">
@@ -141,9 +142,10 @@ export function SetEditor({
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('exercise.weight')}
                   />
                   {weightError && (
-                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{weightError}</Text>
                   )}
                 </View>
 
@@ -156,9 +158,10 @@ export function SetEditor({
                     value={reps}
                     onChangeText={(v) => { setReps(v); setRepsError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('setEditor.repetitions')}
                   />
                   {repsError && (
-                    <Text className="text-dangerText text-xs mt-1">{repsError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{repsError}</Text>
                   )}
                 </View>
 
@@ -171,9 +174,10 @@ export function SetEditor({
                     value={rir}
                     onChangeText={(v) => { setRir(v); setRirError(undefined); }}
                     placeholder="2"
+                    accessibilityLabel={t('exercise.rir')}
                   />
                   {rirError && (
-                    <Text className="text-dangerText text-xs mt-1">{rirError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{rirError}</Text>
                   )}
                 </View>
               </>
@@ -188,9 +192,10 @@ export function SetEditor({
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('exercise.weight')}
                   />
                   {weightError && (
-                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{weightError}</Text>
                   )}
                 </View>
 
@@ -203,9 +208,10 @@ export function SetEditor({
                     value={duration}
                     onChangeText={(v) => { setDuration(v); setDurationError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('session.duration')}
                   />
                   {durationError && (
-                    <Text className="text-dangerText text-xs mt-1">{durationError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{durationError}</Text>
                   )}
                 </View>
               </>

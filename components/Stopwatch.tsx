@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text } from 'react-native';
+import { useI18n } from '@/src/i18n/index';
 
 interface StopwatchProps {
   startTime: number;
@@ -7,6 +8,7 @@ interface StopwatchProps {
 }
 
 export function Stopwatch({ startTime, className }: StopwatchProps) {
+  const { t } = useI18n();
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
@@ -29,7 +31,11 @@ export function Stopwatch({ startTime, className }: StopwatchProps) {
   };
 
   return (
-    <Text className={`font-mono text-xl font-bold tracking-widest ${className || 'text-text'}`}>
+    <Text
+      className={`font-mono text-xl font-bold tracking-widest ${className || 'text-text'}`}
+      accessibilityRole="timer"
+      accessibilityLabel={`${t('exerciseSession.elapsedTime')}: ${formatTime(seconds)}`}
+    >
       {formatTime(seconds)}
     </Text>
   );

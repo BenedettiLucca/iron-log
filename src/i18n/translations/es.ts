@@ -915,6 +915,7 @@ export const es = {
     noSetsYet: 'Ninguna serie registrada aún.',
     warmup: 'Calentamiento',
     next: 'Casi fallo muscular',
+    elapsedTime: 'Tiempo transcurrido',
   },
 
   // Programs / Periodización
