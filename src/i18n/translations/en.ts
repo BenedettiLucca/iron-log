@@ -1054,6 +1054,7 @@ export const en = {
 
     supplements: {
     title: '💊 Supplementation',
+    yourSupplements: 'Your Supplements',
     addSupplement: 'Add Supplement',
     editSupplement: 'Edit Supplement',
     deleteSupplement: 'Delete Supplement',

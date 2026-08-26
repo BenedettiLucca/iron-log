@@ -135,6 +135,21 @@ describe('Sprint 6 i18n and content-fit contracts', () => {
     expect(violations).toEqual([]);
   });
 
+  it('does not branch manually on the active language at runtime', () => {
+    const violations = runtimeSources.flatMap((absolutePath) => {
+      const relativePath = path.relative(projectRoot, absolutePath);
+      return fs.readFileSync(absolutePath, 'utf8')
+        .split('\n')
+        .flatMap((line, index) => (
+          /switch\s*\(\s*language\s*\)/.test(line)
+            ? [`${relativePath}:${index + 1} ${line.trim()}`]
+            : []
+        ));
+    });
+
+    expect(violations).toEqual([]);
+  });
+
   it('does not ship the verified hardcoded Portuguese UI copy', () => {
     const forbiddenLiterals = ['title="Usar"', 'Análise por Exercício'];
     const violations = runtimeSources.flatMap((absolutePath) => {

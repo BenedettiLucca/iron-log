@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform, TextInput } from 'react-native';
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
@@ -50,21 +50,9 @@ const PlusIcon = ({ color = Colors.onPrimary }: { color?: string }) => (
 );
 
 export default function SupplementsScreen() {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();
-  const listLabel = useMemo(() => {
-    switch (language) {
-      case 'pt':
-        return 'Seus Suplementos';
-      case 'es':
-        return 'Sus Suplementos';
-      case 'zh':
-        return '您的补充剂';
-      default:
-        return 'Your Supplements';
-    }
-  }, [language]);
   const {
     items,
     todayLogs,
@@ -390,7 +378,7 @@ export default function SupplementsScreen() {
           </View>
         ) : (
           <View className="gap-3">
-            <SectionHeader label={listLabel} className="mb-1" />
+            <SectionHeader label={t('supplements.yourSupplements')} className="mb-1" />
             {items.map((item) => {
               const taken = isTaken(item.id);
               const toggling = togglingIds.has(item.id);

@@ -1045,6 +1045,7 @@ export const zh = {
 
     supplements: {
     title: '💊 补剂追踪',
+    yourSupplements: '您的补剂',
     addSupplement: '添加补剂',
     editSupplement: '编辑补剂',
     deleteSupplement: '删除补剂',

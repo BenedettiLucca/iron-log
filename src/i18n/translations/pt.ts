@@ -1085,6 +1085,7 @@ export const pt = {
 
     supplements: {
     title: '💊 Suplementação',
+    yourSupplements: 'Seus Suplementos',
     addSupplement: 'Adicionar Suplemento',
     editSupplement: 'Editar Suplemento',
     deleteSupplement: 'Excluir Suplemento',
