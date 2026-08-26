@@ -348,6 +348,7 @@ export default function FinishSessionScreen() {
               value={weight}
               onChangeText={setWeight}
               textAlign="center"
+              accessibilityLabel={t('finish.bodyWeight')}
             />
 
             <View className="gap-2">
@@ -436,8 +437,10 @@ export default function FinishSessionScreen() {
                 key={template.label}
                 className="bg-card border border-border rounded-xl p-3 flex-row items-center gap-2"
                 onPress={() => insertTemplate(template)}
+                accessibilityRole="button"
+                accessibilityLabel={template.label}
               >
-                <Text className="text-base">{template.emoji}</Text>
+                <Text className="text-base" accessible={false}>{template.emoji}</Text>
                 <Text className="text-text text-sm font-semibold">{template.label}</Text>
               </TouchableOpacity>
             ))}
@@ -460,6 +463,7 @@ export default function FinishSessionScreen() {
             value={notes}
             onChangeText={setNotes}
             textAlignVertical="top"
+            accessibilityLabel={t('finish.observations')}
           />
         </Card>
 
