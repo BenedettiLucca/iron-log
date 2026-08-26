@@ -293,7 +293,7 @@ export default function GoalsScreen() {
       <ScrollView className="flex-1 p-4" contentContainerStyle={{ gap: 16, paddingBottom: 24 }}>
         {!loading && !hasError && goals.length === 0 ? (
           <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
-            <Text className="text-5xl mb-4" accessible={false} importantForAccessibility="no-hide-descendants">🎯</Text>
+            <Text className="text-5xl mb-4" accessible={false}>🎯</Text>
             <Text className="text-text text-lg font-bold text-center mb-2">{t("bioGoals.noGoals")}</Text>
             <Text className="text-subtext text-sm text-center leading-5">{t("bioGoals.emptyDesc")}</Text>
           </View>

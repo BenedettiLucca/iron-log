@@ -75,12 +75,18 @@ describe('Sprint 6 tabs & goals accessibility contracts', () => {
   });
 
   it('provides concise accessibilityLabel for home program stats summary', () => {
-    const contents = source('app/(tabs)/index.tsx');
+    const file = 'app/(tabs)/index.tsx';
+    const contents = source(file);
     const statsIdx = contents.indexOf('border-t border-b border-border/60');
     expect(statsIdx).toBeGreaterThanOrEqual(0);
     const section = contents.slice(statsIdx, statsIdx + 800);
     expect(section).toMatch(/accessibilityLabel/);
     expect(section).toMatch(/programs\.dashboard\.volume/);
+
+    const stats = jsxElements(file, 'View')
+      .find((element) => element.getText().includes('border-t border-b border-border/60'));
+    expect(stats).toBeDefined();
+    expect(propNames(stats!)).toContain('accessible');
   });
 
   it('uses list/listitem roles for home key lifts collection', () => {

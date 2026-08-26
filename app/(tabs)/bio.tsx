@@ -308,7 +308,7 @@ export default function BioScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={item.title}
               >
-                <Text className="text-lg mr-3" accessible={false} importantForAccessibility="no-hide-descendants">{item.icon}</Text>
+                <Text className="text-lg mr-3" accessible={false}>{item.icon}</Text>
                 <Text className="text-sm text-text font-medium flex-1">
                   {item.title}
                 </Text>
@@ -467,7 +467,7 @@ export default function BioScreen() {
                                     <Image source={{ uri: photos[side] }} className="w-full h-full" />
                                 ) : (
                                     <View className="items-center">
-                                        <Text className="text-2xl mb-1" accessible={false} importantForAccessibility="no-hide-descendants">📷</Text>
+                                        <Text className="text-2xl mb-1" accessible={false}>📷</Text>
                                         <Text className="text-subtext text-xs uppercase font-bold">{t(`bio.${side}`)}</Text>
                                     </View>
                                 )}
