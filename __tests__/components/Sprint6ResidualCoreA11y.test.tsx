@@ -191,7 +191,7 @@ describe('Sprint 6 Residual Core Accessibility', () => {
   });
 
   describe('PhotoComparison accessibility', () => {
-    it('sets modal accessibilityViewIsModal and hides decorative images and handle knob', () => {
+    it('sets modal semantics without exposing backdrop/card containers as unnamed buttons', () => {
       const result = render(
         <PhotoComparison
           visible={true}
@@ -204,6 +204,14 @@ describe('Sprint 6 Residual Core Accessibility', () => {
 
       const modal = result.UNSAFE_getByType('Modal' as any);
       expect(modal.props.accessibilityViewIsModal).toBe(true);
+
+      const heading = result
+        .UNSAFE_getAllByType('Text' as any)
+        .find((node) => node.props.children === 'Comparing Progress');
+      expect(heading?.props.accessibilityRole).toBe('header');
+
+      const pressables = result.UNSAFE_getAllByType('Pressable' as any);
+      expect(pressables.slice(0, 2).map((node) => node.props.accessible)).toEqual([false, false]);
 
       const images = result.UNSAFE_getAllByType('Image' as any);
       expect(images.length).toBeGreaterThanOrEqual(2);

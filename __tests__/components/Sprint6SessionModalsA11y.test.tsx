@@ -63,6 +63,7 @@ describe('Sprint 6 session modal accessibility', () => {
 
     expect(modal.props.accessibilityViewIsModal).toBe(true);
     expect(heading?.props.accessibilityRole).toBe('header');
+    expect(touchables.slice(0, 2).map((node) => node.props.accessible)).toEqual([false, false]);
     expect(closeActions).toHaveLength(2);
     expect(closeActions.map((node) => node.props.accessibilityLabel)).toEqual([
       'common.close',

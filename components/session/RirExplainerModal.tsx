@@ -19,11 +19,15 @@ export function RirExplainerModal({
         activeOpacity={1}
         className="flex-1 justify-center items-center bg-black/40 p-6"
         onPress={onClose}
+        accessible={false}
+        accessibilityRole="none"
       >
         <TouchableOpacity
           activeOpacity={1}
           className="bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl border border-border"
           onPress={(e) => e.stopPropagation()}
+          accessible={false}
+          accessibilityRole="none"
         >
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-text text-xl font-bold" accessibilityRole="header">{t('exercise.rirQuestion')}</Text>

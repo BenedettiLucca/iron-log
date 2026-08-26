@@ -44,16 +44,20 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
         className="flex-1 justify-center items-center bg-black/80 p-6"
         onPress={onClose}
         hapticType="light"
+        accessible={false}
+        accessibilityRole="none"
       >
         <Pressable
           activeOpacity={1}
           className="bg-card rounded-2xl p-6 max-w-lg w-full shadow-xl border border-border"
           onPress={(e) => e.stopPropagation()}
           hapticType="light"
+          accessible={false}
+          accessibilityRole="none"
         >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-text text-xl font-bold uppercase tracking-widest">{t('photoComparison.title', { label })}</Text>
+            <Text className="text-text text-xl font-bold uppercase tracking-widest" accessibilityRole="header">{t('photoComparison.title', { label })}</Text>
             <Pressable
               onPress={onClose}
               className="w-11 h-11 rounded-full items-center justify-center"
