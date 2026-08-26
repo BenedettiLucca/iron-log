@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render } from '@testing-library/react-native';
+import { act, render } from '@testing-library/react-native';
 import { EmptyState } from '@/components/EmptyState';
 import { SetEditor } from '@/components/SetEditor';
 import { StatTile } from '@/components/StatTile';

@@ -21,7 +21,7 @@ jest.mock('react-native/Libraries/Utilities/useColorScheme', () => ({
 jest.mock('react-native/Libraries/Lists/FlatList', () => ({
   __esModule: true,
   default: ({ data, renderItem }: any) => {
-    const { View } = require('react-native');
+    const { View } = jest.requireActual<typeof import('react-native')>('react-native');
     return <View>{data?.map((item: any, index: number) => renderItem({ item, index }))}</View>;
   },
 }));
