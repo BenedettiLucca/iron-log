@@ -95,7 +95,16 @@
 - `app/session/summary.tsx` não tem render test isolado, mas o domínio de summary/verdict, export e navegação estão cobertos. O residual é visual/composicional e fica para o QA final, sem blocker crítico identificado.
 - Veredito: **[REVIEWED]**, sem feature nova, sem mudança de dependência e sem fechamento/relabel automático no GitHub.
 
-O próximo checkpoint não é mais #69: é decidir se o release scope fica sem candidato pré-release seguro e, portanto, se Sprint 8 será pulado enquanto #76 permanece deferred por upgrade de Expo SDK.
+### Decisão de release scope — [DONE]
+
+Lucca decidiu **pular o Sprint 8**: #76 permanece deferred porque a remediação segura exige uma frente separada de upgrade do Expo SDK; não há candidato pré-release não-breaking neste ciclo. O Sprint 7 fecha com #73 [DONE], #69 [REVIEWED] e nenhuma alteração automática no GitHub. O próximo passo é o Sprint 9: audit Ponytail novo, read-only, no commit atual.
+
+### Sprint 9 — [DONE]
+
+- Relatório: `docs/audits/2026-08-26-ponytail-audit.md`.
+- Baseline: typecheck, lint, 94 suites / 839 testes, audit de high/critical e export Hermes Android verdes; Expo Doctor 16/18 com drift/duplicidade já conhecido em #76.
+- Resultado: 6 findings de corte confirmados (−171 linhas possíveis) e 1 dependência direta candidata condicionada; falsos positivos e deferrals registrados.
+- Nenhum cleanup foi aplicado. Sprint 10 fica bloqueado até checkpoint explícito do Lucca.
 
 ## Dependency graph
 

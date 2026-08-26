@@ -370,13 +370,17 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 
 ## Sprint 7 — Open-issue triage and release-scope lock
 
-**Status: IN PROGRESS (2026-08-26).** Triage e checkpoint concluídos em `docs/plans/2026-08-26-open-issue-triage.md`. O slice #73 está [DONE] e verificado; #76 está [BLOCKED] por depender de decisão de upgrade do Expo SDK; #69 está [REVIEWED] com matriz atualizada. Nenhuma issue foi fechada/relabelled e Sprint 8 continua condicional.
+**Status: [DONE] (2026-08-26).** Triage e checkpoint concluídos em `docs/plans/2026-08-26-open-issue-triage.md`. O slice #73 está [DONE] e verificado; #76 está [BLOCKED]/deferred por depender de uma frente separada de upgrade do Expo SDK; #69 está [REVIEWED] com matriz atualizada. Lucca decidiu pular o Sprint 8; nenhuma issue foi fechada/relabelled.
 
 This sprint começou como discovery/decision e agora executa somente os slices de qualidade aprovados. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
 
 ### Coverage checkpoint (#69) — [REVIEWED]
 
 `docs/plans/2026-08-26-sprint7-coverage-matrix.md` recalculou a superfície atual: 25 rotas/layouts, 94 arquivos de teste e 94 suites / 839 testes. O claim histórico de 16 rotas / 9 módulos sem teste não se sustenta mais. Não apareceu gap comportamental crítico que justifique feature ou harness de renderização por tela; `app/session/summary.tsx` fica como residual visual para o QA final. O slice fecha sem alteração de produção.
+
+### Release-scope decision — [DONE]
+
+Não existe candidato pré-release não-breaking depois da revalidação de #76. O Sprint 8 fica **[SKIPPED]** neste ciclo; upgrade de Expo SDK não entra por atalho no release. O Sprint 9 começa como audit read-only no commit atual e exige novo checkpoint antes de qualquer cleanup.
 
 ### Live starting set
 
@@ -430,6 +434,8 @@ Current clusters to investigate:
 
 ## Sprint 8 — Selected issue implementation (conditional)
 
+**Status: [SKIPPED] (2026-08-26).** Nenhuma issue pré-release segura foi selecionada. #76 permanece deferred por depender de upgrade coordenado do Expo SDK.
+
 **Goal:** implement only the pre-release issues explicitly approved in Sprint 7, before the final complexity audit.
 
 Skip this sprint when Sprint 7 selects no pre-release issues.
@@ -455,9 +461,15 @@ Skip this sprint when Sprint 7 selects no pre-release issues.
 
 ## Sprint 9 — Fresh Ponytail audit
 
+**Status: [DONE] (2026-08-26).** O audit foi executado após o Sprint 8 ser pulado e está registrado em `docs/audits/2026-08-26-ponytail-audit.md`. A fase foi read-only: nenhum achado virou cleanup sem checkpoint explícito do Lucca.
+
 **Goal:** produce a new evidence-based whole-repo complexity audit after redesign, i18n/a11y and any selected issue work have stabilized.
 
 The previous Ponytail candidate list is historical context, not an execution checklist. Files previously named for deletion or simplification must be rediscovered and revalidated from zero.
+
+### Audit checkpoint — [DONE]
+
+O relatório confirmou 6 cortes de dead code/barrels/test-only utility (−171 linhas possíveis) e 1 dependência direta candidata condicionada. `hooks/index.ts`, `src/types/index.ts`, `use-progression`, `program-detail-state` e `session-verdict-markdown` foram rejeitados como falsos positivos/deletes inseguros após validação de callers. O próximo checkpoint é selecionar o Sprint 10; nenhum patch de cleanup está autorizado por este documento.
 
 ### Scope
 
@@ -489,6 +501,8 @@ The previous Ponytail candidate list is historical context, not an execution che
 ---
 
 ## Sprint 10 — Ponytail findings execution
+
+**Status: [PENDING CHECKPOINT] (2026-08-26).** Findings somente no relatório de Sprint 9; execução depende de seleção explícita do Lucca, em commits reversíveis por batch.
 
 **Goal:** execute only the confirmed and approved findings from Sprint 9, maximizing net reduction without weakening behavior or native reliability.
 
