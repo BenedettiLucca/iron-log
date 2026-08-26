@@ -224,8 +224,7 @@ export function useExerciseSets({
       isWarmup: isWarmupMode,
     });
     if (!setValidation.success) {
-      const msg = setValidation.error.issues[0]?.message || t('common.invalidData');
-      setToast({ visible: true, message: msg, type: 'error' });
+      setToast({ visible: true, message: t('common.invalidData'), type: 'error' });
       return false;
     }
     // Extra business logic validation

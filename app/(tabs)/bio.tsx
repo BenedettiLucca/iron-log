@@ -80,7 +80,7 @@ export default function BioScreen() {
     if (!todayWeight) return;
     const validation = weightInputSchema.safeParse({ weight: todayWeight });
     if (!validation.success) {
-      setToast({ visible: true, message: validation.error.issues[0]?.message || t('bio.invalidWeight'), type: 'error' });
+      setToast({ visible: true, message: t('bio.invalidWeight'), type: 'error' });
       return;
     }
     const success = await hookSaveWeight(validation.data.weight);

@@ -50,6 +50,7 @@ const locales = {
 const runtimeSources = [
   ...sourceFiles(path.join(projectRoot, 'app')),
   ...sourceFiles(path.join(projectRoot, 'components')),
+  ...sourceFiles(path.join(projectRoot, 'hooks')),
 ];
 
 describe('Sprint 6 i18n and content-fit contracts', () => {
@@ -127,6 +128,21 @@ describe('Sprint 6 i18n and content-fit contracts', () => {
         .split('\n')
         .flatMap((line, index) => (
           /\bt\([^\n;]+\)\s*\|\|\s*['"`]/.test(line)
+            ? [`${relativePath}:${index + 1} ${line.trim()}`]
+            : []
+        ));
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('does not expose locale-bound validator messages directly in the UI', () => {
+    const violations = runtimeSources.flatMap((absolutePath) => {
+      const relativePath = path.relative(projectRoot, absolutePath);
+      return fs.readFileSync(absolutePath, 'utf8')
+        .split('\n')
+        .flatMap((line, index) => (
+          /\.error\.issues\[[^\]]+\]\??\.message/.test(line)
             ? [`${relativePath}:${index + 1} ${line.trim()}`]
             : []
         ));
