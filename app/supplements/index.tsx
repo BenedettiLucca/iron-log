@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Polyline, Line } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 import { SegmentedControl } from '@/components/SegmentedControl';
+import { ProgressBar } from '@/components/ProgressBar';
 const MoonIcon = ({ color }: { color: string }) => (
   <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -379,12 +380,7 @@ export default function SupplementsScreen() {
                 {t('supplements.completedCount', { taken: todayLogs.length, total: items.length })}
               </Text>
             </View>
-            <View className="h-2 bg-primary/5 rounded-full overflow-hidden">
-              <View 
-                className="h-full bg-primary rounded-full"
-                style={{ width: `${todayProgress}%` }} 
-              />
-            </View>
+            <ProgressBar current={todayLogs.length} total={items.length} showLabel={false} />
           </Card>
         )}
 
@@ -483,13 +479,13 @@ export default function SupplementsScreen() {
         className="absolute right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/30"
         style={{ bottom: 24 + insets.bottom }}
         accessibilityRole="button"
-        accessibilityLabel={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')}
+        accessibilityLabel={t('supplements.addSupplement')}
       >
         <PlusIcon />
       </TouchableOpacity>
 
       {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal}>
+      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal} accessibilityViewIsModal>
         <View className="flex-1 bg-background">
           <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
             <SectionHeader label={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')} />
@@ -588,6 +584,7 @@ export default function SupplementsScreen() {
             <TouchableOpacity 
               onPress={() => setShowTimePicker(true)}
               className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center"
+              accessibilityLabel={t('supplements.reminderTime')}
             >
               <View>
                 <Text className="text-text font-bold">{t('supplements.reminderTime')}</Text>

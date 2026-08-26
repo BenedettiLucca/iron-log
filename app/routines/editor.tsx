@@ -483,6 +483,7 @@ export default function RoutineEditorScreen() {
             <View className="flex-row gap-3">
                 <View className="flex-1">
                     <Input 
+                        label={t("routines.targetPlaceholder")}
                         placeholder={t("routines.targetPlaceholder")}
                         value={ex.target}
                         onFocus={handleExerciseInputFocus}
@@ -493,6 +494,7 @@ export default function RoutineEditorScreen() {
                 </View>
                 <View className="flex-[2]">
                     <Input 
+                        label={t("routines.notesPlaceholder")}
                         placeholder={t("routines.notesPlaceholder")}
                         value={ex.notes}
                         onFocus={handleExerciseInputFocus}
@@ -505,6 +507,7 @@ export default function RoutineEditorScreen() {
             <View className="mt-3 flex-row items-center gap-3">
                 <Text className="text-xs text-subtext font-bold uppercase">{t("routines.restSeconds")}</Text>
                 <Input 
+                    label={t("routines.restSeconds")}
                     placeholder="90"
                     keyboardType="numeric"
                     value={ex.restSeconds?.toString()}
@@ -566,16 +569,17 @@ export default function RoutineEditorScreen() {
         onCancel={handleCancelDiscard}
       />
 
-      <Modal visible={!!renamingEx} transparent animationType="fade">
+      <Modal visible={!!renamingEx} transparent animationType="fade" accessibilityViewIsModal>
           <View className="flex-1 bg-black/60 justify-center items-center p-4">
               <View className="bg-card p-6 rounded-2xl w-full border border-border shadow-xl">
-                  <Text className="text-text font-bold text-lg mb-2 uppercase tracking-wide">{t("common.rename")}</Text>
+                  <Text className="text-text font-bold text-lg mb-2 uppercase tracking-wide" accessibilityRole="header">{t("common.rename")}</Text>
                   <Text className="text-subtext text-xs mb-6">{t("routines.renameWarning")}</Text>
                   
                   <Input 
                       value={newName}
                       onChangeText={setNewName}
                       autoFocus
+                      label={t("common.rename")}
                       containerStyle={{ marginBottom: 24 }}
                   />
 
@@ -651,7 +655,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
   };
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" accessibilityViewIsModal>
       <View className="flex-1 bg-background">
         <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
           <SectionHeader label={t("routines.selectExercise")} />
@@ -670,17 +674,19 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     <View className="flex-row gap-2">
                         <View className="flex-1">
                             <Input 
+                                label={t("common.rename")}
                                 value={editName}
                                 onChangeText={setEditName}
                                 autoFocus
                             />
                         </View>
                         <Button title="OK" onPress={handleUpdateName} size="sm" variant="success" />
-                        <Button title="X" onPress={() => setEditingEx(null)} size="sm" variant="danger" />
+                        <Button title="X" accessibilityLabel={t('common.cancel')} onPress={() => setEditingEx(null)} size="sm" variant="danger" />
                     </View>
                 </Card>
             ) : (
                 <Input 
+                    label={t("routines.searchOrCreate")}
                     placeholder={t("routines.searchOrCreate")}
                     value={search}
                     onChangeText={setSearch}

@@ -149,7 +149,7 @@ export default function CreateProgramScreen() {
     <View className="flex-1 bg-background">
       {/* Header */}
       <View className="px-4 pt-6 pb-4 flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3">
+        <TouchableOpacity onPress={() => router.back()} className="mr-3" accessibilityRole="button" accessibilityLabel={t('common.back')}>
           <Text className="text-primaryText text-sm font-semibold">{t('common.back')}</Text>
         </TouchableOpacity>
         <Text className="text-text text-xl font-bold flex-1">{t('programs.createTitle')}</Text>
@@ -209,6 +209,8 @@ export default function CreateProgramScreen() {
                       ? 'bg-primary border-primary'
                       : 'bg-card border-border'
                   }`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('programs.goal')}: ${t(`programs.goals.${g}`)}`}
                 >
                   <Text className={`text-xs font-bold uppercase tracking-wider ${
                     isActive ? 'text-onPrimary' : 'text-subtext'

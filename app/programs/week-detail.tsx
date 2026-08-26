@@ -167,7 +167,7 @@ export default function WeekDetailScreen() {
     <View className="flex-1 bg-background justify-center items-center p-8">
       <Text className="text-5xl mb-6">{icon}</Text>
       <Text className="text-text text-xl font-bold text-center mb-3">{message}</Text>
-      <TouchableOpacity onPress={() => router.back()} className="bg-card border border-border px-6 py-3 rounded-xl mt-4">
+      <TouchableOpacity onPress={() => router.back()} className="bg-card border border-border px-6 py-3 rounded-xl mt-4" accessibilityRole="button" accessibilityLabel={t('common.back')}>
         <Text className="text-text font-bold">{t('common.back')}</Text>
       </TouchableOpacity>
     </View>

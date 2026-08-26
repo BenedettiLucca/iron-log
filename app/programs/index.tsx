@@ -132,7 +132,7 @@ export default function ProgramsListScreen() {
 
                 {weeksUntilDeload !== null && weeksUntilDeload > 0 && (
                   <View className="flex-row items-center gap-1.5">
-                    <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg accessible={false} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <Circle cx="12" cy="12" r="10" />
                       <Polyline points="12 6 12 12 16 14" />
                     </Svg>
@@ -181,7 +181,7 @@ export default function ProgramsListScreen() {
                     <Text className="text-subtext text-xs">
                       {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))}
                     </Text>
-                    <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg accessible={false} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <Polyline points="9 18 15 12 9 6" />
                     </Svg>
                   </View>
