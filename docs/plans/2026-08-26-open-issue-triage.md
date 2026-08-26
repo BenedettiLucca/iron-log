@@ -84,7 +84,18 @@
 
 ### Próximo item aprovado
 
-`#69` é o próximo slice: recalcular a matriz de cobertura atual e adicionar somente contratos comportamentais para gaps críticos que realmente aparecerem.
+`#69` foi executado como slice bounded: recalcular a matriz de cobertura atual e adicionar somente contratos comportamentais para gaps críticos que realmente aparecessem.
+
+### #69 — [REVIEWED]
+
+- Artefato: `docs/plans/2026-08-26-sprint7-coverage-matrix.md`.
+- Inventário atualizado: **25 rotas/layouts**, **94 arquivos de teste**, **94 suites / 839 testes**.
+- O claim histórico de “16 rotas / 9 módulos sem teste” está stale contra o código atual; as rotas listadas têm contratos de fonte, testes comportamentais/utility ou evidência de QA distribuída nas Sprints 3–6.
+- Cobertura automática continua deliberadamente em `src/utils`: 91.21% statements, 84.90% branches, 90.84% functions e 95.54% lines.
+- `app/session/summary.tsx` não tem render test isolado, mas o domínio de summary/verdict, export e navegação estão cobertos. O residual é visual/composicional e fica para o QA final, sem blocker crítico identificado.
+- Veredito: **[REVIEWED]**, sem feature nova, sem mudança de dependência e sem fechamento/relabel automático no GitHub.
+
+O próximo checkpoint não é mais #69: é decidir se o release scope fica sem candidato pré-release seguro e, portanto, se Sprint 8 será pulado enquanto #76 permanece deferred por upgrade de Expo SDK.
 
 ## Dependency graph
 
@@ -104,4 +115,4 @@
 
 ## Decision checkpoint original do Lucca
 
-Minha recomendação original era aprovar **#76 como único candidato pré-release**, com #69/#73 incorporados somente como slices de qualidade bounded. O checkpoint foi aprovado pelo Lucca; após a investigação de dependências, #76 foi marcado como bloqueado/deferred, #73 foi concluído e #69 permanece como próximo slice. Nenhuma issue foi fechada ou relabelled automaticamente; Sprint 8 continua condicional.
+Minha recomendação original era aprovar **#76 como único candidato pré-release**, com #69/#73 incorporados somente como slices de qualidade bounded. O checkpoint foi aprovado pelo Lucca; após a investigação de dependências, #76 foi marcado como bloqueado/deferred, #73 foi concluído e #69 foi revisado com matriz atualizada. Nenhuma issue foi fechada ou relabelled automaticamente; Sprint 8 continua condicional.

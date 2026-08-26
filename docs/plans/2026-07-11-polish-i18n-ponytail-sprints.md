@@ -370,9 +370,13 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 
 ## Sprint 7 — Open-issue triage and release-scope lock
 
-**Status: IN PROGRESS (2026-08-26).** Triage e checkpoint concluídos em `docs/plans/2026-08-26-open-issue-triage.md`. O slice #73 está [DONE] e verificado; #76 está [BLOCKED] por depender de decisão de upgrade do Expo SDK; #69 é o próximo slice bounded. Nenhuma issue foi fechada/relabelled e Sprint 8 continua condicional.
+**Status: IN PROGRESS (2026-08-26).** Triage e checkpoint concluídos em `docs/plans/2026-08-26-open-issue-triage.md`. O slice #73 está [DONE] e verificado; #76 está [BLOCKED] por depender de decisão de upgrade do Expo SDK; #69 está [REVIEWED] com matriz atualizada. Nenhuma issue foi fechada/relabelled e Sprint 8 continua condicional.
 
 This sprint começou como discovery/decision e agora executa somente os slices de qualidade aprovados. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
+
+### Coverage checkpoint (#69) — [REVIEWED]
+
+`docs/plans/2026-08-26-sprint7-coverage-matrix.md` recalculou a superfície atual: 25 rotas/layouts, 94 arquivos de teste e 94 suites / 839 testes. O claim histórico de 16 rotas / 9 módulos sem teste não se sustenta mais. Não apareceu gap comportamental crítico que justifique feature ou harness de renderização por tela; `app/session/summary.tsx` fica como residual visual para o QA final. O slice fecha sem alteração de produção.
 
 ### Live starting set
 
@@ -396,7 +400,7 @@ Current clusters to investigate:
    - redesign work has not already resolved or changed it;
    - proposed abstractions remain necessary;
    - issue counts and test-coverage claims are recalculated, never copied.
-3. Map dependencies and overlap before prioritizing. In particular, validate the `#65 → #67/#71` relationship, the Alexandria dependency in `#70`, the `#63/#64` product overlap, and whether Sprint 0A plus routine hardening superseded parts of `#68/#69`.
+3. Map dependencies and overlap before prioritizing. In particular, validate the `#65 → #67/#71` relationship, the Alexandria dependency in `#70`, the `#63/#64` product overlap, and whether Sprint 0A plus routine hardening superseded parts of `#68/#69`. **#69 foi revisado no artefato de matriz e não abre escopo adicional.**
 4. Score each issue on:
    - user value and observed real-world pain;
    - correctness/trust or release risk;
