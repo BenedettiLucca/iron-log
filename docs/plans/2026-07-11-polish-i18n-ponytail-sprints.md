@@ -370,7 +370,7 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 
 ## Sprint 7 — Open-issue triage and release-scope lock
 
-**Goal:** decide which live GitHub issues still matter against the post-redesign repository before adding feature work or cleanup scope.
+**Status: IN PROGRESS (2026-08-26).** Triage read-only concluída em `docs/plans/2026-08-26-open-issue-triage.md`; aguardando checkpoint explícito do Lucca antes de qualquer fechamento de issue ou Sprint 8.
 
 This sprint is discovery and decision, not implementation. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
 
