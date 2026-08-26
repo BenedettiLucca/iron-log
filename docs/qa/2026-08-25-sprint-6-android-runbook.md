@@ -1,8 +1,8 @@
 # Sprint 6 — QA física Android: i18n, content fit e acessibilidade
 
 - **Status:** PENDING — executar todos os blocos antes de corrigir qualquer novo defeito.
-- **Runtime candidate:** `feat/sprint-6-i18n-a11y` @ `ce84c5a6b3ee19264f1c28a15b19b44118b9d5d2`.
-- **Baseline estático:** 89 suites / 814 testes; typecheck, Expo lint e audit policy verdes. Android Hermes export em verificação no SHA final.
+- **Runtime candidate:** `feat/sprint-6-i18n-a11y` @ `036bfaacb038a7dea76e9ea0a9cbb89f941d0877`.
+- **Baseline estático:** 93 suites / 836 testes; typecheck, Expo lint e audit policy verdes. Android Hermes export verificado no candidate.
 - **Device alvo:** Samsung S23 físico via Expo Go.
 - **Registrar antes de começar:** Android/build, versão do Expo Go, tema inicial, escala de fonte inicial e valor original de **Menor largura** nas Opções do desenvolvedor.
 
