@@ -149,7 +149,12 @@ export default function CreateProgramScreen() {
     <View className="flex-1 bg-background">
       {/* Header */}
       <View className="px-4 pt-6 pb-4 flex-row items-center justify-between">
-        <TouchableOpacity onPress={() => router.back()} className="mr-3" accessibilityRole="button" accessibilityLabel={t('common.back')}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mr-3 min-h-[44px] min-w-[44px] items-center justify-center"
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+        >
           <Text className="text-primaryText text-sm font-semibold">{t('common.back')}</Text>
         </TouchableOpacity>
         <Text className="text-text text-xl font-bold flex-1">{t('programs.createTitle')}</Text>

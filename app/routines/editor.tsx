@@ -466,6 +466,9 @@ export default function RoutineEditorScreen() {
                         setRenamingEx({ id: ex.id, name: ex.name });
                         setNewName(ex.name);
                     }}
+                    className="min-h-[44px] min-w-[44px] justify-center"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('routines.editExerciseLabel', { name: ex.name })}
                 >
                     <Text className="text-base font-bold text-text underline decoration-dashed decoration-subtext"><Text className="text-subtext mr-2 no-underline font-normal text-sm">#{index+1}</Text> {ex.name}</Text>
                 </TouchableOpacity>

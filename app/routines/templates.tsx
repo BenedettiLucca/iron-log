@@ -270,7 +270,7 @@ export default function TemplateLibraryScreen() {
 
       <TouchableOpacity
         onPress={() => router.back()}
-        className="absolute top-4 left-4 bg-card p-2 rounded-lg border border-border shadow-md"
+        className="absolute top-4 left-4 bg-card p-2 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-border shadow-md"
         accessibilityRole="button"
         accessibilityLabel={t('routines.back')}
       >

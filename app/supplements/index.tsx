@@ -559,7 +559,7 @@ export default function SupplementsScreen() {
               <Switch
                 value={isNighttime}
                 onValueChange={setIsNighttime}
-                trackColor={{ false: Colors.lightBorder, true: Colors.primary }}
+                trackColor={{ false: theme.border, true: Colors.primary }}
               />
             </View>
 
