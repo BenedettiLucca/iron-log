@@ -27,7 +27,7 @@ O warning do Sentry durante export (“Missing config for organization, project�
 - Cada finding confirmado foi procurado fora do arquivo definidor, incluindo `__tests__`, imports relativos, aliases, barrels e referências textuais.
 - Relatórios Ponytail de 2026-06-24 e 2026-07-11 foram usados somente como hipóteses históricas. Nenhum item antigo recebeu presunção de validade.
 
-## Findings confirmados — execução somente após checkpoint
+## Findings confirmados — baseline da execução
 
 ### Sprint 1 — dead code / zero callers
 
@@ -38,13 +38,13 @@ O warning do Sentry durante export (“Missing config for organization, project�
 5. `delete: services/program/index.ts:1-4` — barrel de `crud`/`weeks`/`targets`/`dashboard`, sem consumidor; os módulos são importados diretamente. **Replacement:** nada. **Net:** −4 linhas.
 6. `delete: src/utils/calculations.ts:1-16` + `__tests__/utils/calculations.test.ts:1-27` — `calculateVolume` só aparece na própria implementação, no teste dedicado e na exportação morta do barrel; nenhum caller de produção existe. **Replacement:** nada enquanto não houver call site; se um vier no futuro, multiplicação direta no domínio chamador. **Net:** −43 linhas, além de remover a exportação do barrel já contada no item 3/4 conforme aplicável.
 
-**Subtotal confirmado:** −171 linhas potenciais. O número é uma oportunidade auditada, não uma autorização de delete.
+**Subtotal confirmado:** −171 linhas auditadas. A execução aprovada e o resultado verificável estão registrados no follow-up abaixo.
 
 ### Sprint 3 — dependência candidata, ainda requer verificação nativa
 
 7. `yagni: package.json:31` — `@react-navigation/bottom-tabs` é dependência direta sem import direto no código do app; `npm ls` mostra a mesma versão também transitiva por `expo-router@6.0.23`. **Replacement:** deixar o Expo Router fornecer o pacote transitivo. **Net:** −1 dependência direta.
 
-Não conto esse item no subtotal de linhas e não recomendo executar isoladamente: exige lockfile diff, clean install, Expo Doctor, export Android e smoke runtime. #76 continua deferred justamente porque a superfície de dependências/SDK não é um patch seguro de release.
+Não contei esse item no subtotal de linhas na fase read-only. A aprovação ficou condicionada a lockfile diff, resolução transitiva, typecheck, lint, auditoria e export Android; o follow-up confirma a execução dessa lane. #76 continua deferred porque a superfície ampla de dependências/SDK ainda não é um patch seguro de upgrade.
 
 ## Rejeitados / falsos positivos importantes
 
@@ -56,12 +56,12 @@ Não conto esse item no subtotal de linhas e não recomendo executar isoladament
 - Source-contract tests (`quality/sprint-3-information-hierarchy.test.ts`, `quality/sprint-4-dense-data.test.ts` e outros): são candidatos de complexidade em abstrato, mas hoje protegem contratos arquiteturais que não têm equivalentes render/behavior completos. Não há base para apagar 100% deles em nome de porcentagem; qualquer shrink precisa ser contrato a contrato.
 - `.github/workflows/quality.yml`: **sem glob drift identificado**. O workflow chama scripts canônicos (`audit:high`, typecheck, lint, Jest coverage e export Android), e o Jest descobre a suíte por diretório.
 
-## Priorização proposta para Sprint 10, se aprovado
+## Priorização executada no Sprint 10
 
-1. **Zero-risk deletes:** `constants/typography.ts` e os quatro barrels sem caller; validar novamente o tree inteiro antes do patch.
-2. **Test-only export cleanup:** `src/utils/calculations.ts` e seu teste, mantendo a suíte coerente e verificando que não surgiu caller dinâmico.
-3. **Dependency lane separada:** avaliar a remoção direta de `@react-navigation/bottom-tabs` somente com clean install/native export; pode ser rejeitada se o Expo toolchain exigir declaração explícita.
-4. **Somente depois:** revisar source-contract tests e helpers repetidos (`PlusIcon`, modal handlers, formatters) por net reduction real. Não extrair abstração que apenas reorganiza linhas.
+1. **Concluído — zero-risk deletes:** `constants/typography.ts` e os quatro barrels sem caller, com rechecagem do tree inteiro antes do patch.
+2. **Concluído — test-only export cleanup:** `src/utils/calculations.ts` e seu teste, sem caller de produção ou referência dinâmica encontrada.
+3. **Concluído — dependency lane separada:** remoção direta de `@react-navigation/bottom-tabs`, mantendo o pacote transitivo fornecido por `expo-router`.
+4. **Adiado:** source-contract tests e helpers repetidos (`PlusIcon`, modal handlers, formatters). Não houve base para novo shrink com redução líquida comprovada.
 
 ## Deferrals
 
@@ -73,6 +73,14 @@ Não conto esse item no subtotal de linhas e não recomendo executar isoladament
 
 **AUDIT PASS — 6 findings de corte confirmados, 1 dependência candidata condicionada, falsos positivos documentados.**
 
-`net: -171 linhas confirmadas possíveis, -1 dependência direta possível.`
+`net auditado: -171 linhas e -1 dependência direta; ambos executados no follow-up.`
 
-Nenhum cleanup foi aplicado. O próximo passo é o checkpoint do Lucca para selecionar (ou rejeitar) os findings do Sprint 10.
+## Execution follow-up — Sprint 10
+
+- O checkpoint foi aprovado pelo Lucca.
+- `6c8e595` (`refactor(ponytail): remove confirmed dead code`) removeu os seis findings de dead code/test-only export: −171 linhas.
+- `dda6563` (`chore(deps): remove redundant bottom-tabs direct dependency`) removeu a dependência direta; `npm ls` confirmou `@react-navigation/bottom-tabs@7.18.8` transitivo por `expo-router@6.0.23`.
+- A lane planejada para Antigravity foi tentada, mas o processo ficou indisponível e foi interrompido sem alterar arquivos. O mesmo allowlist mecânico foi executado diretamente no checkout principal, sem ampliar escopo.
+- Gates finais após a integração: typecheck PASS, lint PASS, **93 suites / 833 testes PASS**, `audit:high` PASS sem high/critical fora da allowlist, export Hermes Android PASS, verificação do bundle PASS (`entry-10d5995910e25a02834d983c438df04c.hbc`, 8,627,506 bytes) e `git diff --check` PASS.
+
+**Resultado:** −171 linhas e −1 dependência direta removidas com comportamento e export nativo verificados. Não há cleanup adicional deste relatório aprovado; novos shrinks ficam para uma auditoria/decisão separada.

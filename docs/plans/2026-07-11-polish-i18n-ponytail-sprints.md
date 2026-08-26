@@ -502,7 +502,7 @@ O relatório confirmou 6 cortes de dead code/barrels/test-only utility (−171 l
 
 ## Sprint 10 — Ponytail findings execution
 
-**Status: [PENDING CHECKPOINT] (2026-08-26).** Findings somente no relatório de Sprint 9; execução depende de seleção explícita do Lucca, em commits reversíveis por batch.
+**Status: [DONE] (2026-08-26).** Checkpoint aprovado pelo Lucca; os findings confirmados foram executados em commits reversíveis por batch, sem ampliar o allowlist.
 
 **Goal:** execute only the confirmed and approved findings from Sprint 9, maximizing net reduction without weakening behavior or native reliability.
 
@@ -513,7 +513,14 @@ O relatório confirmou 6 cortes de dead code/barrels/test-only utility (−171 l
 3. **YAGNI removal:** unused props, wrappers, config and direct dependencies.
 4. **Shrink/consolidate:** only genuine 3+ duplication where extraction produces a net reduction; no abstraction for aesthetics.
 
-The old candidates (`constants/typography.ts`, barrel indexes, program-detail helpers, progression/calculation helpers, verdict Markdown and direct `@react-navigation/bottom-tabs`) may be re-evaluated, but receive no presumption of validity. The dependency experiment runs only if Sprint 9 reconfirms it.
+Os candidatos foram reavaliados contra o tree inteiro. `constants/typography.ts`, os barrels mortos, os helpers de cálculo e a dependência direta `@react-navigation/bottom-tabs` foram executados; `program-detail`, progression, verdict Markdown, source-contract tests e helpers duplicados foram rejeitados ou adiados por terem consumidores/risco sem redução líquida comprovada.
+
+### Execution result
+
+- `6c8e595`: −171 linhas de dead code/test-only export removidas.
+- `dda6563`: −1 dependência direta; o pacote permanece resolvido transitivamente por `expo-router`.
+- A lane Antigravity foi tentada, mas travou antes de editar; a mesma lane allowlisted foi concluída manualmente no checkout principal. OpenCode concluiu a lane de dependência e seu commit foi cherry-picked.
+- Gates finais: typecheck, lint, 93 suites/833 testes, audit high/critical, export e verificação Hermes Android e `git diff --check` — todos PASS.
 
 ### Verification
 
