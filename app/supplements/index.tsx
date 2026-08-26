@@ -334,12 +334,6 @@ export default function SupplementsScreen() {
     }
   };
 
-  const todayProgress = useMemo(() => {
-    if (items.length === 0) return 0;
-    const takenCount = todayLogs.length;
-    return Math.round((takenCount / items.length) * 100);
-  }, [items, todayLogs]);
-
   const { status } = resolveScreenState({
     isLoading: isLoading && !refreshing && items.length === 0,
     hasError,
