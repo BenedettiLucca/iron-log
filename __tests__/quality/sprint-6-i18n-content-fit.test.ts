@@ -83,8 +83,19 @@ describe('Sprint 6 i18n and content-fit contracts', () => {
 
     expect(punctuationViolations).toEqual([]);
     expect(es.bioEvolution.movingAverage).toBe('Media móvil (7 días)');
+    expect(es.bioEvolution.emptyAnalysis).toBe('Registra tus métricas para ver análisis y tendencias.');
+    expect(es.bioEvolution.gainingWeight).toBe('Estás ganando peso consistentemente');
+    expect(es.bioEvolution.losingWeight).toBe('Estás perdiendo peso consistentemente');
+    expect(es.bioEvolution.weightChange).toBe('Variación de Peso');
+    expect(es.bioEvolution.analysisTab).toBe('ANÁLISIS');
+    expect(es.bioEvolution.tipText).toBe(
+      'Para cambios de peso saludables, busca perder o ganar 0,5-1 kg por semana.',
+    );
     expect(es.bioGoals.goalStatus).toContain('días restantes');
+    expect(es.bioGoals.emptyDesc).toContain('métricas corporales');
     expect(es.finish.bodyWeight).toBe('Peso corporal (kg)');
+    expect(es.services.invalidBackup).toBe('Archivo de backup inválido o vacío.');
+    expect(es.services.sharingUnavailable).toBe('Compartir no está disponible en este dispositivo.');
   });
 
   it('does not ship the verified English contamination in Portuguese or Spanish', () => {
