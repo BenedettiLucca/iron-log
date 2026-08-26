@@ -180,7 +180,7 @@ export default function HomeScreen() {
               <View className="flex-row justify-between items-center">
                 <View className="flex-1 flex-row items-center gap-3">
                   <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
-                    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
                       <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
                       <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
                       <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
@@ -238,14 +238,14 @@ export default function HomeScreen() {
                         {isDeloadWeek ? t('programs.phases.deload') : t(`programs.phases.${phase}`)}
                       </Text>
                     </View>
-                    <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
                       <Polyline points="9 18 15 12 9 6" />
                     </Svg>
                   </View>
                 </View>
 
                 {/* Stats Row */}
-                <View className="flex-row items-center border-t border-b border-border/60 py-3 mb-3">
+                <View accessible className="flex-row items-center border-t border-b border-border/60 py-3 mb-3" accessibilityLabel={`${t('programs.dashboard.volume')}: ${(weeklyVolume/1000).toFixed(1)}k kg, ${t('programs.dashboard.volumeAvg')}: ${(avgWeeklyVolume/1000).toFixed(1)}k kg, ${t('programs.dashboard.avgSRPE')}: ${avgSRPE ?? '-'}`}>
                   <View className="flex-1 items-center">
                     <Text className="text-subtext text-2xs font-extrabold mb-0.5">{t('programs.dashboard.volume')}</Text>
                     <Text className="text-text text-base font-extrabold">{(weeklyVolume/1000).toFixed(1)}k kg</Text>
@@ -281,7 +281,7 @@ export default function HomeScreen() {
               {keyLifts.length > 0 && (
                 <View className="mt-3 px-1">
                   <SectionHeader label={t('programs.dashboard.keyLifts')} className="mb-2" />
-                  <View className="flex-row items-stretch py-3">
+                  <View className="flex-row items-stretch py-3" role="list">
                     {keyLifts.slice(0, 3).map((lift, index) => {
                       const getTrendColor = (trend: string) => {
                         if (trend === 'up') return 'text-successText';
@@ -294,6 +294,7 @@ export default function HomeScreen() {
                           className={`flex-1 min-w-0 items-center px-2 ${
                             index > 0 ? 'border-l border-border/50' : ''
                           }`}
+                          role="listitem"
                         >
                           <Text className="text-xs font-bold text-subtext mb-1 text-center" numberOfLines={2}>{lift.name}</Text>
                           <Text className="text-lg font-extrabold text-text text-center">
@@ -328,6 +329,7 @@ export default function HomeScreen() {
               <Card
                   pressable
                   onPress={() => router.push({ pathname: '/session/summary', params: { sessionId: lastSession.id } })}
+                  accessibilityLabel={`${lastSession.routineName}, ${lastSession.durationMinutes || 0} min, RPE ${lastSession.sRpe}`}
               >
                   <View className="flex-row justify-between items-center">
                       <View className="flex-1 mr-3">
@@ -336,7 +338,7 @@ export default function HomeScreen() {
                               {new Date(lastSession.startTime).toLocaleDateString(getLocaleForLanguage(language))} • {lastSession.durationMinutes || 0} min • RPE {lastSession.sRpe}
                           </Text>
                       </View>
-                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
                           <Polyline points="9 18 15 12 9 6" />
                       </Svg>
                   </View>
@@ -380,7 +382,7 @@ export default function HomeScreen() {
                     <Text className="text-text text-xl font-bold mb-1" numberOfLines={2}>{routine.name}</Text>
                     <Text className="text-subtext text-sm" numberOfLines={1}>{routine.description}</Text>
                   </View>
-                  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <Svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
                     <Polyline points="9 18 15 12 9 6" />
                   </Svg>
                 </View>

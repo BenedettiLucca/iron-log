@@ -269,7 +269,7 @@ export default function HistoryScreen() {
       return (
         <View className="py-4">
           <View className="border border-dashed border-border rounded-2xl p-6 bg-card items-center">
-            <Text className="text-4xl mb-2">⚠️</Text>
+            <Text className="text-4xl mb-2" accessible={false}>⚠️</Text>
             <Text className="text-subtext font-bold text-center">{t('states.errorTitle')}</Text>
             <Text className="text-subtext text-xs text-center mt-1">{dayError}</Text>
             <TouchableOpacity

@@ -104,23 +104,23 @@ export default function CheckinScreen() {
   }
 
   const POSES = [
-    { key: 'photoFront' as const, label: t('bio.front') || 'Frente' },
-    { key: 'photoBack' as const, label: t('bio.back') || 'Costas' },
-    { key: 'photoSide' as const, label: t('bio.side') || 'Lateral' },
+    { key: 'photoFront' as const, label: t('bio.front') },
+    { key: 'photoBack' as const, label: t('bio.back') },
+    { key: 'photoSide' as const, label: t('bio.side') },
   ];
 
   const MEASUREMENTS = [
-    { key: 'weight' as const, label: t('checkin.weight') || 'Peso', unit: 'kg', isDecreaseGood: true },
-    { key: 'waist' as const, label: t('checkin.waist') || 'Cintura', unit: 'cm', isDecreaseGood: true },
-    { key: 'chest' as const, label: t('checkin.chest') || 'Peito', unit: 'cm', isDecreaseGood: false },
-    { key: 'armRight' as const, label: t('checkin.armRight') || 'Braço D.', unit: 'cm', isDecreaseGood: false },
-    { key: 'thighRight' as const, label: t('checkin.thighRight') || 'Coxa D.', unit: 'cm', isDecreaseGood: false },
-    { key: 'calf' as const, label: t('checkin.calf') || 'Panturrilha', unit: 'cm', isDecreaseGood: false },
+    { key: 'weight' as const, label: t('checkin.weight'), unit: 'kg', isDecreaseGood: true },
+    { key: 'waist' as const, label: t('checkin.waist'), unit: 'cm', isDecreaseGood: true },
+    { key: 'chest' as const, label: t('checkin.chest'), unit: 'cm', isDecreaseGood: false },
+    { key: 'armRight' as const, label: t('checkin.armRight'), unit: 'cm', isDecreaseGood: false },
+    { key: 'thighRight' as const, label: t('checkin.thighRight'), unit: 'cm', isDecreaseGood: false },
+    { key: 'calf' as const, label: t('checkin.calf'), unit: 'cm', isDecreaseGood: false },
   ];
 
   const segments = [
-    { key: 'measures', label: t('checkin.measurementsTab') || 'Medidas' },
-    { key: 'photos', label: t('checkin.photosTab') || 'Fotos' },
+    { key: 'measures', label: t('checkin.measurementsTab') },
+    { key: 'photos', label: t('checkin.photosTab') },
   ];
 
   const renderMeasurementTile = (
@@ -177,8 +177,8 @@ export default function CheckinScreen() {
             </Text>
             <Text className="text-xs text-subtext">
               {previous
-                ? `${t('checkin.lastCheckin') || 'Último check-in'}: ${new Date(previous.date).toLocaleDateString()}`
-                : `${t('checkin.lastCheckin') || 'Último check-in'}: —`}
+                ? `${t('checkin.lastCheckin')}: ${new Date(previous.date).toLocaleDateString()}`
+                : `${t('checkin.lastCheckin')}: —`}
             </Text>
           </View>
           <TouchableOpacity
@@ -190,7 +190,7 @@ export default function CheckinScreen() {
           >
             <PlusIcon size={16} />
             <Text className="text-onPrimary font-bold text-sm">
-              {t('checkin.newCheckin') || 'Novo Check-in'}
+              {t('checkin.newCheckin')}
             </Text>
           </TouchableOpacity>
         </Card>
@@ -223,7 +223,7 @@ export default function CheckinScreen() {
 
         {/* Photo Gallery Section */}
         <Card className="mx-4 mt-4">
-          <SectionHeader label={t('checkin.progressPhotos') || 'Fotos de Progresso'} className="mb-3" />
+          <SectionHeader label={t('checkin.progressPhotos')} className="mb-3" />
           <View className="flex-row gap-3">
             {POSES.map((pose) => {
               const uri = current[pose.key] as string | null;
@@ -249,7 +249,7 @@ export default function CheckinScreen() {
 
         {/* Measurements Grid */}
         <Card className="mx-4 mt-4">
-          <SectionHeader label={t('checkin.bodyMeasurements') || 'Medidas Corporais'} className="mb-3" />
+          <SectionHeader label={t('checkin.bodyMeasurements')} className="mb-3" />
           <View className="flex-row gap-3">
             {renderMeasurementTile(MEASUREMENTS[0].label, MEASUREMENTS[0].unit, MEASUREMENTS[0].key, MEASUREMENTS[0].isDecreaseGood)}
             {renderMeasurementTile(MEASUREMENTS[1].label, MEASUREMENTS[1].unit, MEASUREMENTS[1].key, MEASUREMENTS[1].isDecreaseGood)}
@@ -266,7 +266,7 @@ export default function CheckinScreen() {
 
         {/* Comparison Section */}
         <Card className="mx-4 mt-4">
-          <SectionHeader label={t('bio.monthlyCheckin') || 'Comparação Mensal'} />
+          <SectionHeader label={t('bio.monthlyCheckin')} />
           <SegmentedControl
             segments={segments}
             activeKey={activeTab}
@@ -279,7 +279,7 @@ export default function CheckinScreen() {
               {allMonthly.map((metric, idx) => {
                 const isFirst = idx === 0;
                 const dateStr = new Date(metric.date).toLocaleDateString(getLocaleForLanguage(language));
-                const infoSummary = `${metric.weight ?? '—'} kg · ${t('bio.waist') || 'Cintura'} ${metric.waist ?? '—'}cm · ${t('bio.chest') || 'Peito'} ${metric.chest ?? '—'}cm`;
+                const infoSummary = `${metric.weight ?? '—'} kg · ${t('bio.waist')} ${metric.waist ?? '—'}cm · ${t('bio.chest')} ${metric.chest ?? '—'}cm`;
 
                 return (
                   <View

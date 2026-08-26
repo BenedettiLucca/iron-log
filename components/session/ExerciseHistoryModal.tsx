@@ -28,11 +28,11 @@ export function ExerciseHistoryModal({
   language,
 }: ExerciseHistoryModalProps) {
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" accessibilityViewIsModal onRequestClose={onClose}>
       <View className="flex-1 bg-background p-4">
         <View className="flex-row justify-between items-center mb-4 mt-2">
-          <Text className="text-text text-xl font-bold uppercase">{t("exerciseSession.history")}</Text>
-          <TouchableOpacity onPress={onClose}>
+          <Text className="text-text text-xl font-bold uppercase" accessibilityRole="header">{t("exerciseSession.history")}</Text>
+          <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel={t('common.close')}>
             <Text className="text-primaryText font-bold uppercase">{t("common.close")}</Text>
           </TouchableOpacity>
         </View>
@@ -41,10 +41,19 @@ export function ExerciseHistoryModal({
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
             const date = new Date(item.date);
+            const dateStr = date.toLocaleDateString(getLocaleForLanguage(language));
+            const perfStr = `${item.weight}kg × ${item.duration ? `${item.duration}s` : item.reps}`;
+            const rirStr = item.rir !== null ? `RIR ${item.rir}` : '';
+            const itemLabel = [dateStr, perfStr, rirStr].filter(Boolean).join(', ');
             return (
-              <View className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center">
+              <View
+                className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center"
+                accessible={true}
+                accessibilityRole="summary"
+                accessibilityLabel={itemLabel}
+              >
                 <Text className="text-subtext font-mono text-xs">
-                  {date.toLocaleDateString(getLocaleForLanguage(language))}
+                  {dateStr}
                 </Text>
                 <Text className="text-text font-bold">
                   {item.weight}kg × {item.duration ? `${item.duration}s` : item.reps}

@@ -261,7 +261,7 @@ export default function RoutinesListScreen() {
                   className="bg-successSurface px-3 py-1.5 rounded-lg flex-row items-center gap-1"
                 >
                   <Text className="text-successText text-xs font-bold uppercase">{t("routines.start")}</Text>
-                  <Svg width="10" height="10" viewBox="0 0 24 24">
+                  <Svg width="10" height="10" viewBox="0 0 24 24" accessible={false}>
                     <Path d="M8 5v14l11-7z" fill={theme.successText} />
                   </Svg>
                 </TouchableOpacity>

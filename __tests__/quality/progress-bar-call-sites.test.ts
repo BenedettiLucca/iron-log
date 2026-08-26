@@ -35,6 +35,7 @@ describe('ProgressBar call-site contracts', () => {
       'app/bio/analytics.tsx',
       'app/bio/goals.tsx',
       'app/session/[routineId].tsx',
+      'app/supplements/index.tsx',
       'components/session/ExerciseHeader.tsx',
     ]);
   });

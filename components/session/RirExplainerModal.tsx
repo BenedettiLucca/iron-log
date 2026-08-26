@@ -14,20 +14,24 @@ export function RirExplainerModal({
   t,
 }: RirExplainerModalProps) {
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose} accessibilityViewIsModal>
       <TouchableOpacity
         activeOpacity={1}
         className="flex-1 justify-center items-center bg-black/40 p-6"
         onPress={onClose}
+        accessible={false}
+        accessibilityRole="none"
       >
         <TouchableOpacity
           activeOpacity={1}
           className="bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl border border-border"
           onPress={(e) => e.stopPropagation()}
+          accessible={false}
+          accessibilityRole="none"
         >
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-text text-xl font-bold">{t('exercise.rirQuestion')}</Text>
-            <TouchableOpacity onPress={onClose}>
+            <Text className="text-text text-xl font-bold" accessibilityRole="header">{t('exercise.rirQuestion')}</Text>
+            <TouchableOpacity onPress={onClose} accessibilityRole="button" accessibilityLabel={t('common.close')}>
               <Text className="text-subtext text-2xl font-bold">✕</Text>
             </TouchableOpacity>
           </View>
@@ -39,7 +43,7 @@ export function RirExplainerModal({
               </View>
               <View className="flex-1">
                 <Text className="text-text font-bold text-base mb-1">{t("exercise.rirStrong")}</Text>
-                <Text className="text-subtext text-sm">{t("exerciseSession.next")}</Text>
+                <Text className="text-subtext text-sm">{t("exercise.rirStrongDesc")}</Text>
               </View>
             </View>
 
@@ -73,6 +77,8 @@ export function RirExplainerModal({
           <TouchableOpacity
             onPress={onClose}
             className="mt-6 bg-primary p-3 rounded-xl items-center"
+            accessibilityRole="button"
+            accessibilityLabel={t('common.understood')}
           >
             <Text className="text-onPrimary font-bold text-base uppercase">{t('common.understood')}</Text>
           </TouchableOpacity>

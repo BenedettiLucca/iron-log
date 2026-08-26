@@ -536,7 +536,12 @@ export default function ExerciseScreen() {
           />
           {exerciseType === 'duration' ? (
             <View className="items-center mb-4">
-              <Text className="text-text font-mono text-6xl font-bold mb-4">
+              <Text
+                className="text-text font-mono text-6xl font-bold mb-4"
+                accessible={true}
+                accessibilityRole="timer"
+                accessibilityLabel={`${t('exerciseSession.elapsedTime')}: ${formatTimer(activeSetTime)}`}
+              >
                 {formatTimer(activeSetTime)}
               </Text>
 
@@ -554,6 +559,7 @@ export default function ExerciseScreen() {
                     }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
+                    accessibilityLabel={t('exercise.weight')}
                   />
                 </View>
               )}
@@ -611,6 +617,7 @@ export default function ExerciseScreen() {
                     }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
+                    accessibilityLabel={t('exercise.weight')}
                   />
                 </View>
 
@@ -627,6 +634,7 @@ export default function ExerciseScreen() {
                     }}
                     placeholder="0"
                     placeholderTextColor={Colors.darkSubtext}
+                    accessibilityLabel={t('exercise.reps')}
                   />
                 </View>
               </View>
@@ -711,7 +719,7 @@ export default function ExerciseScreen() {
               title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
               onPress={goToNextOrFinish}
               variant="primary"
-              size="lg"
+              size="md"
               fullWidth
               disabled={isSaving || isActiveSetRunning}
             />

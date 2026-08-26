@@ -362,6 +362,10 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 - Critical screens pass all four languages at 320dp.
 - All interactive controls have accessible name/role/state as applicable.
 
+**Código concluído em `4ec8f61`; QA física Android PASS (S23, 2026-08-26).** A implementação removeu os fallbacks/branches manuais e mensagens de validação presas a um locale, corrigiu copy ES/ZH/PT e fechou semântica TalkBack em componentes, sessão, modais, tabs, programas, rotinas e suplementos. Revisão focada de correctness PASS + Ponytail cleanup aplicado (helpers AST deduplicados). QA física: único defeito (botão "Próximo exercício" em caps/oversized) corrigido in-sprint. Gate final: 93 suites / 837 testes, typecheck, Expo lint, audit policy e Android Hermes export verificados. Runbook: `docs/qa/2026-08-25-sprint-6-android-runbook.md`.
+
+**Sprint 6 concluída.**
+
 ---
 
 ## Sprint 7 — Open-issue triage and release-scope lock

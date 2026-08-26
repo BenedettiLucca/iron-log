@@ -244,7 +244,7 @@ export default function SummaryScreen() {
         {/* Coaching Verdicts */}
         {verdicts.length > 0 && (
           <View className="mb-5">
-            <SectionHeader label="Análise por Exercício" className="mb-3 pl-0" />
+            <SectionHeader label={t('summary.verdicts.title')} className="mb-3 pl-0" />
             {verdicts.map((v) => {
               const targetStr = v.targetRange
                 ? `${v.targetRange.sets}x${v.targetRange.minReps === v.targetRange.maxReps ? v.targetRange.minReps : `${v.targetRange.minReps}-${v.targetRange.maxReps}`}`

@@ -37,6 +37,7 @@ export function SetEditor({
   const [duration, setDuration] = useState(initialDuration?.toString() ?? '');
   const [rir, setRir] = useState(initialRir?.toString() ?? '2');
   const [isSaving, setIsSaving] = useState(false);
+  const isSavingRef = useRef(false);
 
   // Field-level error messages
   const [weightError, setWeightError] = useState<string | undefined>();
@@ -57,6 +58,7 @@ export function SetEditor({
       setDuration(initialDuration?.toString() ?? '');
       setRir(initialRir?.toString() ?? '2');
       setIsSaving(false);
+      isSavingRef.current = false;
       setWeightError(undefined);
       setRepsError(undefined);
       setDurationError(undefined);
@@ -72,7 +74,7 @@ export function SetEditor({
   };
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSavingRef.current) return;
 
     clearErrors();
 
@@ -95,6 +97,7 @@ export function SetEditor({
       return; // Keep modal open
     }
 
+    isSavingRef.current = true;
     setIsSaving(true);
     try {
       const success = await onSave(
@@ -109,6 +112,7 @@ export function SetEditor({
       }
       // If false, modal stays open (caller sets error toast)
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };
@@ -119,10 +123,11 @@ export function SetEditor({
       animationType="fade"
       transparent
       onRequestClose={onCancel}
+      accessibilityViewIsModal
     >
       <View className="flex-1 justify-center items-center bg-black/40 p-6">
         <Card className="w-full max-w-sm p-6">
-          <Text className="text-text text-2xl font-bold mb-2 text-center">
+          <Text className="text-text text-2xl font-bold mb-2 text-center" accessibilityRole="header">
             {t('setEditor.title', { number: setNumber })}
           </Text>
           <Text className="text-subtext text-sm mb-6 text-center">
@@ -141,9 +146,10 @@ export function SetEditor({
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('exercise.weight')}
                   />
                   {weightError && (
-                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{weightError}</Text>
                   )}
                 </View>
 
@@ -156,9 +162,10 @@ export function SetEditor({
                     value={reps}
                     onChangeText={(v) => { setReps(v); setRepsError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('setEditor.repetitions')}
                   />
                   {repsError && (
-                    <Text className="text-dangerText text-xs mt-1">{repsError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{repsError}</Text>
                   )}
                 </View>
 
@@ -171,9 +178,10 @@ export function SetEditor({
                     value={rir}
                     onChangeText={(v) => { setRir(v); setRirError(undefined); }}
                     placeholder="2"
+                    accessibilityLabel={t('exercise.rir')}
                   />
                   {rirError && (
-                    <Text className="text-dangerText text-xs mt-1">{rirError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{rirError}</Text>
                   )}
                 </View>
               </>
@@ -188,9 +196,10 @@ export function SetEditor({
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('exercise.weight')}
                   />
                   {weightError && (
-                    <Text className="text-dangerText text-xs mt-1">{weightError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{weightError}</Text>
                   )}
                 </View>
 
@@ -203,9 +212,10 @@ export function SetEditor({
                     value={duration}
                     onChangeText={(v) => { setDuration(v); setDurationError(undefined); }}
                     placeholder="0"
+                    accessibilityLabel={t('session.duration')}
                   />
                   {durationError && (
-                    <Text className="text-dangerText text-xs mt-1">{durationError}</Text>
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{durationError}</Text>
                   )}
                 </View>
               </>

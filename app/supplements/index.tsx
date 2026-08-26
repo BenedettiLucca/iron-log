@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform, TextInput } from 'react-native';
 import { useSupplements } from '@/hooks/use-supplements';
 import { useI18n } from '@/src/i18n';
@@ -23,47 +23,36 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, Polyline, Line } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 import { SegmentedControl } from '@/components/SegmentedControl';
+import { ProgressBar } from '@/components/ProgressBar';
 const MoonIcon = ({ color }: { color: string }) => (
-  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <Svg accessible={false} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <Path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
   </Svg>
 );
 
 const CheckIcon = ({ color }: { color: string }) => (
-  <Svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+  <Svg accessible={false} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <Polyline points="20 6 9 17 4 12" />
   </Svg>
 );
 
 const FlameIcon = ({ color }: { color: string }) => (
-  <Svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <Svg accessible={false} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <Path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
   </Svg>
 );
 
 const PlusIcon = ({ color = Colors.onPrimary }: { color?: string }) => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <Svg accessible={false} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <Line x1="12" y1="5" x2="12" y2="19" />
     <Line x1="5" y1="12" x2="19" y2="12" />
   </Svg>
 );
 
 export default function SupplementsScreen() {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const theme = useThemeColors();
   const insets = useSafeAreaInsets();
-  const listLabel = useMemo(() => {
-    switch (language) {
-      case 'pt':
-        return 'Seus Suplementos';
-      case 'es':
-        return 'Sus Suplementos';
-      case 'zh':
-        return '您的补充剂';
-      default:
-        return 'Your Supplements';
-    }
-  }, [language]);
   const {
     items,
     todayLogs,
@@ -333,12 +322,6 @@ export default function SupplementsScreen() {
     }
   };
 
-  const todayProgress = useMemo(() => {
-    if (items.length === 0) return 0;
-    const takenCount = todayLogs.length;
-    return Math.round((takenCount / items.length) * 100);
-  }, [items, todayLogs]);
-
   const { status } = resolveScreenState({
     isLoading: isLoading && !refreshing && items.length === 0,
     hasError,
@@ -379,12 +362,7 @@ export default function SupplementsScreen() {
                 {t('supplements.completedCount', { taken: todayLogs.length, total: items.length })}
               </Text>
             </View>
-            <View className="h-2 bg-primary/5 rounded-full overflow-hidden">
-              <View 
-                className="h-full bg-primary rounded-full"
-                style={{ width: `${todayProgress}%` }} 
-              />
-            </View>
+            <ProgressBar current={todayLogs.length} total={items.length} showLabel={false} />
           </Card>
         )}
 
@@ -400,7 +378,7 @@ export default function SupplementsScreen() {
           </View>
         ) : (
           <View className="gap-3">
-            <SectionHeader label={listLabel} className="mb-1" />
+            <SectionHeader label={t('supplements.yourSupplements')} className="mb-1" />
             {items.map((item) => {
               const taken = isTaken(item.id);
               const toggling = togglingIds.has(item.id);
@@ -483,13 +461,13 @@ export default function SupplementsScreen() {
         className="absolute right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-black/30"
         style={{ bottom: 24 + insets.bottom }}
         accessibilityRole="button"
-        accessibilityLabel={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')}
+        accessibilityLabel={t('supplements.addSupplement')}
       >
         <PlusIcon />
       </TouchableOpacity>
 
       {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal}>
+      <Modal visible={modalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={requestCloseModal} accessibilityViewIsModal>
         <View className="flex-1 bg-background">
           <View className="flex-row justify-between items-center p-5 border-b border-border bg-card">
             <SectionHeader label={editingSupplement ? t('supplements.editSupplement') : t('supplements.addSupplement')} />
@@ -581,13 +559,15 @@ export default function SupplementsScreen() {
               <Switch
                 value={isNighttime}
                 onValueChange={setIsNighttime}
-                trackColor={{ false: Colors.lightBorder, true: Colors.primary }}
+                trackColor={{ false: theme.border, true: Colors.primary }}
               />
             </View>
 
             <TouchableOpacity 
               onPress={() => setShowTimePicker(true)}
               className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center"
+              accessibilityRole="button"
+              accessibilityLabel={t('supplements.reminderTime')}
             >
               <View>
                 <Text className="text-text font-bold">{t('supplements.reminderTime')}</Text>

@@ -31,7 +31,7 @@ export function EmptyState({
 
   return (
     <View className="flex-1 justify-center items-center px-8 py-12">
-      <Text className="text-6xl mb-6">{icon}</Text>
+      <Text className="text-6xl mb-6" accessible={false}>{icon}</Text>
       <Text className="text-text text-xl font-bold text-center mb-3">{title}</Text>
       {description && (
         <Text className="text-subtext text-sm text-center mb-8 leading-6">{description}</Text>
@@ -40,6 +40,8 @@ export function EmptyState({
         <TouchableOpacity
           onPress={handleAction}
           className="bg-primarySurface border-2 border-primary/30 rounded-2xl px-6 py-3"
+          accessibilityRole="button"
+          accessibilityLabel={actionLabel || t('common.add')}
         >
           <Text className="text-primaryText font-bold text-sm uppercase tracking-wider">
             {actionLabel || t('common.add')}
@@ -62,7 +64,7 @@ export function InlineEmptyState({ icon = '📭', title }: InlineEmptyStateProps
   return (
     <Card>
       <View className="py-8 items-center">
-        <Text className="text-4xl mb-3">{icon}</Text>
+        <Text className="text-4xl mb-3" accessible={false}>{icon}</Text>
         <Text className="text-subtext text-sm font-semibold text-center">{title}</Text>
       </View>
     </Card>

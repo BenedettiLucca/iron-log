@@ -37,22 +37,27 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
       animationType="fade"
       transparent
       onRequestClose={onClose}
+      accessibilityViewIsModal
     >
       <Pressable
         activeOpacity={1}
         className="flex-1 justify-center items-center bg-black/80 p-6"
         onPress={onClose}
         hapticType="light"
+        accessible={false}
+        accessibilityRole="none"
       >
         <Pressable
           activeOpacity={1}
           className="bg-card rounded-2xl p-6 max-w-lg w-full shadow-xl border border-border"
           onPress={(e) => e.stopPropagation()}
           hapticType="light"
+          accessible={false}
+          accessibilityRole="none"
         >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-text text-xl font-bold uppercase tracking-widest">{t('photoComparison.title', { label })}</Text>
+            <Text className="text-text text-xl font-bold uppercase tracking-widest" accessibilityRole="header">{t('photoComparison.title', { label })}</Text>
             <Pressable
               onPress={onClose}
               className="w-11 h-11 rounded-full items-center justify-center"
@@ -72,6 +77,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               className="absolute top-0 left-0 bottom-0"
               style={{ width: containerWidth || '100%', height: 300 }}
               resizeMode="contain"
+              accessible={false}
             />
 
             {/* After Image (clipped by slider) */}
@@ -83,6 +89,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
                 source={{ uri: afterUri }}
                 style={{ width: containerWidth || '100%', height: 300 }}
                 resizeMode="contain"
+                accessible={false}
               />
             </View>
 
@@ -96,6 +103,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
             <View
               className="absolute top-1/2 w-8 h-8 bg-card border border-primary rounded-full shadow-lg justify-center items-center"
               style={{ left: clipWidth - 16, marginTop: -16 }}
+              accessible={false}
             >
               <Text className="text-primaryText text-xs font-bold">⟨⟩</Text>
             </View>

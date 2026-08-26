@@ -61,6 +61,7 @@ export const pt = {
     select: 'Selecionar',
     understood: 'Entendi!',
     view: 'Ver',
+    use: 'Usar',
     sets: 'séries',
     exercise: 'exercício',
     exercises: 'exercícios',
@@ -166,7 +167,7 @@ export const pt = {
   // Analytics
   analytics: {
     title: 'Dados',
-    strengthScore: 'Strength Score',
+    strengthScore: 'Pontuação de Força',
     volume: 'Volume',
     intensity: 'Intensidade',
     consistency: 'Consistência',
@@ -378,11 +379,12 @@ export const pt = {
     noSets: 'Nenhuma série registrada ainda.',
     warmupMode: 'Aquecimento',
     weight: 'Carga (kg)',
-    reps: 'Reps',
+    reps: 'Repetições',
     rir: 'Reserva (RIR)',
     rirQuestion: 'O que é RIR?',
     rirExplainer: 'RIR = Repetições na Reserva. Quanto maior o número, mais fácil foi a série. RIR 0 significa que você não conseguiria fazer mais uma repetição.',
     rirStrong: 'Forte / Pesado',
+    rirStrongDesc: 'Na falha muscular ou muito próximo dela',
     rirModerate: 'Moderado',
     rirLight: 'Leve',
     saveSet: 'Salvar',
@@ -417,7 +419,7 @@ export const pt = {
     failure: 'FALHA',
     saving: 'Salvando...',
     saveBtn: 'Salvar',
-    nextExerciseLabel: 'PRÓXIMO: {name}',
+    nextExerciseLabel: 'Próximo: {name}',
     finishWorkoutLabel: 'Finalizar treino',
     sqlHistoryError: 'Erro ao carregar histórico',
 
@@ -763,7 +765,7 @@ export const pt = {
     estimated1RM: '1RM estimado (Epley)',
     intensity: 'Intensidade',
     personalRecords: 'Recordes pessoais',
-    strengthScore: 'Strength Score',
+    strengthScore: 'Pontuação de Força',
     thisMonth: 'Este mês',
     thisWeek: 'Esta semana',
     topExercises: 'Exercícios em progressão',
@@ -945,6 +947,9 @@ export const pt = {
     noSetsYet: 'Nenhuma série registrada ainda.',
     warmup: 'Aquecimento',
     next: 'Quase falha muscular',
+    elapsedTime: 'Tempo decorrido',
+    setOf: 'Série {current} de {total}',
+    restTime: 'Descanso: {seconds} segundos',
   },
 
   // Programs / Periodização
@@ -1083,6 +1088,7 @@ export const pt = {
 
     supplements: {
     title: '💊 Suplementação',
+    yourSupplements: 'Seus Suplementos',
     addSupplement: 'Adicionar Suplemento',
     editSupplement: 'Editar Suplemento',
     deleteSupplement: 'Excluir Suplemento',
@@ -1095,7 +1101,7 @@ export const pt = {
     restDays: 'Dias de Descanso',
     reminderTime: 'Lembrete',
     nighttime: 'Noturno',
-    streak: 'Streak',
+    streak: 'Sequência',
     days: 'dias',
     taken: 'Tomado',
     notTaken: 'Pendente',

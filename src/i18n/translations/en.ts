@@ -58,6 +58,7 @@ export const en = {
     select: 'Select',
     understood: 'Got it!',
     view: 'View',
+    use: 'Use',
     sets: 'sets',
     exercise: 'exercise',
     exercises: 'exercises',
@@ -362,6 +363,7 @@ export const en = {
     rirQuestion: 'What is RIR?',
     rirExplainer: 'RIR = Reps in Reserve. The higher the number, the easier the set was. RIR 0 means you could not do one more rep.',
     rirStrong: 'Strong / Heavy',
+    rirStrongDesc: 'At or near muscular failure',
     rirModerate: 'Moderate',
     rirLight: 'Light',
     saveSet: 'Save',
@@ -396,7 +398,7 @@ export const en = {
     failure: 'FAILURE',
     saving: 'Saving...',
     saveBtn: 'Save',
-    nextExerciseLabel: 'NEXT: {name}',
+    nextExerciseLabel: 'Next: {name}',
     finishWorkoutLabel: 'Finish workout',
     sqlHistoryError: 'Error loading history',
 
@@ -914,6 +916,9 @@ export const en = {
     noSetsYet: 'No sets registered yet.',
     warmup: 'Warm-up',
     next: 'Almost muscular failure',
+    elapsedTime: 'Elapsed time',
+    setOf: 'Set {current} of {total}',
+    restTime: 'Rest: {seconds} seconds',
   },
 
   // Programs / Periodization
@@ -1052,6 +1057,7 @@ export const en = {
 
     supplements: {
     title: '💊 Supplementation',
+    yourSupplements: 'Your Supplements',
     addSupplement: 'Add Supplement',
     editSupplement: 'Edit Supplement',
     deleteSupplement: 'Delete Supplement',
