@@ -916,6 +916,8 @@ export const zh = {
     warmup: '热身',
     next: '接近力竭',
     elapsedTime: '已用时间',
+    setOf: '第 {current} 组，共 {total} 组',
+    restTime: '休息时间：{seconds} 秒',
   },
 
   // Programs / 周期化训练

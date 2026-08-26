@@ -916,6 +916,8 @@ export const es = {
     warmup: 'Calentamiento',
     next: 'Casi fallo muscular',
     elapsedTime: 'Tiempo transcurrido',
+    setOf: 'Serie {current} de {total}',
+    restTime: 'Descanso: {seconds} segundos',
   },
 
   // Programs / Periodización

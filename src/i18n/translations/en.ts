@@ -916,6 +916,8 @@ export const en = {
     warmup: 'Warm-up',
     next: 'Almost muscular failure',
     elapsedTime: 'Elapsed time',
+    setOf: 'Set {current} of {total}',
+    restTime: 'Rest: {seconds} seconds',
   },
 
   // Programs / Periodization

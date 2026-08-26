@@ -37,6 +37,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
       animationType="fade"
       transparent
       onRequestClose={onClose}
+      accessibilityViewIsModal
     >
       <Pressable
         activeOpacity={1}
@@ -72,6 +73,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               className="absolute top-0 left-0 bottom-0"
               style={{ width: containerWidth || '100%', height: 300 }}
               resizeMode="contain"
+              accessible={false}
             />
 
             {/* After Image (clipped by slider) */}
@@ -83,6 +85,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
                 source={{ uri: afterUri }}
                 style={{ width: containerWidth || '100%', height: 300 }}
                 resizeMode="contain"
+                accessible={false}
               />
             </View>
 
@@ -96,6 +99,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
             <View
               className="absolute top-1/2 w-8 h-8 bg-card border border-primary rounded-full shadow-lg justify-center items-center"
               style={{ left: clipWidth - 16, marginTop: -16 }}
+              accessible={false}
             >
               <Text className="text-primaryText text-xs font-bold">⟨⟩</Text>
             </View>

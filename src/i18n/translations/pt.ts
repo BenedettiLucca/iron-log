@@ -947,6 +947,8 @@ export const pt = {
     warmup: 'Aquecimento',
     next: 'Quase falha muscular',
     elapsedTime: 'Tempo decorrido',
+    setOf: 'Série {current} de {total}',
+    restTime: 'Descanso: {seconds} segundos',
   },
 
   // Programs / Periodização

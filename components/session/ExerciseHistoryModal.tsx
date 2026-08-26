@@ -41,10 +41,19 @@ export function ExerciseHistoryModal({
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
             const date = new Date(item.date);
+            const dateStr = date.toLocaleDateString(getLocaleForLanguage(language));
+            const perfStr = `${item.weight}kg × ${item.duration ? `${item.duration}s` : item.reps}`;
+            const rirStr = item.rir !== null ? `RIR ${item.rir}` : '';
+            const itemLabel = [dateStr, perfStr, rirStr].filter(Boolean).join(', ');
             return (
-              <View className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center">
+              <View
+                className="bg-card p-3 mb-2 rounded border border-border flex-row justify-between items-center"
+                accessible={true}
+                accessibilityRole="summary"
+                accessibilityLabel={itemLabel}
+              >
                 <Text className="text-subtext font-mono text-xs">
-                  {date.toLocaleDateString(getLocaleForLanguage(language))}
+                  {dateStr}
                 </Text>
                 <Text className="text-text font-bold">
                   {item.weight}kg × {item.duration ? `${item.duration}s` : item.reps}
