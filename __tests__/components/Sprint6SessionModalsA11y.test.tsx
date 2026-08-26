@@ -68,5 +68,9 @@ describe('Sprint 6 session modal accessibility', () => {
       'common.close',
       'common.understood',
     ]);
+    expect(result
+      .UNSAFE_getAllByType('Text' as any)
+      .some((node) => node.props.children === 'exercise.rirStrongDesc'))
+      .toBe(true);
   });
 });

@@ -384,6 +384,7 @@ export const pt = {
     rirQuestion: 'O que é RIR?',
     rirExplainer: 'RIR = Repetições na Reserva. Quanto maior o número, mais fácil foi a série. RIR 0 significa que você não conseguiria fazer mais uma repetição.',
     rirStrong: 'Forte / Pesado',
+    rirStrongDesc: 'Na falha muscular ou muito próximo dela',
     rirModerate: 'Moderado',
     rirLight: 'Leve',
     saveSet: 'Salvar',

@@ -39,7 +39,7 @@ export function RirExplainerModal({
               </View>
               <View className="flex-1">
                 <Text className="text-text font-bold text-base mb-1">{t("exercise.rirStrong")}</Text>
-                <Text className="text-subtext text-sm">{t("exerciseSession.next")}</Text>
+                <Text className="text-subtext text-sm">{t("exercise.rirStrongDesc")}</Text>
               </View>
             </View>
 

@@ -125,7 +125,7 @@ describe('Sprint 6 Residual Core Accessibility', () => {
       expect(restTimer?.props.accessibilityLabel).toBe('Rest: 90 seconds');
     });
 
-    it('hides decorative target and notes emojis from screen readers', () => {
+    it('announces target and notes without decorative emoji names', () => {
       const mockT = (key: string) => key;
       const result = render(
         <ExerciseHeader
@@ -147,13 +147,11 @@ describe('Sprint 6 Residual Core Accessibility', () => {
       );
 
       const texts = result.UNSAFE_getAllByType('Text' as any);
-      const targetEmojiText = texts.find((t) => typeof t.props.children === 'string' && t.props.children.trim() === '🎯');
-      const notesEmojiText = texts.find((t) => typeof t.props.children === 'string' && t.props.children.trim() === '📝');
+      const targetText = texts.find((t) => t.props.accessibilityLabel === 'Heavy');
+      const notesText = texts.find((t) => t.props.accessibilityLabel === 'Focus');
 
-      expect(targetEmojiText).toBeDefined();
-      expect(targetEmojiText?.props.accessible).toBe(false);
-      expect(notesEmojiText).toBeDefined();
-      expect(notesEmojiText?.props.accessible).toBe(false);
+      expect(targetText).toBeDefined();
+      expect(notesText).toBeDefined();
     });
   });
 

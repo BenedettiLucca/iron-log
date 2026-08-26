@@ -363,6 +363,7 @@ export const zh = {
     rirQuestion: '什么是 RIR?',
     rirExplainer: 'RIR = 保留次数。数字越大，该组越轻松。RIR 0 表示你无法再做一次。',
     rirStrong: '重 / 强度大',
+    rirStrongDesc: '达到或接近肌肉力竭',
     rirModerate: '中等',
     rirLight: '轻松',
     saveSet: '保存',

@@ -7,6 +7,8 @@ import { Stopwatch } from '@/components/Stopwatch';
 
 (globalThis as typeof globalThis & { React: typeof React }).React = React;
 
+const mockFocusedField = jest.fn();
+
 jest.mock('react-native/Libraries/Modal/Modal', () => ({
   __esModule: true,
   default: 'Modal',
@@ -14,8 +16,12 @@ jest.mock('react-native/Libraries/Modal/Modal', () => ({
 jest.mock('react-native/Libraries/Components/TextInput/TextInput', () => ({
   __esModule: true,
   default: (jest.requireActual('react') as typeof React).forwardRef(
-    (props: Record<string, unknown>, _ref: React.ForwardedRef<unknown>) =>
-      React.createElement('TextInput', props),
+    (props: Record<string, unknown>, ref: React.ForwardedRef<unknown>) => {
+      React.useImperativeHandle(ref, () => ({
+        focus: () => mockFocusedField(props.accessibilityLabel),
+      }));
+      return React.createElement('TextInput', props);
+    },
   ),
 }));
 jest.mock('react-native/Libraries/Components/Touchable/TouchableOpacity', () => ({
@@ -58,6 +64,7 @@ jest.mock('@/src/i18n/index', () => ({
 describe('Sprint 6 core component accessibility', () => {
   afterEach(() => {
     jest.useRealTimers();
+    mockFocusedField.mockClear();
   });
 
   it('exposes SetEditor as a modal with a heading and named fields', () => {
@@ -88,7 +95,7 @@ describe('Sprint 6 core component accessibility', () => {
     ]);
   });
 
-  it('announces SetEditor validation errors without moving focus away from the form', async () => {
+  it('announces SetEditor validation errors and focuses the first invalid field', async () => {
     const result = render(
       <SetEditor
         visible
@@ -112,6 +119,40 @@ describe('Sprint 6 core component accessibility', () => {
       .UNSAFE_getAllByType('Text' as any)
       .find((node) => node.props.children === 'exercise.enterReps');
     expect(error?.props.accessibilityLiveRegion).toBe('polite');
+    expect(mockFocusedField).toHaveBeenCalledTimes(1);
+    expect(mockFocusedField).toHaveBeenCalledWith('setEditor.repetitions');
+  });
+
+  it('allows only one SetEditor persistence call during a double tap', async () => {
+    let releaseSave: ((success: boolean) => void) | undefined;
+    const onSave = jest.fn(() => new Promise<boolean>((resolve) => {
+      releaseSave = resolve;
+    }));
+    const result = render(
+      <SetEditor
+        visible
+        setNumber={1}
+        initialWeight={80}
+        initialReps={8}
+        initialRir={2}
+        isDuration={false}
+        onSave={onSave}
+        onCancel={jest.fn()}
+      />,
+    );
+    const save = result.UNSAFE_getAllByType('Button' as any)
+      .find((button) => button.props.title === 'common.save');
+
+    act(() => {
+      void save!.props.onPress();
+      void save!.props.onPress();
+    });
+    expect(onSave).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      releaseSave?.(true);
+      await Promise.resolve();
+    });
   });
 
   it('exposes the stopwatch as a stable timer without a per-second live region', () => {

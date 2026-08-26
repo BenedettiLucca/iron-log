@@ -37,6 +37,7 @@ export function SetEditor({
   const [duration, setDuration] = useState(initialDuration?.toString() ?? '');
   const [rir, setRir] = useState(initialRir?.toString() ?? '2');
   const [isSaving, setIsSaving] = useState(false);
+  const isSavingRef = useRef(false);
 
   // Field-level error messages
   const [weightError, setWeightError] = useState<string | undefined>();
@@ -57,6 +58,7 @@ export function SetEditor({
       setDuration(initialDuration?.toString() ?? '');
       setRir(initialRir?.toString() ?? '2');
       setIsSaving(false);
+      isSavingRef.current = false;
       setWeightError(undefined);
       setRepsError(undefined);
       setDurationError(undefined);
@@ -72,7 +74,7 @@ export function SetEditor({
   };
 
   const handleSave = async () => {
-    if (isSaving) return;
+    if (isSavingRef.current) return;
 
     clearErrors();
 
@@ -95,6 +97,7 @@ export function SetEditor({
       return; // Keep modal open
     }
 
+    isSavingRef.current = true;
     setIsSaving(true);
     try {
       const success = await onSave(
@@ -109,6 +112,7 @@ export function SetEditor({
       }
       // If false, modal stays open (caller sets error toast)
     } finally {
+      isSavingRef.current = false;
       setIsSaving(false);
     }
   };

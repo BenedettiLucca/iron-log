@@ -363,6 +363,7 @@ export const en = {
     rirQuestion: 'What is RIR?',
     rirExplainer: 'RIR = Reps in Reserve. The higher the number, the easier the set was. RIR 0 means you could not do one more rep.',
     rirStrong: 'Strong / Heavy',
+    rirStrongDesc: 'At or near muscular failure',
     rirModerate: 'Moderate',
     rirLight: 'Light',
     saveSet: 'Save',

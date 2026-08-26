@@ -107,15 +107,13 @@ export function ExerciseHeader({
           {(target || notes) && (
             <View className="mt-2 bg-background p-2 rounded-lg border border-border">
               {target && (
-                <Text className="text-primaryText font-semibold text-xs">
-                  <Text accessible={false}>🎯 </Text>
-                  {target}
+                <Text className="text-primaryText font-semibold text-xs" accessibilityLabel={target}>
+                  🎯 {target}
                 </Text>
               )}
               {notes && (
-                <Text className="text-subtext text-2xs italic mt-0.5">
-                  <Text accessible={false}>📝 </Text>
-                  {notes}
+                <Text className="text-subtext text-2xs italic mt-0.5" accessibilityLabel={notes}>
+                  📝 {notes}
                 </Text>
               )}
             </View>
