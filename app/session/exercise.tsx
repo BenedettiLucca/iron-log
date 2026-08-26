@@ -719,7 +719,7 @@ export default function ExerciseScreen() {
               title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
               onPress={goToNextOrFinish}
               variant="primary"
-              size="lg"
+              size="md"
               fullWidth
               disabled={isSaving || isActiveSetRunning}
             />

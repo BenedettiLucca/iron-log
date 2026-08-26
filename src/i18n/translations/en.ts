@@ -398,7 +398,7 @@ export const en = {
     failure: 'FAILURE',
     saving: 'Saving...',
     saveBtn: 'Save',
-    nextExerciseLabel: 'NEXT: {name}',
+    nextExerciseLabel: 'Next: {name}',
     finishWorkoutLabel: 'Finish workout',
     sqlHistoryError: 'Error loading history',
 

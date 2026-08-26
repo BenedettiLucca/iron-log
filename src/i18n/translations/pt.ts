@@ -419,7 +419,7 @@ export const pt = {
     failure: 'FALHA',
     saving: 'Salvando...',
     saveBtn: 'Salvar',
-    nextExerciseLabel: 'PRÓXIMO: {name}',
+    nextExerciseLabel: 'Próximo: {name}',
     finishWorkoutLabel: 'Finalizar treino',
     sqlHistoryError: 'Erro ao carregar histórico',
 

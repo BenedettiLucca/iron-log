@@ -398,7 +398,7 @@ export const es = {
     failure: 'FALLO',
     saving: 'Guardando...',
     saveBtn: 'Guardar',
-    nextExerciseLabel: 'SIGUIENTE: {name}',
+    nextExerciseLabel: 'Siguiente: {name}',
     finishWorkoutLabel: 'Finalizar entrenamiento',
     sqlHistoryError: 'Error al cargar historial',
 
