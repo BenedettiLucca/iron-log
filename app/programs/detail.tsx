@@ -252,7 +252,7 @@ export default function ProgramDetailScreen() {
                     onPress={() => router.push({
                       pathname: '/programs/week-detail',
                       params: { programId: program.id, weekNumber: week.weekNumber }
-                    } as any)}
+                    })}
                     className={`py-3 flex-row justify-between items-center min-h-[44px] ${
                       index < weeks.length - 1 ? 'border-b border-border/50' : ''
                     }`}

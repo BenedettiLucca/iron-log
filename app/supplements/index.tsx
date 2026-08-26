@@ -14,7 +14,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { LoadingState, ErrorState } from '@/components/ScreenState';
 import { resolveScreenState } from '@/src/utils/screen-state';
 import { Supplement, SupplementFrequency } from '@/src/types';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { isFormDirty } from '@/src/utils/form-dirty';
 
 import { useToast } from '../../hooks/use-toast';
@@ -313,7 +313,7 @@ export default function SupplementsScreen() {
     }
   };
 
-  const handleTimeChange = (event: any, selectedDate?: Date) => {
+  const handleTimeChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowTimePicker(Platform.OS === 'ios');
     if (selectedDate) {
       const hours = selectedDate.getHours().toString().padStart(2, '0');

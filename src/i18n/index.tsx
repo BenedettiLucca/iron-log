@@ -40,12 +40,12 @@ export function useI18n() {
   return useContext(I18nContext);
 }
 
-export function getNestedValue(obj: any, path: string): string | undefined {
+export function getNestedValue(obj: unknown, path: string): string | undefined {
   const keys = path.split('.');
-  let value = obj;
+  let value: unknown = obj;
   for (const key of keys) {
-    if (value === undefined || value === null) return undefined;
-    value = value[key];
+    if (typeof value !== 'object' || value === null || !(key in value)) return undefined;
+    value = (value as Record<string, unknown>)[key];
   }
   return typeof value === 'string' ? value : undefined;
 }

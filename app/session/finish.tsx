@@ -204,7 +204,7 @@ export default function FinishSessionScreen() {
         .set({ deletedAt: Date.now() })
         .where(eq(sessions.id, Number(sessionId)));
       await AsyncStorage.removeItem('incomplete_session');
-      router.replace('/(tabs)' as any);
+      router.replace('/(tabs)');
     } catch (e) {
       logger.error(t('finish.finishError'), e);
       setToast({ visible: true, message: t('finish.finishError'), type: 'error' });

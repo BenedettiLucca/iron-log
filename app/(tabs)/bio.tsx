@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, Modal, RefreshControl } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import type { Href } from 'expo-router';
 import { db } from '../../src/db/client';
 import { bodyMetrics } from '../../src/db/schema';
 import { desc, eq, and, gte, lt } from 'drizzle-orm';
@@ -292,16 +293,16 @@ export default function BioScreen() {
         {/* Botões de Ação Rápida */}
         <Card contentPadding={false}>
           <View className="flex-col">
-            {[
+            {([
               { title: t("bioNav.goals"), route: '/bio/goals', icon: '🎯' },
               { title: t("bioNav.evolution"), route: '/bio/evolution', icon: '📈' },
               { title: t("bioNav.data"), route: '/bio/analytics', icon: '📊' },
               { title: t("drawer.supplements"), route: '/supplements', icon: '💊' },
               { title: t("reports.title"), route: '/reports/weekly', icon: '📝' }
-            ].map((item, index, arr) => (
+            ] satisfies { title: string; route: Href; icon: string }[]).map((item, index, arr) => (
               <TouchableOpacity
                 key={item.route}
-                onPress={() => router.push(item.route as any)}
+                onPress={() => router.push(item.route)}
                 className={`flex-row items-center px-4 min-h-[44px] active:opacity-75 ${
                   index < arr.length - 1 ? 'border-b border-border/50' : ''
                 }`}

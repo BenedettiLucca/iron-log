@@ -221,7 +221,7 @@ export default function HomeScreen() {
               <SectionHeader label={t('programs.active')} className="mb-2" />
               <Card
                 pressable
-                onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}
+                onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}`)}
                 className={isDeloadWeek ? 'bg-successSurface border border-successText/30' : isNearDeload ? 'bg-warningSurface border border-warningText/30' : 'bg-primary/5 border border-primary/20'}
                 accessibilityLabel={`${t("programs.active")}: ${activeProgram.name}`}
               >

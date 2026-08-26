@@ -323,7 +323,11 @@ export default function EvolutionScreen() {
         <SegmentedControl
           segments={segments}
           activeKey={activeTab}
-          onSelect={(key) => setActiveTab(key as any)}
+          onSelect={(key) => {
+            if (key === 'weight' || key === 'measures' || key === 'photos' || key === 'analytics') {
+              setActiveTab(key);
+            }
+          }}
         />
       </View>
 

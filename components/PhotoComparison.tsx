@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { View, Text, Image, Modal, useColorScheme } from 'react-native';
+import { View, Text, Image, Modal, useColorScheme, type LayoutChangeEvent } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
 import { Pressable } from './Pressable';
@@ -23,7 +23,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
   const afterPercent = Math.round(sliderValue * 100);
   const beforePercent = 100 - afterPercent;
 
-  const onLayout = useCallback((event: any) => {
+  const onLayout = useCallback((event: LayoutChangeEvent) => {
     setContainerWidth(event.nativeEvent.layout.width);
   }, []);
 

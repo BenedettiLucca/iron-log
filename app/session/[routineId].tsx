@@ -25,6 +25,15 @@ import { Colors } from '../../constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import Svg, { Line, Polyline } from 'react-native-svg';
 
+type RoutineExerciseRow = {
+  id: number;
+  name: string;
+  order: number | null;
+  target: string | null;
+  notes: string | null;
+  restSeconds: number | null;
+};
+
 export default function SessionScreen() {
   const { t } = useI18n();
   const a11y = buildWorkoutA11y({
@@ -44,7 +53,7 @@ export default function SessionScreen() {
   const navigation = useNavigation();
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(Date.now());
-  const [routineExs, setRoutineExs] = useState<any[]>([]);
+  const [routineExs, setRoutineExs] = useState<RoutineExerciseRow[]>([]);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showFinishDialog, setShowFinishDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
@@ -344,7 +353,14 @@ export default function SessionScreen() {
   );
 }
 
-function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
+interface ExerciseCardProps {
+  exercise: RoutineExerciseRow;
+  sessionId: number;
+  onPress: () => void;
+  index: number;
+}
+
+function ExerciseCard({ exercise, sessionId, onPress, index }: ExerciseCardProps) {
   const { t } = useI18n();
   const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
@@ -449,7 +465,7 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: any) {
   );
 }
 
-function SessionProgress({ sessionId, routineExs }: { sessionId: number, routineExs: any[] }) {
+function SessionProgress({ sessionId, routineExs }: { sessionId: number; routineExs: RoutineExerciseRow[] }) {
   const { t } = useI18n();
   // Fetch all sets for the session - selecting all columns for better live query support
   const { data: allSets } = useLiveQuery(

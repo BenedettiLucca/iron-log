@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, useColorScheme } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import type { DateData } from 'react-native-calendars';
 import { useRouter } from 'expo-router';
 import { db } from '../../src/db/client';
 import { sessions, sets } from '../../src/db/schema';
@@ -131,7 +132,7 @@ export default function HistoryScreen() {
     }
   }, [deleteDialog.sessionId, loadSessions]);
 
-  const handleDayPress = useCallback(async (day: any) => {
+  const handleDayPress = useCallback(async (day: Pick<DateData, 'dateString'>) => {
     setSelectedDate(day.dateString);
     setDayError(null);
     setDaySessions([]);

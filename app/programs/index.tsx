@@ -59,7 +59,7 @@ export default function ProgramsListScreen() {
           title={t('programs.emptyTitle')}
           description={t('programs.emptyDescription')}
           actionLabel={t('programs.createNew')}
-          onAction={() => router.push('/programs/create' as any)}
+          onAction={() => router.push('/programs/create')}
         />
         <Toast
           visible={toast.visible}
@@ -91,7 +91,7 @@ export default function ProgramsListScreen() {
             <SectionHeader label={t('programs.active')} className="mb-2" />
             <Card
               pressable
-              onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}` as any)}
+              onPress={() => router.push(`/programs/detail?programId=${activeProgram.id}`)}
               accessibilityLabel={`${t('programs.active')}: ${activeProgram.name}`}
             >
               <View className="flex-row justify-between items-center mb-3">
@@ -162,7 +162,7 @@ export default function ProgramsListScreen() {
               {archivedPrograms.map((program, index) => (
                 <TouchableOpacity
                   key={program.id}
-                  onPress={() => router.push(`/programs/detail?programId=${program.id}` as any)}
+                  onPress={() => router.push(`/programs/detail?programId=${program.id}`)}
                   className={`py-3 flex-row justify-between items-center min-h-[44px] ${
                     index < archivedPrograms.length - 1 ? 'border-b border-border/50' : ''
                   }`}
@@ -196,7 +196,7 @@ export default function ProgramsListScreen() {
       <View className="p-4 border-t border-border bg-card shadow-lg">
         <Button
           title={t('programs.createNew')}
-          onPress={() => router.push('/programs/create' as any)}
+          onPress={() => router.push('/programs/create')}
           variant="primary"
           size="md"
           fullWidth

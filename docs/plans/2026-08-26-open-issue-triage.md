@@ -2,7 +2,7 @@
 
 **Data:** 2026-08-26 12:39 -03
 **Base verificada:** `master` @ `85bd28e` = `origin/master`
-**Escopo:** triagem read-only do backlog GitHub vivo; nenhuma issue foi fechada, relabelled ou implementada nesta etapa.
+**Escopo inicial:** triagem read-only do backlog GitHub vivo; nenhuma issue foi fechada, relabelled ou implementada naquela etapa. O follow-up aprovado do checkpoint executa apenas slices bounded de qualidade, sem alterar o backlog automaticamente.
 
 ## Baseline e método
 
@@ -13,7 +13,7 @@
 
 ## Recomendação executiva
 
-### Candidato pré-release
+### Candidato pré-release (recomendação inicial; reavaliado no follow-up)
 
 1. **#76 — segurança/dependências, slice não-breaking בלבד**
    - Fazer apenas `npm audit fix`/atualizações isoladas que não troquem o Expo SDK sem revisão.
@@ -26,9 +26,9 @@
    - O claim de “16 rotas / 9 módulos sem teste” está desatualizado: a Sprint 6 já adicionou contratos para finish, tabs, programas, rotina/editor e suplementos (`__tests__/quality/sprint-6-*.test.*`).
    - Recalcular a matriz atual e cobrir somente comportamento de maior risco; não perseguir 100% de render coverage por vaidade.
 
-3. **#73 — type-safety cleanup bounded**
-   - Ainda existem casts `as any` em navegação (`app/programs/index.tsx`, `app/(tabs)/index.tsx`, `app/(tabs)/bio.tsx`, `app/programs/create.tsx`, `app/session/finish.tsx`) e `any` em handlers/props (`app/session/[routineId].tsx`, `app/supplements/index.tsx`).
-   - Remover apenas casts comprovadamente aceitos pelo Expo Router e tipar handlers com tipos das bibliotecas; typecheck + testes fecham o slice.
+3. **#73 — type-safety cleanup bounded [DONE]**
+   - O slice removeu os casts `as any` em navegação e tipou handlers/props com contratos concretos das bibliotecas e das queries locais.
+   - Contrato RED→GREEN em `__tests__/quality/sprint-7-type-safety.test.ts`; typecheck, lint e suíte completa fecham o slice.
 
 ### Close/supersede recomendado — não executar automaticamente
 
@@ -51,9 +51,9 @@
 
 | Issue | Veredito proposto | Motivo curto | Ordem |
 |---:|---|---|---:|
-| #76 | **pre-release** | segurança; somente fix não-breaking | 1 |
+| #76 | **blocked / deferred** | não há fix não-breaking seguro; remediação restante exige decisão de SDK | 1 |
 | #69 | **fold into existing sprint** | claim stale; refresh de coverage, sem caça a porcentagem | 2 |
-| #73 | **fold into existing sprint** | casts ainda existem; slice pequeno e verificável | 3 |
+| #73 | **DONE** | slice pequeno, bounded e verificado | 3 |
 | #63 | **close/supersede** | folder/filter já existe; proposta original ficou maior que a dor atual | — |
 | #68 | **close/supersede** | mutation errors já têm retorno e toast nos fluxos auditados | — |
 | #64 | **post-release** | migration + UX de archive | — |
@@ -65,6 +65,26 @@
 | #72 | **post-release** | readiness depende dos pipelines externos | — |
 | #74 | **post-release** | feature longitudinal M, sem analyzer atual | — |
 | #75 | **post-release** | risco de saúde; depende de #74/#70/#72 | — |
+
+## Follow-up de execução (2026-08-26)
+
+### #73 — [DONE]
+
+- Removidos os escapes de navegação `as any` e os `any` de produção auditados em `app/`, `components/` e `src/`.
+- Adicionados tipos concretos para `DateData`, `DateTimePickerEvent`, `LayoutChangeEvent`, rows de exercício e props dos helpers da sessão.
+- `getNestedValue` agora percorre `unknown` com guarda de objeto e retorno string-safe.
+- Evidência: contrato direcionado GREEN; suíte completa **94 suites / 839 testes**; lint sem issues; typecheck `ok`; `git diff --check` verde.
+
+### #76 — [BLOCKED]
+
+- `npm audit --omit=dev` no baseline reportou **23 vulnerabilidades** (15 moderate, 8 high).
+- O experimento isolado com Expo 54 reduziu apenas o total de produção para **22** (14 moderate, 8 high), sem remover high; a alteração de lockfile foi revertida.
+- O dry-run do npm contratado ainda propõe uma mudança ampla e a cadeia de Expo 57. Não foi executado `npm audit fix --force`.
+- Veredito: não existe correção não-breaking honesta para fechar #76 nesta entrega. O próximo passo desse issue é uma decisão separada sobre upgrade de SDK.
+
+### Próximo item aprovado
+
+`#69` é o próximo slice: recalcular a matriz de cobertura atual e adicionar somente contratos comportamentais para gaps críticos que realmente aparecerem.
 
 ## Dependency graph
 
@@ -82,6 +102,6 @@
 #76 dependency security (independent)
 ```
 
-## Decision checkpoint do Lucca
+## Decision checkpoint original do Lucca
 
-Minha recomendação é aprovar **#76 como único candidato pré-release**, com #69/#73 incorporados somente como slices de qualidade bounded. Não fechar ou relabelar #63/#68, nem iniciar #64–#75, sem tua aprovação explícita. Sprint 8 continua condicional até esse checkpoint.
+Minha recomendação original era aprovar **#76 como único candidato pré-release**, com #69/#73 incorporados somente como slices de qualidade bounded. O checkpoint foi aprovado pelo Lucca; após a investigação de dependências, #76 foi marcado como bloqueado/deferred, #73 foi concluído e #69 permanece como próximo slice. Nenhuma issue foi fechada ou relabelled automaticamente; Sprint 8 continua condicional.

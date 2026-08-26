@@ -133,7 +133,7 @@ export default function CreateProgramScreen() {
       });
 
       if (program) {
-        router.replace(`/programs/detail?programId=${program.id}` as any);
+        router.replace(`/programs/detail?programId=${program.id}`);
       } else {
         setToast({ visible: true, message: t('programs.createError'), type: 'error' });
       }

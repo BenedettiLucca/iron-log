@@ -370,9 +370,9 @@ Execution runbook: `docs/qa/2026-07-20-sprint-4-android-runbook.md`.
 
 ## Sprint 7 — Open-issue triage and release-scope lock
 
-**Status: IN PROGRESS (2026-08-26).** Triage read-only concluída em `docs/plans/2026-08-26-open-issue-triage.md`; aguardando checkpoint explícito do Lucca antes de qualquer fechamento de issue ou Sprint 8.
+**Status: IN PROGRESS (2026-08-26).** Triage e checkpoint concluídos em `docs/plans/2026-08-26-open-issue-triage.md`. O slice #73 está [DONE] e verificado; #76 está [BLOCKED] por depender de decisão de upgrade do Expo SDK; #69 é o próximo slice bounded. Nenhuma issue foi fechada/relabelled e Sprint 8 continua condicional.
 
-This sprint is discovery and decision, not implementation. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
+This sprint começou como discovery/decision e agora executa somente os slices de qualidade aprovados. An open issue is a hypothesis: its paths, counts, dependencies and proposed architecture may already be stale.
 
 ### Live starting set
 
