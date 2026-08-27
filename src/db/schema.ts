@@ -9,6 +9,12 @@ export const routines = sqliteTable('routines', {
   isTemplate: integer('is_template', { mode: 'boolean' }).notNull().default(false),
 });
 
+// TABELA: Pastas persistentes das rotinas (inclui pastas vazias)
+export const folders = sqliteTable('folders', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull().unique(),
+});
+
 // TABELA: Definição de Exercícios (Biblioteca)
 export const exercises = sqliteTable('exercises', {
   id: integer('id').primaryKey({ autoIncrement: true }),

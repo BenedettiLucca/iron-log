@@ -23,22 +23,17 @@ describe('Sprint 6 programs/routines/supplements residual accessibility', () => 
     expect(props).toContain('accessibilityRole');
   });
 
-  it('gives templates back button accessibilityRole and accessibilityLabel', () => {
+  it('relies on native Stack header for templates back navigation without duplicate overlay button', () => {
     const touchables = jsxElements('app/routines/templates.tsx', 'TouchableOpacity');
-    const backBtn = touchables.find(
-      (element) => element.getText().includes('router.back()') && !element.getText().includes('onLongPress'),
+    const duplicateBackBtn = touchables.find(
+      (element) => element.getText().includes('router.back()') && element.getText().includes('absolute'),
     );
-    expect(backBtn).toBeDefined();
-    const props = propNames(backBtn!);
-    expect(props).toContain('accessibilityRole');
-    expect(props).toContain('accessibilityLabel');
+    expect(duplicateBackBtn).toBeUndefined();
   });
 
   it('keeps text-only back and rename controls at least 44dp with button semantics', () => {
     const controls = [
       jsxElements('app/programs/create.tsx', 'TouchableOpacity')
-        .find((element) => element.getText().includes('router.back()')),
-      jsxElements('app/routines/templates.tsx', 'TouchableOpacity')
         .find((element) => element.getText().includes('router.back()')),
       jsxElements('app/routines/editor.tsx', 'TouchableOpacity')
         .find((element) => element.getText().includes('setRenamingEx')),

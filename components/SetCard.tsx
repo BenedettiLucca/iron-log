@@ -1,11 +1,12 @@
-import { memo, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { memo, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useHaptics } from '@/hooks/use-haptics';
 import { useI18n } from '../src/i18n/index';
 import { getRirColor } from '@/src/utils/exercise';
 import { Colors } from '@/constants/colors';
+import { SetActionsDialog } from './SetActionsDialog';
 
 interface SetCardProps {
   setNumber: number;
@@ -37,41 +38,25 @@ function SetCard({
   const { t } = useI18n();
   const swipeableRef = useRef<Swipeable | null>(null);
   const { trigger } = useHaptics();
+  const [actionsVisible, setActionsVisible] = useState(false);
 
   const handleEdit = () => {
     trigger('medium');
+    setActionsVisible(false);
     swipeableRef.current?.close();
     onEdit?.();
   };
 
   const handleDelete = () => {
     trigger('warning');
+    setActionsVisible(false);
     swipeableRef.current?.close();
     onDelete?.();
   };
 
   const handleOpenActions = () => {
     trigger('selection');
-    const buttons = [];
-    if (onEdit) {
-      buttons.push({
-        text: t('common.edit'),
-        onPress: handleEdit,
-      });
-    }
-    if (onDelete) {
-      buttons.push({
-        text: t('common.delete'),
-        style: 'destructive' as const,
-        onPress: handleDelete,
-      });
-    }
-    buttons.push({
-      text: t('common.cancel'),
-      style: 'cancel' as const,
-    });
-
-    Alert.alert(t('setCard.actionsTitle'), undefined, buttons);
+    setActionsVisible(true);
   };
 
   const weightLabel = weight > 0 ? `${weight}kg` : t('setCard.noWeight');
@@ -209,14 +194,22 @@ function SetCard({
 
   if (onEdit || onDelete) {
     return (
-      <Swipeable
-        ref={(ref) => { swipeableRef.current = ref; }}
-        renderRightActions={renderRightActions}
-        rightThreshold={40}
-        containerStyle={{ overflow: 'visible' }}
-      >
-        {content}
-      </Swipeable>
+      <>
+        <SetActionsDialog
+          visible={actionsVisible}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onCancel={() => setActionsVisible(false)}
+        />
+        <Swipeable
+          ref={(ref) => { swipeableRef.current = ref; }}
+          renderRightActions={renderRightActions}
+          rightThreshold={40}
+          containerStyle={{ overflow: 'visible' }}
+        >
+          {content}
+        </Swipeable>
+      </>
     );
   }
 

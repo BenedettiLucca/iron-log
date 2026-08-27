@@ -7,7 +7,6 @@ import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
 import { AlexandriaExportService } from '../../services/AlexandriaExportService';
-import { Button } from '../../components/Button';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -275,7 +274,7 @@ export default function SettingsScreen() {
           {t("settings.reminderDescription")}
         </Text>
 
-        <View className="flex-row items-center justify-between py-3 border-b border-border/40">
+        <View className={`flex-row items-center justify-between py-3.5 ${notificationSettings.enabled ? 'border-b border-border/40' : ''}`}>
           <View className="flex-1">
             <Text className="text-text font-semibold text-sm">{t("settings.enableReminders")}</Text>
             <Text className="text-subtext text-xs mt-0.5">
@@ -292,17 +291,13 @@ export default function SettingsScreen() {
         </View>
 
         {notificationSettings.enabled && (
-          <View className="mt-3">
-            <Button
-              title={t("settings.testNotification")}
-              onPress={sendTestNotification}
-              variant="ghost"
-              size="sm"
-              loading={loading}
-              fullWidth
-              icon={<BellIcon color={theme.secondaryText} />}
-            />
-          </View>
+          <RowButton
+            label={t("settings.testNotification")}
+            onPress={sendTestNotification}
+            icon={<BellIcon color={theme.primaryText} />}
+            loading={loading}
+            noBorder
+          />
         )}
       </View>
 

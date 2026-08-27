@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { db } from '../../src/db/client';
@@ -14,18 +14,53 @@ import { SkeletonList } from '../../components/Skeleton';
 import { logger } from '@/services/logger';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useRoutines } from '@/hooks/use-routines';
+import { useFolders } from '@/hooks/use-folders';
 import { useI18n } from '../../src/i18n/index';
+import {
+  DEFAULT_FOLDER_NAME,
+  getFolderChipNames,
+  isSameFolderName,
+} from '@/src/utils/folders';
 import { buildSessionStartRoute } from '../../src/utils/session-start';
 import { useToast } from '../../hooks/use-toast';
 import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 import { SectionHeader } from '@/components/SectionHeader';
 import { consumePendingToast } from '@/src/utils/flash-toast';
+import { FolderManagerModal } from '@/components/FolderManagerModal';
 import Svg, { Path } from 'react-native-svg';
 export default function RoutinesListScreen() {
   const router = useRouter();
   const theme = useThemeColors();
-  const { isLoading, folders, fetchRoutines, deleteRoutine, duplicateRoutine, getFilteredRoutines } = useRoutines();
+  const {
+    isLoading,
+    folders: routineFolders,
+    fetchRoutines,
+    deleteRoutine,
+    duplicateRoutine,
+    getFilteredRoutines,
+  } = useRoutines();
+  const {
+    folders: persistedFolders,
+    fetchFolders,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+  } = useFolders();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
+  const [folderManagerVisible, setFolderManagerVisible] = useState(false);
+
+  const folderChips = useMemo(() => getFolderChipNames(
+    persistedFolders.length > 0
+      ? persistedFolders.map((folder) => folder.name)
+      : routineFolders.filter((folder) => folder !== 'Todos'),
+  ), [persistedFolders, routineFolders]);
+
+  useEffect(() => {
+    if (!folderChips.includes(selectedFolder)) {
+      setSelectedFolder('Todos');
+    }
+  }, [folderChips, selectedFolder]);
+
   const { toast, setToast } = useToast();
   const { dialog, setDialog } = useConfirmDialog();
   const [refreshing, setRefreshing] = useState(false);
@@ -35,22 +70,34 @@ export default function RoutinesListScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchRoutines();
+      fetchFolders();
       const pendingToast = consumePendingToast();
       if (pendingToast) {
         setToast({ visible: true, ...pendingToast });
       } else {
         setToast({ visible: false, message: '', type: 'success' });
       }
-    }, [fetchRoutines, setToast])
+    }, [fetchFolders, fetchRoutines, setToast])
   );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchRoutines();
+    await Promise.all([fetchRoutines(), fetchFolders()]);
     setRefreshing(false);
-  }, [fetchRoutines]);
+  }, [fetchFolders, fetchRoutines]);
 
   const filteredRoutines = getFilteredRoutines(selectedFolder);
+
+  const handleRenameFolder = useCallback(async (id: number, name: string) => {
+    const renamed = await renameFolder(id, name);
+    await fetchRoutines();
+    return renamed;
+  }, [fetchRoutines, renameFolder]);
+
+  const handleDeleteFolder = useCallback(async (id: number) => {
+    await deleteFolder(id);
+    await fetchRoutines();
+  }, [deleteFolder, fetchRoutines]);
 
   const handleDelete = (id: number, name: string) => {
     setDialog({
@@ -155,25 +202,29 @@ export default function RoutinesListScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 pb-0 pt-4">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2 mb-4">
+      <View className="px-4 pb-3 pt-4">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingRight: 16 }}
+        >
           <TouchableOpacity
             onPress={() => router.push('/programs')}
             activeOpacity={0.7}
-            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+            className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0"
           >
-            <Text className="text-subtext text-sm font-semibold">{t('programs.title')}</Text>
+            <Text className="text-subtext text-sm font-semibold uppercase">{t('programs.title')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => router.push('/routines/templates')}
             activeOpacity={0.7}
-            className="bg-card border border-border rounded-full py-1.5 px-3.5"
+            className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0"
           >
-            <Text className="text-subtext text-sm font-semibold">{t('routines.tabTemplates')}</Text>
+            <Text className="text-subtext text-sm font-semibold uppercase">{t('routines.tabTemplates')}</Text>
           </TouchableOpacity>
-          {folders.map(folder => {
+          {folderChips.map((folder) => {
             const displayFolder = folder === 'Todos' ? t('routines.tabAll')
-              : folder === 'Geral' ? t('routines.tabGeneral')
+              : isSameFolderName(folder, DEFAULT_FOLDER_NAME) ? t('routines.tabGeneral')
               : folder;
             const isActive = selectedFolder === folder;
             return (
@@ -181,16 +232,27 @@ export default function RoutinesListScreen() {
                 key={folder}
                 onPress={() => setSelectedFolder(folder)}
                 activeOpacity={0.7}
-                className={`rounded-full py-1.5 px-3.5 border ${
+                className={`rounded-full py-1.5 px-3.5 border min-h-[44px] items-center justify-center shrink-0 ${
                   isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
                 }`}
               >
-                <Text className={`text-sm font-semibold ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
+                <Text className={`text-sm font-semibold uppercase ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
                   {displayFolder}
                 </Text>
               </TouchableOpacity>
             );
           })}
+          <TouchableOpacity
+            onPress={() => {
+              setFolderManagerVisible(true);
+              fetchFolders();
+            }}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0"
+          >
+            <Text className="text-subtext text-sm font-semibold uppercase">{`+ ${t('routines.newFolder')}`}</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
 
@@ -241,7 +303,7 @@ export default function RoutinesListScreen() {
                 <View className="flex-1 mr-4">
                   <View className="flex-row items-center gap-2 mb-1 flex-wrap">
                     <Text className="text-text text-lg font-bold">{item.name}</Text>
-                    {item.folder && item.folder !== 'Geral' && (
+                    {item.folder && !isSameFolderName(item.folder, DEFAULT_FOLDER_NAME) && (
                       <View className="bg-background px-2.5 py-0.5 rounded-full border border-border">
                         <Text className="text-2xs text-subtext font-semibold">{item.folder}</Text>
                       </View>
@@ -342,6 +404,15 @@ export default function RoutinesListScreen() {
           }
           setPreviewRoutine(null);
         }}
+      />
+
+      <FolderManagerModal
+        visible={folderManagerVisible}
+        folders={persistedFolders}
+        onClose={() => setFolderManagerVisible(false)}
+        onCreate={createFolder}
+        onRename={handleRenameFolder}
+        onDelete={handleDeleteFolder}
       />
     </View>
   );

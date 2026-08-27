@@ -92,7 +92,12 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
             <Text className="text-subtext text-xs font-bold uppercase tracking-wider">{t('routines.preview')}</Text>
             <Text className="text-text text-xl font-bold" numberOfLines={1}>{routineName || t('routineDetail.title')}</Text>
           </View>
-          <Button title={t('common.close')} onPress={onClose} variant="ghost" size="sm" />
+          <Button
+            title={t('common.close')}
+            onPress={onClose}
+            variant="secondary"
+            size="sm"
+          />
         </View>
 
         {/* Content */}

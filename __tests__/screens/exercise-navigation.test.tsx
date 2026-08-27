@@ -68,6 +68,9 @@ jest.mock('react-native', () => ({
   TextInput: 'TextInput',
   TouchableOpacity: 'TouchableOpacity',
   KeyboardAvoidingView: 'KeyboardAvoidingView',
+  Keyboard: {
+    dismiss: jest.fn(),
+  },
   Platform: {
     OS: 'android',
     select: (values: Record<string, unknown>) => values.android ?? values.default,

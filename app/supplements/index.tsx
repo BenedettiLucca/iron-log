@@ -474,7 +474,7 @@ export default function SupplementsScreen() {
             <Button
               title={t('common.close')}
               onPress={requestCloseModal}
-              variant="ghost"
+              variant="secondary"
               size="sm"
               disabled={isSaving || isDeleting}
             />
@@ -559,7 +559,8 @@ export default function SupplementsScreen() {
               <Switch
                 value={isNighttime}
                 onValueChange={setIsNighttime}
-                trackColor={{ false: theme.border, true: Colors.primary }}
+                trackColor={{ false: theme.border, true: theme.primary }}
+                thumbColor={theme.onPrimary}
               />
             </View>
 

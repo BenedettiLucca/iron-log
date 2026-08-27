@@ -3,7 +3,7 @@
  * Derived from src/db/schema.ts
  */
 
-import type { sessions, sets, exercises, routines, routineExercises, bodyMetrics, userSettings, notificationSettings, measurementGoals, personalRecords, supplements, supplementLogs, programs, programWeeks, programExerciseTargets } from '@/src/db/schema';
+import type { sessions, sets, exercises, routines, folders, routineExercises, bodyMetrics, userSettings, notificationSettings, measurementGoals, personalRecords, supplements, supplementLogs, programs, programWeeks, programExerciseTargets } from '@/src/db/schema';
 
 // ---------------------------------------------------------------------------
 // Enums / Unions
@@ -26,6 +26,7 @@ export type Session = typeof sessions.$inferSelect;
 export type Set = typeof sets.$inferSelect;
 export type Exercise = typeof exercises.$inferSelect;
 export type Routine = typeof routines.$inferSelect;
+export type Folder = typeof folders.$inferSelect;
 export type RoutineExercise = typeof routineExercises.$inferSelect;
 export type BodyMetric = typeof bodyMetrics.$inferSelect;
 export type UserSettings = typeof userSettings.$inferSelect;

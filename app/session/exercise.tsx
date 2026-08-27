@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
@@ -284,6 +285,8 @@ export default function ExerciseScreen() {
       const saved = await handleSaveSet(overrideDuration);
       if (!saved) return false;
 
+      Keyboard.dismiss();
+
       try {
         await saveSessionContext(
           {
@@ -436,8 +439,8 @@ export default function ExerciseScreen() {
   const [showRirExplainer, setShowRirExplainer] = useState(false);
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flex: 1 }}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
@@ -570,32 +573,30 @@ export default function ExerciseScreen() {
                   setIsDirty(true);
                   toggleActiveSet();
                 }}
-                className="rounded-2xl items-center py-5 px-16 shadow-lg"
-                style={{
-                  backgroundColor: isActiveSetRunning ? Colors.red400 : Colors.success,
-                  shadowColor: Colors.black,
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: 8,
-                }}
+                className={`w-full rounded-2xl items-center justify-center min-h-[50px] shadow-sm active:opacity-90 ${
+                  isActiveSetRunning ? 'bg-danger' : 'bg-success'
+                }`}
                 {...a11y.durationControl(isActiveSetRunning)}
               >
-                <Text className={`${isActiveSetRunning ? 'text-onDanger' : 'text-onSuccess'} font-bold text-xl uppercase tracking-widest`}>
+                <Text
+                  className={`${
+                    isActiveSetRunning ? 'text-onDanger' : 'text-onSuccess'
+                  } font-bold text-sm`}
+                >
                   {isActiveSetRunning ? t('exercise.stop') : t('exercise.startSet')}
                 </Text>
               </TouchableOpacity>
 
               {/* Explicit save button for duration exercises */}
               {!isActiveSetRunning && activeSetTime > 0 && (
-                <View className="mt-4">
+                <View className="w-full mt-3">
                   <Button
                     title={t("exercise.saveSet")}
                     onPress={async () => {
                       await saveSetAndClearDraft(activeSetTime);
                     }}
                     variant="primary"
-                    size="lg"
+                    size="md"
                     fullWidth
                   />
                 </View>

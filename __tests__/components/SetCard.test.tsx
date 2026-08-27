@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alert } from 'react-native';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import SetCard from '@/components/SetCard';
 
 (globalThis as typeof globalThis & { React: typeof React }).React = React;
@@ -45,8 +45,35 @@ jest.mock('react-native/Libraries/Alert/Alert', () => ({
   default: { alert: jest.fn() },
 }));
 
+jest.mock('@/hooks/use-theme-colors', () => ({
+  useThemeColors: () => ({
+    overlay: 'rgba(0, 0, 0, 0.5)',
+  }),
+}));
+
+jest.mock('react-native/Libraries/Modal/Modal', () => ({
+  __esModule: true,
+  default: 'Modal',
+}));
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
+}));
+
+jest.mock('@/components/Button', () => ({
+  Button: (props: Record<string, unknown>) => React.createElement('Button', props),
+}));
+
 jest.mock('@/hooks/use-haptics', () => ({
   useHaptics: () => ({ trigger: mockTrigger }),
+}));
+
+jest.mock('@/hooks/use-reactive-reduced-motion', () => ({
+  useReactiveReducedMotion: () => false,
+}));
+
+jest.mock('@/src/utils/accessibility', () => ({
+  focusAccessibilityNode: jest.fn(),
 }));
 
 jest.mock('@/src/i18n/index', () => ({
@@ -97,22 +124,80 @@ describe('SetCard actions and local entry', () => {
     jest.restoreAllMocks();
   });
 
-  it('offers visible native edit and delete alternatives to swipe', () => {
+  it('shows themed action dialog instead of native Alert', () => {
     const onEdit = jest.fn();
     const onDelete = jest.fn();
     const result = renderCard({ onEdit, onDelete });
 
     const actionsButton = result.getByLabelText('Abrir ações da série');
     expect(actionsButton.props.className).toContain('w-11 h-11');
-    fireEvent.press(actionsButton);
+
+    act(() => {
+      fireEvent.press(actionsButton);
+    });
 
     expect(mockTrigger).toHaveBeenCalledWith('selection');
-    expect(Alert.alert).toHaveBeenCalledTimes(1);
-    const buttons = (Alert.alert as jest.Mock).mock.calls[0][2];
-    buttons.find((button: { text: string }) => button.text === 'Editar').onPress();
-    buttons.find((button: { text: string }) => button.text === 'Excluir').onPress();
+    expect(Alert.alert).not.toHaveBeenCalled();
+
+    const buttons = result.UNSAFE_getAllByType('Button' as any);
+    const editBtn = buttons.find((b: any) => b.props.title === 'Editar');
+    const deleteBtn = buttons.find((b: any) => b.props.title === 'Excluir');
+    const cancelBtn = buttons.find((b: any) => b.props.title === 'Cancelar');
+    expect(editBtn).toBeTruthy();
+    expect(deleteBtn).toBeTruthy();
+    expect(cancelBtn).toBeTruthy();
+  });
+
+  it('calls onEdit when Edit is pressed in the themed dialog', () => {
+    const onEdit = jest.fn();
+    const onDelete = jest.fn();
+    const result = renderCard({ onEdit, onDelete });
+
+    act(() => {
+      fireEvent.press(result.getByLabelText('Abrir ações da série'));
+    });
+
+    const editBtn = result.UNSAFE_getAllByType('Button' as any).find((b: any) => b.props.title === 'Editar');
+    act(() => {
+      fireEvent.press(editBtn!);
+    });
+
     expect(onEdit).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls onDelete when Delete is pressed in the themed dialog', () => {
+    const onEdit = jest.fn();
+    const onDelete = jest.fn();
+    const result = renderCard({ onEdit, onDelete });
+
+    act(() => {
+      fireEvent.press(result.getByLabelText('Abrir ações da série'));
+    });
+
+    const deleteBtn = result.UNSAFE_getAllByType('Button' as any).find((b: any) => b.props.title === 'Excluir');
+    act(() => {
+      fireEvent.press(deleteBtn!);
+    });
+
     expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the themed dialog on Cancel without calling onEdit or onDelete', () => {
+    const onEdit = jest.fn();
+    const onDelete = jest.fn();
+    const result = renderCard({ onEdit, onDelete });
+
+    act(() => {
+      fireEvent.press(result.getByLabelText('Abrir ações da série'));
+    });
+
+    const cancelBtn = result.UNSAFE_getAllByType('Button' as any).find((b: any) => b.props.title === 'Cancelar');
+    act(() => {
+      fireEvent.press(cancelBtn!);
+    });
+
+    expect(onEdit).not.toHaveBeenCalled();
+    expect(onDelete).not.toHaveBeenCalled();
   });
 
   it('animates only when the parent marks this set as changed', () => {

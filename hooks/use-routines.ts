@@ -4,6 +4,11 @@ import { routines, routineExercises, exercises, sessions, programWeeks } from '@
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Routine } from '@/src/types';
+import {
+  DEFAULT_FOLDER_NAME,
+  getFolderChipNames,
+  isSameFolderName,
+} from '@/src/utils/folders';
 
 export function useRoutines() {
   const [allRoutines, setAllRoutines] = useState<Routine[]>([]);
@@ -96,12 +101,14 @@ export function useRoutines() {
   }, []);
 
   const folders = useMemo(() => {
-    return ['Todos', ...Array.from(new Set(allRoutines.map(r => r.folder || 'Geral')))];
+    return getFolderChipNames(allRoutines.map((routine) => routine.folder || DEFAULT_FOLDER_NAME));
   }, [allRoutines]);
 
   const getFilteredRoutines = useCallback((selectedFolder: string): Routine[] => {
     if (selectedFolder === 'Todos') return allRoutines;
-    return allRoutines.filter(r => (r.folder || 'Geral') === selectedFolder);
+    return allRoutines.filter((routine) =>
+      isSameFolderName(routine.folder || DEFAULT_FOLDER_NAME, selectedFolder),
+    );
   }, [allRoutines]);
 
   return {

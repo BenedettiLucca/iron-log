@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../src/i18n/index';
 import { db } from '../../src/db/client';
@@ -26,11 +26,13 @@ import {
   isRoutineNameUniqueConstraintError,
 } from '@/src/utils/routine-name';
 import { setPendingToast } from '@/src/utils/flash-toast';
+import { DEFAULT_FOLDER_NAME } from '@/src/utils/folders';
 
 type Template = {
   id: number;
   name: string;
   description: string;
+  folder: string;
   exercises: TemplateExercise[];
 };
 
@@ -78,6 +80,7 @@ export default function TemplateLibraryScreen() {
           id: routine.id,
           name: typeof routine.name === 'string' ? routine.name : '',
           description: typeof routine.description === 'string' ? routine.description : '',
+          folder: routine.folder || DEFAULT_FOLDER_NAME,
           exercises: exercisesList,
         });
       }
@@ -123,6 +126,7 @@ export default function TemplateLibraryScreen() {
           .values({
             name: copyName,
             description: template.description || '',
+            folder: template.folder,
             isTemplate: false,
           })
           .returning({ id: routines.id })
@@ -234,7 +238,7 @@ export default function TemplateLibraryScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 pt-16 pb-4">
+      <View className="px-4 pt-4 pb-4">
         <SectionHeader label={t('routines.templateLibrary')} className="mb-1" />
         <Text className="text-subtext text-sm mb-4">{t('routines.templateLibraryDesc')}</Text>
       </View>
@@ -267,15 +271,6 @@ export default function TemplateLibraryScreen() {
           renderItem={renderTemplateCard}
         />
       )}
-
-      <TouchableOpacity
-        onPress={() => router.back()}
-        className="absolute top-4 left-4 bg-card p-2 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-border shadow-md"
-        accessibilityRole="button"
-        accessibilityLabel={t('routines.back')}
-      >
-        <Text className="text-text font-bold">{t('routines.back')}</Text>
-      </TouchableOpacity>
 
       <Toast
         visible={toast.visible}

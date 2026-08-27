@@ -417,7 +417,7 @@ export default function BioScreen() {
                   <Button
                     title={t("common.close")}
                     onPress={handleCloseModal}
-                    variant="ghost"
+                    variant="secondary"
                     size="sm"
                   />
               </View>

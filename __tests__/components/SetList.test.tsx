@@ -46,9 +46,11 @@ jest.mock('react-native/Libraries/Lists/FlatList', () => {
     renderItem: (info: { item: Set; index: number }) => React.ReactNode;
     keyExtractor: (item: Set, index: number) => string;
     ListEmptyComponent?: React.ReactNode;
+    contentContainerStyle?: Record<string, unknown>;
   };
 
-  function FlatList({ data, renderItem, keyExtractor, ListEmptyComponent }: FlatListProps) {
+  function FlatList({ data, renderItem, keyExtractor, ListEmptyComponent, contentContainerStyle }: FlatListProps) {
+    lastFlatListStyle = contentContainerStyle;
     if (data.length === 0) return ListEmptyComponent ?? null;
     return ReactActual.createElement(
       ReactActual.Fragment,
@@ -82,6 +84,8 @@ const makeSet = (overrides: Partial<Set> = {}): Set => ({
   deletedAt: null,
   ...overrides,
 });
+
+let lastFlatListStyle: Record<string, unknown> | undefined;
 
 const t = (key: string) => key;
 const handleEditSet = jest.fn();
@@ -156,5 +160,12 @@ describe('SetList local entry animation', () => {
       [1, false],
       [2, false],
     ]));
+  });
+
+  it('does not add post-list paddingBottom that creates a gap below the last card', () => {
+    lastFlatListStyle = undefined;
+    render(<SetList {...props([makeSet()], true)} />);
+
+    expect(lastFlatListStyle?.['paddingBottom']).toBeUndefined();
   });
 });

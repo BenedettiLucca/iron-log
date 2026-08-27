@@ -21,6 +21,7 @@ import m0016 from './0016_smiling_wolfpack.sql';
 import m0017 from './0017_programs_periodization.sql';
 import m0018 from './0018_safe_wind_dancer.sql';
 import m0019 from './0019_optimal_marauders.sql';
+import m0020 from './0020_low_microchip.sql';
 
   export default {
     journal,
@@ -44,7 +45,8 @@ m0015,
 m0016,
 m0017,
 m0018,
-m0019
+m0019,
+m0020
     }
   }
   

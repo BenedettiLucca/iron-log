@@ -63,7 +63,6 @@ export function SetList({
         data={sessionSets}
         keyExtractor={(item) => `${item.id}-${currentSignatures.get(item.id) ?? ''}`}
         extraData={extraData}
-        contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => {
           const signature = currentSignatures.get(item.id);
           const signatureAlreadyCommitted = previousSignaturesRef.current.get(item.id) === signature;

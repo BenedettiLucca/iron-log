@@ -418,7 +418,13 @@ export default function GoalsScreen() {
             <Text className="text-text text-xl font-bold">
               {editingGoalId !== null ? t("bioGoals.editGoal") : t("bioGoals.newGoal")}
             </Text>
-            <Button title={t("common.close")} onPress={requestCloseModal} variant="ghost" size="sm" disabled={isSaving} />
+            <Button
+              title={t("common.close")}
+              onPress={requestCloseModal}
+              variant="secondary"
+              size="sm"
+              disabled={isSaving}
+            />
           </View>
 
           <ScrollView

@@ -95,4 +95,18 @@ describe('WarmupToggle', () => {
     expect(mockWithTiming).not.toHaveBeenCalled();
     expect(sharedValue.value).toBe(1);
   });
+
+  it('centers the thumb vertically and horizontally within the track geometry', () => {
+    const result = renderToggle(false);
+    const toggle = result.getByLabelText('Modo de aquecimento');
+    const track = toggle.props.children;
+
+    expect(track.props.className).toContain('w-12 h-7 rounded-full');
+    expect(track.props.className).toContain('justify-center');
+    expect(track.props.className).toMatch(/\b(p-1|px-1)\b/);
+    expect(track.props.className).not.toContain('p-0.5');
+
+    const thumb = track.props.children;
+    expect(thumb.props.className).toContain('w-5 h-5 rounded-full');
+  });
 });

@@ -25,6 +25,7 @@ import { Card } from '../../components/Card';
 import { Dialog } from '../../components/Dialog';
 import { ErrorState, LoadingState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
+import { useFolders } from '@/hooks/use-folders';
 import { routineNameSchema } from '@/src/validators/forms';
 import { useI18n } from '../../src/i18n/index';
 import { useToast } from '../../hooks/use-toast';
@@ -41,6 +42,7 @@ import {
   normalizeRoutineName,
 } from '@/src/utils/routine-name';
 import { setPendingToast } from '@/src/utils/flash-toast';
+import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
 
 type SelectedExercise = {
   id: number;
@@ -59,6 +61,7 @@ export default function RoutineEditorScreen() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [folder, setFolder] = useState(DEFAULT_FOLDER_NAME);
   const [selectedExercises, setSelectedExercises] = useState<SelectedExercise[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [renamingEx, setRenamingEx] = useState<{id: number, name: string} | null>(null);
@@ -67,6 +70,10 @@ export default function RoutineEditorScreen() {
   const isSavingRef = useRef(false);
   const { toast, setToast } = useToast();
   const insets = useSafeAreaInsets();
+  const { folders: availableFolders, fetchFolders } = useFolders();
+  const folderOptions = availableFolders.length > 0
+    ? availableFolders
+    : [{ id: 0, name: DEFAULT_FOLDER_NAME }];
 
   const [nameError, setNameError] = useState('');
   const [exerciseError, setExerciseError] = useState('');
@@ -78,7 +85,7 @@ export default function RoutineEditorScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const footerHeightRef = useRef(0);
   const focusedExerciseInputRef = useRef<FocusEvent['target'] | null>(null);
-  const initialSnapshotRef = useRef<readonly unknown[]>(['', '', '[]']);
+  const initialSnapshotRef = useRef<readonly unknown[]>(['', '', DEFAULT_FOLDER_NAME, '[]']);
   const bypassRef = useRef(false);
   const pendingActionRef = useRef<NavigationAction | null>(null);
   const hydrationGenerationRef = useRef(0);
@@ -113,10 +120,12 @@ export default function RoutineEditorScreen() {
       if (generation !== hydrationGenerationRef.current) return;
       const loadedName = loadedRoutine.name;
       const loadedDescription = loadedRoutine.description || '';
+      const loadedFolder = loadedRoutine.folder || DEFAULT_FOLDER_NAME;
       setName(loadedName);
       setDescription(loadedDescription);
+      setFolder(loadedFolder);
       setSelectedExercises(loadedExercises);
-      initialSnapshotRef.current = [loadedName, loadedDescription, JSON.stringify(loadedExercises)];
+      initialSnapshotRef.current = [loadedName, loadedDescription, loadedFolder, JSON.stringify(loadedExercises)];
       setHydrationFailed(false);
     } catch (error) {
       if (generation !== hydrationGenerationRef.current) return;
@@ -138,6 +147,10 @@ export default function RoutineEditorScreen() {
   }, [loadRoutineData]);
 
   useEffect(() => {
+    void fetchFolders();
+  }, [fetchFolders]);
+
+  useEffect(() => {
     if (!isEditing) {
       setIsHydrating(false);
       setHydrationFailed(false);
@@ -154,7 +167,7 @@ export default function RoutineEditorScreen() {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
       if (bypassRef.current) return;
       if (!['GO_BACK', 'POP'].includes(e.data.action.type)) return;
-      const currentSnapshot = [name, description, JSON.stringify(selectedExercises)];
+      const currentSnapshot = [name, description, folder, JSON.stringify(selectedExercises)];
       if (!isFormDirty(currentSnapshot, initialSnapshotRef.current)) return;
       e.preventDefault();
       if (!pendingActionRef.current) {
@@ -163,7 +176,7 @@ export default function RoutineEditorScreen() {
       }
     });
     return unsubscribe;
-  }, [navigation, name, description, selectedExercises]);
+  }, [navigation, name, description, folder, selectedExercises]);
 
   const handleConfirmDiscard = () => {
     bypassRef.current = true;
@@ -183,7 +196,7 @@ export default function RoutineEditorScreen() {
   const validateForm = (): boolean => {
     setNameError('');
     setExerciseError('');
-    const nameValidation = routineNameSchema.safeParse({ name: name.trim(), description });
+    const nameValidation = routineNameSchema.safeParse({ name: name.trim(), description, folder });
     if (!nameValidation.success) {
       const msg = t('common.invalidName');
       setNameError(msg);
@@ -230,14 +243,14 @@ export default function RoutineEditorScreen() {
       db.transaction((tx) => {
         if (isEditing) {
           tx.update(routines)
-            .set({ name: normalizedName, description })
+            .set({ name: normalizedName, description, folder })
             .where(eq(routines.id, routineId))
             .run();
           tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
         } else {
           const created = tx
             .insert(routines)
-            .values({ name: normalizedName, description })
+            .values({ name: normalizedName, description, folder })
             .returning({ id: routines.id })
             .get();
           if (!created) throw new Error('Failed to create routine');
@@ -319,7 +332,7 @@ export default function RoutineEditorScreen() {
 
       db.transaction((tx) => {
         tx.update(routines)
-          .set(buildSaveAsTemplateValues(normalizedName, description))
+          .set({ ...buildSaveAsTemplateValues(normalizedName, description), folder })
           .where(eq(routines.id, routineId))
           .run();
         tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
@@ -442,6 +455,46 @@ export default function RoutineEditorScreen() {
             onChangeText={setDescription}
             placeholder={t("routines.descriptionPlaceholder")}
         />
+
+        <View>
+          <Text className="text-subtext text-xs font-semibold mb-1.5 uppercase tracking-wider">
+            {t('routines.folder')}
+          </Text>
+          <Text className="text-subtext text-sm mb-3">
+            {t('routines.folderSelectionHint')}
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ flexDirection: 'row', gap: 10 }}
+          >
+            {folderOptions.map((folderOption) => {
+              const isSelected = isSameFolderName(folder, folderOption.name);
+              const displayName = isSameFolderName(folderOption.name, DEFAULT_FOLDER_NAME)
+                ? t('routines.tabGeneral')
+                : folderOption.name;
+
+              return (
+                <TouchableOpacity
+                  key={folderOption.id}
+                  onPress={() => setFolder(folderOption.name)}
+                  activeOpacity={0.7}
+                  className={`rounded-full py-2 px-3.5 border ${
+                    isSelected ? 'bg-primary border-transparent' : 'bg-card border-border'
+                  }`}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={displayName}
+                  accessibilityHint={t('routines.folderSelectionHint')}
+                >
+                  <Text className={`text-sm font-semibold uppercase ${isSelected ? 'text-onPrimary' : 'text-subtext'}`}>
+                    {displayName}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
 
         <View className="flex-row justify-between items-center mt-2">
           <SectionHeader label={t("routines.exercisesCount", { count: selectedExercises.length })} />
@@ -662,10 +715,10 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
       <View className="flex-1 bg-background">
         <View className="p-4 border-b border-border flex-row justify-between items-center bg-card">
           <SectionHeader label={t("routines.selectExercise")} />
-          <Button 
+          <Button
             title={t("common.close")}
             onPress={onClose}
-            variant="ghost"
+            variant="secondary"
             size="sm"
           />
         </View>

@@ -16,6 +16,11 @@ interface WarmupToggleProps {
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
+const DEFAULT_TRACK_WIDTH = 48;
+const TRACK_PADDING = 4;
+const THUMB_SIZE = 20;
+const travelDistance = DEFAULT_TRACK_WIDTH - 2 * TRACK_PADDING - THUMB_SIZE;
+
 export function WarmupToggle({
   value,
   onValueChange,
@@ -39,7 +44,7 @@ export function WarmupToggle({
   }, [progress, reducedMotion, value]);
 
   const thumbStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: progress.value * 20 }],
+    transform: [{ translateX: progress.value * travelDistance }],
   }));
 
   return (
@@ -56,7 +61,7 @@ export function WarmupToggle({
         accessibilityLabel={accessibilityLabel}
         accessibilityState={{ checked: value }}
       >
-        <View className={`w-12 h-7 rounded-full p-0.5 ${value ? 'bg-warning' : 'bg-border'}`}>
+        <View className={`w-12 h-7 rounded-full justify-center p-1 ${value ? 'bg-warning' : 'bg-border'}`}>
           <AnimatedView
             className="w-5 h-5 rounded-full bg-white shadow-sm"
             style={thumbStyle}

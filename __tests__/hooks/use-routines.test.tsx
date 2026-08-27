@@ -121,3 +121,92 @@ describe('useRoutines deleteRoutine', () => {
     expect(mockLoggerError).toHaveBeenCalledWith('Failed to delete routine', injectedFailure);
   });
 });
+
+describe('useRoutines folders', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    committedOperations = [];
+    attemptedOperations = [];
+    failureAtOperation = undefined;
+    injectedFailure = undefined;
+    mockFrom.mockResolvedValue([]);
+    mockTransaction.mockImplementation((callback) => {
+      const snapshot = [...committedOperations];
+      try {
+        const result = callback(createTransaction());
+        if (result instanceof Promise) {
+          throw new Error('Expo SQLite transaction callback must be synchronous');
+        }
+        return result;
+      } catch (error) {
+        committedOperations = snapshot;
+        throw error;
+      }
+    });
+  });
+
+  async function setupRoutines(routineData: { id: number; name: string; description: string; folder: string | null; isTemplate: boolean }[]) {
+    mockFrom.mockResolvedValue(routineData);
+    const { result } = renderHook(() => useRoutines());
+    await act(async () => {
+      await result.current.fetchRoutines();
+    });
+    return { result };
+  }
+
+  it('excludes "Geral" from folders when it is the only folder (no custom folders)', async () => {
+    const { result } = await setupRoutines([
+      { id: 1, name: 'Treino A', description: 'A', folder: null, isTemplate: false },
+      { id: 2, name: 'Treino B', description: 'B', folder: 'Geral', isTemplate: false },
+    ]);
+    expect(result.current.folders).toEqual(['Todos']);
+  });
+
+  it('includes "Geral" when custom folders also exist', async () => {
+    const { result } = await setupRoutines([
+      { id: 1, name: 'Treino A', description: 'A', folder: 'Push', isTemplate: false },
+      { id: 2, name: 'Treino B', description: 'B', folder: 'Geral', isTemplate: false },
+    ]);
+    expect(result.current.folders).toEqual(['Todos', 'Push', 'Geral']);
+  });
+
+  it('includes all distinct custom folders alongside "Geral"', async () => {
+    const { result } = await setupRoutines([
+      { id: 1, name: 'Treino A', description: 'A', folder: 'Push', isTemplate: false },
+      { id: 2, name: 'Treino B', description: 'B', folder: 'Leg', isTemplate: false },
+      { id: 3, name: 'Treino C', description: 'C', folder: 'Geral', isTemplate: false },
+    ]);
+    expect(result.current.folders).toEqual(['Todos', 'Push', 'Leg', 'Geral']);
+  });
+
+  it('returns only ["Todos"] when there are no routines', async () => {
+    mockFrom.mockResolvedValue([]);
+    const { result } = renderHook(() => useRoutines());
+    await act(async () => {
+      await result.current.fetchRoutines();
+    });
+    expect(result.current.folders).toEqual(['Todos']);
+  });
+
+  it('getFilteredRoutines still filters correctly when Geral is absent from folders', async () => {
+    const { result } = await setupRoutines([
+      { id: 1, name: 'Treino A', description: 'A', folder: 'Push', isTemplate: false },
+      { id: 2, name: 'Treino B', description: 'B', folder: null, isTemplate: false },
+    ]);
+    expect(result.current.getFilteredRoutines('Todos')).toHaveLength(2);
+    expect(result.current.getFilteredRoutines('Push')).toHaveLength(1);
+    expect(result.current.getFilteredRoutines('Geral')).toHaveLength(1);
+  });
+
+  it('keeps legacy folder case variants reachable through the fallback chips', async () => {
+    const { result } = await setupRoutines([
+      { id: 1, name: 'Treino A', description: 'A', folder: 'geral', isTemplate: false },
+      { id: 2, name: 'Treino B', description: 'B', folder: 'Push', isTemplate: false },
+      { id: 3, name: 'Treino C', description: 'C', folder: 'push', isTemplate: false },
+    ]);
+
+    expect(result.current.folders).toEqual(['Todos', 'Geral', 'Push']);
+    expect(result.current.getFilteredRoutines('Geral')).toHaveLength(1);
+    expect(result.current.getFilteredRoutines('Push')).toHaveLength(2);
+  });
+});
