@@ -2,6 +2,34 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.14.0] - 2026-08-27
+
+### Added
+- **Persistent routine folders** — New `folders` table (migration 0020) with case-insensitive name canonicalization and legacy backfill; `FolderService` (create/rename/delete with transactional routine reassignment) + `useFolders` hook + themed `FolderManagerModal` accessible from the Routines tab strip
+- **Folder picker in routine editor** — Folder selection with dirty-form tracking and discard guard integration; templates preserve their folder when instantiated as routines
+- **Folder badges on routine cards** — Non-default folder shown as a chip on the routines list
+
+### Changed
+- **Routines tab strip** — Real gaps via `contentContainerStyle`, consistent uppercase treatment across all chips, 44dp touch targets, and a `+ Nova pasta` entry point
+- **Set actions** — Native `Alert.alert` replaced with themed `SetActionsDialog` (respects dark mode, accessibility focus, hardware back)
+- **Duration exercise controls** — Start/Save share full width, `md` scale, and common alignment
+
+### Fixed
+- **Redundant Geral chip** — Default folder chip hidden when no custom folders exist; orphaned filter selection falls back to `Todos`
+- **WarmupToggle geometry** — Thumb travel derived from track constants; symmetric centering in both states
+- **Templates back button** — Removed duplicated overlay button; native Stack header is the single source
+- **Post-save spacing** — Extra bottom gap after saving a set removed
+- **ES summary CTA overflow** — `Nuevo Entreno` fits the narrow column without wrapping
+- **Modal close affordance** — Check-in, Supplements, Editor picker, and Preview headers use themed `secondary` buttons instead of ghost
+- **Settings rhythm** — Test Notification aligned to the same `RowButton` grammar as Import/Export
+- **Nighttime switch thumb** — Supplements switch thumb now themed instead of native blue
+
+### Tests
+- 894 passing (103 suites), 0 failures
+- Migration regression coverage via `node:sqlite` in-memory backfill assertions
+
+---
+
 ## [3.13.0] - 2026-06-24
 
 ### Changed
