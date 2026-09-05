@@ -154,7 +154,12 @@ export default function RoutinePreviewScreen() {
             .orderBy(desc(sessions.startTime))
             .limit(10);
 
-          const e1rm = lastSet && lastSet.weightKg > 0 && lastSet.reps > 0
+          // Cap honesty (issue #91A): the shared estimator refuses >12 reps,
+          // so a long high-rep set must hide the badge instead of showing "0kg".
+          const e1rm = lastSet
+            && lastSet.weightKg > 0
+            && lastSet.reps > 0
+            && lastSet.reps <= 12
             ? estimateE1RM(lastSet.weightKg, lastSet.reps)
             : null;
 

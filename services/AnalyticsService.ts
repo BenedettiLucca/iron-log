@@ -46,24 +46,122 @@ export interface ExerciseProgression {
   progress: number | null;       // percentage change
 }
 
+export interface Estimated1RMSetInput {
+  exerciseId: number;
+  exerciseName?: string | null;
+  weightKg: number;
+  reps: number;
+  sessionId: number;
+  createdAt?: number | null;
+  date?: number | null;
+}
+
+export interface RankedEstimated1RM {
+  exerciseId: number;
+  exercise: string;
+  estimated1RM: number;
+  weightKg: number;
+  reps: number;
+  sessionId: number;
+  date: number | null;
+}
+
 export interface DashboardAnalytics {
   strengthScore: StrengthScore;
   consistency: ConsistencyData;
   volumeTrends: VolumeTrend[];
   topExercises: ExerciseProgression[];
   totalPRs: number;
-  estimated1RM: { exercise: string; estimated1RM: number }[];
+  estimated1RM: RankedEstimated1RM[];
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Calculate estimated 1RM using Epley formula: weight × (1 + reps/30) */
+/**
+ * Calculate estimated 1RM using Epley formula: weight × (1 + reps/30).
+ * Valid only for 1 <= reps <= 12 and weight > 0.
+ * Returns 0 for non-positive input or reps > 12.
+ */
 export function estimateE1RM(weight: number, reps: number): number {
-  if (reps <= 0 || weight <= 0) return 0;
+  if (reps <= 0 || weight <= 0 || reps > 12) return 0;
   if (reps === 1) return weight;
   return Math.round(weight * (1 + reps / 30) * 10) / 10;
+}
+
+function isBetterEstimatedSet(candidate: RankedEstimated1RM, existing: RankedEstimated1RM): boolean {
+  if (candidate.estimated1RM !== existing.estimated1RM) {
+    return candidate.estimated1RM > existing.estimated1RM;
+  }
+  if (candidate.weightKg !== existing.weightKg) {
+    return candidate.weightKg > existing.weightKg;
+  }
+  if (candidate.reps !== existing.reps) {
+    return candidate.reps < existing.reps;
+  }
+  const cTime = candidate.date ?? -Infinity;
+  const eTime = existing.date ?? -Infinity;
+  if (cTime !== eTime) {
+    return cTime > eTime;
+  }
+  return candidate.sessionId > existing.sessionId;
+}
+
+/**
+ * Ranks estimated 1RM sets per exercise.
+ * - Filters out invalid inputs (empty exercise name, non-positive weight/reps, reps > 12, missing exerciseId).
+ * - Selects the best set for each exercise based on highest valid e1RM grouped by exerciseId.
+ * - Deterministic tie-break when e1RM is equal:
+ *   1. Higher raw weight (closer to true 1RM)
+ *   2. Lower reps
+ *   3. More recent date (descending, non-null before null)
+ *   4. Higher sessionId
+ * - Preserves the display name from the winning set.
+ * - Output is sorted by estimated1RM descending, then raw weight descending, then exercise name alphabetically, then exerciseId.
+ */
+export function rankEstimated1RMSets(setsList: Estimated1RMSetInput[]): RankedEstimated1RM[] {
+  const bestByExercise = new Map<number, RankedEstimated1RM>();
+
+  for (const set of setsList) {
+    if (set.exerciseId == null || typeof set.exerciseId !== 'number') continue;
+
+    const exerciseName = set.exerciseName?.trim();
+    if (!exerciseName) continue;
+
+    const e1rm = estimateE1RM(set.weightKg, set.reps);
+    if (e1rm <= 0) continue;
+
+    const setDate = set.date ?? set.createdAt ?? null;
+    const candidate: RankedEstimated1RM = {
+      exerciseId: set.exerciseId,
+      exercise: exerciseName,
+      estimated1RM: e1rm,
+      weightKg: set.weightKg,
+      reps: set.reps,
+      sessionId: set.sessionId,
+      date: setDate,
+    };
+
+    const existing = bestByExercise.get(set.exerciseId);
+    if (!existing || isBetterEstimatedSet(candidate, existing)) {
+      bestByExercise.set(set.exerciseId, candidate);
+    }
+  }
+
+  return Array.from(bestByExercise.values()).sort((a, b) => {
+    if (b.estimated1RM !== a.estimated1RM) {
+      return b.estimated1RM - a.estimated1RM;
+    }
+    if (b.weightKg !== a.weightKg) {
+      return b.weightKg - a.weightKg;
+    }
+    const nameCmp = a.exercise.localeCompare(b.exercise);
+    if (nameCmp !== 0) {
+      return nameCmp;
+    }
+    return a.exerciseId - b.exerciseId;
+  });
 }
 
 
@@ -410,34 +508,20 @@ export const AnalyticsService = {
   },
 
   /** Estimate 1RM for top exercises */
-  async calculateEstimated1RMs(): Promise<{ exercise: string; estimated1RM: number }[]> {
+  async calculateEstimated1RMs(): Promise<RankedEstimated1RM[]> {
     try {
-      // Get the heaviest set for each exercise (max weight with lowest reps)
-      const recentSets = await db.select({
+      const activeSets = await db.select({
+        exerciseId: sets.exerciseId,
         exerciseName: sets.exerciseName,
         weightKg: sets.weightKg,
         reps: sets.reps,
+        sessionId: sets.sessionId,
+        createdAt: sets.createdAt,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), sql`NOT ${sets.isWarmup}`))
-        .orderBy(desc(sets.weightKg));
+        .where(and(isNull(sets.deletedAt), sql`NOT ${sets.isWarmup}`));
 
-      const bestByExercise = new Map<string, { weight: number; reps: number }>();
-      for (const s of recentSets) {
-        if (!s.exerciseName || s.reps <= 0) continue;
-        const existing = bestByExercise.get(s.exerciseName);
-        if (!existing || s.weightKg > existing.weight) {
-          bestByExercise.set(s.exerciseName, { weight: s.weightKg, reps: s.reps });
-        }
-      }
-
-      return Array.from(bestByExercise.entries())
-        .map(([exercise, data]) => ({
-          exercise,
-          estimated1RM: estimateE1RM(data.weight, data.reps),
-        }))
-        .sort((a, b) => b.estimated1RM - a.estimated1RM)
-        .slice(0, 10);
+      return rankEstimated1RMSets(activeSets).slice(0, 10);
     } catch (e) {
       logger.error('Failed to calculate estimated 1RMs', e);
       throw e;

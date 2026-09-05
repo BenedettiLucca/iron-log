@@ -713,13 +713,28 @@ export default function AnalyticsScreen() {
           <View className="mb-3">
             <SectionHeader label={t('bioAnalytics.estimated1RMLabel')} />
           </View>
-          <View className="gap-2">
-            {estimated1RM.slice(0, 8).map(item => (
-              <View key={item.exercise} className="flex-row justify-between items-start gap-3">
-                <Text className="text-text text-sm flex-1 min-w-0">{item.exercise}</Text>
-                <Text className="text-text text-sm font-bold flex-shrink-0">{item.estimated1RM}kg</Text>
-              </View>
-            ))}
+          <View className="gap-3">
+            {estimated1RM.slice(0, 8).map(item => {
+              const formattedDate = item.date
+                ? new Date(item.date).toLocaleDateString(getLocaleForLanguage(language))
+                : null;
+              const details = [
+                `${item.weightKg}kg × ${item.reps}`,
+                formattedDate,
+              ].filter(Boolean).join(' · ');
+
+              return (
+                <View key={item.exerciseId} className="flex-row justify-between items-start gap-3">
+                  <View className="flex-1 min-w-0">
+                    <Text className="text-text text-sm font-bold">{item.exercise}</Text>
+                    {details ? (
+                      <Text className="text-subtext text-xs">{details}</Text>
+                    ) : null}
+                  </View>
+                  <Text className="text-text text-sm font-bold flex-shrink-0">{item.estimated1RM}kg</Text>
+                </View>
+              );
+            })}
           </View>
         </Card>
       )}

@@ -26,9 +26,9 @@ describe('AnalyticsService real production behavior', () => {
       expect(estimateE1RM(80, 10)).toBe(106.7);
     });
 
-    it('calculates 1RM for high reps (20)', () => {
-      // 60 * (1 + 20/30) = 60 * 1.6667 = 100
-      expect(estimateE1RM(60, 20)).toBe(100);
+    it('refuses to estimate 1RM above 12 reps', () => {
+      expect(estimateE1RM(60, 13)).toBe(0);
+      expect(estimateE1RM(60, 20)).toBe(0);
     });
 
     it('returns 0 for zero weight', () => {
