@@ -468,6 +468,9 @@ export const zh = {
   },
 
   finish: {
+    emptyTitle: '尚未记录组数',
+    emptyBody: '本次训练还没有证据。请记录一组或放弃。',
+    logSetButton: '记录一组',
     title: '结束训练',
     review: '保存前请检查你的数据',
     stats: '训练统计',

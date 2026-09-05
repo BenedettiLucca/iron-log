@@ -29,6 +29,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
 import { canActOnFinishStats } from '@/src/utils/session-trust';
+import { evaluateFinishIntent } from '@/src/utils/session-contract';
 
 interface NoteTemplate {
   label: string;
@@ -83,6 +84,11 @@ export default function FinishSessionScreen() {
   const [statsLoadError, setStatsLoadError] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+  const intent = evaluateFinishIntent({
+    workingSetCount: sessionStats.totalSets,
+    isSaving: isFinishing,
+  });
 
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
@@ -193,11 +199,7 @@ export default function FinishSessionScreen() {
   }, []);
 
   const handleFinish = () => {
-    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
-    if (sessionStats.totalSets === 0) {
-      setShowDiscardDialog(true);
-      return;
-    }
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError) || intent.kind === 'empty') return;
     setShowConfirmDialog(true);
   };
 
@@ -223,6 +225,7 @@ export default function FinishSessionScreen() {
   };
 
   const confirmFinish = async () => {
+    if (!intent.persist) return;
     if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setIsFinishing(true);
     setShowConfirmDialog(false);
@@ -340,6 +343,13 @@ export default function FinishSessionScreen() {
           </View>
         </Card>
 
+        {intent.kind === 'empty' ? (
+          <Card className="mb-6">
+            <Text className="text-text font-bold text-base mb-1">{t('finish.emptyTitle')}</Text>
+            <Text className="text-subtext text-sm">{t('finish.emptyBody')}</Text>
+          </Card>
+        ) : (
+          <>
         {/* Peso Corporal */}
         <Card className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
@@ -476,29 +486,58 @@ export default function FinishSessionScreen() {
             accessibilityLabel={t('finish.observations')}
           />
         </Card>
+          </>
+        )}
 
         <View className="gap-3 mt-4">
-          <Button
-            title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
-            onPress={handleFinish}
-            variant="primary"
-            size="lg"
-            fullWidth
-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
-            loading={isFinishing}
-          />
-          <Button
-            title={t('finish.discardButton')}
-            onPress={() => {
-              if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
-                setShowDiscardDialog(true);
-              }
-            }}
-            variant="danger"
-            size="md"
-            fullWidth
-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
-          />
+          {intent.kind === 'empty' ? (
+            <>
+              <Button
+                title={t('finish.logSetButton')}
+                onPress={() => router.back()}
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={!canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+              <Button
+                title={t('finish.discardButton')}
+                onPress={() => {
+                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                    setShowDiscardDialog(true);
+                  }
+                }}
+                variant="ghost"
+                size="md"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
+                onPress={handleFinish}
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+                loading={isFinishing}
+              />
+              <Button
+                title={t('finish.discardButton')}
+                onPress={() => {
+                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                    setShowDiscardDialog(true);
+                  }
+                }}
+                variant="ghost"
+                size="md"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+            </>
+          )}
         </View>
 
       </ScrollView>

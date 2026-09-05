@@ -491,6 +491,9 @@ export const pt = {
 
   // Finish
   finish: {
+    emptyTitle: 'Nenhuma série registrada',
+    emptyBody: 'Esta sessão ainda não tem evidência. Registre uma série ou descarte.',
+    logSetButton: 'Registrar série',
     title: 'Finalizar Treino',
     review: 'Revise seus dados antes de salvar',
     stats: 'Estatísticas da Sessão',

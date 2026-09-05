@@ -468,6 +468,9 @@ export const en = {
   },
 
   finish: {
+    emptyTitle: 'No sets logged',
+    emptyBody: 'This session has no evidence yet. Log a set or discard it.',
+    logSetButton: 'Log a set',
     title: 'Finish Workout',
     review: 'Review your data before saving',
     stats: 'Session Statistics',

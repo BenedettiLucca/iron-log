@@ -24,6 +24,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
 import { resolveScreenState } from '@/src/utils/screen-state';
 import { generateSessionVerdicts, type ExerciseVerdict } from '@/src/utils/session-verdicts';
+import { formatLoggedSet } from '@/src/utils/session-contract';
 
 export default function SummaryScreen() {
   const { t, language } = useI18n();
@@ -259,7 +260,7 @@ export default function SummaryScreen() {
               const targetStr = v.targetRange
                 ? `${v.targetRange.sets}x${v.targetRange.minReps === v.targetRange.maxReps ? v.targetRange.minReps : `${v.targetRange.minReps}-${v.targetRange.maxReps}`}`
                 : '-';
-              const actualStr = v.workingSets.map(s => `${s.weightKg}kg x ${s.reps}`).join(', ');
+              const actualStr = v.workingSets.map(s => formatLoggedSet(s)).join(', ');
 
               const getBadgeStyles = (verdict: typeof v) => {
                 if (verdict.verdict === 'increase') {

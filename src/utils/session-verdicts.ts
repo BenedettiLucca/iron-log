@@ -18,6 +18,7 @@ export interface ExerciseVerdict {
     setNumber: number;
     weightKg: number;
     reps: number;
+    durationSeconds: number | null;
     rir: number | null;
   }[];
   result: 'below' | 'within' | 'top' | 'no_target';
@@ -168,7 +169,7 @@ export function generateExerciseVerdict(
     if (verdict === 'increase') {
       const weights = workingSets.map(s => s.weightKg);
       const uniqueWeights = Array.from(new Set(weights));
-      const hasSingleWorkingWeight = uniqueWeights.length === 1 && uniqueWeights[0] > 0;
+      const hasSingleWorkingWeight = uniqueWeights.length === 1 && Number.isFinite(uniqueWeights[0]) && uniqueWeights[0] > 0;
       
       if (hasSingleWorkingWeight) {
         const nextWeight = uniqueWeights[0] + 2.5;
@@ -187,13 +188,14 @@ export function generateExerciseVerdict(
 
   return {
     exerciseId,
-    routineExerciseId: workingSets[0]?.routineExerciseId ?? null,
+    routineExerciseId: workingSets[0]?.routineExerciseId ?? sets[0]?.routineExerciseId ?? null,
     exerciseName,
     targetRange: target,
     workingSets: workingSets.map(s => ({
       setNumber: s.setNumber,
       weightKg: s.weightKg,
       reps: s.reps,
+      durationSeconds: s.durationSeconds ?? null,
       rir: s.rir,
     })),
     result,

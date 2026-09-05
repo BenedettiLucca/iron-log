@@ -468,6 +468,9 @@ export const es = {
   },
 
   finish: {
+    emptyTitle: 'Ninguna serie registrada',
+    emptyBody: 'Esta sesión aún no tiene evidencia. Registra una serie o descártala.',
+    logSetButton: 'Registrar serie',
     title: 'Finalizar Entreno',
     review: 'Revisa tus datos antes de guardar',
     stats: 'Estadísticas de la Sesión',
