@@ -29,7 +29,7 @@ export function hasPendingSessionDraft(state: SessionDraftState): boolean {
 
 export function resolveSessionDraft(
   value: unknown,
-  identity: { sessionId: number; exerciseId: number }
+  identity: { sessionId: number; exerciseId: number; routineExerciseId?: number }
 ): SessionDraft | null {
   if (value === null || value === undefined || !identity) return null;
 
@@ -68,6 +68,27 @@ export function resolveSessionDraft(
     exerciseId !== identity.exerciseId
   ) {
     return null;
+  }
+
+  const routineExerciseId = obj.routineExerciseId;
+  if (routineExerciseId !== undefined && routineExerciseId !== null) {
+    if (
+      typeof routineExerciseId !== 'number' ||
+      !Number.isFinite(routineExerciseId) ||
+      !Number.isInteger(routineExerciseId) ||
+      routineExerciseId <= 0
+    ) {
+      return null;
+    }
+  }
+
+  if (identity.routineExerciseId !== undefined && identity.routineExerciseId > 0) {
+    if (
+      typeof routineExerciseId !== 'number' ||
+      routineExerciseId !== identity.routineExerciseId
+    ) {
+      return null;
+    }
   }
 
   if (typeof obj.weight !== 'string') return null;

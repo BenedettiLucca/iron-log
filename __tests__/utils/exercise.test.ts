@@ -74,6 +74,20 @@ describe('countCompletedRoutineExercises', () => {
     expect(countCompletedRoutineExercises(exercises, sessionSets)).toBe(2);
   });
 
+  it('keeps progress isolated per routine occurrence when an exercise repeats', () => {
+    const repeatedExercises = [
+      { id: 1, routineExerciseId: 101, target: '1x5' },
+      { id: 2, routineExerciseId: 102, target: '1x8' },
+      { id: 1, routineExerciseId: 103, target: '1x10' },
+    ];
+    const sessionSets = [
+      { exerciseId: 1, routineExerciseId: 101, isWarmup: false },
+      { exerciseId: 2, routineExerciseId: 102, isWarmup: false },
+    ];
+
+    expect(countCompletedRoutineExercises(repeatedExercises, sessionSets)).toBe(2);
+  });
+
   it('keeps progress isolated per exercise', () => {
     const sessionSets = [
       { exerciseId: 1, isWarmup: false },

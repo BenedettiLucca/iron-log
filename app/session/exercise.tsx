@@ -57,6 +57,7 @@ export default function ExerciseScreen() {
   const routineId = validated?.routineId ?? null;
   const sessionId = validated?.sessionId ?? 0;
   const exerciseId = validated?.exerciseId ?? 0;
+  const routineExerciseId = validated?.routineExerciseId ?? 0;
   const exerciseName = validated?.exerciseName ?? '';
   const target = validated?.target ?? '';
   const notes = validated?.notes ?? '';
@@ -115,6 +116,7 @@ export default function ExerciseScreen() {
   } = useExerciseSets({
     sessionId,
     exerciseId,
+    routineExerciseId,
     routineId,
     exerciseName,
     routineRest,
@@ -185,6 +187,7 @@ export default function ExerciseScreen() {
   const { saveSessionContext, loadSessionContext, clearSessionContext } = useSessionPersistence({
     sessionId,
     exerciseId,
+    routineExerciseId,
     routineId,
     exerciseName,
     currentName,
@@ -211,7 +214,7 @@ export default function ExerciseScreen() {
     (async () => {
       const context = await loadSessionContext();
       if (!isMounted || !context) return;
-      const draft = resolveSessionDraft(context, { sessionId, exerciseId });
+      const draft = resolveSessionDraft(context, { sessionId, exerciseId, routineExerciseId });
       if (
         draft &&
         operationRef.current === 'idle' &&
@@ -223,7 +226,7 @@ export default function ExerciseScreen() {
     return () => {
       isMounted = false;
     };
-  }, [sessionId, exerciseId, loadSessionContext, restoreDraft]);
+  }, [sessionId, exerciseId, routineExerciseId, loadSessionContext, restoreDraft]);
 
   const navigation = useNavigation();
 
@@ -348,6 +351,7 @@ export default function ExerciseScreen() {
       if (nextExercise) {
         await saveSessionContext({
           exerciseId: nextExercise.id,
+          routineExerciseId: nextExercise.routineExerciseId,
           exerciseName: nextExercise.name,
           target: nextExercise.target ?? undefined,
           notes: nextExercise.notes ?? undefined,
@@ -377,6 +381,7 @@ export default function ExerciseScreen() {
             sessionId,
             routineId,
             exerciseId: nextExercise.id,
+            routineExerciseId: nextExercise.routineExerciseId,
             exerciseName: nextExercise.name,
             target: nextExercise.target,
             notes: nextExercise.notes,

@@ -55,6 +55,7 @@ let mockIsActiveSetRunning = false;
 let mockExposeExistingSetActions = false;
 let mockNextExercise: {
   id: number;
+  routineExerciseId: number;
   name: string;
   target?: string;
   notes?: string;
@@ -89,6 +90,7 @@ jest.mock('@/src/validators/routes', () => ({
     sessionId: 42,
     routineId: 3,
     exerciseId: 7,
+    routineExerciseId: 41,
     exerciseName: 'Agachamento',
     target: '3x8',
     notes: '',
@@ -206,6 +208,7 @@ jest.mock('@/components/session/RirExplainerModal', () => ({ RirExplainerModal: 
 
 const nextExercise = {
   id: 8,
+  routineExerciseId: 42,
   name: 'Supino',
   target: '3x8',
   notes: '',
@@ -326,6 +329,10 @@ describe('ExerciseScreen persistence-gated navigation', () => {
     expect(mockSaveSessionContext).toHaveBeenCalledTimes(2);
     expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({
       pathname: '/session/exercise',
+      params: expect.objectContaining({ routineExerciseId: 42 }),
+    }));
+    expect(mockSaveSessionContext).toHaveBeenLastCalledWith(expect.objectContaining({
+      routineExerciseId: 42,
     }));
   });
 
@@ -672,6 +679,7 @@ describe('ExerciseScreen persistence-gated navigation', () => {
       sessionId: 42,
       routineId: 3,
       exerciseId: 7,
+      routineExerciseId: 41,
       exerciseName: 'Agachamento',
       target: '3x8',
       notes: '',

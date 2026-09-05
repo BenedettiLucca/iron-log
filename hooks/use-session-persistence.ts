@@ -27,6 +27,7 @@ interface UseSessionPersistenceReturn {
 interface SessionContext {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId: number | null;
   exerciseName: string;
   routineId: number | null;
   target?: string;
@@ -48,6 +49,7 @@ interface SessionContext {
 interface SessionPersistenceOptions {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId?: number | null;
   routineId: number | null;
   exerciseName: string;
   currentName: string;
@@ -71,6 +73,7 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
   return {
     sessionId: opts.sessionId,
     exerciseId: opts.exerciseId,
+    routineExerciseId: opts.routineExerciseId ?? null,
     exerciseName: opts.currentName,
     routineId: opts.routineId,
     target: opts.target,

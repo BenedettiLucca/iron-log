@@ -119,9 +119,10 @@ export default function FinishSessionScreen() {
           .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
 
         // Get targets Map
-        const targetsMap = new Map<number, string>();
+        const targetsMap = new Map<string, string>();
         if (session.routineId) {
           const reData = await db.select({
+            routineExerciseId: routineExercises.id,
             exId: routineExercises.exerciseId,
             target: routineExercises.target
           })
@@ -129,7 +130,16 @@ export default function FinishSessionScreen() {
             .where(eq(routineExercises.routineId, session.routineId));
 
           reData.forEach(r => {
-            if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+            if (r.target) {
+              const key = r.routineExerciseId != null
+                ? `routine:${r.routineExerciseId}`
+                : `exercise:${r.exId}`;
+              targetsMap.set(key, r.target);
+              if (r.exId != null) {
+                const legacyKey = `exercise:${r.exId}`;
+                if (!targetsMap.has(legacyKey)) targetsMap.set(legacyKey, r.target);
+              }
+            }
           });
         }
 

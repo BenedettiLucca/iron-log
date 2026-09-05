@@ -16,6 +16,7 @@ import { SessionDraft } from '../src/utils/session-draft';
 
 export interface RoutineExerciseListItem {
   id: number;
+  routineExerciseId: number;
   name: string;
   type: string;
   target: string | null;
@@ -26,6 +27,7 @@ export interface RoutineExerciseListItem {
 export interface UseExerciseSetsProps {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId: number;
   routineId: number | null;
   exerciseName: string;
   routineRest: number | null;
@@ -34,6 +36,7 @@ export interface UseExerciseSetsProps {
 export function useExerciseSets({
   sessionId,
   exerciseId,
+  routineExerciseId,
   routineId,
   exerciseName,
   routineRest,
@@ -107,7 +110,7 @@ export function useExerciseSets({
 
   // Count completed exercises (based on target sets met)
   const { data: allSessionSets } = useLiveQuery(
-    db.select({ exerciseId: sets.exerciseId, isWarmup: sets.isWarmup })
+    db.select({ exerciseId: sets.exerciseId, routineExerciseId: sets.routineExerciseId, isWarmup: sets.isWarmup })
       .from(sets)
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
   );
@@ -127,10 +130,33 @@ export function useExerciseSets({
         setCurrentName(exData[0].name);
       }
 
-      const data = await db.select()
+      let data = await db.select()
         .from(sets)
-        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
+        .where(and(eq(sets.sessionId, sessionId), eq(sets.routineExerciseId, routineExerciseId), isNull(sets.deletedAt)))
         .orderBy(sets.setNumber);
+
+      if (data.length === 0) {
+        const routineOccurrences = routineId
+          ? await db.select({ id: routineExercises.id })
+            .from(routineExercises)
+            .where(and(
+              eq(routineExercises.routineId, routineId),
+              eq(routineExercises.exerciseId, exerciseId),
+            ))
+          : [{ id: routineExerciseId }];
+
+        if (routineOccurrences.length === 1) {
+          data = await db.select()
+            .from(sets)
+            .where(and(
+              eq(sets.sessionId, sessionId),
+              eq(sets.exerciseId, exerciseId),
+              isNull(sets.routineExerciseId),
+              isNull(sets.deletedAt),
+            ))
+            .orderBy(sets.setNumber);
+        }
+      }
       setSessionSets(data);
       setHasLoadedSessionSets(true);
 
@@ -150,6 +176,7 @@ export function useExerciseSets({
       if (routineId) {
         const routineList = await db.select({
           id: exercises.id,
+          routineExerciseId: routineExercises.id,
           name: exercises.name,
           type: exercises.type,
           target: routineExercises.target,
@@ -163,7 +190,7 @@ export function useExerciseSets({
 
         setAllExercises(routineList);
 
-        const currentIndex = routineList.findIndex(e => e.id === exerciseId);
+        const currentIndex = routineList.findIndex(e => e.routineExerciseId === routineExerciseId);
         if (currentIndex !== -1 && currentIndex < routineList.length - 1) {
           const next = routineList[currentIndex + 1];
           setNextExercise(next);
@@ -172,7 +199,7 @@ export function useExerciseSets({
     } catch (e) {
       logger.error(t('common.operationError'), e);
     }
-  }, [sessionId, exerciseId, routineId, t]);
+  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -249,6 +276,7 @@ export function useExerciseSets({
       const result = await db.insert(sets).values({
         sessionId,
         exerciseId,
+        routineExerciseId,
         exerciseName: currentName,
         setNumber: nextSetNumber,
         weightKg: setValidation.data.weightKg,
@@ -306,18 +334,20 @@ export function useExerciseSets({
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
+  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, routineExerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
 
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({
       exerciseId,
+      routineExerciseId,
+      routineId,
       sessionId,
       exerciseType,
       setSessionSets,
       setCurrentName,
       setToast,
     });
-  }, [hookHandleUndo, exerciseId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
+  }, [hookHandleUndo, exerciseId, routineExerciseId, routineId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
@@ -333,8 +363,8 @@ export function useExerciseSets({
   }, [loadData, registerDeletedSet, sessionSets, t]);
 
   const handleRestoreDeletedSet = useCallback(async () => {
-    await handleRestoreDeleted({ exerciseId, sessionId, setSessionSets, setToast });
-  }, [exerciseId, handleRestoreDeleted, sessionId]);
+    await handleRestoreDeleted({ exerciseId, routineExerciseId, routineId, sessionId, setSessionSets, setToast });
+  }, [exerciseId, routineExerciseId, routineId, handleRestoreDeleted, sessionId]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {

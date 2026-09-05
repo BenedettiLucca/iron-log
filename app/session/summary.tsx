@@ -67,9 +67,10 @@ export default function SummaryScreen() {
         .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
 
       // 3. Buscar Targets da Rotina (Se houver routineId)
-      const targetsMap = new Map<number, string>();
+      const targetsMap = new Map<string, string>();
       if (session.routineId) {
         const reData = await db.select({
+          routineExerciseId: routineExercises.id,
           exId: routineExercises.exerciseId,
           target: routineExercises.target
         })
@@ -77,7 +78,16 @@ export default function SummaryScreen() {
           .where(eq(routineExercises.routineId, session.routineId));
 
         reData.forEach(r => {
-          if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+          if (r.target) {
+            const key = r.routineExerciseId != null
+              ? `routine:${r.routineExerciseId}`
+              : `exercise:${r.exId}`;
+            targetsMap.set(key, r.target);
+            if (r.exId != null) {
+              const legacyKey = `exercise:${r.exId}`;
+              if (!targetsMap.has(legacyKey)) targetsMap.set(legacyKey, r.target);
+            }
+          }
         });
       }
 
@@ -276,7 +286,10 @@ export default function SummaryScreen() {
               const { bgClass, textClass, label: badgeLabel } = getBadgeStyles(v);
 
               return (
-                <Card key={v.exerciseId} className="mb-3">
+                <Card
+                  key={v.routineExerciseId != null ? `routine:${v.routineExerciseId}` : `exercise:${v.exerciseId}`}
+                  className="mb-3"
+                >
                   <View className="flex-row justify-between items-center mb-1">
                     <Text className="text-text font-bold text-base flex-1 mr-2">{v.exerciseName}</Text>
                     <View className={`px-2.5 py-1 rounded-full ${bgClass}`}>

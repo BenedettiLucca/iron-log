@@ -4,6 +4,7 @@ import { sessions, sets, routineExercises } from '@/src/db/schema';
 import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
 import { formatEpochDate, computeVolume } from './AlexandriaExportService';
 import { generateSessionVerdicts } from '@/src/utils/session-verdicts';
+import { getRoutineOccurrenceKey } from '@/src/utils/session-occurrence';
 import { buildSessionVerdictsMarkdown } from '@/src/utils/session-verdict-markdown';
 import { logger } from '@/services/logger';
 import { formatDateShort, getWeekNumber } from '@/src/utils/date-utils';
@@ -28,9 +29,10 @@ export const NotionExportService = {
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
       .orderBy(asc(sets.setNumber));
 
-    const targetsMap = new Map<number, string>();
+    const targetsMap = new Map<string, string>();
     if (session.routineId) {
       const reData = await db.select({
+        routineExerciseId: routineExercises.id,
         exId: routineExercises.exerciseId,
         target: routineExercises.target,
       })
@@ -38,7 +40,16 @@ export const NotionExportService = {
         .where(eq(routineExercises.routineId, session.routineId));
 
       reData.forEach((r) => {
-        if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+        if (r.target) {
+          const key = r.routineExerciseId != null
+            ? `routine:${r.routineExerciseId}`
+            : `exercise:${r.exId}`;
+          targetsMap.set(key, r.target);
+          if (r.exId != null) {
+            const legacyKey = `exercise:${r.exId}`;
+            if (!targetsMap.has(legacyKey)) targetsMap.set(legacyKey, r.target);
+          }
+        }
       });
     }
 
@@ -63,16 +74,17 @@ export const NotionExportService = {
     // 5. Title
     md += `## ${session.routineName || t('reports.md.workout')}\n\n`;
 
-    // 6. Group sets by exercise
+    // 6. Group sets by routine occurrence (A/B/A) so repeated exercises stay separate
     const byExercise = new Map<string, typeof sessionSets>();
     for (const s of sessionSets) {
-      const name = s.exerciseName || t('reports.md.unknown');
-      if (!byExercise.has(name)) byExercise.set(name, []);
-      byExercise.get(name)!.push(s);
+      const key = getRoutineOccurrenceKey(s.routineExerciseId, s.exerciseId);
+      if (!byExercise.has(key)) byExercise.set(key, []);
+      byExercise.get(key)!.push(s);
     }
 
     // 7. Build exercise tables
-    for (const [name, exerciseSets] of byExercise) {
+    for (const [, exerciseSets] of byExercise) {
+      const name = exerciseSets[0]?.exerciseName || t('reports.md.unknown');
       md += `### ${name}\n\n`;
       md += `| ${t('reports.md.set')} | ${t('reports.md.weightKg')} | ${t('reports.md.reps')} | RIR | ${t('reports.md.warmup')} |\n`;
       md += `|-----|-------------|------|-----|--------|\n`;

@@ -72,6 +72,7 @@ const makeSet = (overrides: Partial<Set> = {}): Set => ({
   id: 1,
   sessionId: 10,
   exerciseId: 20,
+  routineExerciseId: null,
   exerciseName: 'Agachamento',
   setNumber: 1,
   weightKg: 80,

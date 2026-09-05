@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect }
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets, routines } from '../../src/db/schema';
-import { and, count, eq, isNull } from 'drizzle-orm';
+import { and, count, eq, isNull, or } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Button } from '../../components/Button';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -26,7 +26,8 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
 import Svg, { Line, Polyline } from 'react-native-svg';
 
 type RoutineExerciseRow = {
-  id: number;
+  routineExerciseId: number;
+  exerciseId: number;
   name: string;
   order: number | null;
   target: string | null;
@@ -112,7 +113,8 @@ export default function SessionScreen() {
   const loadExercises = useCallback(async () => {
       try {
           const data = await db.select({
-            id: exercises.id,
+            routineExerciseId: routineExercises.id,
+            exerciseId: exercises.id,
             name: exercises.name,
             order: routineExercises.orderIndex,
             target: routineExercises.target,
@@ -257,7 +259,7 @@ export default function SessionScreen() {
       <FlatList
         key={`list-${refreshKey}`}
         data={routineExs}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.routineExerciseId.toString()}
         contentContainerStyle={{ padding: 16, gap: 12 }}
         ListEmptyComponent={
           <View className="items-center py-12 px-8">
@@ -276,6 +278,7 @@ export default function SessionScreen() {
           <ExerciseCard
             exercise={item}
             sessionId={sessionId}
+            isSingleOccurrence={routineExs.filter((candidate) => candidate.exerciseId === item.exerciseId).length === 1}
             index={index}
             onPress={() => exerciseNavigationGateRef.current.run(() => {
               router.push({
@@ -283,7 +286,8 @@ export default function SessionScreen() {
                 params: {
                     sessionId,
                     routineId: rIdStr,
-                    exerciseId: item.id,
+                    exerciseId: item.exerciseId,
+                    routineExerciseId: item.routineExerciseId,
                     exerciseName: item.name,
                     target: item.target,
                     notes: item.notes,
@@ -356,11 +360,12 @@ export default function SessionScreen() {
 interface ExerciseCardProps {
   exercise: RoutineExerciseRow;
   sessionId: number;
+  isSingleOccurrence: boolean;
   onPress: () => void;
   index: number;
 }
 
-function ExerciseCard({ exercise, sessionId, onPress, index }: ExerciseCardProps) {
+function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index }: ExerciseCardProps) {
   const { t } = useI18n();
   const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
@@ -375,7 +380,17 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: ExerciseCardProps
   const { data: setsData } = useLiveQuery(
     db.select({ count: count() })
       .from(sets)
-      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt), eq(sets.isWarmup, false)))
+      .where(and(
+        eq(sets.sessionId, sessionId),
+        isSingleOccurrence
+          ? or(
+            eq(sets.routineExerciseId, exercise.routineExerciseId),
+            and(isNull(sets.routineExerciseId), eq(sets.exerciseId, exercise.exerciseId)),
+          )
+          : eq(sets.routineExerciseId, exercise.routineExerciseId),
+        isNull(sets.deletedAt),
+        eq(sets.isWarmup, false)
+      ))
   );
 
   const doneSets = setsData?.[0]?.count || 0;

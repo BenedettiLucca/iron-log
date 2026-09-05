@@ -21,21 +21,44 @@ export function parseTargetSets(target: string | null | undefined): number | nul
  * Excludes warm-up sets from completion counts.
  */
 export function countCompletedRoutineExercises(
-  exercises: { id: number; target: string | null | undefined }[],
-  sessionSets: { exerciseId: number; isWarmup?: boolean | null }[]
+  exercises: {
+    id?: number;
+    exerciseId?: number;
+    routineExerciseId?: number | null;
+    target?: string | null | undefined;
+  }[],
+  sessionSets: {
+    exerciseId?: number;
+    routineExerciseId?: number | null;
+    isWarmup?: boolean | null;
+  }[]
 ): number {
-  const setsPerExercise = new Map<number, number>();
+  const exerciseFrequency = new Map<number, number>();
+  for (const ex of exercises) {
+    const exId = ex.exerciseId ?? ex.id;
+    if (typeof exId === 'number') {
+      exerciseFrequency.set(exId, (exerciseFrequency.get(exId) || 0) + 1);
+    }
+  }
 
-  sessionSets.forEach(set => {
-    if (set.isWarmup === true) return;
-    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
-    setsPerExercise.set(set.exerciseId, currentCount + 1);
-  });
+  const workingSets = sessionSets.filter(set => set.isWarmup !== true);
 
   return exercises.reduce((count, exercise) => {
-    const targetSets = parseTargetSets(exercise.target);
-    const doneSets = setsPerExercise.get(exercise.id) || 0;
+    const exId = exercise.exerciseId ?? exercise.id;
+    const routineExId = exercise.routineExerciseId;
+    const isSingleOccurrence = typeof exId === 'number' && exerciseFrequency.get(exId) === 1;
 
+    const doneSets = workingSets.filter(set => {
+      if (routineExId != null && set.routineExerciseId != null) {
+        return set.routineExerciseId === routineExId;
+      }
+      if (set.routineExerciseId == null) {
+        return isSingleOccurrence && typeof exId === 'number' && set.exerciseId === exId;
+      }
+      return isSingleOccurrence && typeof exId === 'number' && set.exerciseId === exId;
+    }).length;
+
+    const targetSets = parseTargetSets(exercise.target);
     if (targetSets !== null) {
       return doneSets >= targetSets ? count + 1 : count;
     }

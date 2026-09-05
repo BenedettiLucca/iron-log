@@ -62,6 +62,7 @@ export default function TemplateLibraryScreen() {
         // Any per-template exercise query failure fails the whole load
         const exercisesData = await db
           .select({
+            routineExerciseId: routineExercises.id,
             exerciseId: exercises.id,
             name: exercises.name,
             target: routineExercises.target,
@@ -201,7 +202,7 @@ export default function TemplateLibraryScreen() {
         <Text className="text-subtext text-2xs font-bold uppercase mb-2 tracking-wider">{t('routines.exercises')}:</Text>
         <View className="flex-row flex-wrap gap-1.5">
           {item.exercises.slice(0, 4).map((ex) => (
-            <View key={ex.exerciseId} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
+            <View key={ex.routineExerciseId} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
               <Text className="text-text text-xs font-medium">
                 {ex.name}{ex.target ? ` • ${ex.target}` : ''}
               </Text>

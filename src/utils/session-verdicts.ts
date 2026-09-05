@@ -1,4 +1,5 @@
 import type { SummarySet } from './session-summary';
+import { getRoutineOccurrenceKey } from './session-occurrence';
 
 type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -10,6 +11,7 @@ export interface ParsedTarget {
 
 export interface ExerciseVerdict {
   exerciseId: number;
+  routineExerciseId: number | null;
   exerciseName: string;
   targetRange: ParsedTarget | null;
   workingSets: {
@@ -185,6 +187,7 @@ export function generateExerciseVerdict(
 
   return {
     exerciseId,
+    routineExerciseId: workingSets[0]?.routineExerciseId ?? null,
     exerciseName,
     targetRange: target,
     workingSets: workingSets.map(s => ({
@@ -203,24 +206,29 @@ export function generateExerciseVerdict(
 
 export function generateSessionVerdicts(
   setsData: SummarySet[],
-  targetsMap: Map<number, string>,
+  targetsMap: Map<string | number, string>,
   t: TFunction
 ): ExerciseVerdict[] {
-  // Group sets by exerciseId
-  const exerciseSetsMap = new Map<number, SummarySet[]>();
+  // Group sets by routine occurrence key (A/B/A) so repeated exercises stay separate
+  const exerciseSetsMap = new Map<string, SummarySet[]>();
   setsData.forEach(set => {
-    if (!exerciseSetsMap.has(set.exerciseId)) {
-      exerciseSetsMap.set(set.exerciseId, []);
+    const key = getRoutineOccurrenceKey(set.routineExerciseId, set.exerciseId);
+    if (!exerciseSetsMap.has(key)) {
+      exerciseSetsMap.set(key, []);
     }
-    exerciseSetsMap.get(set.exerciseId)!.push(set);
+    exerciseSetsMap.get(key)!.push(set);
   });
 
   const verdicts: ExerciseVerdict[] = [];
 
-  exerciseSetsMap.forEach((sets, exerciseId) => {
+  exerciseSetsMap.forEach((sets, key) => {
     const firstSet = sets[0];
+    const exerciseId = firstSet?.exerciseId ?? 0;
     const exerciseName = firstSet?.exerciseName || `${t('common.exercise')} ${exerciseId}`;
-    const targetStr = targetsMap.get(exerciseId) || null;
+    const targetStr = targetsMap.get(key)
+      ?? targetsMap.get(getRoutineOccurrenceKey(null, exerciseId))
+      ?? targetsMap.get(exerciseId)
+      ?? null;
     const verdict = generateExerciseVerdict(exerciseId, exerciseName, targetStr, sets, t);
 
     if (verdict.workingSets.length > 0) {

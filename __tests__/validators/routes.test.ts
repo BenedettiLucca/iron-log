@@ -14,6 +14,7 @@ describe('Route Param Schemas', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: '123',
         exerciseId: '456',
+        routineExerciseId: '789',
         exerciseName: 'Supino Reto',
         target: '3x8-12',
         notes: 'Foco na negativa',
@@ -24,6 +25,7 @@ describe('Route Param Schemas', () => {
       if (result.success) {
         expect(result.data.sessionId).toBe(123);
         expect(result.data.exerciseId).toBe(456);
+        expect(result.data.routineExerciseId).toBe(789);
         expect(result.data.exerciseName).toBe('Supino Reto');
         expect(result.data.restSeconds).toBe(90);
       }
@@ -33,6 +35,7 @@ describe('Route Param Schemas', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: '1',
         exerciseId: '2',
+        routineExerciseId: '3',
         exerciseName: 'Test',
       });
       expect(result.success).toBe(true);
@@ -43,10 +46,20 @@ describe('Route Param Schemas', () => {
       }
     });
 
+    it('rejects a route without routine occurrence identity', () => {
+      const result = exerciseParamsSchema.safeParse({
+        sessionId: '1',
+        exerciseId: '2',
+        exerciseName: 'Test',
+      });
+      expect(result.success).toBe(false);
+    });
+
     it('rejects non-numeric sessionId', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: 'abc',
         exerciseId: '1',
+        routineExerciseId: '2',
         exerciseName: 'Test',
       });
       expect(result.success).toBe(false);
@@ -56,6 +69,7 @@ describe('Route Param Schemas', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: '-1',
         exerciseId: '1',
+        routineExerciseId: '2',
         exerciseName: 'Test',
       });
       expect(result.success).toBe(false);
@@ -65,6 +79,7 @@ describe('Route Param Schemas', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: '0',
         exerciseId: '1',
+        routineExerciseId: '2',
         exerciseName: 'Test',
       });
       expect(result.success).toBe(false);
@@ -74,6 +89,7 @@ describe('Route Param Schemas', () => {
       const result = exerciseParamsSchema.safeParse({
         sessionId: '1',
         exerciseId: '2',
+        routineExerciseId: '3',
         exerciseName: '',
       });
       expect(result.success).toBe(false);

@@ -16,7 +16,7 @@ import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import type { NavigationAction } from '@react-navigation/native';
 import { db } from '../../src/db/client';
 import { routines, routineExercises, exercises } from '../../src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Toast } from '../../components/Toast';
 import { Input } from '../../components/Input';
@@ -33,6 +33,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionHeader } from '@/components/SectionHeader';
 import { isFormDirty } from '@/src/utils/form-dirty';
 import {
+  buildRoutineExercisePersistencePlan,
   buildRoutineExerciseRows,
   buildSaveAsTemplateValues,
 } from '@/src/utils/routine-template-integrity';
@@ -46,6 +47,7 @@ import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
 
 type SelectedExercise = {
   id: number;
+  routineExerciseId?: number;
   name: string;
   target?: string;
   notes?: string;
@@ -98,6 +100,7 @@ export default function RoutineEditorScreen() {
 
       const joins = await db.select({
         id: exercises.id,
+        routineExerciseId: routineExercises.id,
         name: exercises.name,
         order: routineExercises.orderIndex,
         target: routineExercises.target,
@@ -111,6 +114,7 @@ export default function RoutineEditorScreen() {
 
       const loadedExercises = joins.map(j => ({
           id: j.id,
+          routineExerciseId: j.routineExerciseId,
           name: j.name,
           target: j.target || '',
           notes: j.notes || '',
@@ -246,7 +250,6 @@ export default function RoutineEditorScreen() {
             .set({ name: normalizedName, description, folder })
             .where(eq(routines.id, routineId))
             .run();
-          tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
         } else {
           const created = tx
             .insert(routines)
@@ -257,9 +260,34 @@ export default function RoutineEditorScreen() {
           routineId = created.id;
         }
 
-        tx.insert(routineExercises)
-          .values(buildRoutineExerciseRows(routineId, selectedExercises))
-          .run();
+        if (isEditing) {
+          const existingRows = tx
+            .select({ id: routineExercises.id })
+            .from(routineExercises)
+            .where(eq(routineExercises.routineId, routineId))
+            .all();
+          const plan = buildRoutineExercisePersistencePlan(
+            routineId,
+            selectedExercises,
+            existingRows.map(row => row.id),
+          );
+          plan.deleteIds.forEach(id => {
+            tx.delete(routineExercises).where(eq(routineExercises.id, id)).run();
+          });
+          plan.updates.forEach(update => {
+            tx.update(routineExercises)
+              .set(update.values)
+              .where(and(eq(routineExercises.id, update.id), eq(routineExercises.routineId, routineId)))
+              .run();
+          });
+          if (plan.inserts.length > 0) {
+            tx.insert(routineExercises).values(plan.inserts).run();
+          }
+        } else {
+          tx.insert(routineExercises)
+            .values(buildRoutineExerciseRows(routineId, selectedExercises))
+            .run();
+        }
       });
 
       bypassRef.current = true;
@@ -335,10 +363,28 @@ export default function RoutineEditorScreen() {
           .set({ ...buildSaveAsTemplateValues(normalizedName, description), folder })
           .where(eq(routines.id, routineId))
           .run();
-        tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
-        tx.insert(routineExercises)
-          .values(buildRoutineExerciseRows(routineId, selectedExercises))
-          .run();
+        const existingRows = tx
+          .select({ id: routineExercises.id })
+          .from(routineExercises)
+          .where(eq(routineExercises.routineId, routineId))
+          .all();
+        const plan = buildRoutineExercisePersistencePlan(
+          routineId,
+          selectedExercises,
+          existingRows.map(row => row.id),
+        );
+        plan.deleteIds.forEach(id => {
+          tx.delete(routineExercises).where(eq(routineExercises.id, id)).run();
+        });
+        plan.updates.forEach(update => {
+          tx.update(routineExercises)
+            .set(update.values)
+            .where(and(eq(routineExercises.id, update.id), eq(routineExercises.routineId, routineId)))
+            .run();
+        });
+        if (plan.inserts.length > 0) {
+          tx.insert(routineExercises).values(plan.inserts).run();
+        }
       });
 
       setPendingToast({ message: t('routines.savedAsTemplate'), type: 'success' });
