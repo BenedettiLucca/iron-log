@@ -684,6 +684,16 @@ export const pt = {
     exportError: 'Falha ao exportar.',
     importError: 'Falha ao importar.',
     keepAwake: 'Manter tela ligada durante o treino',
+    import: {
+      button: 'Importar de outro app',
+      description: 'Importe seu histórico de treinos do Strong, Hevy ou FitNotes via arquivo CSV.',
+      selectFile: 'Selecionar arquivo CSV',
+      successTitle: 'Importação Concluída',
+      successMessage: '{sessions} sessões e {sets} séries importadas. {custom} exercícios customizados criados.',
+      noNewData: 'Nenhuma sessão nova encontrada para importar (dados já atualizados).',
+      unsupportedFormat: 'Formato CSV não reconhecido. Suportamos Strong, Hevy e FitNotes.',
+      error: 'Erro ao importar arquivo CSV.',
+    },
   },
 
   // About

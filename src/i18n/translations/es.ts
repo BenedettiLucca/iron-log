@@ -657,6 +657,16 @@ export const es = {
     exportError: 'Error al exportar.',
     importError: 'Error al importar.',
     keepAwake: 'Mantener pantalla encendida durante el entreno',
+    import: {
+      button: 'Importar de otra app',
+      description: 'Importa tu historial de entrenamientos de Strong, Hevy o FitNotes mediante archivo CSV.',
+      selectFile: 'Seleccionar archivo CSV',
+      successTitle: 'Importación Completada',
+      successMessage: '{sessions} sesiones y {sets} series importadas. {custom} ejercicios personalizados creados.',
+      noNewData: 'No se encontraron nuevas sesiones para importar (datos ya actualizados).',
+      unsupportedFormat: 'Formato CSV no reconocido. Se admiten Strong, Hevy y FitNotes.',
+      error: 'Error al importar archivo CSV.',
+    },
   },
   about: {
     title: 'Acerca de Iron Log',
