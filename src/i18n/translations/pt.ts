@@ -104,6 +104,9 @@ export const pt = {
     activeWorkout: 'Treino Ativo',
     generateExampleRoutines: 'Gerar Rotinas de Exemplo',
     continue: 'Continuar',
+    todayWorkout: "Treino de Hoje",
+    weekLabel: 'Semana {week}',
+    start: 'Iniciar',
 
   },
 
@@ -381,6 +384,12 @@ export const pt = {
     exerciseProgressPlural: '{current} de {total} exercícios',
     exercisesCompletedProgressSingular: '{current} de {total} exercício concluído',
     exercisesCompletedProgressPlural: '{current} de {total} exercícios concluídos',
+    bodyWeightTitle: 'Peso Corporal',
+    bodyWeightMessage: 'Informe seu peso corporal de hoje (kg) antes de começar.',
+    bodyWeightSkip: 'Pular',
+    bodyWeightSave: 'Salvar',
+    bodyWeightInvalid: 'Digite um peso válido',
+    bodyWeightSaved: 'Peso salvo!',
 
   },
 
