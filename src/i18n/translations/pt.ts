@@ -1178,4 +1178,16 @@ export const pt = {
         min: 'min',
       },
     },
+  notifications: {
+    checkinTitle: "📊 Check-in Mensal",
+    checkinBody: "Hora do check-in mensal! Tire fotos de frente, costas e lateral.",
+    supplementTitle: "💊 Lembrete de Suplemento",
+    supplementBody: "Hora de tomar {name} ({dosage})",
+    supplementBodyNoDosage: "Hora de tomar {name}",
+    testTitle: "🧪 Notificação de Teste",
+    testBody: "Esta é uma notificação de teste do Iron Log",
+    restTitle: "Descanso concluído",
+    restBodyNext: "Próximo: {name}",
+    restBodyDefault: "Hora da próxima série",
+  },
 };

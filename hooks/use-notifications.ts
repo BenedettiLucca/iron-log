@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { notificationService, NotificationConfig } from '@/services/NotificationService';
+import {
+  notificationService,
+  NotificationConfig,
+  SupplementNotificationTarget,
+} from '@/services/NotificationService';
 import { logger } from '@/services/logger';
 
 export function useNotifications() {
@@ -53,12 +57,30 @@ export function useNotifications() {
     await notificationService.sendTestNotification();
   }, []);
 
+  const scheduleSupplementReminder = useCallback(
+    async (supplement: SupplementNotificationTarget) => {
+      await notificationService.scheduleSupplementReminder(supplement);
+    },
+    []
+  );
+
+  const cancelSupplementReminder = useCallback(async (supplementId: number) => {
+    await notificationService.cancelSupplementReminder(supplementId);
+  }, []);
+
+  const rescheduleSupplementReminders = useCallback(async () => {
+    await notificationService.scheduleAllSupplementReminders();
+  }, []);
+
   return {
     settings,
     loading,
     updateSettings,
     toggleEnabled,
     sendTestNotification,
+    scheduleSupplementReminder,
+    cancelSupplementReminder,
+    rescheduleSupplementReminders,
     loadSettings,
   };
 }
