@@ -9,7 +9,6 @@
   },
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -20,7 +19,8 @@
     "test:coverage": "jest --coverage",
     "audit:high": "node scripts/audit-high.js",
     "export:android": "expo export --platform android --max-workers 1 --output-dir dist",
-    "verify:android-export": "node scripts/verify-android-export.js"
+    "verify:android-export": "node scripts/verify-android-export.js",
+    "verify": "npm run typecheck && npm run lint && npm run test:coverage && npm run export:android && npm run verify:android-export"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",

@@ -16,6 +16,8 @@ O `package.json` fixa Node `>=22.22.2 <23.0.0` e npm `>=10.9.7 <11.0.0`.
 
 ```bash
 npm install
+npm run verify           # Pipeline completo: typecheck -> lint -> test:coverage -> export -> verify
+npm run audit:high       # Gate de segurança (fail-closed contra vulnerabilidades não permitidas)
 npm run typecheck
 npm run lint
 npm test
@@ -26,7 +28,11 @@ npm run android
 npm run web
 npm run export:android
 npm run verify:android-export
+# Benchmark de volume:
+# IRON_LOG_BENCH=1 npm test -- __tests__/services/analytics-database.test.ts --runInBand --watchAll=false
 ```
+
+Consulte `docs/qa/agent-workflow.md` para o protocolo detalhado de QA, hierarquia de testes e runbook.
 
 `npx drizzle-kit generate` deve ser executado quando `src/db/schema.ts` mudar; revise a migration
 gerada em `drizzle/` e adicione/atualize testes. Build Android/EAS e uso de dispositivo são
