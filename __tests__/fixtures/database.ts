@@ -99,6 +99,8 @@ CREATE TABLE sets (
 	is_edited integer DEFAULT 0 NOT NULL,
 	created_at integer,
 	deleted_at integer,
+	routine_exercise_id integer,
+	FOREIGN KEY (routine_exercise_id) REFERENCES routine_exercises(id) ON UPDATE no action ON DELETE set null,
 	FOREIGN KEY (session_id) REFERENCES sessions(id) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE no action
 );
@@ -138,13 +140,13 @@ CREATE TABLE program_weeks (
 );
 CREATE UNIQUE INDEX program_week_unique ON program_weeks (program_id, week_number);
 CREATE TABLE routine_exercises (
+	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	routine_id integer,
 	exercise_id integer,
 	order_index integer,
 	target text,
 	notes text,
 	rest_seconds integer,
-	PRIMARY KEY(routine_id, exercise_id),
 	FOREIGN KEY (routine_id) REFERENCES routines(id) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE no action
 );
@@ -180,6 +182,7 @@ CREATE INDEX body_metrics_date_idx ON body_metrics (date);
 CREATE INDEX pr_exercise_type_idx ON personal_records (exercise_id, record_type);
 CREATE INDEX re_routine_id_idx ON routine_exercises (routine_id);
 CREATE INDEX re_exercise_id_idx ON routine_exercises (exercise_id);
+CREATE INDEX sets_routine_exercise_id_idx ON sets (routine_exercise_id);
 CREATE INDEX sessions_routine_id_idx ON sessions (routine_id);
 CREATE INDEX programs_active_idx ON programs (is_active);
 CREATE INDEX pw_program_id_idx ON program_weeks (program_id);
