@@ -316,6 +316,10 @@ export async function scheduleRestNotification(opts: { seconds: number; exercise
         seconds: opts.seconds,
       },
     });
+    if (__DEV__) {
+      // eslint-disable-next-line no-console
+      console.log('[QA#89] rest notification scheduled', { seconds: opts.seconds });
+    }
   } catch (error) {
     logger.error('Error scheduling rest notification', error);
   }
