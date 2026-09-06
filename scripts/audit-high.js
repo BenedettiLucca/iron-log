@@ -1,6 +1,6 @@
 'use strict';
 
-const { spawnSync } = require('node:child_process');
+const childProcess = require('node:child_process');
 
 const ALLOWED_ADVISORY_URLS = new Set([
   // Temporary: legacy brace-expansion v1/v2 have no published fix for CVE-2026-14257.
@@ -59,14 +59,15 @@ function getBlockingVulnerabilities(vulnerabilities = {}) {
 }
 
 function runAudit() {
-  const result = spawnSync('npm', ['audit', '--json'], {
+  const result = childProcess.spawnSync('npm', ['audit', '--json'], {
     cwd: process.cwd(),
     encoding: 'utf8',
   });
 
-  if (result.error || !result.stdout) {
+  if (result.error || result.signal || typeof result.status !== 'number' || !result.stdout) {
     console.error('npm audit failed before returning valid JSON.');
     if (result.error) console.error(result.error.message);
+    if (result.signal) console.error(`npm audit terminated by signal: ${result.signal}`);
     if (result.stderr) console.error(result.stderr.trim());
     return 1;
   }
@@ -80,7 +81,19 @@ function runAudit() {
     return 1;
   }
 
-  const vulnerabilities = audit.vulnerabilities ?? {};
+  if (audit.error) {
+    console.error('npm audit reported an error:');
+    console.error(audit.error.summary || audit.error.code || JSON.stringify(audit.error));
+    if (audit.error.detail) console.error(audit.error.detail);
+    return 1;
+  }
+
+  if (!audit.vulnerabilities || !audit.metadata) {
+    console.error('npm audit returned incomplete or unrecognized report structure.');
+    return 1;
+  }
+
+  const vulnerabilities = audit.vulnerabilities;
   const blockers = getBlockingVulnerabilities(vulnerabilities);
   const counts = audit.metadata?.vulnerabilities ?? {};
   const allowlisted = Object.keys(vulnerabilities).filter(name => (
