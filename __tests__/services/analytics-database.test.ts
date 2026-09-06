@@ -67,6 +67,41 @@ it('computes Strength Score through the real service/SQL instead of copied test 
   }
 });
 
+it('aggregates volume by muscle group and sorts descending, ignoring warmups, deleted sets, and unknown groups', async () => {
+  db.insert(exercises).values([
+    { id: 10, name: 'Supino Reto', type: 'strength', muscleGroup: 'peito' },
+    { id: 20, name: 'Remada Curvada', type: 'strength', muscleGroup: 'costas' },
+    { id: 30, name: 'Exercício Desconhecido', type: 'strength', muscleGroup: null },
+  ]).run();
+
+  db.insert(sessions).values({ id: 1, routineName: 'Treino A', startTime: since + 1000, endTime: since + 61000 }).run();
+
+  db.insert(sets).values([
+    // Peito: 80kg x 10 = 800, 80kg x 10 = 800 (Total = 1600)
+    { sessionId: 1, exerciseId: 10, exerciseName: 'Supino Reto', setNumber: 1, weightKg: 80, reps: 10, isWarmup: false, createdAt: since + 1000 },
+    { sessionId: 1, exerciseId: 10, exerciseName: 'Supino Reto', setNumber: 2, weightKg: 80, reps: 10, isWarmup: false, createdAt: since + 2000 },
+    // Peito warmup: should be ignored
+    { sessionId: 1, exerciseId: 10, exerciseName: 'Supino Reto', setNumber: 3, weightKg: 40, reps: 10, isWarmup: true, createdAt: since + 3000 },
+    // Peito deleted: should be ignored
+    { sessionId: 1, exerciseId: 10, exerciseName: 'Supino Reto', setNumber: 4, weightKg: 80, reps: 10, isWarmup: false, deletedAt: since + 4000, createdAt: since + 4000 },
+    // Costas: 100kg x 10 = 1000, 110kg x 10 = 1100 (Total = 2100)
+    { sessionId: 1, exerciseId: 20, exerciseName: 'Remada Curvada', setNumber: 1, weightKg: 100, reps: 10, isWarmup: false, createdAt: since + 5000 },
+    { sessionId: 1, exerciseId: 20, exerciseName: 'Remada Curvada', setNumber: 2, weightKg: 110, reps: 10, isWarmup: false, createdAt: since + 6000 },
+    // Desconhecido: should be ignored (no muscle group)
+    { sessionId: 1, exerciseId: 30, exerciseName: 'Exercício Desconhecido', setNumber: 1, weightKg: 50, reps: 10, isWarmup: false, createdAt: since + 7000 },
+  ]).run();
+
+  const volumeMap = await AnalyticsService.volumeByMuscleGroup(since);
+
+  expect(volumeMap).toEqual({
+    costas: 2100,
+    peito: 1600,
+  });
+
+  // Verify sort order descending
+  expect(Object.keys(volumeMap)).toEqual(['costas', 'peito']);
+});
+
 // Opt-in timing, same real service + SQL as the correctness tests. Never assert noisy wall times in CI.
 (process.env.IRON_LOG_BENCH ? it : it.skip)('benchmarks weekly volume aggregation', async () => {
   for (const sessionCount of [50, 500]) {

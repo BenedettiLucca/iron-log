@@ -29,6 +29,7 @@ CREATE TABLE exercises (
 	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	name text NOT NULL,
 	type text DEFAULT 'strength' NOT NULL,
+	muscle_group text,
 	default_rest_seconds integer DEFAULT 90
 );
 CREATE TABLE folders (

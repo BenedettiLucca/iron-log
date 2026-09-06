@@ -20,6 +20,7 @@ export const exercises = sqliteTable('exercises', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   type: text('type').notNull().default('strength'), // 'strength' | 'duration'
+  muscleGroup: text('muscle_group'),
   defaultRestSeconds: integer('default_rest_seconds').default(90),
 });
 
@@ -206,4 +207,3 @@ export const supplementLogs = sqliteTable('supplement_logs', {
   index("supplement_logs_supplement_id_idx").on(t.supplementId),
   index("supplement_logs_compound_idx").on(t.supplementId, t.date),
 ]);
-

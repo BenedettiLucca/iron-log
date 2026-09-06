@@ -23,6 +23,7 @@ import m0018 from './0018_safe_wind_dancer.sql';
 import m0019 from './0019_optimal_marauders.sql';
 import m0020 from './0020_low_microchip.sql';
 import m0021 from './0021_small_jackpot.sql';
+import m0022 from './0022_fair_karnak.sql';
 
   export default {
     journal,
@@ -48,7 +49,8 @@ m0017,
 m0018,
 m0019,
 m0020,
-m0021
+m0021,
+m0022
     }
   }
   

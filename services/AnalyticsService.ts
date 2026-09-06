@@ -1,6 +1,6 @@
 import { db } from '@/src/db/client';
-import { sessions, sets, personalRecords } from '@/src/db/schema';
-import { desc, asc, isNull, and, sql, gt, inArray } from 'drizzle-orm';
+import { sessions, sets, personalRecords, exercises } from '@/src/db/schema';
+import { desc, asc, isNull, and, sql, gt, inArray, isNotNull, eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
 
@@ -164,8 +164,6 @@ export function rankEstimated1RMSets(setsList: Estimated1RMSetInput[]): RankedEs
     return a.exerciseId - b.exerciseId;
   });
 }
-
-
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -533,6 +531,49 @@ export const AnalyticsService = {
     } catch (e) {
       logger.error('Failed to calculate estimated 1RMs', e);
       throw e;
+    }
+  },
+
+  /**
+   * Volume by muscle group
+   * Single-pass aggregation joining sets -> exercises, volume = weightKg * reps.
+   * Only live sets (isNull deletedAt, NOT isWarmup).
+   * Returns `{ [group]: volume }` sorted descending by volume.
+   */
+  async volumeByMuscleGroup(since?: number): Promise<Record<string, number>> {
+    try {
+      const conditions = [
+        isNull(sets.deletedAt),
+        sql`NOT ${sets.isWarmup}`,
+        isNotNull(exercises.muscleGroup),
+      ];
+
+      if (since !== undefined) {
+        conditions.push(gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, since));
+      }
+
+      const rows = await db
+        .select({
+          muscleGroup: exercises.muscleGroup,
+          volume: sql<number>`SUM(${sets.weightKg} * ${sets.reps})`,
+        })
+        .from(sets)
+        .innerJoin(exercises, eq(sets.exerciseId, exercises.id))
+        .where(and(...conditions))
+        .groupBy(exercises.muscleGroup)
+        .orderBy(desc(sql`SUM(${sets.weightKg} * ${sets.reps})`), asc(exercises.muscleGroup));
+
+      const result: Record<string, number> = {};
+      for (const row of rows) {
+        if (row.muscleGroup) {
+          result[row.muscleGroup] = Number(row.volume) || 0;
+        }
+      }
+
+      return result;
+    } catch (e) {
+      logger.error('Failed to calculate volume by muscle group', e);
+      return {};
     }
   },
 };
