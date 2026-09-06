@@ -20,10 +20,7 @@ describe('#85 — equipment metadata + picker filter', () => {
   });
 
   it('exercise picker filters by equipment', () => {
-    const pickerFiles = ['components/ExercisePickerModal.tsx', 'components/ExerciseSelector.tsx', 'app/routine/[routineId].tsx'];
-    const found = pickerFiles.some(f => {
-      try { return read(f).match(/equipment/i); } catch { return false; }
-    });
-    expect(found).toBe(true);
+    const editor = read('app/routines/editor.tsx');
+    expect(editor).toMatch(/equipment/i);
   });
 });
