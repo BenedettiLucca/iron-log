@@ -1,15 +1,12 @@
-// Test Analytics pure functions (no DB dependency)
-// Re-implement estimateE1RM locally to avoid DB import chain
-function estimateE1RM(weight: number, reps: number): number {
-  if (reps <= 0 || weight <= 0) return 0;
-  if (reps === 1) return weight;
-  return Math.round(weight * (1 + reps / 30) * 10) / 10;
-}
+import { estimateE1RM, AnalyticsService } from '@/services/AnalyticsService';
+import { db, sqlite } from '../fixtures/database';
+import { exercises, sessions, sets } from '@/src/db/schema';
 
-// We also test the scoring logic by reimplementing the pure parts
-describe('AnalyticsService pure functions', () => {
+jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
 
-  describe('estimateE1RM (Epley formula)', () => {
+describe('AnalyticsService real production behavior', () => {
+
+  describe('estimateE1RM (imported directly from production)', () => {
     it('returns weight as-is for 1 rep', () => {
       expect(estimateE1RM(100, 1)).toBe(100);
     });
@@ -67,108 +64,86 @@ describe('AnalyticsService pure functions', () => {
     });
   });
 
-  describe('Strength Score scoring logic', () => {
-    // Test the scoring formulas used in calculateStrengthScore
-    // by re-implementing the pure calculation
+  describe('calculateStrengthScore (real service via synthetic database)', () => {
+    const since = Date.UTC(2026, 0, 5);
+    const week = 7 * 86400000;
 
-    function calcVolumeScore(avgWeeklyVolume: number): number {
-      return Math.min(40, Math.round(
-        avgWeeklyVolume <= 5000 ? (avgWeeklyVolume / 5000) * 20 :
-        avgWeeklyVolume <= 15000 ? 20 + ((avgWeeklyVolume - 5000) / 10000) * 15 :
-        35 + Math.min(5, ((avgWeeklyVolume - 15000) / 15000) * 5)
-      ));
-    }
-
-    function calcIntensityScore(avgWeight: number): number {
-      return Math.min(30, Math.round(
-        avgWeight <= 20 ? (avgWeight / 20) * 10 :
-        avgWeight <= 50 ? 10 + ((avgWeight - 20) / 30) * 10 :
-        20 + Math.min(10, ((avgWeight - 50) / 30) * 10)
-      ));
-    }
-
-    function calcConsistencyScore(avgSessionsPerWeek: number): number {
-      return Math.min(30, Math.round(
-        avgSessionsPerWeek <= 2 ? (avgSessionsPerWeek / 2) * 15 :
-        avgSessionsPerWeek <= 4 ? 15 + ((avgSessionsPerWeek - 2) / 2) * 10 :
-        25 + Math.min(5, ((avgSessionsPerWeek - 4) / 2) * 5)
-      ));
-    }
-
-    function getLabel(score: number): string {
-      if (score >= 80) return 'Elite';
-      if (score >= 60) return 'Avançado';
-      if (score >= 35) return 'Intermediário';
-      if (score >= 15) return 'Iniciante';
-      return 'Novato';
-    }
-
-    it('zero volume = zero volume score', () => {
-      expect(calcVolumeScore(0)).toBe(0);
+    beforeEach(() => {
+      sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
+      db.insert(exercises).values({ id: 1, name: 'Squat', type: 'strength', defaultRestSeconds: 90 }).run();
     });
 
-    it('5000kg weekly = 20 volume score', () => {
-      expect(calcVolumeScore(5000)).toBe(20);
+    it('returns noData label when no sessions exist', async () => {
+      const score = await AnalyticsService.calculateStrengthScore(since);
+      expect(score).toEqual({
+        totalScore: 0,
+        volumeScore: 0,
+        intensityScore: 0,
+        consistencyScore: 0,
+        labelKey: 'noData',
+      });
     });
 
-    it('15000kg weekly = 35 volume score', () => {
-      expect(calcVolumeScore(15000)).toBe(35);
+    it('computes volume, intensity, and consistency scores correctly for 1 week span', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        // 2 sessions in the week
+        db.insert(sessions).values([
+          { id: 1, routineName: 'Legs A', startTime: since + 1000 },
+          { id: 2, routineName: 'Legs B', startTime: since + 2000 },
+        ]).run();
+
+        // Each session has 1 working set (21kg x 10 = 210 volume) and 1 warmup
+        db.insert(sets).values([
+          { sessionId: 1, exerciseId: 1, exerciseName: 'Squat', setNumber: 1, weightKg: 20, reps: 10, isWarmup: true },
+          { sessionId: 1, exerciseId: 1, exerciseName: 'Squat', setNumber: 2, weightKg: 21, reps: 10, isWarmup: false },
+          { sessionId: 2, exerciseId: 1, exerciseName: 'Squat', setNumber: 1, weightKg: 20, reps: 10, isWarmup: true },
+          { sessionId: 2, exerciseId: 1, exerciseName: 'Squat', setNumber: 2, weightKg: 21, reps: 10, isWarmup: false },
+        ]).run();
+
+        const score = await AnalyticsService.calculateStrengthScore(since);
+        expect(score).toEqual({
+          totalScore: 27,
+          volumeScore: 2,
+          intensityScore: 10,
+          consistencyScore: 15,
+          labelKey: 'beginner',
+        });
+      } finally {
+        jest.restoreAllMocks();
+      }
     });
 
-    it('30000kg+ weekly caps at 40', () => {
-      expect(calcVolumeScore(50000)).toBe(40);
-    });
+    it('computes advanced/elite scores when volume and intensity are high', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        // 5 sessions in the week
+        for (let i = 1; i <= 5; i++) {
+          db.insert(sessions).values({ id: i, routineName: `Session ${i}`, startTime: since + i * 1000 }).run();
+          // Each session: 5 working sets of 100kg x 10 reps = 5000kg volume per session -> total 25000kg
+          for (let s = 1; s <= 5; s++) {
+            db.insert(sets).values({
+              sessionId: i,
+              exerciseId: 1,
+              exerciseName: 'Squat',
+              setNumber: s,
+              weightKg: 100,
+              reps: 10,
+              isWarmup: false,
+            }).run();
+          }
+        }
 
-    it('zero avg weight = zero intensity score', () => {
-      expect(calcIntensityScore(0)).toBe(0);
-    });
-
-    it('20kg avg = 10 intensity score', () => {
-      expect(calcIntensityScore(20)).toBe(10);
-    });
-
-    it('50kg avg = 20 intensity score', () => {
-      expect(calcIntensityScore(50)).toBe(20);
-    });
-
-    it('80kg+ avg caps at 30', () => {
-      expect(calcIntensityScore(100)).toBe(30);
-    });
-
-    it('0 sessions/week = 0 consistency', () => {
-      expect(calcConsistencyScore(0)).toBe(0);
-    });
-
-    it('2 sessions/week = 15 consistency', () => {
-      expect(calcConsistencyScore(2)).toBe(15);
-    });
-
-    it('4 sessions/week = 25 consistency', () => {
-      expect(calcConsistencyScore(4)).toBe(25);
-    });
-
-    it('6+ sessions/week caps at 30', () => {
-      expect(calcConsistencyScore(10)).toBe(30);
-    });
-
-    it('Novato label for low score', () => {
-      expect(getLabel(10)).toBe('Novato');
-    });
-
-    it('Iniciante label', () => {
-      expect(getLabel(20)).toBe('Iniciante');
-    });
-
-    it('Intermediário label', () => {
-      expect(getLabel(50)).toBe('Intermediário');
-    });
-
-    it('Avançado label', () => {
-      expect(getLabel(70)).toBe('Avançado');
-    });
-
-    it('Elite label', () => {
-      expect(getLabel(85)).toBe('Elite');
+        const score = await AnalyticsService.calculateStrengthScore(since);
+        // avgWeeklyVolume = 25000: >15000 -> 35 + min(5, (10000/15000)*5) = 35 + 3 = 38
+        // avgWeight = 100: >80 -> 30
+        // sessions = 5: >4 -> 25 + min(5, (1/2)*5) = 25 + 3 = 28
+        // total = 38 + 30 + 28 = 96 -> elite
+        expect(score.totalScore).toBeGreaterThanOrEqual(80);
+        expect(score.labelKey).toBe('elite');
+      } finally {
+        jest.restoreAllMocks();
+      }
     });
   });
 });
