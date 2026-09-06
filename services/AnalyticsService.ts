@@ -278,16 +278,29 @@ export const AnalyticsService = {
         }
       }
 
+      const setsBySession = new Map<number, typeof allSets>();
+      for (const set of allSets) {
+        if (set.isWarmup) continue;
+        const list = setsBySession.get(set.sessionId);
+        if (list) {
+          list.push(set);
+        } else {
+          setsBySession.set(set.sessionId, [set]);
+        }
+      }
+
       for (const session of recentSessions) {
         const weekKey = getISOWeek(session.startTime);
         const entry = weekMap.get(weekKey);
         if (!entry) continue;
         entry.sessions.add(session.id);
 
-        const sessionSets = allSets.filter(s => s.sessionId === session.id && !s.isWarmup);
-        for (const set of sessionSets) {
-          entry.volume += (set.weightKg * set.reps);
-          entry.sets++;
+        const sessionSets = setsBySession.get(session.id);
+        if (sessionSets) {
+          for (const set of sessionSets) {
+            entry.volume += (set.weightKg * set.reps);
+            entry.sets++;
+          }
         }
       }
 
