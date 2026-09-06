@@ -38,4 +38,12 @@ describe('rest notification contract (#89)', () => {
     const svc = read('services/NotificationService.ts');
     expect(svc).toMatch(/scheduleRestNotification[\s\S]*try\s*\{[\s\S]*catch/);
   });
+
+  it('rest-timer scheduling is NOT gated by the storeClient check (device QA runs in Expo Go)', () => {
+    const svc = read('services/NotificationService.ts');
+    const restBlock = svc.split('export async function cancelRestNotification')[0]
+      .split('export async function scheduleRestNotification')[1];
+    expect(restBlock).toBeDefined();
+    expect(restBlock).not.toMatch(/!isSupported/);
+  });
 });

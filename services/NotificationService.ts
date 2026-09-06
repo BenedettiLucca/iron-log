@@ -287,11 +287,17 @@ export const notificationService = new NotificationService();
 const REST_NOTIFICATION_ID = 'rest-timer';
 
 export async function scheduleRestNotification(opts: { seconds: number; exerciseName?: string; }): Promise<void> {
-  if (!isSupported) {
-    return;
-  }
+  // NOTE: deliberately NOT gated by isSupported — Expo Go (storeClient) supports
+  // local scheduling, and the rest timer must fire there (device QA runs in Go).
   try {
     const Notifications = await getNotificationsModule();
+    const perms = await Notifications.getPermissionsAsync();
+    if (!perms.granted) {
+      const requested = await Notifications.requestPermissionsAsync();
+      if (!requested.granted) {
+        return;
+      }
+    }
     await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
 
     await Notifications.scheduleNotificationAsync({
@@ -316,9 +322,6 @@ export async function scheduleRestNotification(opts: { seconds: number; exercise
 }
 
 export async function cancelRestNotification(): Promise<void> {
-  if (!isSupported) {
-    return;
-  }
   try {
     const Notifications = await getNotificationsModule();
     await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
