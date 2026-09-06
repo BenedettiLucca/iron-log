@@ -208,15 +208,6 @@ export function FolderManagerModal({
                     editable={!isSubmitting}
                     onFocus={handleFolderInputFocus}
                   />
-                  <Button
-                    title={t('routines.createFolder')}
-                    onPress={() => void handleCreate()}
-                    variant="primary"
-                    fullWidth
-                    loading={isCreating}
-                    disabled={isSubmitting || !!editingFolder}
-                    style={{ marginTop: 12 }}
-                  />
                 </Card>
 
                 <View>
@@ -319,6 +310,20 @@ export function FolderManagerModal({
                   </View>
                 </View>
               </ScrollView>
+
+              {/* Footer CTA pinned inside KAV, outside ScrollView so it never scrolls under the keyboard.
+                  On Android, KAV behavior='height' is kept because the footer must track the keyboard height
+                  when the ScrollView is not active (e.g., no input focused yet). */}
+              <View className="px-4 py-4" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+                <Button
+                  title={t('routines.createFolder')}
+                  onPress={() => void handleCreate()}
+                  variant="primary"
+                  fullWidth
+                  loading={isCreating}
+                  disabled={isSubmitting || !!editingFolder}
+                />
+              </View>
             </View>
           </KeyboardAvoidingView>
         </View>
