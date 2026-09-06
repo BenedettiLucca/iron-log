@@ -249,7 +249,8 @@ function Layout() {
         target: recoverySession.target,
         notes: recoverySession.notes,
         restSeconds: recoverySession.restSeconds?.toString(),
-        startTime: (recoverySession.startTime ?? Date.now()).toString()
+        startTime: (recoverySession.startTime ?? Date.now()).toString(),
+        routineExerciseId: recoverySession.routineExerciseId,
       }
     });
   };

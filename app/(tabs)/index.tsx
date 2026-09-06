@@ -148,6 +148,8 @@ export default function HomeScreen() {
         exerciseName: incompleteSession.exerciseName,
         target: incompleteSession.target,
         notes: incompleteSession.notes,
+        routineExerciseId: incompleteSession.routineExerciseId,
+        restSeconds: incompleteSession.restSeconds?.toString(),
       }
     });
   };

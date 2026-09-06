@@ -70,6 +70,7 @@ export interface SessionContext {
   target?: string | null;
   notes?: string | null;
   restSeconds?: number | null;
+  routineExerciseId?: number | null;
   startTime?: number;
 }
 
