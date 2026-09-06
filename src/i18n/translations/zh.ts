@@ -1138,4 +1138,16 @@ export const zh = {
         min: '分钟',
       },
     },
+  notifications: {
+    checkinTitle: "📊 每月打卡",
+    checkinBody: "每月打卡时间到了！请拍摄正、背、侧面照片。",
+    supplementTitle: "💊 补充剂提醒",
+    supplementBody: "该服用 {name} ({dosage}) 了",
+    supplementBodyNoDosage: "该服用 {name} 了",
+    testTitle: "🧪 测试通知",
+    testBody: "这是来自 Iron Log 的测试通知",
+    restTitle: "休息结束",
+    restBodyNext: "下一个：{name}",
+    restBodyDefault: "该进行下一组了",
+  },
 };

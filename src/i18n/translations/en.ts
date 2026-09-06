@@ -1147,4 +1147,16 @@ export const en = {
         min: 'min',
       },
     },
+  notifications: {
+    checkinTitle: "📊 Monthly Check-in",
+    checkinBody: "Time for your monthly check-in! Take front, back, and side photos.",
+    supplementTitle: "💊 Supplement Reminder",
+    supplementBody: "Time to take {name} ({dosage})",
+    supplementBodyNoDosage: "Time to take {name}",
+    testTitle: "🧪 Test Notification",
+    testBody: "This is a test notification from Iron Log",
+    restTitle: "Rest complete",
+    restBodyNext: "Next: {name}",
+    restBodyDefault: "Time for the next set",
+  },
 };
