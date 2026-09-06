@@ -146,8 +146,8 @@ function SetCard({
           </View>
         </View>
 
-        <View className="flex-1">
-          <View className="flex-row items-baseline gap-1">
+        <View className="flex-1 min-w-0">
+          <View className="flex-row items-baseline gap-1 flex-wrap">
             <Text className="text-text text-2xl font-black tracking-tight">
               {weight > 0 ? weight : '-'}
             </Text>
@@ -163,7 +163,7 @@ function SetCard({
             </Text>
           </View>
           {statusLabels.length > 0 && (
-            <Text className="text-subtext text-xs font-medium mt-0.5">
+            <Text className="text-subtext text-xs font-medium mt-0.5 flex-shrink">
               {statusLabels.join(' · ')}
             </Text>
           )}

@@ -444,6 +444,23 @@ export default function ExerciseScreen() {
   const totalExercises = allExercises.length;
 
   const [showRirExplainer, setShowRirExplainer] = useState(false);
+  // Track keyboard height on Android so the input panel scrolls above the IME.
+  // KeyboardAvoidingView alone is unreliable inside OneUI translucent modals.
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const keyboardListenerRef = useRef<ReturnType<typeof Keyboard.addListener> | null>(null);
+  const dismissListenerRef = useRef<ReturnType<typeof Keyboard.addListener> | null>(null);
+  useEffect(() => {
+    if (typeof Keyboard.addListener !== 'function') return;
+    keyboardListenerRef.current = Keyboard.addListener(
+      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
+      (e) => setKeyboardHeight(e.endCoordinates?.height ?? 0),
+    );
+    dismissListenerRef.current = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => {
+      keyboardListenerRef.current?.remove();
+      dismissListenerRef.current?.remove();
+    };
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -532,7 +549,7 @@ export default function ExerciseScreen() {
         {/* Input Area */}
         <View
           className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg"
-          style={{ paddingBottom: 12 + insets.bottom }}
+          style={{ paddingBottom: 12 + insets.bottom + (Platform.OS === 'android' ? keyboardHeight : 0) }}
         >
           <WarmupToggle
             value={isWarmupMode}
