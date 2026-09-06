@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,7 @@ import {
   normalizeRoutineName,
 } from '@/src/utils/routine-name';
 import { setPendingToast } from '@/src/utils/flash-toast';
+import { filterExercisesByEquipmentAndSearch, getAvailableEquipments } from '@/src/utils/exercise-filter';
 import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
 
 type SelectedExercise = {
@@ -712,30 +713,53 @@ export default function RoutineEditorScreen() {
   );
 }
 
+const getEquipmentLabel = (t: (key: string) => string, key: string): string => {
+  const knownKeys = ['all', 'barra', 'halteres', 'maquina', 'peso_corporal', 'elastico', 'cabos', 'kettlebell', 'other'];
+  if (knownKeys.includes(key)) {
+    return t(`equipment.${key}`);
+  }
+  return key;
+};
+
 function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
   const { t } = useI18n();
   const [search, setSearch] = useState('');
+  const [selectedEquipment, setSelectedEquipment] = useState<string>('all');
   const { data: allExercises } = useLiveQuery(db.select().from(exercises));
-  const [filtered, setFiltered] = useState<typeof allExercises>([]);
   const [newType, setNewType] = useState<'strength' | 'duration'>('strength');
   const [editingEx, setEditingEx] = useState<{id: number, name: string} | null>(null);
   const [editName, setEditName] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
-  useEffect(() => {
-    if (allExercises) {
-      setFiltered(
-        allExercises.filter(e => e.name.toLowerCase().includes(search.toLowerCase()))
-      );
-    }
-  }, [search, allExercises]);
+  const availableEquipments = useMemo(() => {
+    return getAvailableEquipments(allExercises ?? []);
+  }, [allExercises]);
+
+  const equipmentChips = useMemo(() => {
+    return [
+      { key: 'all', label: t('equipment.all') },
+      ...availableEquipments.map((eqKey) => ({
+        key: eqKey,
+        label: getEquipmentLabel(t, eqKey),
+      })),
+    ];
+  }, [availableEquipments, t]);
+
+  const filtered = useMemo(() => {
+    return filterExercisesByEquipmentAndSearch(
+      allExercises ?? [],
+      search,
+      selectedEquipment
+    );
+  }, [allExercises, search, selectedEquipment]);
 
   const createNewExercise = async () => {
     if (!search.trim()) return;
     try {
       const res = await db.insert(exercises).values({
-          name: search,
-          type: newType
+          name: search.trim(),
+          type: newType,
+          equipment: selectedEquipment !== 'all' ? selectedEquipment : null,
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
     } catch {
@@ -747,7 +771,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
       if (!editingEx || !editName.trim()) return;
       try {
           await db.update(exercises)
-            .set({ name: editName })
+            .set({ name: editName.trim() })
             .where(eq(exercises.id, editingEx.id));
           setEditingEx(null);
           setEditName('');
@@ -769,7 +793,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           />
         </View>
 
-        <View className="p-4">
+        <View className="p-4 flex-1">
             {editingEx ? (
                 <Card className="mb-4 border-primary">
                     <Text className="text-subtext text-xs mb-2">{t('routines.editing', { name: editingEx.name })}</Text>
@@ -793,8 +817,38 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     value={search}
                     onChangeText={setSearch}
                     autoFocus
-                    containerStyle={{ marginBottom: 16 }}
+                    containerStyle={{ marginBottom: 12 }}
                 />
+            )}
+
+            {equipmentChips.length > 1 && (
+              <View className="mb-3">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  {equipmentChips.map((chip) => {
+                    const isActive = selectedEquipment === chip.key;
+                    return (
+                      <TouchableOpacity
+                        key={chip.key}
+                        onPress={() => setSelectedEquipment(chip.key)}
+                        activeOpacity={0.7}
+                        className={`rounded-full py-1.5 px-3.5 border min-h-[36px] items-center justify-center shrink-0 ${
+                          isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
+                        }`}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: isActive }}
+                      >
+                        <Text className={`text-xs font-semibold uppercase ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
+                          {chip.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
             )}
 
             <FlatList
@@ -844,9 +898,16 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                 >
                     <View className="flex-1">
                         <Text className="text-text font-bold text-lg">{item.name}</Text>
-                        {item.type === 'duration' && (
-                            <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">{t("routines.tempo")}</Text>
-                        )}
+                        <View className="flex-row gap-2 mt-1 flex-wrap">
+                          {item.type === 'duration' && (
+                              <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start uppercase">{t("routines.tempo")}</Text>
+                          )}
+                          {item.equipment ? (
+                              <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start uppercase">
+                                {getEquipmentLabel(t, item.equipment)}
+                              </Text>
+                          ) : null}
+                        </View>
                     </View>
                     
                     <TouchableOpacity 

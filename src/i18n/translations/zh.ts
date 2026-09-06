@@ -824,6 +824,19 @@ export const zh = {
     other: '其他',
   },
 
+  equipment: {
+    all: '全部',
+    barra: '杠铃',
+    halteres: '哑铃',
+    maquina: '器械',
+    peso_corporal: '自重',
+    elastico: '弹力带',
+    cabos: '绳索',
+    kettlebell: '壶铃',
+    other: '其他',
+  },
+
+
   bioEvolution: {
     avgWeight: '平均体重',
     back: '背面',

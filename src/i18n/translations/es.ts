@@ -824,6 +824,19 @@ export const es = {
     other: 'Otros',
   },
 
+  equipment: {
+    all: 'Todos',
+    barra: 'Barra',
+    halteres: 'Mancuernas',
+    maquina: 'Máquina',
+    peso_corporal: 'Peso Corporal',
+    elastico: 'Banda Elástica',
+    cabos: 'Cables',
+    kettlebell: 'Kettlebell',
+    other: 'Otro',
+  },
+
+
   bioEvolution: {
     avgWeight: 'Peso Promedio',
     back: 'ESPALDA',

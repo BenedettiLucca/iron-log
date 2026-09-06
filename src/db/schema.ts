@@ -21,6 +21,7 @@ export const exercises = sqliteTable('exercises', {
   name: text('name').notNull(),
   type: text('type').notNull().default('strength'), // 'strength' | 'duration'
   muscleGroup: text('muscle_group'),
+  equipment: text('equipment'),
   defaultRestSeconds: integer('default_rest_seconds').default(90),
 });
 

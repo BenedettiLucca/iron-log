@@ -855,6 +855,19 @@ export const pt = {
     other: 'Outros',
   },
 
+  equipment: {
+    all: 'Todos',
+    barra: 'Barra',
+    halteres: 'Halteres',
+    maquina: 'Máquina',
+    peso_corporal: 'Peso Corporal',
+    elastico: 'Elástico',
+    cabos: 'Cabos',
+    kettlebell: 'Kettlebell',
+    other: 'Outro',
+  },
+
+
   bioEvolution: {
     avgWeight: 'Peso Médio',
     back: 'COSTAS',
