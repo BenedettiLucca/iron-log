@@ -99,6 +99,9 @@ export const zh = {
     activeWorkout: '进行中的训练',
     generateExampleRoutines: '生成示例训练',
     continue: '继续',
+    todayWorkout: '今天的训练',
+    weekLabel: '第{week}周',
+    start: '开始',
 
   },
   bio: {
@@ -362,6 +365,12 @@ export const zh = {
     exerciseProgressPlural: '{current}/{total} 个动作',
     exercisesCompletedProgressSingular: '已完成 {current}/{total} 个动作',
     exercisesCompletedProgressPlural: '已完成 {current}/{total} 个动作',
+    bodyWeightTitle: '体重',
+    bodyWeightMessage: '开始训练前请输入今天的体重（公斤）。',
+    bodyWeightSkip: '跳过',
+    bodyWeightSave: '保存',
+    bodyWeightInvalid: '请输入有效体重',
+    bodyWeightSaved: '体重已保存！',
 
   },
   exercise: {

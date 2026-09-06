@@ -99,6 +99,9 @@ export const es = {
     activeWorkout: 'Entreno Activo',
     generateExampleRoutines: 'Generar Rutinas de Ejemplo',
     continue: 'Continuar',
+    todayWorkout: "Entreno de Hoy",
+    weekLabel: 'Semana {week}',
+    start: 'Iniciar',
 
   },
   bio: {
@@ -362,6 +365,12 @@ export const es = {
     exerciseProgressPlural: '{current} de {total} ejercicios',
     exercisesCompletedProgressSingular: '{current} de {total} ejercicio completado',
     exercisesCompletedProgressPlural: '{current} de {total} ejercicios completados',
+    bodyWeightTitle: 'Peso Corporal',
+    bodyWeightMessage: 'Ingresa tu peso corporal de hoy (kg) antes de empezar.',
+    bodyWeightSkip: 'Omitir',
+    bodyWeightSave: 'Guardar',
+    bodyWeightInvalid: 'Ingresa un peso válido',
+    bodyWeightSaved: '¡Peso guardado!',
 
   },
   exercise: {

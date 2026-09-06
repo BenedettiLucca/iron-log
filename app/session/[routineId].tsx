@@ -1,9 +1,9 @@
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { db } from '../../src/db/client';
-import { sessions, routineExercises, exercises, sets, routines } from '../../src/db/schema';
-import { and, count, eq, isNull, or } from 'drizzle-orm';
+import { sessions, routineExercises, exercises, sets, routines, bodyMetrics } from '../../src/db/schema';
+import { and, count, desc, eq, isNull, or } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Button } from '../../components/Button';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -15,6 +15,7 @@ import Animated, { FadeInLeft } from 'react-native-reanimated';
 import { parseTargetSets, countCompletedRoutineExercises } from '../../src/utils/exercise';
 import { logger } from '@/services/logger';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
+import { weightInputSchema } from '@/src/validators/forms';
 import { createNavigationGate, resolveCanonicalSessionRoutineName } from '../../src/utils/session-start';
 import { useI18n } from '../../src/i18n/index';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
@@ -64,6 +65,9 @@ export default function SessionScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showBodyWeightDialog, setShowBodyWeightDialog] = useState(false);
+  const [bodyWeightInput, setBodyWeightInput] = useState('');
+  const [bodyWeightError, setBodyWeightError] = useState('');
   const lastBackPressTime = useRef<number>(0);
   const exerciseNavigationGateRef = useRef(createNavigationGate());
 
@@ -155,12 +159,26 @@ export default function SessionScreen() {
         routineId: Number(rIdStr),
         routineName: resolvedRoutineName,
         startTime: now,
-        bodyWeight: 0,
+        bodyWeight: null,
         sRpe: 0,
       }).returning();
 
       await loadExercises();
       setSessionId(result[0].id);
+
+      // Fetch last known weight and show body weight dialog
+      const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
+        .from(bodyMetrics)
+        .where(eq(bodyMetrics.type, 'daily'))
+        .orderBy(desc(bodyMetrics.date))
+        .limit(1);
+
+      const lastWeight = lastMetrics.length > 0 && lastMetrics[0].weight
+        ? lastMetrics[0].weight.toString()
+        : '';
+
+      setBodyWeightInput(lastWeight);
+      setShowBodyWeightDialog(true);
     } catch (e) {
       logger.error('Erro ao iniciar sessão', e);
       setHasError(true);
@@ -175,6 +193,23 @@ export default function SessionScreen() {
         initSession();
     }
   }, [rIdStr, sessionId, hasError, initSession]);
+
+  const dismissBodyWeightDialog = useCallback(async () => {
+    setShowBodyWeightDialog(false);
+    if (!sessionId) return;
+    const parsedWeight = weightInputSchema.safeParse({ weight: parseFloat(bodyWeightInput) || 0 });
+    if (parsedWeight.success && bodyWeightInput.trim() !== '') {
+      const weight = parsedWeight.data.weight;
+      await db.update(sessions)
+        .set({ bodyWeight: weight })
+        .where(eq(sessions.id, sessionId));
+      await db.insert(bodyMetrics).values({
+        date: Date.now(),
+        type: 'daily',
+        weight,
+      });
+    }
+  }, [bodyWeightInput, sessionId]);
 
   const finishSession = () => {
     if (!sessionId) return;
@@ -271,7 +306,72 @@ export default function SessionScreen() {
               onPress={() => router.back()}
               variant="secondary"
               size="md"
+      />
+
+      <Modal
+        visible={showBodyWeightDialog}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        accessibilityViewIsModal
+        onRequestClose={() => dismissBodyWeightDialog()}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          className="flex-1 justify-center items-center bg-black/40"
+          onPress={() => dismissBodyWeightDialog()}
+          accessible={false}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            className="bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl mx-4"
+            onPress={(e) => e.stopPropagation()}
+            accessible={false}
+          >
+            <Text className="text-text text-xl font-bold mb-2">{t('session.bodyWeightTitle')}</Text>
+            <Text className="text-subtext text-base mb-5 leading-6">{t('session.bodyWeightMessage')}</Text>
+            <View className="flex-row items-center gap-3 mb-4">
+              <TextInput
+                className="flex-1 bg-background text-text text-2xl font-bold py-3 px-4 rounded-xl border border-border text-center"
+                keyboardType="numeric"
+                placeholder="75.5"
+                placeholderTextColor={Colors.darkSubtext}
+                value={bodyWeightInput}
+                onChangeText={(val) => {
+                  setBodyWeightInput(val);
+                  setBodyWeightError('');
+                }}
+                textAlign="center"
+                accessibilityLabel={t('session.bodyWeightTitle')}
+              />
+              <Text className="text-subtext text-sm font-medium">kg</Text>
+            </View>
+            {bodyWeightError ? (
+              <Text className="text-dangerText text-sm mb-3 text-center">{bodyWeightError}</Text>
+            ) : null}
+            <Button
+              title={t('session.bodyWeightSave')}
+              variant="primary"
+              onPress={() => {
+                const parsed = weightInputSchema.safeParse({ weight: parseFloat(bodyWeightInput) || 0 });
+                if (!parsed.success || !bodyWeightInput.trim()) {
+                  setBodyWeightError(t('session.bodyWeightInvalid'));
+                  return;
+                }
+                dismissBodyWeightDialog();
+              }}
+              fullWidth
             />
+            <Button
+              title={t('session.bodyWeightSkip')}
+              variant="ghost"
+              onPress={() => dismissBodyWeightDialog()}
+              fullWidth
+              className="mt-2"
+            />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
           </View>
         }
         renderItem={({ item, index }) => (
