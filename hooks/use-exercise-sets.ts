@@ -13,6 +13,7 @@ import { checkPersonalRecords } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
 import { SessionDraft } from '../src/utils/session-draft';
+import { scheduleRestNotification, cancelRestNotification } from '../services/NotificationService';
 
 export interface RoutineExerciseListItem {
   id: number;
@@ -234,6 +235,18 @@ export function useExerciseSets({
     loadHistory();
   }, [loadData, loadHistory]);
 
+  useEffect(() => {
+    if (timerStatus === 'idle') {
+      cancelRestNotification();
+    }
+  }, [timerStatus]);
+
+  useEffect(() => {
+    return () => {
+      cancelRestNotification();
+    };
+  }, []);
+
   const handleSaveSet = useCallback(async (overrideDuration?: number): Promise<boolean> => {
     if (isSaving) return false;
 
@@ -324,6 +337,7 @@ export function useExerciseSets({
         const restTime = routineRest || 90;
         setTimerTarget(Date.now() + restTime * 1000);
         setTimerStatus('running');
+        scheduleRestNotification({ seconds: restTime, exerciseName: currentName });
       }
 
       return true;

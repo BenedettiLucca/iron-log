@@ -283,3 +283,46 @@ class NotificationService {
 }
 
 export const notificationService = new NotificationService();
+
+const REST_NOTIFICATION_ID = 'rest-timer';
+
+export async function scheduleRestNotification(opts: { seconds: number; exerciseName?: string; }): Promise<void> {
+  if (!isSupported) {
+    return;
+  }
+  try {
+    const Notifications = await getNotificationsModule();
+    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: REST_NOTIFICATION_ID,
+      content: {
+        title: 'Descanso concluído',
+        body: opts.exerciseName ? `Próximo: ${opts.exerciseName}` : 'Hora da próxima série',
+        data: {
+          type: 'rest_complete',
+          exerciseName: opts.exerciseName,
+        },
+        sound: true,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+        seconds: opts.seconds,
+      },
+    });
+  } catch (error) {
+    logger.error('Error scheduling rest notification', error);
+  }
+}
+
+export async function cancelRestNotification(): Promise<void> {
+  if (!isSupported) {
+    return;
+  }
+  try {
+    const Notifications = await getNotificationsModule();
+    await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
+  } catch (error) {
+    logger.error('Error canceling rest notification', error);
+  }
+}
