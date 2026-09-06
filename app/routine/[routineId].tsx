@@ -24,6 +24,7 @@ import Svg, { Polyline } from 'react-native-svg';
 
 interface ExerciseWithStats {
   id: number;
+  routineExerciseId: number;
   name: string;
   type: string;
   target: string | null;
@@ -75,7 +76,7 @@ export default function RoutinePreviewScreen() {
   const [stats, setStats] = useState<RoutineStats>({
     totalSessions: 0, lastSessionDate: null, avgDuration: 0, avgVolume: 0, bestSession: null,
   });
-  const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
+  const [expandedOccurrenceId, setExpandedOccurrenceId] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
     if (!params) {
@@ -102,6 +103,7 @@ export default function RoutinePreviewScreen() {
       // Load exercises for this routine
       const exData = await db.select({
         id: exercises.id,
+        routineExerciseId: routineExercises.id,
         name: exercises.name,
         type: exercises.type,
         target: routineExercises.target,
@@ -218,7 +220,7 @@ export default function RoutinePreviewScreen() {
         setToast({ visible: false, message: '', type: 'success' });
       }
       setScreenState('loading');
-      setExpandedExercise(null);
+      setExpandedOccurrenceId(null);
       loadData();
     }, [loadData, setToast])
   );
@@ -341,14 +343,14 @@ export default function RoutinePreviewScreen() {
           <View>
             <SectionHeader label={t('routineDetail.personalRecords')} className="mb-3" />
             <View className="flex-row flex-wrap gap-2.5">
-              {exercisesData.filter(e => e.prWeight !== null).slice(0, 4).map(ex => (
+              {[...new Map(exercisesData.filter(e => e.prWeight !== null).map(ex => [ex.id, ex])).values()].slice(0, 4).map(pr => (
                 <StatTile
-                  key={ex.id}
-                  value={`${ex.prWeight}kg`}
-                  label={ex.name}
+                  key={pr.id}
+                  value={`${pr.prWeight}kg`}
+                  label={pr.name}
                   accentColor="warning"
                   className="w-[calc(50%-5px)]"
-                  delta={ex.lastDate ? formatDate(ex.lastDate) : undefined}
+                  delta={pr.lastDate ? formatDate(pr.lastDate) : undefined}
                 />
               ))}
             </View>
@@ -369,11 +371,11 @@ export default function RoutinePreviewScreen() {
             <View className="gap-3">
               {exercisesData.map((ex, index) => (
                 <Card
-                  key={ex.id}
+                  key={ex.routineExerciseId}
                   pressable
-                  onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}
-                  className={expandedExercise === ex.id ? 'border-primary/40' : ''}
-                  accessibilityLabel={`${ex.name}, ${expandedExercise === ex.id ? t('routineDetail.collapseDetails') : t('routineDetail.expandDetails')}`}
+                  onPress={() => setExpandedOccurrenceId(expandedOccurrenceId === ex.routineExerciseId ? null : ex.routineExerciseId)}
+                  className={expandedOccurrenceId === ex.routineExerciseId ? 'border-primary/40' : ''}
+                  accessibilityLabel={`${ex.name}, ${expandedOccurrenceId === ex.routineExerciseId ? t('routineDetail.collapseDetails') : t('routineDetail.expandDetails')}`}
                 >
                   {/* Header Row */}
                   <View className="flex-row items-start">
@@ -412,7 +414,7 @@ export default function RoutinePreviewScreen() {
 
                     {/* Chevron SVG */}
                     <View className="justify-center h-8">
-                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedExercise === ex.id ? '90deg' : '0deg' }] }}>
+                      <Svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: [{ rotate: expandedOccurrenceId === ex.routineExerciseId ? '90deg' : '0deg' }] }}>
                         <Polyline points="9 18 15 12 9 6" />
                       </Svg>
                     </View>
@@ -443,7 +445,7 @@ export default function RoutinePreviewScreen() {
                   )}
 
                   {/* Expanded: Weight Evolution Chart */}
-                  {expandedExercise === ex.id && ex.weightHistory.length > 1 && (
+                  {expandedOccurrenceId === ex.routineExerciseId && ex.weightHistory.length > 1 && (
                     <View className="mt-3 pt-3 border-t border-border">
                       <SectionHeader label={t('routineDetail.weightEvolution')} className="mb-2" />
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
@@ -471,7 +473,7 @@ export default function RoutinePreviewScreen() {
                   )}
 
                   {/* Expanded: History Table */}
-                  {expandedExercise === ex.id && ex.weightHistory.length > 0 && (
+                  {expandedOccurrenceId === ex.routineExerciseId && ex.weightHistory.length > 0 && (
                     <View className="mt-2 pt-2 border-t border-border">
                       <SectionHeader label={t('routineDetail.recentHistory')} className="mb-1" />
                       {ex.weightHistory.slice(-5).reverse().map((h, i) => (

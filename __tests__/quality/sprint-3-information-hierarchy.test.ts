@@ -332,7 +332,7 @@ describe('Sprint 3 information hierarchy', () => {
     const metricsBlock = routineExerciseSection.match(/\{ex\.sessionCount\s*>\s*0\s*&&\s*\([\s\S]+?<\/View>\s*\)\}/)?.[0];
 
     expect(routineExerciseSection).toMatch(/<Card[\s\S]{0,100}\bpressable\b/);
-    expect(routineExerciseSection).toContain('onPress={() => setExpandedExercise(expandedExercise === ex.id ? null : ex.id)}');
+    expect(routineExerciseSection).toContain('onPress={() => setExpandedOccurrenceId(expandedOccurrenceId === ex.routineExerciseId ? null : ex.routineExerciseId)}');
     expect(routineExerciseSection).toContain("t('routineDetail.collapseDetails')");
     expect(routineExerciseSection).toContain("t('routineDetail.expandDetails')");
     expect(routineExerciseSection).not.toContain('<TouchableOpacity');
