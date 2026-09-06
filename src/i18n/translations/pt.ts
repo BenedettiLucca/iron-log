@@ -683,6 +683,7 @@ export const pt = {
     csvExportError: 'Falha ao exportar CSV.',
     exportError: 'Falha ao exportar.',
     importError: 'Falha ao importar.',
+    keepAwake: 'Manter tela ligada durante o treino',
   },
 
   // About

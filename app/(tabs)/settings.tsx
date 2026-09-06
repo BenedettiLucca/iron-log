@@ -10,6 +10,7 @@ import { AlexandriaExportService } from '../../services/AlexandriaExportService'
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
+import { useKeepAwakeSetting } from '@/hooks/use-keep-awake-setting';
 import { useI18n } from '../../src/i18n/index';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useToast } from '../../hooks/use-toast';
@@ -133,6 +134,7 @@ export default function SettingsScreen() {
   const { toast, setToast } = useToast();
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
+  const { enabled: keepAwakeEnabled, setSetting: setKeepAwakeEnabled } = useKeepAwakeSetting();
 
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -299,6 +301,23 @@ export default function SettingsScreen() {
             noBorder
           />
         )}
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Keep Awake Section */}
+      <View className="py-2">
+        <View className="flex-row items-center justify-between py-3.5">
+          <View className="flex-1">
+            <Text className="text-text font-semibold text-sm">{t("settings.keepAwake")}</Text>
+          </View>
+          <Switch
+            value={keepAwakeEnabled}
+            onValueChange={setKeepAwakeEnabled}
+            trackColor={{ false: theme.border, true: theme.primary }}
+            thumbColor={theme.onPrimary}
+          />
+        </View>
       </View>
 
       <View className="border-b border-border/40" />

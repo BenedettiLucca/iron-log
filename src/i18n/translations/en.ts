@@ -656,6 +656,7 @@ export const en = {
     csvExportError: 'Failed to export CSV.',
     exportError: 'Failed to export.',
     importError: 'Failed to import.',
+    keepAwake: 'Keep screen on during workout',
   },
   about: {
     title: 'About Iron Log',

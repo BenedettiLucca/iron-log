@@ -656,6 +656,7 @@ export const zh = {
     csvExportError: 'CSV 导出失败。',
     exportError: '导出失败。',
     importError: '导入失败。',
+    keepAwake: '训练期间保持屏幕常亮',
   },
   about: {
     title: '关于 Iron Log',
