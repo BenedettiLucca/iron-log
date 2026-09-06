@@ -124,8 +124,10 @@ jest.mock('@sentry/react-native', () => ({
 jest.mock('expo-notifications', () => ({
   SchedulableTriggerInputTypes: { TIME_INTERVAL: 'timeInterval', DATE: 'date' },
   AndroidNotificationPriority: { HIGH: 'high' },
+  AndroidImportance: { HIGH: 'high' },
   scheduleNotificationAsync: jest.fn(),
   cancelScheduledNotificationAsync: jest.fn(),
+  setNotificationChannelAsync: jest.fn(),
 }));
 
 jest.mock('expo-constants', () => ({ executionEnvironment: 'storeClient' }));

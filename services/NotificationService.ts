@@ -288,16 +288,16 @@ const REST_NOTIFICATION_ID = 'rest-timer';
 
 export async function scheduleRestNotification(opts: { seconds: number; exerciseName?: string; }): Promise<void> {
   // NOTE: deliberately NOT gated by isSupported — Expo Go (storeClient) supports
-  // local scheduling, and the rest timer must fire there (device QA runs in Go).
+  // LOCAL notifications; only push was removed from Go in SDK 53+. Do not use
+  // getPermissionsAsync/requestPermissionsAsync here: on Android they belong to
+  // the push surface and trip warnOfExpoGoPushUsage inside Expo Go. The channel
+  // creation below is what triggers the Android 13+ opt-in prompt.
   try {
     const Notifications = await getNotificationsModule();
-    const perms = await Notifications.getPermissionsAsync();
-    if (!perms.granted) {
-      const requested = await Notifications.requestPermissionsAsync();
-      if (!requested.granted) {
-        return;
-      }
-    }
+    await Notifications.setNotificationChannelAsync(REST_NOTIFICATION_ID, {
+      name: 'Descanso',
+      importance: Notifications.AndroidImportance.HIGH,
+    });
     await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
 
     await Notifications.scheduleNotificationAsync({
