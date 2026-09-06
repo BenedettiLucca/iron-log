@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
 import { AlexandriaExportService } from '../../services/AlexandriaExportService';
+import { TrackerImportService } from '../../services/importers';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -197,6 +198,50 @@ export default function SettingsScreen() {
     });
   };
 
+  const handleTrackerImport = async () => {
+    setLoading(true);
+    try {
+      const result = await TrackerImportService.importFromFile();
+      if (!result) {
+        return;
+      }
+      if (result.sessionsCreated === 0 && result.setsImported === 0) {
+        setToast({
+          visible: true,
+          message: t('settings.import.noNewData'),
+          type: 'info',
+        });
+      } else {
+        setDialog({
+          visible: true,
+          title: t('settings.import.successTitle'),
+          message: t('settings.import.successMessage', {
+            sessions: result.sessionsCreated,
+            sets: result.setsImported,
+            custom: result.customExercisesCreated,
+          }),
+          type: 'default',
+          onConfirm: () => setDialog(prev => ({ ...prev, visible: false })),
+        });
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      let localizedMsg = t('settings.import.error');
+      if (msg === 'UNSUPPORTED_FORMAT') {
+        localizedMsg = t('settings.import.unsupportedFormat');
+      } else if (msg?.startsWith('settings.import.')) {
+        localizedMsg = t(msg);
+      }
+      setToast({
+        visible: true,
+        message: localizedMsg,
+        type: 'error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCloudBackup = async () => {
     if (!accessToken) return;
 
@@ -340,6 +385,13 @@ export default function SettingsScreen() {
             label={t("settings.importData")}
             onPress={handleImport}
             icon={<UploadIcon color={theme.primaryText} />}
+            loading={loading}
+          />
+
+          <RowButton
+            label={t("settings.import.button")}
+            onPress={handleTrackerImport}
+            icon={<FileIcon color={theme.primaryText} />}
             loading={loading}
             noBorder
           />
