@@ -813,6 +813,16 @@ export const zh = {
     insightVolumeStableDesc: '在过去的 30 天里，您的训练量保持稳定。',
     insightFrequencyTitle: '训练频率',
     insightFrequencyDesc: '过去 12 周平均每周训练 {value} 次。',
+    activityHeatmap: '年度活动',
+    heatmapSubtitle: '过去 365 天的训练',
+    heatmapLess: '少',
+    heatmapMore: '多',
+    heatmapTotalWorkouts: '{count} 次训练',
+    heatmapActiveDays: '{count} 个活跃天',
+    heatmapTotalHours: '{hours}小时 {minutes}分钟',
+    heatmapNoWorkouts: '无训练',
+    heatmapDayA11y: '{date}: {sessions} 次训练，{minutes} 分钟',
+    heatmapDayEmptyA11y: '{date}: 无训练',
   },
 
   muscleGroup: {

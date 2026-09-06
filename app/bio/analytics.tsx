@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { AnalyticsService } from '../../services/AnalyticsService';
 import type { DashboardAnalytics } from '../../services/AnalyticsService';
 import { Card } from '../../components/Card';
+import { ActivityHeatmap } from '../../components/ActivityHeatmap';
 import { SkeletonList, SkeletonCard } from '../../components/Skeleton';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorState } from '../../components/ScreenState';
@@ -75,7 +76,7 @@ export default function AnalyticsScreen() {
     prevVolume: 0,
     prevAvgRpe: null,
     prevAvgDur: null,
-    prevPRsCount: 0
+    prevPRsCount: 0,
   });
 
   const [volDist, setVolDist] = useState<Record<string, number>>({
@@ -459,6 +460,9 @@ export default function AnalyticsScreen() {
           ))}
         </View>
       </Card>
+
+      {/* Activity Heatmap */}
+      <ActivityHeatmap />
 
       {/* Volume weekly bar chart card */}
       <Card>
