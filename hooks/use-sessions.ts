@@ -48,19 +48,6 @@ export function useSessions() {
     }
   }, []);
 
-  const getSessionsByDate = useCallback((dateStr: string): Session[] => {
-    return allSessions.filter(s => {
-      if (!s.startTime) return false;
-      const sDate = new Date(s.startTime).toISOString().split('T')[0];
-      return sDate === dateStr;
-    });
-  }, [allSessions]);
-
-  const clearIncompleteSession = useCallback(async () => {
-    await AsyncStorage.removeItem(INCOMPLETE_SESSION_KEY);
-    setIncompleteSession(null);
-  }, []);
-
   return {
     lastSession,
     incompleteSession,
@@ -68,7 +55,5 @@ export function useSessions() {
     isLoading,
     fetchHomeData,
     fetchAllSessions,
-    getSessionsByDate,
-    clearIncompleteSession,
   };
 }
