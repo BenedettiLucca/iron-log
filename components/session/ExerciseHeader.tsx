@@ -107,7 +107,7 @@ export function ExerciseHeader({
           {(target || notes) && (
             <View className="mt-2 bg-background p-2 rounded-lg border border-border">
               {target && (
-                <Text className="text-primaryText font-semibold text-xs" accessibilityLabel={target}>
+                <Text className="text-primaryText font-semibold text-xs rounded-lg px-2 py-1" numberOfLines={2} accessibilityLabel={target}>
                   🎯 {target}
                 </Text>
               )}
