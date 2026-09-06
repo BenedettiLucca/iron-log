@@ -9,7 +9,7 @@ import { Set } from '../src/types';
 import { setInputSchema } from '../src/validators/forms';
 import { useI18n } from '../src/i18n/index';
 import { useHaptics } from './use-haptics';
-import { checkPersonalRecords } from './use-personal-records';
+import { checkPersonalRecords, reconcilePersonalRecords } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
 import { SessionDraft } from '../src/utils/session-draft';
@@ -368,13 +368,14 @@ export function useExerciseSets({
       const deletedSet = sessionSets.find(set => set.id === setId);
       await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
       if (deletedSet) registerDeletedSet(deletedSet);
+      await reconcilePersonalRecords({ exerciseId, sessionId });
       await loadData();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [loadData, registerDeletedSet, sessionSets, t]);
+  }, [exerciseId, sessionId, loadData, registerDeletedSet, sessionSets, t]);
 
   const handleRestoreDeletedSet = useCallback(async () => {
     await handleRestoreDeleted({ exerciseId, routineExerciseId, routineId, sessionId, setSessionSets, setToast });
@@ -408,6 +409,7 @@ export function useExerciseSets({
         })
         .where(eq(sets.id, editingSet.id));
       
+      await reconcilePersonalRecords({ exerciseId, sessionId });
       await loadData();
       setShowSetEditor(false);
       setEditingSet(null);
@@ -418,7 +420,7 @@ export function useExerciseSets({
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
       return false;
     }
-  }, [editingSet, loadData, t]);
+  }, [editingSet, exerciseId, sessionId, loadData, t]);
 
   return {
     isDirty,
