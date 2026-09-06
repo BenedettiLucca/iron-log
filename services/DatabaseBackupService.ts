@@ -1,6 +1,7 @@
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
+import { openDatabaseSync } from 'expo-sqlite';
 import { logger } from '@/services/logger';
 
 const DB_NAME = 'ironlog.db';
@@ -9,10 +10,54 @@ const DB_PATH = DB_DIR + DB_NAME;
 const SNAPSHOTS_DIR = FileSystem.documentDirectory + 'SQLite/snapshots/';
 const MAX_SNAPSHOTS = 5;
 
+/**
+ * Flush WAL journal contents into the main database file.
+ */
+function checkpointWal(): void {
+  try {
+    const db = openDatabaseSync(DB_NAME);
+    db.execSync('PRAGMA wal_checkpoint(TRUNCATE);');
+    db.closeSync();
+  } catch (e) {
+    logger.warn('[IronLog] PRAGMA wal_checkpoint(TRUNCATE) failed:', e);
+  }
+}
+
+/**
+ * Ensure any open database handle is closed before restoring files.
+ */
+async function closeBeforeRestore(): Promise<void> {
+  try {
+    const db = openDatabaseSync(DB_NAME);
+    db.closeSync();
+  } catch (e) {
+    logger.warn('[IronLog] closeBeforeRestore warning:', e);
+  }
+}
+
+/**
+ * Clean orphaned session rows (sessions without any live set).
+ */
+function cleanOrphanSessions(db: ReturnType<typeof openDatabaseSync>): number {
+  try {
+    const result = db.runSync(
+      'DELETE FROM sessions WHERE id NOT IN (SELECT DISTINCT session_id FROM sets WHERE session_id IS NOT NULL);'
+    );
+    const count = result.changes ?? 0;
+    logger.info(`[IronLog] Cleaned ${count} orphan session(s) after restore`);
+    return count;
+  } catch (e) {
+    logger.warn('[IronLog] Failed to clean orphan sessions:', e);
+    return 0;
+  }
+}
+
 async function createPreImportSnapshot(): Promise<string | null> {
   try {
     const fileInfo = await FileSystem.getInfoAsync(DB_PATH);
     if (!fileInfo.exists) return null;
+
+    checkpointWal();
 
     const dirInfo = await FileSystem.getInfoAsync(SNAPSHOTS_DIR);
     if (!dirInfo.exists) {
@@ -51,6 +96,9 @@ export const DatabaseBackupService = {
       if (!fileInfo.exists) {
         throw new Error('services.dbNotFound');
       }
+
+      // Checkpoint WAL so .db contains complete up-to-date data
+      checkpointWal();
 
       // 2. Create a backup file name with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -93,7 +141,7 @@ export const DatabaseBackupService = {
 
       // 2. Safety check: size > 0
       const sourceInfo = await FileSystem.getInfoAsync(sourceUri);
-      if (!sourceInfo.exists || sourceInfo.size === 0) {
+      if (!sourceInfo.exists || (sourceInfo.size !== undefined && sourceInfo.size === 0)) {
         throw new Error('services.invalidBackup');
       }
 
@@ -114,9 +162,7 @@ export const DatabaseBackupService = {
         // Non-fatal: proceed with caution if header read fails (e.g. position not supported)
       }
 
-      // 3. Confirm with user (handled in UI usually, but we can double check here or just proceed)
-
-      // 3.5 Create safety snapshot of current database
+      // 3. Create safety snapshot of current database
       const snapshotPath = await createPreImportSnapshot();
       if (snapshotPath) {
         logger.debug('[IronLog] Pre-import snapshot created:', snapshotPath);
@@ -128,12 +174,51 @@ export const DatabaseBackupService = {
         await FileSystem.makeDirectoryAsync(DB_DIR, { intermediates: true });
       }
 
-      // 5. Replace DB file
+      // 5. Close existing db connection before restore and clean up any WAL/SHM sidecars
+      await closeBeforeRestore();
       await FileSystem.deleteAsync(DB_PATH, { idempotent: true });
+      await FileSystem.deleteAsync(DB_PATH + '-wal', { idempotent: true });
+      await FileSystem.deleteAsync(DB_PATH + '-shm', { idempotent: true });
+
+      // Copy validated backup file to live DB_PATH
       await FileSystem.copyAsync({
         from: sourceUri,
         to: DB_PATH,
       });
+
+      // 6. Post-restore integrity check & orphan cleanup
+      try {
+        const restoredDb = openDatabaseSync(DB_NAME);
+        const integrityRows = restoredDb.getAllSync<Record<string, unknown>>('PRAGMA integrity_check;');
+        const integrityStatus = integrityRows.length > 0 ? Object.values(integrityRows[0])[0] : null;
+
+        if (integrityStatus !== 'ok') {
+          restoredDb.closeSync();
+          throw new Error(`PRAGMA integrity_check returned: ${integrityStatus}`);
+        }
+
+        // Run orphan cleanup for sessions without any sets
+        cleanOrphanSessions(restoredDb);
+        restoredDb.closeSync();
+      } catch (integrityErr) {
+        logger.error('[IronLog] Integrity check failed on restored database, rolling back:', integrityErr);
+        // Rollback from snapshot if available
+        if (snapshotPath) {
+          try {
+            await FileSystem.deleteAsync(DB_PATH, { idempotent: true });
+            await FileSystem.deleteAsync(DB_PATH + '-wal', { idempotent: true });
+            await FileSystem.deleteAsync(DB_PATH + '-shm', { idempotent: true });
+            await FileSystem.copyAsync({
+              from: snapshotPath,
+              to: DB_PATH,
+            });
+            logger.info('[IronLog] Rollback to pre-import snapshot succeeded');
+          } catch (rollbackErr) {
+            logger.error('[IronLog] Rollback to pre-import snapshot failed:', rollbackErr);
+          }
+        }
+        throw new Error('services.invalidBackup');
+      }
 
       return true;
     } catch (error) {
@@ -146,6 +231,8 @@ export const DatabaseBackupService = {
     try {
       const fileInfo = await FileSystem.getInfoAsync(DB_PATH);
       if (!fileInfo.exists) throw new Error('services.dbNotFound');
+
+      checkpointWal();
 
       const fileName = `ironlog_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
 

@@ -14,6 +14,7 @@ import { useKeepAwakeSetting } from '@/hooks/use-keep-awake-setting';
 import { useI18n } from '../../src/i18n/index';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useToast } from '../../hooks/use-toast';
+import { calculateTokenExpiresAt, isTokenExpired } from '@/src/utils/google-token';
 import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 
@@ -147,8 +148,8 @@ export default function SettingsScreen() {
       setAccessToken(response.authentication?.accessToken || null);
       // Google access tokens expire in ~1 hour; store the expiry time
       const expiresIn = response.authentication?.expiresIn;
-      const issuedAt = response.authentication?.issuedAt ?? Date.now();
-      setTokenExpiresAt(expiresIn ? issuedAt + expiresIn * 1000 : Date.now() + 3600 * 1000);
+      const issuedAt = response.authentication?.issuedAt;
+      setTokenExpiresAt(calculateTokenExpiresAt(issuedAt, expiresIn));
       setToast({ visible: true, message: t('settings.googleConnected'), type: 'success' });
     }
   }, [response, t, setToast]);
@@ -200,7 +201,7 @@ export default function SettingsScreen() {
     if (!accessToken) return;
 
     // Check if token is expired or about to expire (5 min buffer)
-    if (tokenExpiresAt && Date.now() > tokenExpiresAt - 5 * 60 * 1000) {
+    if (isTokenExpired(tokenExpiresAt)) {
       setAccessToken(null);
       setTokenExpiresAt(null);
       setDialog({

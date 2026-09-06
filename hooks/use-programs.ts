@@ -124,6 +124,16 @@ export function usePrograms() {
     return success;
   }, [fetchAllPrograms, activeProgram]);
 
+  const activateProgram = useCallback(async (id: number): Promise<boolean> => {
+    const success = await ProgramService.activateProgram(id);
+    if (success) {
+      await fetchAllPrograms();
+      const program = await ProgramService.getProgram(id);
+      setActiveProgram(program);
+    }
+    return success;
+  }, [fetchAllPrograms]);
+
   const setWeekRoutine = useCallback(async (
     programId: number,
     weekNumber: number,
@@ -256,6 +266,7 @@ export function usePrograms() {
     updateProgram,
     deleteProgram,
     archiveProgram,
+    activateProgram,
     setWeekRoutine,
     setAllWeeks,
     setExerciseTarget,
