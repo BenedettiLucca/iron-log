@@ -1,183 +1,176 @@
-// Test ProgramService pure functions (no DB dependency)
-// Re-implement the pure computation methods locally
+import { getCurrentWeek, getWeeksUntilDeload, getCurrentPhase } from '@/services/program/dashboard';
+import { getDoubleProgressionStatus } from '@/services/progression';
+import { db, sqlite } from '../fixtures/database';
+import { programs, programExerciseTargets, exercises, sessions, sets } from '@/src/db/schema';
+import type { Program } from '@/src/types';
 
-function getCurrentWeek(startDate: number, weeksDuration: number): number {
-  const now = Date.now();
-  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  const elapsed = now - startDate;
-  return Math.min(Math.floor(elapsed / msPerWeek) + 1, weeksDuration);
+jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
+
+function makeProgram(overrides: Partial<Program> = {}): Program {
+  return {
+    id: 1,
+    name: 'Strength Program',
+    description: 'Hypertrophy cycle',
+    startDate: Date.now(),
+    endDate: Date.now() + 6 * 7 * 86400000,
+    weeksDuration: 6,
+    deloadWeek: 6,
+    goal: 'hypertrophy',
+    isActive: true,
+    createdAt: Date.now(),
+    ...overrides,
+  };
 }
 
-function getWeeksUntilDeload(startDate: number, weeksDuration: number, deloadWeek: number | null): number | null {
-  if (!deloadWeek) return null;
-  const current = getCurrentWeek(startDate, weeksDuration);
-  return Math.max(0, deloadWeek - current);
-}
+describe('ProgramService real production behavior', () => {
 
-function getCurrentPhase(startDate: number, weeksDuration: number, deloadWeek: number | null): string {
-  const current = getCurrentWeek(startDate, weeksDuration);
-  if (deloadWeek && current >= deloadWeek) return 'deload';
-  const firstHalf = Math.floor(weeksDuration / 2);
-  if (current <= firstHalf) return 'accumulation';
-  return 'intensification';
-}
-
-// Double progression logic
-function isAtTopOfRange(
-  setsDone: { weight: number; reps: number }[],
-  targetRepsMax: number
-): boolean {
-  if (setsDone.length === 0) return false;
-  return setsDone.every(s => s.reps >= targetRepsMax);
-}
-
-function calculateTrend(
-  currentSets: { weight: number; reps: number }[],
-  previousSets: { weight: number; reps: number }[]
-): 'up' | 'flat' | 'down' {
-  if (previousSets.length === 0 || currentSets.length === 0) return 'flat';
-  const prevAvg = previousSets.reduce((s, x) => s + x.weight, 0) / previousSets.length;
-  const lastAvg = currentSets.reduce((s, x) => s + x.weight, 0) / currentSets.length;
-  if (lastAvg > prevAvg + 0.5) return 'up';
-  if (lastAvg < prevAvg - 0.5) return 'down';
-  return 'flat';
-}
-
-describe('ProgramService pure functions', () => {
-
-  describe('getCurrentWeek', () => {
+  describe('getCurrentWeek (imported from services/program/dashboard)', () => {
     it('returns week 1 for a program that just started', () => {
       const now = Date.now();
-      expect(getCurrentWeek(now - 1000, 6)).toBe(1); // 1 second ago
+      const program = makeProgram({ startDate: now - 1000, weeksDuration: 6 });
+      expect(getCurrentWeek(program)).toBe(1);
     });
 
     it('returns week 2 after 8 days', () => {
       const now = Date.now();
       const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      expect(getCurrentWeek(now - msPerWeek - 86400000, 6)).toBe(2);
+      const program = makeProgram({ startDate: now - msPerWeek - 86400000, weeksDuration: 6 });
+      expect(getCurrentWeek(program)).toBe(2);
     });
 
     it('caps at weeksDuration', () => {
       const now = Date.now();
       const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      // 10 weeks ago but program is only 6 weeks
-      expect(getCurrentWeek(now - 10 * msPerWeek, 6)).toBe(6);
+      const program = makeProgram({ startDate: now - 10 * msPerWeek, weeksDuration: 6 });
+      expect(getCurrentWeek(program)).toBe(6);
     });
   });
 
-  describe('getWeeksUntilDeload', () => {
+  describe('getWeeksUntilDeload (imported from services/program/dashboard)', () => {
     it('returns null when no deload week set', () => {
-      expect(getWeeksUntilDeload(Date.now(), 6, null)).toBeNull();
+      const program = makeProgram({ deloadWeek: null });
+      expect(getWeeksUntilDeload(program)).toBeNull();
     });
 
     it('returns correct weeks until deload', () => {
       const now = Date.now();
-      // Just started → week 1, deload at week 6
-      expect(getWeeksUntilDeload(now, 6, 6)).toBe(5);
+      const program = makeProgram({ startDate: now, weeksDuration: 6, deloadWeek: 6 });
+      expect(getWeeksUntilDeload(program)).toBe(5);
     });
 
     it('returns 0 when already at or past deload week', () => {
       const now = Date.now();
       const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      // 6 weeks ago → at deload week
-      expect(getWeeksUntilDeload(now - 6 * msPerWeek, 6, 6)).toBe(0);
+      const program = makeProgram({ startDate: now - 6 * msPerWeek, weeksDuration: 6, deloadWeek: 6 });
+      expect(getWeeksUntilDeload(program)).toBe(0);
     });
   });
 
-  describe('getCurrentPhase', () => {
+  describe('getCurrentPhase (imported from services/program/dashboard)', () => {
     it('returns accumulation in first half', () => {
       const now = Date.now();
-      // Week 1 of 6 → accumulation
-      expect(getCurrentPhase(now, 6, 6)).toBe('accumulation');
+      const program = makeProgram({ startDate: now, weeksDuration: 6, deloadWeek: 6 });
+      expect(getCurrentPhase(program)).toBe('accumulation');
     });
 
     it('returns intensification in second half', () => {
       const now = Date.now();
       const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      // Week 4 of 6 → intensification
-      expect(getCurrentPhase(now - 3.5 * msPerWeek, 6, 6)).toBe('intensification');
+      const program = makeProgram({ startDate: now - 3.5 * msPerWeek, weeksDuration: 6, deloadWeek: 6 });
+      expect(getCurrentPhase(program)).toBe('intensification');
     });
 
     it('returns deload at deload week', () => {
       const now = Date.now();
       const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      // Week 6 of 6 → deload
-      expect(getCurrentPhase(now - 5.5 * msPerWeek, 6, 6)).toBe('deload');
+      const program = makeProgram({ startDate: now - 5.5 * msPerWeek, weeksDuration: 6, deloadWeek: 6 });
+      expect(getCurrentPhase(program)).toBe('deload');
     });
 
     it('returns accumulation when no deload week set and in first half', () => {
       const now = Date.now();
-      expect(getCurrentPhase(now, 8, null)).toBe('accumulation');
+      const program = makeProgram({ startDate: now, weeksDuration: 8, deloadWeek: null });
+      expect(getCurrentPhase(program)).toBe('accumulation');
     });
   });
 
-  describe('isAtTopOfRange (double progression)', () => {
-    it('returns false for empty sets', () => {
-      expect(isAtTopOfRange([], 12)).toBe(false);
+  describe('getDoubleProgressionStatus (imported from services/progression)', () => {
+    const programId = 10;
+    const exerciseId = 20;
+
+    beforeEach(() => {
+      sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM program_exercise_targets; DELETE FROM programs; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
+      db.insert(exercises).values({ id: exerciseId, name: 'Bench Press', type: 'strength' }).run();
+      db.insert(programs).values({
+        id: programId,
+        name: 'Hypertrophy Block',
+        startDate: Date.now() - 100000,
+        endDate: Date.now() + 100000,
+        weeksDuration: 4,
+      }).run();
+      db.insert(programExerciseTargets).values({
+        id: 1,
+        programId,
+        exerciseId,
+        targetRepsMin: 8,
+        targetRepsMax: 12,
+        targetSets: 3,
+      }).run();
     });
 
-    it('returns true when all sets hit target reps max', () => {
-      const sets = [
-        { weight: 80, reps: 12 },
-        { weight: 80, reps: 12 },
-        { weight: 80, reps: 12 },
-      ];
-      expect(isAtTopOfRange(sets, 12)).toBe(true);
+    it('returns null when target not found', async () => {
+      const status = await getDoubleProgressionStatus(999, 999, 'Non-existent');
+      expect(status).toBeNull();
     });
 
-    it('returns false when at least one set is below target', () => {
-      const sets = [
-        { weight: 80, reps: 12 },
-        { weight: 80, reps: 10 },
-        { weight: 80, reps: 12 },
-      ];
-      expect(isAtTopOfRange(sets, 12)).toBe(false);
+    it('detects isAtTop when all sets hit targetRepsMax', async () => {
+      db.insert(sessions).values({ id: 1, startTime: Date.now() }).run();
+      db.insert(sets).values([
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 1, weightKg: 80, reps: 12, isWarmup: false, createdAt: 100 },
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 2, weightKg: 80, reps: 12, isWarmup: false, createdAt: 200 },
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 3, weightKg: 80, reps: 12, isWarmup: false, createdAt: 300 },
+      ]).run();
+
+      const status = await getDoubleProgressionStatus(programId, exerciseId, 'Bench Press');
+      expect(status).not.toBeNull();
+      expect(status!.isAtTop).toBe(true);
+      expect(status!.lastPerformance).toEqual({ weight: 80, reps: 12, sets: 3 });
+      expect(status!.trend).toBe('flat');
     });
 
-    it('returns true when all sets exceed target', () => {
-      const sets = [
-        { weight: 80, reps: 13 },
-        { weight: 80, reps: 14 },
-      ];
-      expect(isAtTopOfRange(sets, 12)).toBe(true);
+    it('detects isAtTop false when any set is below targetRepsMax', async () => {
+      db.insert(sessions).values({ id: 1, startTime: Date.now() }).run();
+      db.insert(sets).values([
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 1, weightKg: 80, reps: 12, isWarmup: false, createdAt: 100 },
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 2, weightKg: 80, reps: 10, isWarmup: false, createdAt: 200 },
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 3, weightKg: 80, reps: 12, isWarmup: false, createdAt: 300 },
+      ]).run();
+
+      const status = await getDoubleProgressionStatus(programId, exerciseId, 'Bench Press');
+      expect(status).not.toBeNull();
+      expect(status!.isAtTop).toBe(false);
+      expect(status!.lastPerformance?.reps).toBe(10);
+    });
+
+    it('calculates trend between last two sessions correctly', async () => {
+      db.insert(sessions).values([
+        { id: 1, startTime: 1000 },
+        { id: 2, startTime: 2000 },
+      ]).run();
+
+      // Session 1: prev session (createdAt earlier)
+      db.insert(sets).values([
+        { sessionId: 1, exerciseId, exerciseName: 'Bench Press', setNumber: 1, weightKg: 80, reps: 10, isWarmup: false, createdAt: 1000 },
+      ]).run();
+
+      // Session 2: latest session (createdAt later)
+      db.insert(sets).values([
+        { sessionId: 2, exerciseId, exerciseName: 'Bench Press', setNumber: 1, weightKg: 85, reps: 10, isWarmup: false, createdAt: 2000 },
+      ]).run();
+
+      const status = await getDoubleProgressionStatus(programId, exerciseId, 'Bench Press');
+      expect(status).not.toBeNull();
+      expect(status!.trend).toBe('up');
     });
   });
-
-  describe('calculateTrend', () => {
-    it('returns flat when no previous data', () => {
-      expect(calculateTrend([{ weight: 80, reps: 10 }], [])).toBe('flat');
-    });
-
-    it('returns up when load increased significantly', () => {
-      const current = [{ weight: 85, reps: 10 }];
-      const previous = [{ weight: 80, reps: 10 }];
-      expect(calculateTrend(current, previous)).toBe('up');
-    });
-
-    it('returns down when load decreased significantly', () => {
-      const current = [{ weight: 75, reps: 10 }];
-      const previous = [{ weight: 80, reps: 10 }];
-      expect(calculateTrend(current, previous)).toBe('down');
-    });
-
-    it('returns flat when load is similar', () => {
-      const current = [{ weight: 80, reps: 10 }];
-      const previous = [{ weight: 80, reps: 10 }];
-      expect(calculateTrend(current, previous)).toBe('flat');
-    });
-
-    it('handles multiple sets with averages', () => {
-      const current = [
-        { weight: 85, reps: 10 },
-        { weight: 85, reps: 8 },
-      ];
-      const previous = [
-        { weight: 80, reps: 10 },
-        { weight: 80, reps: 10 },
-      ];
-      // avg current: 85, avg previous: 80, diff = 5 > 0.5 → up
-      expect(calculateTrend(current, previous)).toBe('up');
-    });
-  });
-
 });
