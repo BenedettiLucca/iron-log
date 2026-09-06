@@ -19,6 +19,7 @@ import { Colors } from '@/constants/colors';
 import { safeParseParams, exerciseParamsSchema } from '@/src/validators/routes';
 import { useExerciseSets, useProgression } from '../../hooks';
 import { useHaptics } from '../../hooks/use-haptics';
+import { useSessionKeepAwake } from '../../hooks/use-keep-awake-setting';
 import { getRirColor } from '@/src/utils/exercise';
 import { buildWorkoutA11y } from '../../src/utils/workout-a11y';
 import { useSessionPersistence } from '../../hooks/use-session-persistence';
@@ -51,6 +52,7 @@ export default function ExerciseScreen() {
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const { trigger } = useHaptics();
+  useSessionKeepAwake();
 
   // Validate route params with Zod to prevent NaN
   const validated = safeParseParams(exerciseParamsSchema, params, 'ExerciseScreen');

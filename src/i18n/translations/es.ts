@@ -656,6 +656,7 @@ export const es = {
     csvExportError: 'Error al exportar CSV.',
     exportError: 'Error al exportar.',
     importError: 'Error al importar.',
+    keepAwake: 'Mantener pantalla encendida durante el entreno',
   },
   about: {
     title: 'Acerca de Iron Log',

@@ -28,6 +28,7 @@ import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
+import { useSessionKeepAwake } from '../../hooks/use-keep-awake-setting';
 import { canActOnFinishStats } from '@/src/utils/session-trust';
 import { evaluateFinishIntent } from '@/src/utils/session-contract';
 
@@ -42,6 +43,7 @@ export default function FinishSessionScreen() {
   const { t, language } = useI18n();
   const theme = useThemeColors();
   const { toast, setToast } = useToast();
+  useSessionKeepAwake();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
     2: t('finish.sRPEVeryLight'),
