@@ -1,6 +1,13 @@
 import * as Sentry from '@sentry/react-native';
 import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
 import { Stack, useRouter } from 'expo-router';
+import { LogBox } from 'react-native';
+
+// TODO(#112): remove once the project leaves Expo Go for SDK 57 (or a dev build).
+// The expo-notifications module auto-registers Android push tokens on load, which
+// trips warnOfExpoGoPushUsage in Expo Go (SDK 53+) even though we only use LOCAL
+// notifications (channel + schedule), which remain supported. Dev-only noise.
+LogBox.ignoreLogs(['Android Push notifications (remote notifications) functionality provided by expo-notifications was removed']);
 
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { db } from '../src/db/client';
