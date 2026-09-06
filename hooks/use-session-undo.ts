@@ -5,6 +5,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { useI18n } from '../src/i18n';
+import { reconcilePersonalRecords } from './use-personal-records';
 
 type ToastSetter = (toast: {
   visible: boolean;
@@ -103,6 +104,7 @@ export function useSessionUndo(): UseSessionUndoReturn {
         opts.setCurrentName(exData[0].name);
       }
 
+      await reconcilePersonalRecords({ exerciseId: opts.exerciseId, sessionId: opts.sessionId });
       await refreshSessionSets(opts);
       opts.setToast?.({ visible: true, message: t('exercise.lastSetRemoved'), type: 'success' });
     } catch (e) {
@@ -118,6 +120,7 @@ export function useSessionUndo(): UseSessionUndoReturn {
       await db.update(sets).set({ deletedAt: null }).where(eq(sets.id, lastDeletedSet.id));
       setLastDeletedSet(null);
       if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
+      await reconcilePersonalRecords({ exerciseId: opts.exerciseId, sessionId: opts.sessionId });
       await refreshSessionSets(opts);
       opts.setToast?.({ visible: true, message: t('exercise.setRestored'), type: 'success' });
     } catch (e) {

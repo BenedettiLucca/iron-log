@@ -7,6 +7,7 @@ import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
 /**
  * Analytics Service for Iron Log
  * Computes Strength Score, Consistency Score, volume trends, and PR tracking.
+ * Only completed / finished sessions (endTime IS NOT NULL) are counted in scores.
  */
 
 // ---------------------------------------------------------------------------
@@ -200,6 +201,8 @@ export const AnalyticsService = {
    * - Volume (0-40): Weekly volume relative to bodyweight
    * - Intensity (0-30): Average weight relative to benchmarks
    * - Consistency (0-30): Training frequency score
+   *
+   * Only completed sessions with endTime IS NOT NULL are included.
    */
   async calculateStrengthScore(since: number): Promise<StrengthScore> {
     try {
@@ -207,6 +210,7 @@ export const AnalyticsService = {
         .from(sessions)
         .where(and(
           isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`,
           gt(sessions.startTime, since)
         ))
         .orderBy(desc(sessions.startTime));
@@ -278,12 +282,16 @@ export const AnalyticsService = {
 
   /**
    * Consistency metrics
+   * Only completed sessions with endTime IS NOT NULL are counted.
    */
   async calculateConsistency(since: number): Promise<ConsistencyData> {
     try {
       const allActiveSessions = await db.select()
         .from(sessions)
-        .where(isNull(sessions.deletedAt))
+        .where(and(
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`
+        ))
         .orderBy(desc(sessions.startTime));
 
       const recentSessions = allActiveSessions.filter(s => s.startTime >= since);
