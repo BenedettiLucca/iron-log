@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
 import { AlexandriaExportService } from '../../services/AlexandriaExportService';
+import { ScheduleManifestService } from '../../services/ScheduleManifestService';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -241,6 +242,19 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleScheduleManifestExport = async () => {
+    setLoading(true);
+    try {
+      await ScheduleManifestService.exportAndShare();
+      setToast({ visible: true, message: t('settings.manifestExportSuccess'), type: 'success' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.manifestExportError'), type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAlexandriaExport = async () => {
     setLoading(true);
     try {
@@ -402,6 +416,23 @@ export default function SettingsScreen() {
             noBorder
           />
         </View>
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Schedule Manifest Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.exportManifest")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t("settings.exportManifest")}
+        </Text>
+        <RowButton
+          label={t("settings.exportManifestBtn")}
+          onPress={handleScheduleManifestExport}
+          icon={<ExportIcon color={theme.primaryText} />}
+          loading={loading}
+          noBorder
+        />
       </View>
 
       <View className="border-b border-border/40" />
