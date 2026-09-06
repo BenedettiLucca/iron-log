@@ -853,6 +853,16 @@ export const pt = {
     insightVolumeStableDesc: 'Seu volume de treino permaneceu estável nos últimos 30 dias.',
     insightFrequencyTitle: 'Frequência de treinos',
     insightFrequencyDesc: '{value} treinos/semana na média das últimas 12 semanas.',
+    activityHeatmap: 'Atividade Anual',
+    heatmapSubtitle: 'Treinos nos últimos 365 dias',
+    heatmapLess: 'Menos',
+    heatmapMore: 'Mais',
+    heatmapTotalWorkouts: '{count} treinos',
+    heatmapActiveDays: '{count} dias ativos',
+    heatmapTotalHours: '{hours}h {minutes}m',
+    heatmapNoWorkouts: 'Nenhum treino',
+    heatmapDayA11y: '{date}: {sessions} treinos, {minutes} min',
+    heatmapDayEmptyA11y: '{date}: sem treinos',
   },
 
   muscleGroup: {
