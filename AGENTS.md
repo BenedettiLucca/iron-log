@@ -55,7 +55,12 @@ validações diferentes de typecheck, lint e Jest; não misture esses níveis no
    testes que outra sessão possa estar produzindo.
 2. Não use `git reset --hard`, `git clean`, checkout destrutivo ou `git stash` para limpar o repo.
 3. Faça a menor mudança coerente, rode primeiro o teste afetado e só depois o gate mais amplo.
-4. Antes de concluir, rode `git diff --check`, revise o diff completo e registre qualquer skip,
+4. Antes de implementar mudança não-trivial, valide a abordagem em si: questione se o desenho
+   escolhido é o correto, não apenas se o código está correto dentro da solução proposta. Se a
+   abordagem parecer errada, pare e reporte antes de codificar.
+5. Review adversarial não expande escopo: run sem erro não recebe "melhoria" especulativa nem
+   refactor fora do ticket; registre como issue separada.
+6. Antes de concluir, rode `git diff --check`, revise o diff completo e registre qualquer skip,
    falha preexistente ou validação que depende de Android/credenciais.
 
 ## Git e definição de pronto
