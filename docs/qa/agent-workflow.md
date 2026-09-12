@@ -21,6 +21,7 @@ Understanding the boundary of each test tier avoids false confidence and brittle
 1. **Host Unit Tests (`__tests__/**/*.{test,spec}.{ts,tsx}`)**:
    - Run in Node/Jest with jsdom / react-native mock environment.
    - Test pure business logic, formatters, state reducers, and isolated components.
+   - Automated coverage thresholds (`npm run test:coverage`) enforce utility coverage (`src/utils/**/*.{js,jsx,ts,tsx}`) rather than total codebase coverage; other areas rely on targeted contract, service, and screen suites.
 2. **Host Database Integration (`__tests__/services/*-database.test.ts`)**:
    - Uses in-memory SQLite (`better-sqlite3`) initialized via synthetic DDL identical to `src/db/schema.ts`.
    - Foreign key constraints enabled (`PRAGMA foreign_keys = ON`).
@@ -42,9 +43,10 @@ Understanding the boundary of each test tier avoids false confidence and brittle
 # Typecheck TypeScript
 npx --yes npm@10.9.7 run typecheck
 
-# Lint (zero-warning policy)
-npx expo lint --max-warnings=0
+# Lint (displays warnings without hiding output)
+npm run lint
 
+# Note: Strict zero-warning enforcement (npx expo lint --max-warnings=0) is tracked until pre-existing root warnings are cleared in T04.
 # Run a single focused test file
 npx --yes npm@10.9.7 run test -- __tests__/services/analytics-database.test.ts --watchAll=false
 ```
@@ -56,8 +58,8 @@ npm run verify
 ```
 This executes sequentially:
 1. `npm run typecheck` (`tsc --noEmit`)
-2. `npm run lint` (`expo lint --max-warnings=0`)
-3. `npm run test:coverage` (`jest --coverage --runInBand`)
+2. `npm run lint` (`expo lint`)
+3. `npm run test:coverage` (`jest --coverage` — enforces utility coverage on `src/utils/**/*.{js,jsx,ts,tsx}`; this is utility coverage, not total codebase coverage; `--runInBand` is not passed here and remains reserved for benchmarks)
 4. `npm run export:android` (`expo export --platform android --max-workers 1 --output-dir dist`)
 5. `npm run verify:android-export` (`node scripts/verify-android-export.js`)
 

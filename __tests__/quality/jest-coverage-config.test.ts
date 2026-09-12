@@ -8,7 +8,7 @@ describe('Jest coverage contract', () => {
     expect(jestConfig.collectCoverageFrom).not.toContain('utils/**/*.{js,jsx,ts,tsx}');
   });
 
-  it('keeps every global coverage floor at or above 75%', () => {
+  it('keeps every utility coverage floor at or above 75%', () => {
     const floors = Object.values(jestConfig.coverageThreshold.global) as number[];
 
     expect(floors).toHaveLength(4);
