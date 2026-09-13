@@ -651,6 +651,8 @@ export default function ExerciseScreen() {
     };
   }, []);
 
+  const isKeyboardVisible = keyboardHeight > 0;
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -758,20 +760,22 @@ export default function ExerciseScreen() {
 
         {/* Input Area */}
         <View
-          className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg"
-          style={{ paddingBottom: 12 + insets.bottom + (Platform.OS === 'android' ? keyboardHeight : 0) }}
+          className="bg-card px-3 pt-2.5 rounded-t-3xl border-t border-border shadow-lg"
+          style={{ paddingBottom: Math.max(12, insets.bottom) + (Platform.OS === 'android' ? keyboardHeight : 0) }}
         >
-          <WarmupToggle
-            value={isWarmupMode}
-            label={t('exerciseSession.warmup')}
-            accessibilityLabel={t('a11y.warmupSwitch')}
-            onValueChange={(nextValue) => {
-              if (!beginDraftMutation()) return;
-              ensureOperationId();
-              setIsWarmupMode(nextValue);
-              setIsDirty(true);
-            }}
-          />
+          {!isKeyboardVisible && (
+            <WarmupToggle
+              value={isWarmupMode}
+              label={t('exerciseSession.warmup')}
+              accessibilityLabel={t('a11y.warmupSwitch')}
+              onValueChange={(nextValue) => {
+                if (!beginDraftMutation()) return;
+                ensureOperationId();
+                setIsWarmupMode(nextValue);
+                setIsDirty(true);
+              }}
+            />
+          )}
           {exerciseType === 'duration' ? (
             <View className="items-center mb-4">
               <Text
@@ -788,7 +792,7 @@ export default function ExerciseScreen() {
                   <Text className="text-subtext text-xs uppercase font-bold">{t('exercise.extraWeight')}</Text>
                   <TextInput
                     className="bg-background text-text p-2 rounded border border-border w-20 text-center"
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(value) => {
                       if (!beginDraftMutation()) return;
@@ -841,12 +845,12 @@ export default function ExerciseScreen() {
             </View>
           ) : (
             <>
-              <View className="flex-row gap-3 mb-4">
+              <View className="flex-row gap-3 mb-2.5">
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">{t('exercise.weight')}</Text>
+                  <Text className="text-subtext mb-0.5 text-center font-bold uppercase text-xs">{t('exercise.weight')}</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
-                    keyboardType="numeric"
+                    className="bg-background text-text text-center text-2xl font-bold py-1.5 px-2 rounded-xl border border-border"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(value) => {
                       if (!beginDraftMutation()) return;
@@ -861,9 +865,9 @@ export default function ExerciseScreen() {
                 </View>
 
                 <View className="flex-1">
-                  <Text className="text-subtext mb-1 text-center font-bold uppercase text-xs">{t("exercise.reps")}</Text>
+                  <Text className="text-subtext mb-0.5 text-center font-bold uppercase text-xs">{t("exercise.reps")}</Text>
                   <TextInput
-                    className="bg-background text-text text-center text-2xl font-bold p-2 rounded-xl border border-border"
+                    className="bg-background text-text text-center text-2xl font-bold py-1.5 px-2 rounded-xl border border-border"
                     keyboardType="numeric"
                     value={reps}
                     onChangeText={(value) => {
@@ -879,7 +883,7 @@ export default function ExerciseScreen() {
                 </View>
               </View>
 
-              <View className="mb-3">
+              <View className="mb-2">
                 <View className="flex-row justify-between items-center mb-1 px-1">
                   <TouchableOpacity
                     onPress={() => setShowRirExplainer(true)}
@@ -895,17 +899,17 @@ export default function ExerciseScreen() {
                     </View>
                   </TouchableOpacity>
                   <View
-                    className="px-3 py-1 rounded-full border"
+                    className="px-2.5 py-0.5 rounded-full border"
                     style={{ backgroundColor: `${getRirColor(rir)}20`, borderColor: getRirColor(rir) }}
                   >
-                    <Text style={{ color: getRirColor(rir) }} className="font-bold text-lg">
+                    <Text style={{ color: getRirColor(rir) }} className="font-bold text-base">
                       {rir === 0 ? t('exercise.failure') : rir}
                     </Text>
                   </View>
                 </View>
 
                 <Slider
-                  style={{ width: '100%', height: 40 }}
+                  style={{ width: '100%', height: 32 }}
                   minimumValue={0}
                   maximumValue={5}
                   step={1}
@@ -955,16 +959,18 @@ export default function ExerciseScreen() {
             </>
           )}
 
-          <View className="mt-4">
-            <Button
-              title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
-              onPress={goToNextOrFinish}
-              variant="primary"
-              size="md"
-              fullWidth
-              disabled={isSaving || isActiveSetRunning}
-            />
-          </View>
+          {!isKeyboardVisible && (
+            <View className="mt-2.5">
+              <Button
+                title={nextExercise ? t('exercise.nextExerciseLabel', { name: nextExercise.name }) : t('exercise.finishWorkoutLabel')}
+                onPress={goToNextOrFinish}
+                variant="primary"
+                size="md"
+                fullWidth
+                disabled={isSaving || isActiveSetRunning}
+              />
+            </View>
+          )}
         </View>
 
         <ExerciseHistoryModal

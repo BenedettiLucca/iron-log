@@ -111,6 +111,10 @@ function SetCard({
     return 'text-secondaryText bg-secondarySurface border-secondaryText/30';
   };
 
+  const repsLabel = t('setCard.reps') !== 'setCard.reps'
+    ? t('setCard.reps')
+    : (t('exercise.reps') === 'Repetições' || t('exercise.reps') === 'Repeticiones' ? 'reps' : t('exercise.reps'));
+
   const content = (
     <Animated.View
       entering={animateEntry ? FadeInDown.springify() : undefined}
@@ -146,7 +150,7 @@ function SetCard({
           </View>
         </View>
 
-        <View className="flex-1 min-w-0">
+        <View className="flex-1 min-w-0 pr-1">
           <View className="flex-row items-baseline gap-1 flex-wrap">
             <Text className="text-text text-2xl font-black tracking-tight">
               {weight > 0 ? weight : '-'}
@@ -159,7 +163,7 @@ function SetCard({
               {duration !== undefined ? duration : (reps || 0)}
             </Text>
             <Text className="text-subtext text-xs font-bold uppercase">
-              {duration !== undefined ? 's' : t('exercise.reps')}
+              {duration !== undefined ? 's' : repsLabel}
             </Text>
           </View>
           {statusLabels.length > 0 && (
@@ -169,7 +173,7 @@ function SetCard({
           )}
         </View>
 
-        <View className="ml-3 flex-row items-center gap-2">
+        <View className="ml-3 flex-row items-center gap-2 flex-shrink-0">
           {rir !== null && rir !== undefined && (
             <View className={`px-2.5 py-1 rounded-lg border ${getRirColorClass(rir)}`}>
               <Text className={`text-xs font-bold uppercase ${getRirColorClass(rir).split(' ')[0]}`}>

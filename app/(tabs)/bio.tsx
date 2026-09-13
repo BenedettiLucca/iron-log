@@ -22,6 +22,7 @@ import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { isCheckinDirty } from '@/src/utils/checkin-dirty';
 import { validateMonthlyCheckin, buildCheckinEntryData, getMonthlyCheckinDateRange, hasMonthlyCheckinContent } from '@/src/utils/checkin-validation';
+import { parseLocalizedDecimal } from '@/src/utils/localized-decimal';
 import { isDisplayableBodyMetricValue } from '../../src/utils/body-metrics';
 import { InlineEmptyState } from '../../components/EmptyState';
 import { useToast } from '../../hooks/use-toast';
@@ -47,6 +48,8 @@ export default function BioScreen() {
 
   const {
     metrics,
+    latestValidWeight: hookLatestValidWeight,
+    latestMonthlyWithPhotos: hookLatestMonthlyWithPhotos,
     fetchMetrics,
     saveDailyWeight: hookSaveWeight,
     isLoading,
@@ -156,16 +159,22 @@ export default function BioScreen() {
     }
   }, [photos, monthlyData, photoNotes, t, resetCheckinForm]);
 
-  const latestValidWeight = metrics.find(
+  const latestValidWeight = hookLatestValidWeight ?? metrics.find(
     metric => isDisplayableBodyMetricValue(metric.weight) && metric.weight > 0,
   )?.weight ?? null;
-  const latestMonthlyWithPhotos = metrics.find(
+  const latestMonthlyWithPhotos = hookLatestMonthlyWithPhotos ?? metrics.find(
     metric => metric.type === 'monthly' && (metric.photoFront || metric.photoBack || metric.photoSide),
   );
 
   const saveMonthlyCheckin = useCallback(async () => {
       try {
           // Step 1: Validate — block save on failure
+          const normalizedMonthly: Record<string, string> = {};
+          for (const [key, val] of Object.entries(monthlyData)) {
+            const parsed = parseLocalizedDecimal(val, { allowNegative: false });
+            normalizedMonthly[key] = parsed.status === 'valid' ? String(parsed.value) : val;
+          }
+          Object.assign(monthlyData, normalizedMonthly);
           const validation = validateMonthlyCheckin(monthlyData);
           if (!validation.success) {
               logger.warn('Monthly checkin validation blocked save:', validation.errors);
@@ -198,9 +207,9 @@ export default function BioScreen() {
 
           // Step 3: Build entry data using validated values + fallbacks with precedence
           let finalWeight: number | null = null;
-          const todayWeightNum = todayWeight.trim() !== '' ? Number(todayWeight) : NaN;
-          if (!isNaN(todayWeightNum) && Number.isFinite(todayWeightNum) && todayWeightNum > 0) {
-            finalWeight = todayWeightNum;
+          const parsedTodayWeight = parseLocalizedDecimal(todayWeight, { allowNegative: false });
+          if (parsedTodayWeight.status === 'valid' && parsedTodayWeight.value > 0) {
+            finalWeight = parsedTodayWeight.value;
           } else if (isDisplayableBodyMetricValue(existingData?.weight) && existingData.weight > 0) {
             finalWeight = existingData.weight;
           } else {
@@ -272,7 +281,7 @@ export default function BioScreen() {
             <View className="flex-row items-center gap-3">
               <View className="flex-1">
                 <Input
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
                   value={todayWeight}
                   onChangeText={setTodayWeight}
                   placeholder="00.0"
@@ -442,7 +451,7 @@ export default function BioScreen() {
                             <View key={item.key} className="w-[48%]">
                                 <Input
                                     label={item.label}
-                                    keyboardType="numeric"
+                                    keyboardType="decimal-pad"
                                     placeholder="00.0"
                                     onChangeText={t => setMonthlyData(p => ({...p, [item.key]: t}))}
                                 />

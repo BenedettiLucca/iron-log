@@ -144,7 +144,7 @@ export function SetEditor({
                   <TextInput
                     ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
@@ -194,7 +194,7 @@ export function SetEditor({
                   <TextInput
                     ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"

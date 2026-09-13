@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal, Switch, Platform, TextInput } from 'react-native';
 import { useSupplements } from '@/hooks/use-supplements';
+import { useNotifications } from '@/hooks/use-notifications';
+import { isValidReminderTime, parseReminderTime } from '@/services/NotificationService';
 import { useI18n } from '@/src/i18n';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
@@ -68,6 +70,7 @@ export default function SupplementsScreen() {
     getAllStreaks,
     seedDefaultSupplements,
   } = useSupplements();
+  const { permission, requestPermissions } = useNotifications();
 
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -240,6 +243,19 @@ export default function SupplementsScreen() {
       modalScrollViewRef.current?.scrollTo({ y: 100, animated: true });
       showToast(msg, 'error');
       return;
+    }
+
+    if (reminderTime && !isValidReminderTime(reminderTime)) {
+      showToast(t('common.invalidData'), 'error');
+      return;
+    }
+
+    if (reminderTime && permission.status === 'undetermined') {
+      try {
+        await requestPermissions();
+      } catch {
+        // Best effort permission request
+      }
     }
 
     if (operationLockRef.current || isSaving) return;
@@ -564,22 +580,46 @@ export default function SupplementsScreen() {
               />
             </View>
 
-            <TouchableOpacity 
-              onPress={() => setShowTimePicker(true)}
-              className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center"
-              accessibilityRole="button"
-              accessibilityLabel={t('supplements.reminderTime')}
-            >
-              <View>
-                <Text className="text-text font-bold">{t('supplements.reminderTime')}</Text>
-                <Text className="text-subtext text-xs">{reminderTime || '--:--'}</Text>
-              </View>
-              <Text className="text-primaryText font-bold uppercase text-xs">{t('common.edit')}</Text>
-            </TouchableOpacity>
+            <View className="bg-card p-4 rounded-2xl border border-border flex-row justify-between items-center">
+              <TouchableOpacity
+                onPress={() => setShowTimePicker(true)}
+                className="flex-1 flex-row justify-between items-center"
+                accessibilityRole="button"
+                accessibilityLabel={t('supplements.reminderTime')}
+              >
+                <View>
+                  <Text className="text-text font-bold">{t('supplements.reminderTime')}</Text>
+                  <Text className="text-subtext text-xs">{reminderTime || '--:--'}</Text>
+                </View>
+                <Text className="text-primaryText font-bold uppercase text-xs">{t('common.edit')}</Text>
+              </TouchableOpacity>
+
+              {reminderTime ? (
+                <TouchableOpacity
+                  onPress={() => setReminderTime(null)}
+                  className="ml-3 px-2.5 py-1.5 rounded-lg bg-surface border border-border items-center justify-center min-h-[44px] min-w-[44px]"
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.delete')}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text className="text-subtext font-bold text-sm">✕</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
 
             {showTimePicker && (
               <DateTimePicker
-                value={reminderTime ? new Date(new Date().setHours(parseInt(reminderTime.split(':')[0]), parseInt(reminderTime.split(':')[1]))) : new Date()}
+                value={
+                  (() => {
+                    const parsed = parseReminderTime(reminderTime);
+                    if (parsed) {
+                      const d = new Date();
+                      d.setHours(parsed.hour, parsed.minute, 0, 0);
+                      return d;
+                    }
+                    return new Date();
+                  })()
+                }
                 mode="time"
                 is24Hour={true}
                 display="default"

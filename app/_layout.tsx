@@ -23,6 +23,7 @@ import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-re
 import { logger } from '@/services/logger';
 import { SessionContext } from '@/src/types';
 import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
+import { useNotificationResponseRouting, NotificationGuidanceType } from '@/src/utils/notification-routing';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import migrations from '../drizzle/migrations';
 import { db } from '../src/db/client';
@@ -183,6 +184,118 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
   );
 }
 
+function NotificationPermissionModal({
+  visible,
+  type = 'pre_prompt',
+  onRequestPermission,
+  onOpenSettings,
+  onDismiss,
+}: {
+  visible: boolean;
+  type?: NotificationGuidanceType;
+  onRequestPermission?: () => void;
+  onOpenSettings?: () => void;
+  onDismiss: () => void;
+}) {
+  const { t } = useI18n();
+
+  const getLabel = (key: string, fallback: string) => {
+    const val = t(key);
+    return val !== key ? val : fallback;
+  };
+
+  let title = getLabel('notifications.prePromptTitle', 'Lembretes e Notificações');
+  let description = getLabel(
+    'notifications.prePromptMessage',
+    'Ative as notificações para receber alertas ao término do tempo de descanso entre séries e lembretes para seu check-in mensal.'
+  );
+  let primaryLabel = getLabel('notifications.prePromptEnable', 'Ativar Notificações');
+  let onPrimary = onRequestPermission;
+
+  if (type === 'blocked') {
+    title = getLabel('notifications.blockedTitle', 'Notificações Desativadas');
+    description = getLabel(
+      'notifications.blockedMessage',
+      'As notificações estão bloqueadas nas configurações do aparelho. Abra as configurações para permitir notificações do Iron Log.'
+    );
+    primaryLabel = getLabel('notifications.openSettings', 'Abrir Configurações');
+    onPrimary = onOpenSettings;
+  } else if (type === 'denied') {
+    title = getLabel('notifications.deniedTitle', 'Notificações Negadas');
+    description = getLabel(
+      'notifications.deniedMessage',
+      'Sem permissão, você não receberá avisos sonoros de descanso ou do check-in mensal.'
+    );
+    primaryLabel = getLabel('notifications.prePromptEnable', 'Tentar Novamente');
+    onPrimary = onRequestPermission;
+  } else if (type === 'unavailable') {
+    title = getLabel('notifications.unavailableTitle', 'Notificações no Expo Go');
+    description = getLabel(
+      'notifications.unavailableMessage',
+      'No Expo Go, as permissões de notificação são gerenciadas diretamente pelo sistema.'
+    );
+    primaryLabel = '';
+    onPrimary = undefined;
+  }
+
+  const dismissLabel = getLabel('common.cancel', 'Agora Não');
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onDismiss}
+    >
+      <View
+        className="flex-1 justify-center items-center"
+        accessibilityViewIsModal
+        accessibilityLabel={title}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          className="absolute inset-0 bg-black/40"
+          onPress={onDismiss}
+          accessibilityRole="button"
+          accessibilityLabel={dismissLabel}
+        />
+        <View className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl">
+          <Text className="text-text text-xl font-bold mb-3" accessibilityRole="header">
+            {title}
+          </Text>
+          <Text className="text-subtext text-base mb-5 leading-6">
+            {description}
+          </Text>
+          <View className="flex-col gap-3">
+            {Boolean(primaryLabel && onPrimary) && (
+              <TouchableOpacity
+                className="py-3 px-4 rounded-xl items-center bg-primary min-h-[44px] justify-center"
+                onPress={onPrimary}
+                accessibilityRole="button"
+                accessibilityLabel={primaryLabel}
+              >
+                <Text className="text-onPrimary font-semibold text-base">
+                  {primaryLabel}
+                </Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              className="py-3 px-4 rounded-xl items-center bg-background border border-border min-h-[44px] justify-center"
+              onPress={onDismiss}
+              accessibilityRole="button"
+              accessibilityLabel={dismissLabel}
+            >
+              <Text className="text-text font-semibold text-base">
+                {dismissLabel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme() ?? 'light';
@@ -193,6 +306,23 @@ function Layout() {
   const [recoverySession, setRecoverySession] = useState<SessionContext | null>(null);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  // Notification response routing (cold & warm) and contextual pre-prompt wiring
+  const {
+    showPromptModal,
+    modalType,
+    handleRequestPermission,
+    handleOpenSettings,
+    handleDismissModal,
+  } = useNotificationResponseRouting({
+    success,
+    router,
+    db,
+    asyncStorage: AsyncStorage,
+    onSessionResumed: () => {
+      setShowRecoveryDialog(false);
+    },
+  });
 
   // Initialize notifications after migrations complete
   useEffect(() => {
@@ -348,6 +478,14 @@ function Layout() {
         onDismiss={handleDismissDialog}
         dontShowAgain={dontShowAgain}
         setDontShowAgain={setDontShowAgain}
+      />
+
+      <NotificationPermissionModal
+        visible={showPromptModal}
+        type={modalType}
+        onRequestPermission={handleRequestPermission}
+        onOpenSettings={handleOpenSettings}
+        onDismiss={handleDismissModal}
       />
     </GestureHandlerRootView>
     </I18nProvider>

@@ -72,7 +72,7 @@ const CHECKIN_CHANNEL_ID = 'monthly-checkin';
 const SUPPLEMENT_CHANNEL_ID = 'supplements';
 const REST_NOTIFICATION_ID = 'rest-timer';
 
-function parseReminderTime(timeStr: string | null | undefined): { hour: number; minute: number } | null {
+export function parseReminderTime(timeStr: string | null | undefined): { hour: number; minute: number } | null {
   if (!timeStr) return null;
   const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})$/);
   if (!match) return null;
@@ -82,6 +82,11 @@ function parseReminderTime(timeStr: string | null | undefined): { hour: number; 
     return null;
   }
   return { hour, minute };
+}
+
+export function isValidReminderTime(timeStr: string | null | undefined): boolean {
+  if (timeStr === null || timeStr === undefined || timeStr.trim() === '') return true;
+  return parseReminderTime(timeStr) !== null;
 }
 
 function parsePermissionResult(
@@ -423,20 +428,20 @@ class NotificationService {
   /**
    * Schedule or reschedule a single supplement reminder
    */
-  async scheduleSupplementReminder(supplement: SupplementNotificationTarget): Promise<void> {
+  async scheduleSupplementReminder(supplement: SupplementNotificationTarget): Promise<boolean> {
     try {
       const identifier = `supplement-${supplement.id}`;
       const settings = await this.getSettings();
 
       if (!settings.enabled || supplement.isActive === false || !supplement.reminderTime) {
         await this.cancelSupplementReminder(supplement.id);
-        return;
+        return false;
       }
 
       const parsedTime = parseReminderTime(supplement.reminderTime);
       if (!parsedTime) {
         await this.cancelSupplementReminder(supplement.id);
-        return;
+        return false;
       }
 
       const Notifications = await getNotificationsModule();
@@ -485,8 +490,10 @@ class NotificationService {
       });
 
       logger.debug(`Supplement reminder scheduled for supplement ${supplement.id} at ${supplement.reminderTime}`);
+      return true;
     } catch (error) {
       logger.error(`Error scheduling supplement reminder ${supplement.id}`, error);
+      return false;
     }
   }
 
@@ -536,6 +543,18 @@ class NotificationService {
   async cancelAllSupplementReminders(): Promise<void> {
     try {
       const Notifications = await getNotificationsModule();
+      if (typeof Notifications.getAllScheduledNotificationsAsync === 'function') {
+        try {
+          const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+          for (const notif of scheduled) {
+            if (notif.identifier && notif.identifier.startsWith(NOTIFICATION_CATEGORIES.SUPPLEMENT_PREFIX)) {
+              await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+            }
+          }
+        } catch {
+          // Best effort if querying scheduled notifications fails
+        }
+      }
       const allSupplements = await db.select().from(supplements);
       for (const supp of allSupplements) {
         try {
