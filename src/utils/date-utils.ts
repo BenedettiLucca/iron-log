@@ -27,13 +27,17 @@ export function getWeekStart(epoch: number): number {
 }
 
 /**
- * Formats an epoch number to a localized date string (YYYY-MM-DD).
- * Extracted from AlexandriaExportService.formatEpochDate.
+ * Formats an epoch number to a local calendar date string (YYYY-MM-DD).
+ * Uses local time getters to preserve the user's local calendar day across timezones.
  */
 export function formatEpochDate(epoch: number | null): string | null {
   if (epoch === null) return null;
   const d = new Date(epoch);
-  return d.toISOString().split('T')[0]; // YYYY-MM-DD
+  if (Number.isNaN(d.getTime())) return null;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**

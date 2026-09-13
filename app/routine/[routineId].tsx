@@ -1,6 +1,6 @@
 import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack, useFocusEffect } from 'expo-router';
-import { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { db } from '../../src/db/client';
 import { routineExercises, exercises, personalRecords, sets, sessions, routines } from '../../src/db/schema';
 import { eq, desc, and, sql, isNull, max } from 'drizzle-orm';
@@ -21,6 +21,12 @@ import { safeParseParams, routinePreviewParamsSchema } from '@/src/validators/ro
 import { useToast } from '@/hooks/use-toast';
 import { consumePendingToast } from '@/src/utils/flash-toast';
 import Svg, { Polyline } from 'react-native-svg';
+import {
+  formatDate as formatRoutineDate,
+  formatRest as formatRoutineRest,
+  computeWeightHistory,
+  computeBarHeights,
+} from '@/src/utils/routine-preview-format';
 
 interface ExerciseWithStats {
   id: number;
@@ -174,13 +180,7 @@ export default function RoutinePreviewScreen() {
             prWeight: prWeightResult[0]?.value ?? null,
             prReps: prRepsResult[0]?.value ?? null,
             sessionCount: sessionCountResult[0]?.count ?? 0,
-            weightHistory: weightHistory
-              .filter(w => w.weightKg !== null)
-              .map(w => ({
-                date: new Date(w.startTime).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit' }),
-                weight: w.weightKg!,
-              }))
-              .reverse(),
+            weightHistory: computeWeightHistory(weightHistory, getLocaleForLanguage(language)),
           };
         })
       );
@@ -246,14 +246,11 @@ export default function RoutinePreviewScreen() {
   };
 
   const formatDate = (epoch: number | null) => {
-    if (!epoch) return '—';
-    return new Date(epoch).toLocaleDateString(getLocaleForLanguage(language), { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return formatRoutineDate(epoch, getLocaleForLanguage(language));
   };
 
   const formatRest = (seconds: number | null) => {
-    if (!seconds) return '';
-    if (seconds < 60) return `${seconds}s`;
-    return `${Math.floor(seconds / 60)}m`;
+    return formatRoutineRest(seconds);
   };
 
   if (screenState === 'invalid') {
@@ -450,11 +447,9 @@ export default function RoutinePreviewScreen() {
                       <SectionHeader label={t('routineDetail.weightEvolution')} className="mb-2" />
                       <View className="flex-row items-end gap-1" style={{ height: 60 }}>
                         {(() => {
-                          const maxW = Math.max(...ex.weightHistory.map(w => w.weight));
-                          const minW = Math.min(...ex.weightHistory.map(w => w.weight));
-                          const range = maxW - minW || 1;
+                          const barHeights = computeBarHeights(ex.weightHistory);
                           return ex.weightHistory.map((point, i) => {
-                            const height = ((point.weight - minW) / range) * 40 + 20;
+                            const height = barHeights[i];
                             const isLast = i === ex.weightHistory.length - 1;
                             return (
                               <View key={i} className="flex-1 items-center gap-0.5">

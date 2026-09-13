@@ -1,254 +1,41 @@
-// Tests for AlexandriaExportService pure functions
-// Re-implemented locally to avoid importing the service (which depends on expo/DB)
-// Same pattern as csv-export.test.ts and analytics.test.ts
+import { db, sqlite } from '../fixtures/database';
+import { sessions, sets, bodyMetrics, personalRecords, measurementGoals, exercises } from '@/src/db/schema';
+import {
+  AlexandriaExportService,
+  formatEpochISO,
+  formatEpochDate,
+  computeWorkoutType,
+  computeVolume,
+  computeDurationSeconds,
+  buildSessionRecord,
+  buildMetricRecord,
+  buildPRRecord,
+  buildGoalRecord,
+  AlexandriaExport,
+} from '@/services/AlexandriaExportService';
+import * as Sharing from 'expo-sharing';
 
-// ---------------------------------------------------------------------------
-// Re-implement pure functions from services/AlexandriaExportService.ts
-// ---------------------------------------------------------------------------
+jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
 
-function formatEpochISO(epoch: number | null): string | null {
-  if (!epoch) return null;
-  return new Date(epoch).toISOString();
-}
+const writtenFiles = new Map<string, string>();
 
-function formatEpochDate(epoch: number | null): string | null {
-  if (!epoch) return null;
-  const d = new Date(epoch);
-  return d.toISOString().split('T')[0];
-}
+jest.mock('expo-file-system/legacy', () => ({
+  cacheDirectory: 'file:///mock-cache/',
+  EncodingType: { UTF8: 'utf8' },
+  writeAsStringAsync: jest.fn((path: string, content: string) => {
+    writtenFiles.set(path, content);
+    return Promise.resolve();
+  }),
+  readAsStringAsync: jest.fn((path: string) => {
+    return Promise.resolve(writtenFiles.get(path) ?? '');
+  }),
+}));
 
-function computeWorkoutType(exerciseTypes: string[]): string {
-  const hasCardio = exerciseTypes.includes('duration');
-  const hasStrength = exerciseTypes.includes('strength');
-  if (hasCardio && hasStrength) return 'other';
-  if (hasCardio) return 'cardio';
-  return 'strength';
-}
+jest.mock('expo-sharing', () => ({
+  isAvailableAsync: jest.fn().mockResolvedValue(true),
+  shareAsync: jest.fn().mockResolvedValue(undefined),
+}));
 
-function computeVolume(
-  sessionSets: { weightKg: number; reps: number; isWarmup: boolean }[]
-): number {
-  return sessionSets
-    .filter(s => !s.isWarmup)
-    .reduce((sum, s) => sum + (s.weightKg || 0) * (s.reps || 0), 0);
-}
-
-function computeDurationSeconds(
-  startTime: number | null,
-  endTime: number | null,
-  durationMinutes: number | null
-): number | null {
-  if (startTime && endTime && endTime > startTime) {
-    return Math.round((endTime - startTime) / 1000);
-  }
-  if (durationMinutes) {
-    return durationMinutes * 60;
-  }
-  return null;
-}
-
-interface AlexandriaSession {
-  external_id: string;
-  workout_date: string;
-  workout_type: string;
-  name: string;
-  exercises: {
-    name: string;
-    sets: {
-      set_number: number;
-      weight_kg: number | null;
-      reps: number | null;
-      duration_s: number | null;
-      rir: number | null;
-      is_warmup: boolean;
-    }[];
-  }[];
-  duration_s: number | null;
-  volume_kg: number | null;
-  rpe: number | null;
-  notes: string | null;
-  tags: string[];
-  metadata: {
-    routine_id: number | null;
-    routine_name: string | null;
-    body_weight: number | null;
-    set_count: number;
-  };
-}
-
-function buildSessionRecord(
-  session: {
-    id: number;
-    routineId: number | null;
-    routineName: string | null;
-    startTime: number;
-    endTime: number | null;
-    durationMinutes: number | null;
-    bodyWeight: number | null;
-    sRpe: number | null;
-    notes: string | null;
-  },
-  sessionSets: {
-    exerciseName: string | null;
-    exerciseId: number;
-    setNumber: number;
-    weightKg: number;
-    reps: number;
-    durationSeconds: number | null;
-    rir: number | null;
-    isWarmup: boolean;
-  }[],
-  exerciseTypes: Map<number, string>,
-  routineName: string | null
-): AlexandriaSession {
-  const byExercise = new Map<string, {
-    name: string;
-    sets: AlexandriaSession['exercises'][0]['sets'];
-  }>();
-
-  for (const s of sessionSets) {
-    const name = s.exerciseName || 'Unknown';
-    if (!byExercise.has(name)) {
-      byExercise.set(name, { name, sets: [] });
-    }
-    byExercise.get(name)!.sets.push({
-      set_number: s.setNumber,
-      weight_kg: s.weightKg,
-      reps: s.reps,
-      duration_s: s.durationSeconds,
-      rir: s.rir,
-      is_warmup: s.isWarmup,
-    });
-  }
-
-  const uniqueExerciseTypes = [...new Set(
-    sessionSets.map(s => exerciseTypes.get(s.exerciseId) || 'strength')
-  )];
-  const workoutType = computeWorkoutType(uniqueExerciseTypes);
-  const volume = computeVolume(sessionSets);
-  const duration = computeDurationSeconds(
-    session.startTime, session.endTime, session.durationMinutes
-  );
-
-  return {
-    external_id: `session-${session.id}`,
-    workout_date: formatEpochDate(session.startTime) || '',
-    workout_type: workoutType,
-    name: routineName || session.notes || 'Workout',
-    exercises: [...byExercise.values()],
-    duration_s: duration,
-    volume_kg: Math.round(volume * 100) / 100 || null,
-    rpe: session.sRpe ?? null,
-    notes: session.notes,
-    tags: ['iron-log', workoutType],
-    metadata: {
-      routine_id: session.routineId ?? null,
-      routine_name: routineName ?? null,
-      body_weight: session.bodyWeight ?? null,
-      set_count: sessionSets.length,
-    },
-  };
-}
-
-function buildMetricRecord(
-  metric: {
-    id: number;
-    date: number;
-    weight: number | null;
-    waist: number | null;
-    armRight: number | null;
-    thighRight: number | null;
-    chest: number | null;
-    calf: number | null;
-    type: string | null;
-  }
-): { weight?: any; body_composition?: any } {
-  const result: { weight?: any; body_composition?: any } = {};
-  const ts = formatEpochISO(metric.date);
-  const extId = `metric-${metric.date}`;
-
-  if (metric.weight) {
-    result.weight = {
-      external_id: extId,
-      entry_type: 'weight',
-      timestamp: ts || '',
-      numeric_value: metric.weight,
-      value: { weight_kg: metric.weight },
-      source: 'iron-log',
-      tags: ['iron-log'],
-    };
-  }
-
-  if (metric.waist || metric.armRight || metric.thighRight || metric.chest || metric.calf) {
-    const measurements: Record<string, number> = {};
-    if (metric.waist) measurements.waist = metric.waist;
-    if (metric.armRight) measurements.arm_right = metric.armRight;
-    if (metric.thighRight) measurements.thigh_right = metric.thighRight;
-    if (metric.chest) measurements.chest = metric.chest;
-    if (metric.calf) measurements.calf = metric.calf;
-
-    result.body_composition = {
-      external_id: `${extId}-measurements`,
-      entry_type: 'body_composition',
-      timestamp: ts || '',
-      numeric_value: metric.weight ?? null,
-      value: measurements,
-      source: 'iron-log',
-      tags: ['iron-log', 'body-measurements'],
-    };
-  }
-
-  return result;
-}
-
-function buildPRRecord(
-  pr: {
-    id: number;
-    exerciseId: number;
-    exerciseName: string;
-    recordType: string;
-    value: number;
-    weightKg: number | null;
-    reps: number | null;
-    estimated1RM: number | null;
-    date: number;
-  }
-) {
-  return {
-    external_id: `pr-${pr.recordType}-${pr.id}`,
-    exercise_name: pr.exerciseName,
-    record_type: pr.recordType,
-    value: pr.value,
-    weight_kg: pr.weightKg,
-    reps: pr.reps,
-    estimated_1rm: pr.estimated1RM,
-    date: formatEpochISO(pr.date) || '',
-  };
-}
-
-function buildGoalRecord(
-  goal: {
-    id: number;
-    type: string;
-    targetValue: number;
-    startDate: number;
-    targetDate: number;
-    achieved: boolean;
-  }
-) {
-  return {
-    external_id: `goal-${goal.type}-${goal.id}`,
-    type: goal.type,
-    target_value: goal.targetValue,
-    start_date: formatEpochISO(goal.startDate) || '',
-    target_date: formatEpochISO(goal.targetDate) || '',
-    achieved: goal.achieved,
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 describe('AlexandriaExportService \u2014 pure functions', () => {
 
@@ -279,15 +66,22 @@ describe('AlexandriaExportService \u2014 pure functions', () => {
       expect(formatEpochDate(null)).toBeNull();
     });
 
-    it('returns YYYY-MM-DD format', () => {
-      const result = formatEpochDate(1700000000000);
-      expect(result).toBe('2023-11-14');
+    it('returns null for NaN or invalid epoch', () => {
+      expect(formatEpochDate(NaN)).toBeNull();
     });
 
-    it('pads single-digit months and days', () => {
-      const epoch = new Date(2025, 0, 5).getTime();
-      const result = formatEpochDate(epoch);
+    it('returns local calendar date in YYYY-MM-DD format', () => {
+      const d = new Date(2025, 0, 5, 12, 0, 0);
+      const result = formatEpochDate(d.getTime());
       expect(result).toBe('2025-01-05');
+    });
+
+    it('preserves local calendar date near midnight', () => {
+      const lateNight = new Date(2026, 6, 20, 23, 45, 0).getTime();
+      expect(formatEpochDate(lateNight)).toBe('2026-07-20');
+
+      const earlyMorning = new Date(2026, 6, 20, 0, 15, 0).getTime();
+      expect(formatEpochDate(earlyMorning)).toBe('2026-07-20');
     });
   });
 
@@ -380,8 +174,8 @@ describe('AlexandriaExportService \u2014 pure functions', () => {
       id: 42,
       routineId: 1,
       routineName: 'Push Day',
-      startTime: 1700000000000,
-      endTime: 1700003600000,
+      startTime: new Date(2023, 10, 14, 15, 0, 0).getTime(),
+      endTime: new Date(2023, 10, 14, 16, 0, 0).getTime(),
       durationMinutes: null as number | null,
       bodyWeight: 80.5,
       sRpe: 8 as number | null,
@@ -551,8 +345,8 @@ describe('AlexandriaExportService \u2014 pure functions', () => {
     it('builds correct goal record', () => {
       const result = buildGoalRecord({
         id: 1, type: 'waist', targetValue: 80,
-        startDate: new Date(2026, 0, 1).getTime(),
-        targetDate: new Date(2026, 5, 30).getTime(),
+        startDate: Date.UTC(2026, 0, 1, 12, 0, 0),
+        targetDate: Date.UTC(2026, 5, 30, 12, 0, 0),
         achieved: false,
       });
       expect(result.external_id).toBe('goal-waist-1');
@@ -569,6 +363,169 @@ describe('AlexandriaExportService \u2014 pure functions', () => {
         startDate: 1700000000000, targetDate: 1714000000000, achieved: true,
       });
       expect(result.achieved).toBe(true);
+    });
+  });
+
+  // =========================================================================
+  describe('AlexandriaExportService (database integration & sharing)', () => {
+    beforeEach(() => {
+      sqlite.exec(`
+        PRAGMA foreign_keys = OFF;
+        DELETE FROM sets;
+        DELETE FROM sessions;
+        DELETE FROM exercises;
+        DELETE FROM body_metrics;
+        DELETE FROM personal_records;
+        DELETE FROM measurement_goals;
+        DELETE FROM sqlite_sequence;
+        PRAGMA foreign_keys = ON;
+      `);
+      writtenFiles.clear();
+      jest.clearAllMocks();
+      (Sharing.isAvailableAsync as jest.Mock).mockResolvedValue(true);
+      (Sharing.shareAsync as jest.Mock).mockResolvedValue(undefined);
+    });
+
+    it('exports structured JSON matching Alexandria schema, respecting C1', async () => {
+      // Exercises
+      await db.insert(exercises).values([
+        { id: 1, name: 'Supino Reto', type: 'strength' },
+        { id: 2, name: 'Corrida', type: 'duration' },
+      ]);
+
+      // Completed session
+      await db.insert(sessions).values({
+        id: 1,
+        startTime: new Date(2026, 6, 20, 18, 0).getTime(),
+        endTime: new Date(2026, 6, 20, 19, 0).getTime(),
+        durationMinutes: 60,
+        routineName: 'Upper Body',
+        bodyWeight: 80.0,
+        sRpe: 8,
+        notes: 'Good session',
+        deletedAt: null,
+      });
+
+      // Open session (endTime null, C1: retained)
+      await db.insert(sessions).values({
+        id: 2,
+        startTime: new Date(2026, 6, 21, 10, 0).getTime(),
+        endTime: null,
+        durationMinutes: null,
+        routineName: 'Open Workout',
+        bodyWeight: null,
+        deletedAt: null,
+      });
+
+      // Soft-deleted session (must be excluded)
+      await db.insert(sessions).values({
+        id: 3,
+        startTime: new Date(2026, 6, 19, 10, 0).getTime(),
+        routineName: 'Deleted Workout',
+        deletedAt: new Date(2026, 6, 19, 12, 0).getTime(),
+      });
+
+      // Sets for session 1
+      await db.insert(sets).values([
+        {
+          sessionId: 1,
+          exerciseId: 1,
+          exerciseName: 'Supino Reto',
+          setNumber: 1,
+          weightKg: 80,
+          reps: 8,
+          isWarmup: false,
+          deletedAt: null,
+        },
+        // Soft-deleted set (must be excluded)
+        {
+          sessionId: 1,
+          exerciseId: 1,
+          exerciseName: 'Supino Reto',
+          setNumber: 2,
+          weightKg: 80,
+          reps: 6,
+          isWarmup: false,
+          deletedAt: new Date(2026, 6, 20, 18, 30).getTime(),
+        },
+      ]);
+
+      // Body metrics
+      await db.insert(bodyMetrics).values({
+        date: new Date(2026, 6, 20, 8, 0).getTime(),
+        weight: 80.0,
+        waist: 84,
+      });
+
+      // Personal records
+      await db.insert(personalRecords).values({
+        id: 1,
+        exerciseId: 1,
+        recordType: 'weight',
+        value: 100,
+        date: new Date(2026, 6, 20, 18, 30).getTime(),
+      });
+
+      // Goals
+      await db.insert(measurementGoals).values({
+        id: 1,
+        type: 'weight',
+        targetValue: 78,
+        startDate: new Date(2026, 6, 1).getTime(),
+        targetDate: new Date(2026, 11, 31).getTime(),
+        achieved: false,
+      });
+
+      const jsonStr = await AlexandriaExportService.exportAlexandriaJson();
+      const exportData: AlexandriaExport = JSON.parse(jsonStr);
+
+      expect(exportData.export_version).toBe(1);
+      expect(exportData.sessions).toHaveLength(2); // session 1 and session 2 (open)
+      expect(exportData.sessions.find(s => s.external_id === 'session-1')).toBeDefined();
+      expect(exportData.sessions.find(s => s.external_id === 'session-2')).toBeDefined();
+      expect(exportData.sessions.find(s => s.external_id === 'session-3')).toBeUndefined();
+
+      const s1 = exportData.sessions.find(s => s.external_id === 'session-1')!;
+      expect(s1.workout_date).toBe('2026-07-20');
+      expect(s1.exercises).toHaveLength(1);
+      expect(s1.exercises[0].sets).toHaveLength(1); // soft-deleted set excluded
+
+      expect(exportData.body_metrics.length).toBeGreaterThan(0);
+      expect(exportData.personal_records).toHaveLength(1);
+      expect(exportData.personal_records[0].exercise_name).toBe('Supino Reto');
+      expect(exportData.measurement_goals).toHaveLength(1);
+    });
+
+    it('exports and shares JSON via FileSystem and Sharing with spy payload verification', async () => {
+      await db.insert(sessions).values({
+        id: 1,
+        startTime: new Date(2026, 6, 20, 18, 0).getTime(),
+        routineName: 'Upper Body',
+      });
+
+      await AlexandriaExportService.exportAndShare();
+
+      expect(Sharing.shareAsync).toHaveBeenCalledTimes(1);
+      expect(Sharing.shareAsync).toHaveBeenCalledWith(
+        expect.stringContaining('ironlog_alexandria_'),
+        expect.objectContaining({
+          dialogTitle: 'Exportar para Alexandria',
+          mimeType: 'application/json',
+        }),
+      );
+
+      // Verify written payload via spy
+      const filePath = (Sharing.shareAsync as jest.Mock).mock.calls[0][0];
+      expect(writtenFiles.has(filePath)).toBe(true);
+      const content = JSON.parse(writtenFiles.get(filePath)!);
+      expect(content.export_version).toBe(1);
+      expect(content.sessions).toHaveLength(1);
+    });
+
+    it('throws error when sharing is unavailable', async () => {
+      (Sharing.isAvailableAsync as jest.Mock).mockResolvedValue(false);
+
+      await expect(AlexandriaExportService.exportAndShare()).rejects.toThrow('services.sharingUnavailable');
     });
   });
 });

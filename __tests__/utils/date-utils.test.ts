@@ -38,12 +38,23 @@ describe('date utilities', () => {
       expect(formatEpochDate(null)).toBeNull();
     });
 
-    it('formats Unix epoch zero as a valid date', () => {
-      expect(formatEpochDate(0)).toBe('1970-01-01');
+    it('returns null for NaN or invalid epoch', () => {
+      expect(formatEpochDate(NaN)).toBeNull();
     });
 
-    it('formats timestamps as UTC calendar dates', () => {
-      expect(formatEpochDate(Date.parse('2026-07-20T23:59:59.000Z'))).toBe('2026-07-20');
+    it('formats timestamps as local calendar dates near midnight', () => {
+      // 2026-07-20 23:45 in local time
+      const lateNight = new Date(2026, 6, 20, 23, 45, 0).getTime();
+      expect(formatEpochDate(lateNight)).toBe('2026-07-20');
+
+      // 2026-07-20 00:15 in local time
+      const earlyMorning = new Date(2026, 6, 20, 0, 15, 0).getTime();
+      expect(formatEpochDate(earlyMorning)).toBe('2026-07-20');
+    });
+
+    it('pads single-digit months and days in local time', () => {
+      const jan5 = new Date(2026, 0, 5, 12, 0, 0).getTime();
+      expect(formatEpochDate(jan5)).toBe('2026-01-05');
     });
   });
 

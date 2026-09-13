@@ -5,6 +5,33 @@ import { notificationSettings, supplements } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { getTranslation } from '../src/i18n/index';
+import { supportsNativeNotifications } from '../src/utils/runtime-environment';
+
+export type NotificationPermissionStatus =
+  | 'granted'
+  | 'denied'
+  | 'blocked'
+  | 'undetermined'
+  | 'unavailable';
+
+export interface NotificationPermissionResult {
+  status: NotificationPermissionStatus;
+  granted: boolean;
+  canAskAgain: boolean;
+  isNative: boolean;
+}
+
+export const NOTIFICATION_CATEGORIES = {
+  CHECKIN: 'monthly-checkin',
+  REST: 'rest-timer',
+  SUPPLEMENT_PREFIX: 'supplement-',
+} as const;
+
+export const NOTIFICATION_CHANNELS = {
+  CHECKIN: 'monthly-checkin',
+  SUPPLEMENTS: 'supplements',
+  REST: 'rest-timer',
+} as const;
 
 let expoNotifications: typeof ExpoNotifications | null = null;
 
@@ -57,8 +84,146 @@ function parseReminderTime(timeStr: string | null | undefined): { hour: number; 
   return { hour, minute };
 }
 
+function parsePermissionResult(
+  result: ExpoNotifications.NotificationPermissionsStatus | undefined | null,
+  isNative: boolean
+): NotificationPermissionResult {
+  if (!result) {
+    return {
+      status: 'undetermined',
+      granted: false,
+      canAskAgain: true,
+      isNative,
+    };
+  }
+
+  const granted = Boolean(result.granted || result.status === 'granted');
+  const canAskAgain = result.canAskAgain ?? !granted;
+
+  if (granted) {
+    return {
+      status: 'granted',
+      granted: true,
+      canAskAgain,
+      isNative,
+    };
+  }
+
+  if (!canAskAgain) {
+    return {
+      status: 'blocked',
+      granted: false,
+      canAskAgain: false,
+      isNative,
+    };
+  }
+
+  if (result.status === 'undetermined') {
+    return {
+      status: 'undetermined',
+      granted: false,
+      canAskAgain: true,
+      isNative,
+    };
+  }
+
+  return {
+    status: 'denied',
+    granted: false,
+    canAskAgain: true,
+    isNative,
+  };
+}
+
 class NotificationService {
   private initialized = false;
+
+  /**
+   * Get current notification permission status.
+   * In Expo Go (storeClient), returns unavailable without calling incompatible APIs.
+   */
+  async getPermissionStatus(executionEnvironment?: string): Promise<NotificationPermissionResult> {
+    const isNative = supportsNativeNotifications(executionEnvironment);
+    if (!isNative) {
+      return {
+        status: 'unavailable',
+        granted: false,
+        canAskAgain: false,
+        isNative: false,
+      };
+    }
+
+    try {
+      const Notifications = await getNotificationsModule();
+      if (typeof Notifications.getPermissionsAsync !== 'function') {
+        return {
+          status: 'unavailable',
+          granted: false,
+          canAskAgain: false,
+          isNative: true,
+        };
+      }
+      const result = await Notifications.getPermissionsAsync();
+      return parsePermissionResult(result, true);
+    } catch (error) {
+      logger.error('Error querying notification permissions', error);
+      return {
+        status: 'denied',
+        granted: false,
+        canAskAgain: true,
+        isNative: true,
+      };
+    }
+  }
+
+  /**
+   * Request notification permission contextually.
+   * In Expo Go (storeClient), returns unavailable without calling incompatible APIs.
+   */
+  async requestPermission(executionEnvironment?: string): Promise<NotificationPermissionResult> {
+    const isNative = supportsNativeNotifications(executionEnvironment);
+    if (!isNative) {
+      logger.debug('Notifications: Native permission request skipped in Expo Go');
+      return {
+        status: 'unavailable',
+        granted: false,
+        canAskAgain: false,
+        isNative: false,
+      };
+    }
+
+    try {
+      const Notifications = await getNotificationsModule();
+      if (typeof Notifications.requestPermissionsAsync !== 'function') {
+        return {
+          status: 'unavailable',
+          granted: false,
+          canAskAgain: false,
+          isNative: true,
+        };
+      }
+      const result = await Notifications.requestPermissionsAsync({
+        ios: {
+          allowAlert: true,
+          allowBadge: true,
+          allowSound: true,
+        },
+      });
+      return parsePermissionResult(result, true);
+    } catch (error) {
+      logger.error('Error requesting notification permissions', error);
+      return {
+        status: 'denied',
+        granted: false,
+        canAskAgain: true,
+        isNative: true,
+      };
+    }
+  }
+
+  async requestPermissions(executionEnvironment?: string): Promise<NotificationPermissionResult> {
+    return this.requestPermission(executionEnvironment);
+  }
 
   /**
    * Initialize notification channels and schedule configured reminders.
@@ -390,12 +555,13 @@ class NotificationService {
   }
 
   /**
-   * Cancel all scheduled notifications (both check-in and supplements)
+   * Cancel scheduled notifications for check-in and supplements,
+   * without affecting active rest timer notifications.
    */
   async cancelAll(): Promise<void> {
     try {
-      const Notifications = await getNotificationsModule();
-      await Notifications.cancelAllScheduledNotificationsAsync();
+      await this.cancelCheckinNotification();
+      await this.cancelAllSupplementReminders();
     } catch (error) {
       logger.error('Error canceling notifications', error);
     }
@@ -403,6 +569,7 @@ class NotificationService {
 
   cleanup(): void {
     this.initialized = false;
+    expoNotifications = null;
   }
 
   /**
@@ -470,7 +637,6 @@ export async function scheduleRestNotification(opts: { seconds: number; exercise
       },
     });
     if (__DEV__) {
-      // eslint-disable-next-line no-console
       console.log('[QA#89] rest notification scheduled', { seconds: opts.seconds });
     }
   } catch (error) {
@@ -485,4 +651,16 @@ export async function cancelRestNotification(): Promise<void> {
   } catch (error) {
     logger.error('Error canceling rest notification', error);
   }
+}
+
+export async function getNotificationPermissionStatus(
+  executionEnvironment?: string
+): Promise<NotificationPermissionResult> {
+  return notificationService.getPermissionStatus(executionEnvironment);
+}
+
+export async function requestNotificationPermission(
+  executionEnvironment?: string
+): Promise<NotificationPermissionResult> {
+  return notificationService.requestPermission(executionEnvironment);
 }

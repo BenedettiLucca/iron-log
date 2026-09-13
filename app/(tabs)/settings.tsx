@@ -309,8 +309,20 @@ export default function SettingsScreen() {
   const handleCsvExport = async () => {
     setLoading(true);
     try {
-      await CsvExportService.exportAllAndShare();
-      setToast({ visible: true, message: t('settings.csvExportSuccess'), type: 'success' });
+      const result = await CsvExportService.exportAllAndShare();
+      if (result.success) {
+        const successMsg = t('settings.csvExportOffered') !== 'settings.csvExportOffered'
+          ? t('settings.csvExportOffered')
+          : t('settings.csvExportSuccess');
+        setToast({ visible: true, message: successMsg, type: 'success' });
+      } else if (result.sessions.offered && !result.metrics.offered) {
+        const partialMsg = t('settings.csvExportPartialSuccess') !== 'settings.csvExportPartialSuccess'
+          ? t('settings.csvExportPartialSuccess')
+          : 'Sessões oferecidas; falha ao compartilhar métricas.';
+        setToast({ visible: true, message: partialMsg, type: 'error' });
+      } else {
+        setToast({ visible: true, message: t('settings.csvExportError'), type: 'error' });
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.csvExportError'), type: 'error' });

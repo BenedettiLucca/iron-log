@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard';
 import { db } from '@/src/db/client';
 import { sessions, sets, routineExercises } from '@/src/db/schema';
-import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
+import { asc, isNull, eq, and, gte, lt, inArray } from 'drizzle-orm';
 import { formatEpochDate, computeVolume } from './AlexandriaExportService';
 import { generateSessionVerdicts } from '@/src/utils/session-verdicts';
 import { getRoutineOccurrenceKey } from '@/src/utils/session-occurrence';
@@ -18,8 +18,8 @@ export const NotionExportService = {
    * Includes YAML frontmatter, exercise table, and session metadata.
    */
   async exportSessionMarkdown(sessionId: number, t: TFunction): Promise<string> {
-    // 1. Fetch session
-    const sessionData = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+    // 1. Fetch session (non-deleted)
+    const sessionData = await db.select().from(sessions).where(and(eq(sessions.id, sessionId), isNull(sessions.deletedAt)));
     if (!sessionData.length) return '';
     const session = sessionData[0];
 
@@ -130,20 +130,24 @@ export const NotionExportService = {
     sunday.setDate(sunday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
 
+    const nextMonday = new Date(monday);
+    nextMonday.setDate(nextMonday.getDate() + 7);
+    nextMonday.setHours(0, 0, 0, 0);
+
     const weekStart = monday.getTime();
-    const weekEnd = sunday.getTime();
+    const weekEndExclusive = nextMonday.getTime();
 
     const weekLabel = `${formatDateShort(monday)} - ${formatDateShort(sunday)}`;
 
     const weekNum = getWeekNumber(now);
 
-    // Fetch sessions in range
+    // Fetch sessions in range (start-inclusive, end-exclusive)
     const weekSessions = await db.select()
       .from(sessions)
       .where(and(
         isNull(sessions.deletedAt),
         gte(sessions.startTime, weekStart),
-        lte(sessions.startTime, weekEnd),
+        lt(sessions.startTime, weekEndExclusive),
       ))
       .orderBy(asc(sessions.startTime));
 

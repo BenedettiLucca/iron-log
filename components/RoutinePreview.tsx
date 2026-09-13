@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, ScrollView, Modal } from 'react-native';
 import { Card } from './Card';
 import { Button } from './Button';
@@ -7,6 +7,7 @@ import { routineExercises, exercises } from '../src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { useI18n } from '@/src/i18n/index';
+import { formatRest, calcEstimatedDuration } from '@/src/utils/routine-preview-format';
 
 interface RoutinePreviewProps {
   visible: boolean;
@@ -18,6 +19,7 @@ interface RoutinePreviewProps {
 
 interface ExercisePreview {
   id: number;
+  routineExerciseId: number;
   name: string;
   target?: string | null;
   restSeconds?: number | null;
@@ -38,6 +40,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
       const result = await db
         .select({
           id: exercises.id,
+          routineExerciseId: routineExercises.id,
           name: exercises.name,
           type: exercises.type,
           target: routineExercises.target,
@@ -65,18 +68,8 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
   }, [visible, routineId, loadExercises]);
 
   const estimatedDuration = useMemo(() => {
-    // Rough estimate: 2 mins per exercise (setup + rest) + actual work time
-    const workTimePerExercise = 3; // minutes
-    const totalExerciseCount = exerciseList.length;
-    if (totalExerciseCount === 0) return 0;
-    return Math.max(15, totalExerciseCount * workTimePerExercise);
+    return calcEstimatedDuration(exerciseList.length);
   }, [exerciseList]);
-
-  const formatRest = (seconds?: number | null) => {
-    if (!seconds) return '';
-    if (seconds < 60) return `${seconds}s`;
-    return `${Math.floor(seconds / 60)}m`;
-  };
 
   return (
     <Modal
@@ -129,7 +122,7 @@ export function RoutinePreview({ visible, routineId, onClose, onStart, routineNa
             ) : (
               <View className="gap-3">
                 {exerciseList.map((exercise: ExercisePreview, index: number) => (
-                  <Card key={exercise.id} className="flex-row items-center py-3">
+                  <Card key={exercise.routineExerciseId} className="flex-row items-center py-3">
                     {/* Number Badge */}
                     <View className="w-8 h-8 rounded-full bg-primarySurface justify-center items-center mr-3">
                       <Text className="text-primaryText font-bold text-sm">{index + 1}</Text>
