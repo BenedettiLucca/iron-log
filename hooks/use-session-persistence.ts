@@ -44,6 +44,7 @@ interface SessionContext {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   activeSetStartedAt: number | null;
+  operationId?: string | null;
 }
 
 interface SessionPersistenceOptions {
@@ -67,6 +68,7 @@ interface SessionPersistenceOptions {
   target?: string;
   notes?: string;
   restSeconds?: number | null;
+  operationId?: string | null;
 }
 
 function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
@@ -90,6 +92,7 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
     activeSetTime: opts.activeSetTime,
     isActiveSetRunning: opts.isActiveSetRunning,
     activeSetStartedAt: opts.activeSetStartedAt,
+    operationId: opts.operationId ?? null,
   };
 }
 

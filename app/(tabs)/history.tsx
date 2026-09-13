@@ -1,18 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, FlatList, RefreshControl, TouchableOpacity, useColorScheme } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import type { DateData } from 'react-native-calendars';
 import { useRouter } from 'expo-router';
 import { db } from '../../src/db/client';
 import { sessions, sets } from '../../src/db/schema';
-import { desc, isNull, eq, and, inArray } from 'drizzle-orm';
+import { desc, isNull, and, inArray } from 'drizzle-orm';
 import { Dialog } from '../../components/Dialog';
+import { Toast } from '../../components/Toast';
 import { SkeletonList } from '../../components/Skeleton';
 import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
+import { SessionLifecycleService } from '@/services/SessionLifecycleService';
 import { Session } from '@/src/types';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { useToast } from '@/hooks/use-toast';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { toLocalDateKey } from '@/src/utils/date-key';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -72,7 +75,6 @@ export default function HistoryScreen() {
       LocaleConfig.defaultLocale = language;
     }
   }, [language]);
-  const [allSessions, setAllSessions] = useState<Session[]>([]);
   const [markedDates, setMarkedDates] = useState<Record<string, { marked: boolean; dotColor: string }>>({});
   const [selectedDate, setSelectedDate] = useState('');
   const [daySessions, setDaySessions] = useState<SessionWithExercises[]>([]);
@@ -88,7 +90,6 @@ export default function HistoryScreen() {
     try {
       setIsLoading(true);
       const result = await db.select().from(sessions).where(isNull(sessions.deletedAt)).orderBy(desc(sessions.startTime));
-      setAllSessions(result);
 
       const marks: Record<string, { marked: boolean; dotColor: string }> = {};
       result.forEach(s => {
@@ -117,38 +118,47 @@ export default function HistoryScreen() {
     setRefreshing(false);
   }, [loadSessions]);
 
-  const handleDeleteSession = useCallback(async () => {
-    try {
-      await db.update(sessions)
-        .set({ deletedAt: Date.now() })
-        .where(eq(sessions.id, deleteDialog.sessionId));
-      setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' });
-      await loadSessions();
-      // Clear day sessions to force re-filter
-      setDaySessions([]);
-      setSelectedDate('');
-    } catch (e) {
-      logger.error('Failed to delete session', e);
-    }
-  }, [deleteDialog.sessionId, loadSessions]);
+  const [undoSnackbar, setUndoSnackbar] = useState<{
+    visible: boolean;
+    sessionId: number;
+    sessionName: string;
+    dateString: string;
+  }>({
+    visible: false,
+    sessionId: 0,
+    sessionName: '',
+    dateString: '',
+  });
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { toast, setToast } = useToast();
+
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleDayPress = useCallback(async (day: Pick<DateData, 'dateString'>) => {
     setSelectedDate(day.dateString);
     setDayError(null);
     setDaySessions([]);
     setIsDayLoading(true);
-    const filtered = allSessions.filter(s => {
-      const sDate = toLocalDateKey(s.startTime);
-      return sDate === day.dateString;
-    });
-
-    // Load exercise info for all filtered sessions in a single batch query
-    if (filtered.length === 0) {
-      setIsDayLoading(false);
-      return;
-    }
 
     try {
+      const liveSessions = await db.select().from(sessions).where(isNull(sessions.deletedAt)).orderBy(desc(sessions.startTime));
+      const filtered = liveSessions.filter(s => {
+        const sDate = toLocalDateKey(s.startTime);
+        return sDate === day.dateString;
+      });
+
+      // Load exercise info for all filtered sessions in a single batch query
+      if (filtered.length === 0) {
+        setIsDayLoading(false);
+        return;
+      }
+
       const sessionIds = filtered.map(s => s.id);
       const allSets = await db
         .select({ sessionId: sets.sessionId, exerciseName: sets.exerciseName })
@@ -185,7 +195,68 @@ export default function HistoryScreen() {
     } finally {
       setIsDayLoading(false);
     }
-  }, [allSessions, t]);
+  }, [t]);
+
+  const handleDeleteSession = useCallback(async () => {
+    const sId = deleteDialog.sessionId;
+    const sName = deleteDialog.sessionName;
+    const sDate = selectedDate;
+    setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' });
+
+    try {
+      // Soft-delete contract: .set({ deletedAt: Date.now() }) handled transactionally via SessionLifecycleService
+      await SessionLifecycleService.deleteSession({ sessionId: sId });
+      await loadSessions();
+
+      setDaySessions(prev => prev.filter(s => s.id !== sId));
+      if (!sDate) {
+        setSelectedDate('');
+      }
+
+      // Explicit 10s undo window
+      if (undoTimeoutRef.current) {
+        clearTimeout(undoTimeoutRef.current);
+      }
+      setUndoSnackbar({
+        visible: true,
+        sessionId: sId,
+        sessionName: sName,
+        dateString: sDate,
+      });
+
+      undoTimeoutRef.current = setTimeout(() => {
+        setUndoSnackbar((prev) => ({ ...prev, visible: false }));
+        undoTimeoutRef.current = null;
+      }, 10000);
+    } catch (e) {
+      logger.error('Failed to delete session', e);
+      setToast({ visible: true, message: t('states.errorBody'), type: 'error' });
+    }
+  }, [deleteDialog.sessionId, deleteDialog.sessionName, selectedDate, loadSessions, t, setToast]);
+
+  const handleUndoDelete = useCallback(async () => {
+    if (!undoSnackbar.sessionId) return;
+    if (undoTimeoutRef.current) {
+      clearTimeout(undoTimeoutRef.current);
+      undoTimeoutRef.current = null;
+    }
+
+    const sId = undoSnackbar.sessionId;
+    const sDate = undoSnackbar.dateString;
+    setUndoSnackbar((prev) => ({ ...prev, visible: false }));
+
+    try {
+      await SessionLifecycleService.restoreSession({ sessionId: sId });
+      await loadSessions();
+      if (sDate) {
+        await handleDayPress({ dateString: sDate });
+      }
+      setToast({ visible: true, message: t('history.undoSuccess'), type: 'success' });
+    } catch (e) {
+      logger.error('Failed to restore session', e);
+      setToast({ visible: true, message: t('history.undoError'), type: 'error' });
+    }
+  }, [undoSnackbar.sessionId, undoSnackbar.dateString, loadSessions, handleDayPress, t, setToast]);
 
   const colorScheme = useColorScheme();
   const cardBg = colorScheme === 'dark' ? Colors.darkCard : Colors.lightCard;
@@ -378,6 +449,39 @@ export default function HistoryScreen() {
         type="destructive"
         onConfirm={handleDeleteSession}
         onCancel={() => setDeleteDialog({ visible: false, sessionId: 0, sessionName: '' })}
+      />
+
+      {undoSnackbar.visible && (
+        <View
+          accessible
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          className="absolute bottom-6 left-4 right-4 bg-card border border-border rounded-xl p-4 shadow-lg flex-row items-center justify-between z-50"
+        >
+          <Text
+            className="text-text font-semibold text-sm flex-1 mr-3"
+            numberOfLines={2}
+          >
+            {t('history.workoutDeleted')}
+          </Text>
+          <TouchableOpacity
+            className="bg-primary px-4 py-2.5 rounded-lg min-h-[44px] min-w-[44px] items-center justify-center"
+            onPress={handleUndoDelete}
+            accessibilityRole="button"
+            accessibilityLabel={`${t('history.undo')} ${undoSnackbar.sessionName}`}
+          >
+            <Text className="text-onPrimary font-bold text-sm">
+              {t('history.undo')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onHide={() => setToast({ ...toast, visible: false })}
       />
     </View>
   );

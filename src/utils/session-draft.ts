@@ -8,6 +8,14 @@ export interface SessionDraft {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   activeSetStartedAt: number | null;
+  operationId?: string | null;
+}
+
+export function createOperationId(): string {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return `op-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 type SessionDraftState = {
@@ -149,6 +157,15 @@ export function resolveSessionDraft(
 
   if (!hasPendingSessionDraft(obj)) return null;
 
+  let operationId: string | undefined = undefined;
+  if (obj.operationId !== undefined && obj.operationId !== null) {
+    if (typeof obj.operationId !== 'string') return null;
+    const trimmed = obj.operationId.trim();
+    if (trimmed.length > 0) {
+      operationId = trimmed;
+    }
+  }
+
   return {
     weight: obj.weight,
     reps: obj.reps,
@@ -159,5 +176,6 @@ export function resolveSessionDraft(
     activeSetTime,
     isActiveSetRunning,
     activeSetStartedAt,
+    ...(operationId ? { operationId } : {}),
   };
 }

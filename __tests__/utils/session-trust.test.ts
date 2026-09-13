@@ -3,7 +3,10 @@ import {
   canActOnFinishStats,
   canNavigateAfterPendingSave,
   shouldSavePendingSet,
+  classifyRecoveredDraft,
+  resolveNavigationAction,
 } from '@/src/utils/session-trust';
+import type { SessionDraft } from '@/src/utils/session-draft';
 
 describe('set editor validation', () => {
   it.each([
@@ -70,5 +73,94 @@ describe('session trust guards', () => {
     expect(canActOnFinishStats(true, false)).toBe(false);
     expect(canActOnFinishStats(false, true)).toBe(false);
     expect(canActOnFinishStats(false, false)).toBe(true);
+  });
+});
+
+describe('Contract C3: classifyRecoveredDraft', () => {
+  const baseDraft: SessionDraft = {
+    weight: '100',
+    reps: '5',
+    duration: '',
+    rir: 2,
+    isWarmupMode: false,
+    isDirty: true,
+    activeSetTime: 0,
+    isActiveSetRunning: false,
+    activeSetStartedAt: null,
+  };
+
+  it('returns none for null or empty draft', () => {
+    expect(classifyRecoveredDraft(null, false)).toEqual({ kind: 'none' });
+    expect(classifyRecoveredDraft({ ...baseDraft, isDirty: false, activeSetTime: 0 }, false)).toEqual({ kind: 'none' });
+  });
+
+  it('classifies committed draft when operationId is in SQLite (crash after insert before clear)', () => {
+    const draft: SessionDraft = { ...baseDraft, operationId: 'op-committed-1' };
+    expect(classifyRecoveredDraft(draft, true)).toEqual({
+      kind: 'committed',
+      operationId: 'op-committed-1',
+    });
+  });
+
+  it('classifies real uncommitted draft when operationId is NOT in SQLite', () => {
+    const draft: SessionDraft = { ...baseDraft, operationId: 'op-uncommitted-2' };
+    expect(classifyRecoveredDraft(draft, false)).toEqual({
+      kind: 'real_pending',
+      operationId: 'op-uncommitted-2',
+    });
+  });
+
+  it('classifies legacy draft without token as ambiguous_legacy without guessing', () => {
+    const legacyDraft: SessionDraft = { ...baseDraft, operationId: null };
+    expect(classifyRecoveredDraft(legacyDraft, false)).toEqual({
+      kind: 'ambiguous_legacy',
+    });
+
+    const legacyDraftBlank: SessionDraft = { ...baseDraft, operationId: '   ' };
+    expect(classifyRecoveredDraft(legacyDraftBlank, false)).toEqual({
+      kind: 'ambiguous_legacy',
+    });
+  });
+});
+
+describe('Contract C3: resolveNavigationAction', () => {
+  it('navigates immediately when there is no pending set', () => {
+    expect(resolveNavigationAction({
+      hasPendingSet: false,
+      isRecoveredPending: false,
+    })).toEqual({ type: 'navigate_immediately' });
+
+    expect(resolveNavigationAction({
+      hasPendingSet: false,
+      isRecoveredPending: true,
+      recoveredKind: 'real_pending',
+    })).toEqual({ type: 'navigate_immediately' });
+  });
+
+  it('preserves intentional auto-save for active workout flow (not recovered)', () => {
+    expect(resolveNavigationAction({
+      hasPendingSet: true,
+      isRecoveredPending: false,
+    })).toEqual({ type: 'auto_save_and_navigate' });
+  });
+
+  it('prompts explicit recovery decision for recovered pending drafts instead of silent save', () => {
+    expect(resolveNavigationAction({
+      hasPendingSet: true,
+      isRecoveredPending: true,
+      recoveredKind: 'real_pending',
+    })).toEqual({
+      type: 'prompt_recovery_decision',
+      reason: 'real_pending',
+    });
+
+    expect(resolveNavigationAction({
+      hasPendingSet: true,
+      isRecoveredPending: true,
+      recoveredKind: 'ambiguous_legacy',
+    })).toEqual({
+      type: 'prompt_recovery_decision',
+      reason: 'ambiguous_legacy',
+    });
   });
 });

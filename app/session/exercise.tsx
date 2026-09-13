@@ -6,7 +6,9 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
+  Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '../../components/Button';
@@ -31,9 +33,12 @@ import { ExerciseHistoryModal } from '../../components/session/ExerciseHistoryMo
 import { RirExplainerModal } from '../../components/session/RirExplainerModal';
 import {
   canNavigateAfterPendingSave,
+  classifyRecoveredDraft,
+  resolveNavigationAction,
   shouldSavePendingSet,
 } from '@/src/utils/session-trust';
 import {
+  createOperationId,
   hasPendingSessionDraft,
   resolveSessionDraft,
 } from '@/src/utils/session-draft';
@@ -46,6 +51,11 @@ type SessionOperation =
   | 'removal-navigation'
   | 'advance-navigation'
   | 'navigating';
+
+// Fallback for headless test environments where react-native mock does not include Modal
+const SafeModal = (Modal || (({ children, visible, ...props }: any) => (
+  visible ? <View {...props}>{children}</View> : null
+))) as React.ComponentType<any>;
 
 export default function ExerciseScreen() {
   const router = useRouter();
@@ -76,6 +86,7 @@ export default function ExerciseScreen() {
     reps,
     setReps,
     duration,
+    setDuration,
     rir,
     setRir,
     sessionSets,
@@ -138,6 +149,23 @@ export default function ExerciseScreen() {
   const draftMutationGenerationRef = useRef(0);
   const operationRef = useRef<SessionOperation>('idle');
   const hasPersistenceFailureRef = useRef(false);
+  const operationIdRef = useRef<string | null>(null);
+  const [recoveredDecision, setRecoveredDecision] = useState<{
+    visible: boolean;
+    reason: 'real_pending' | 'ambiguous_legacy';
+  }>({ visible: false, reason: 'real_pending' });
+  const recoveredPendingRef = useRef<{
+    isRecovered: boolean;
+    reason: 'real_pending' | 'ambiguous_legacy';
+  }>({ isRecovered: false, reason: 'real_pending' });
+
+  const ensureOperationId = useCallback(() => {
+    if (!operationIdRef.current) {
+      operationIdRef.current = createOperationId();
+    }
+    return operationIdRef.current;
+  }, []);
+
   const markDraftMutation = useCallback(() => {
     draftMutationGenerationRef.current += 1;
   }, []);
@@ -207,7 +235,11 @@ export default function ExerciseScreen() {
     target,
     notes,
     restSeconds: routineRest,
+    operationId: operationIdRef.current,
   });
+
+  const sessionSetsRef = useRef(sessionSets);
+  sessionSetsRef.current = sessionSets;
 
   useEffect(() => {
     if (!sessionId || !exerciseId) return;
@@ -218,17 +250,74 @@ export default function ExerciseScreen() {
       if (!isMounted || !context) return;
       const draft = resolveSessionDraft(context, { sessionId, exerciseId, routineExerciseId });
       if (
-        draft &&
-        operationRef.current === 'idle' &&
-        hydrationGeneration === draftMutationGenerationRef.current
+        !draft ||
+        operationRef.current !== 'idle' ||
+        hydrationGeneration !== draftMutationGenerationRef.current
       ) {
+        return;
+      }
+
+      // Reconcile with SQLite (Contract C3)
+      let isOperationCommitted = false;
+      if (draft.operationId) {
+        try {
+          const matchInLoaded = sessionSetsRef.current?.some(s => s.operationId === draft.operationId);
+          if (matchInLoaded) {
+            isOperationCommitted = true;
+          } else {
+            const { findSetByOperationId } = await import('../../hooks/use-exercise-sets');
+            if (typeof findSetByOperationId === 'function') {
+              const existingSet = await findSetByOperationId(draft.operationId);
+              if (existingSet && existingSet.sessionId === sessionId) {
+                isOperationCommitted = true;
+              }
+            }
+          }
+        } catch (error) {
+          logger.error('Failed to check operationId in DB during recovery', error);
+        }
+      }
+
+      if (!isMounted || hydrationGeneration !== draftMutationGenerationRef.current) return;
+
+      const verdict = classifyRecoveredDraft(draft, isOperationCommitted);
+
+      if (verdict.kind === 'committed') {
+        // Crash after insert before clear reconciled: set is already in DB
+        operationIdRef.current = null;
+        recoveredPendingRef.current = { isRecovered: false, reason: 'real_pending' };
+        try {
+          await saveSessionContext(
+            {
+              reps: '',
+              duration: '',
+              isDirty: false,
+              activeSetTime: 0,
+              isActiveSetRunning: false,
+              activeSetStartedAt: null,
+              operationId: null,
+            },
+            { clearOnFailure: true },
+          );
+        } catch (clearErr) {
+          logger.error('Failed to clear committed draft context', clearErr);
+        }
+        return;
+      }
+
+      if (verdict.kind === 'real_pending' || verdict.kind === 'ambiguous_legacy') {
+        operationIdRef.current = draft.operationId ?? null;
+        recoveredPendingRef.current = {
+          isRecovered: true,
+          reason: verdict.kind,
+        };
         restoreDraft(draft);
       }
     })();
     return () => {
       isMounted = false;
     };
-  }, [sessionId, exerciseId, routineExerciseId, loadSessionContext, restoreDraft]);
+  }, [sessionId, exerciseId, routineExerciseId, loadSessionContext, restoreDraft, saveSessionContext]);
 
   const navigation = useNavigation();
 
@@ -277,79 +366,11 @@ export default function ExerciseScreen() {
     return unsubscribe;
   }, [navigation, isDirty, activeSetTime, isActiveSetRunning, saveSessionContext, setToast, t]);
 
-  const saveSetAndClearDraft = useCallback(async (
-    overrideDuration?: number,
-    owner: 'user' | 'advance' = 'user',
-  ): Promise<boolean> => {
-    const expectedOperation = owner === 'advance' ? 'advance-navigation' : 'idle';
-    if (operationRef.current !== expectedOperation) return false;
-    if (owner === 'user') operationRef.current = 'set-finalization';
-    markDraftMutation();
-
-    try {
-      const saved = await handleSaveSet(overrideDuration);
-      if (!saved) return false;
-
-      Keyboard.dismiss();
-
-      try {
-        await saveSessionContext(
-          {
-            reps: '',
-            duration: '',
-            isDirty: false,
-            activeSetTime: 0,
-            isActiveSetRunning: false,
-            activeSetStartedAt: null,
-          },
-          { clearOnFailure: true },
-        );
-        hasPersistenceFailureRef.current = false;
-        return true;
-      } catch (error) {
-        hasPersistenceFailureRef.current = true;
-        logger.error('Failed to finalize persisted session draft', error);
-        setToast({
-          visible: true,
-          message: t('common.operationError'),
-          type: 'error',
-        });
-        return false;
-      }
-    } finally {
-      if (owner === 'user' && operationRef.current === 'set-finalization') {
-        operationRef.current = 'idle';
-      }
-    }
-  }, [handleSaveSet, markDraftMutation, saveSessionContext, setToast, t]);
-
-  const goToNextOrFinish = useCallback(async () => {
-    if (
-      operationRef.current !== 'idle' ||
-      isSaving ||
-      isActiveSetRunning
-    ) return;
-
+  const executeAdvanceNavigation = useCallback(async () => {
     operationRef.current = 'advance-navigation';
     let navigationStarted = false;
 
     try {
-      const needsSave = shouldSavePendingSet({
-        isDirty,
-        exerciseType,
-        activeSetTime,
-        isActiveSetRunning,
-      });
-      if (!needsSave) markDraftMutation();
-      const saveSucceeded = needsSave
-        ? await saveSetAndClearDraft(
-          exerciseType === 'duration' ? activeSetTime : undefined,
-          'advance',
-        )
-        : true;
-
-      if (!canNavigateAfterPendingSave(needsSave, saveSucceeded)) return;
-
       if (nextExercise) {
         await saveSessionContext({
           exerciseId: nextExercise.id,
@@ -368,6 +389,7 @@ export default function ExerciseScreen() {
           activeSetTime: 0,
           isActiveSetRunning: false,
           activeSetStartedAt: null,
+          operationId: null,
         });
       } else {
         // Clear incomplete session when navigating to finish
@@ -411,22 +433,189 @@ export default function ExerciseScreen() {
         operationRef.current = 'idle';
       }
     }
+  }, [clearSessionContext, nextExercise, routineId, router, saveSessionContext, sessionId, setToast, startTime, t]);
+
+  const saveSetAndClearDraft = useCallback(async (
+    overrideDuration?: number,
+    owner: 'user' | 'advance' = 'user',
+  ): Promise<boolean> => {
+    const expectedOperation = owner === 'advance' ? 'advance-navigation' : 'idle';
+    if (operationRef.current !== expectedOperation) return false;
+    if (owner === 'user') operationRef.current = 'set-finalization';
+    markDraftMutation();
+
+    try {
+      const opId = operationIdRef.current || createOperationId();
+      operationIdRef.current = opId;
+
+      // Persist operation ID before calling save (Contract C3)
+      try {
+        const raw = await AsyncStorage.getItem('incomplete_session');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          parsed.operationId = opId;
+          await AsyncStorage.setItem('incomplete_session', JSON.stringify(parsed));
+        }
+      } catch (persistErr) {
+        logger.error('Failed to persist operation ID before save', persistErr);
+      }
+
+      const saved = await handleSaveSet(overrideDuration, opId);
+      if (!saved) return false;
+
+      recoveredPendingRef.current = { isRecovered: false, reason: 'real_pending' };
+      Keyboard.dismiss();
+
+      try {
+        await saveSessionContext(
+          {
+            reps: '',
+            duration: '',
+            isDirty: false,
+            activeSetTime: 0,
+            isActiveSetRunning: false,
+            activeSetStartedAt: null,
+            operationId: null,
+          },
+          { clearOnFailure: true },
+        );
+        operationIdRef.current = null;
+        hasPersistenceFailureRef.current = false;
+        return true;
+      } catch (error) {
+        hasPersistenceFailureRef.current = true;
+        logger.error('Failed to finalize persisted session draft', error);
+        setToast({
+          visible: true,
+          message: t('common.operationError'),
+          type: 'error',
+        });
+        return false;
+      }
+    } finally {
+      if (owner === 'user' && operationRef.current === 'set-finalization') {
+        operationRef.current = 'idle';
+      }
+    }
+  }, [handleSaveSet, markDraftMutation, saveSessionContext, setToast, t]);
+
+  const handleContinueEditing = useCallback(() => {
+    setRecoveredDecision(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const handleDiscardRecoveredDraftAndAdvance = useCallback(async () => {
+    setRecoveredDecision(prev => ({ ...prev, visible: false }));
+    recoveredPendingRef.current = { isRecovered: false, reason: 'real_pending' };
+    setIsDirty(false);
+    setReps('');
+    setDuration('');
+    operationIdRef.current = null;
+    markDraftMutation();
+
+    try {
+      await saveSessionContext(
+        {
+          reps: '',
+          duration: '',
+          isDirty: false,
+          activeSetTime: 0,
+          isActiveSetRunning: false,
+          activeSetStartedAt: null,
+          operationId: null,
+        },
+        { clearOnFailure: true },
+      );
+    } catch (err) {
+      logger.error('Failed to clear discarded draft in persistence', err);
+    }
+
+    await executeAdvanceNavigation();
+  }, [executeAdvanceNavigation, markDraftMutation, saveSessionContext, setDuration, setIsDirty, setReps]);
+
+  const handleSaveRecoveredDraftAndAdvance = useCallback(async () => {
+    setRecoveredDecision(prev => ({ ...prev, visible: false }));
+    operationRef.current = 'advance-navigation';
+    try {
+      const saveSucceeded = await saveSetAndClearDraft(
+        exerciseType === 'duration' ? activeSetTime : undefined,
+        'advance',
+      );
+      if (!saveSucceeded) return;
+      await executeAdvanceNavigation();
+    } finally {
+      if (operationRef.current === 'advance-navigation') {
+        operationRef.current = 'idle';
+      }
+    }
+  }, [activeSetTime, executeAdvanceNavigation, exerciseType, saveSetAndClearDraft]);
+
+  const goToNextOrFinish = useCallback(async () => {
+    if (
+      operationRef.current !== 'idle' ||
+      isSaving ||
+      isActiveSetRunning
+    ) return;
+
+    const needsSave = shouldSavePendingSet({
+      isDirty,
+      exerciseType,
+      activeSetTime,
+      isActiveSetRunning,
+    });
+
+    const navAction = resolveNavigationAction({
+      hasPendingSet: needsSave,
+      isRecoveredPending: recoveredPendingRef.current.isRecovered,
+      recoveredKind: recoveredPendingRef.current.reason,
+    });
+
+    if (navAction.type === 'prompt_recovery_decision') {
+      setRecoveredDecision({
+        visible: true,
+        reason: navAction.reason,
+      });
+      return;
+    }
+
+    operationRef.current = 'advance-navigation';
+    let navigationStarted = false;
+
+    try {
+      if (!needsSave) markDraftMutation();
+      const saveSucceeded = needsSave
+        ? await saveSetAndClearDraft(
+          exerciseType === 'duration' ? activeSetTime : undefined,
+          'advance',
+        )
+        : true;
+
+      if (!canNavigateAfterPendingSave(needsSave, saveSucceeded)) return;
+
+      await executeAdvanceNavigation();
+      navigationStarted = true;
+    } catch (error) {
+      hasPersistenceFailureRef.current = true;
+      logger.error('Failed to persist session navigation', error);
+      setToast({
+        visible: true,
+        message: t('common.operationError'),
+        type: 'error',
+      });
+    } finally {
+      if (!navigationStarted && operationRef.current === 'advance-navigation') {
+        operationRef.current = 'idle';
+      }
+    }
   }, [
     activeSetTime,
-    clearSessionContext,
+    executeAdvanceNavigation,
     exerciseType,
     isActiveSetRunning,
     isDirty,
     isSaving,
     markDraftMutation,
-    nextExercise,
-    routineId,
-    router,
-    saveSessionContext,
     saveSetAndClearDraft,
-    sessionId,
     setToast,
-    startTime,
     t,
   ]);
 
@@ -546,6 +735,27 @@ export default function ExerciseScreen() {
           handleDeleteSet={guardedHandleDeleteSet}
         />
 
+        {/* Recovered pending draft banner */}
+        {recoveredPendingRef.current.isRecovered && isDirty && (
+          <View
+            className="mx-4 mt-2 bg-primarySurface p-3 rounded-xl border border-primaryText/20 flex-row items-center justify-between"
+            testID="recovered-draft-banner"
+          >
+            <View className="flex-1 mr-2">
+              <Text className="text-primaryText text-xs font-bold">
+                {t('exercise.recoveredDraftNotice') !== 'exercise.recoveredDraftNotice'
+                  ? t('exercise.recoveredDraftNotice')
+                  : 'Série recuperada pendente'}
+              </Text>
+              <Text className="text-subtext text-2xs mt-0.5">
+                {t('exercise.recoveredDraftNoticeHint') !== 'exercise.recoveredDraftNoticeHint'
+                  ? t('exercise.recoveredDraftNoticeHint')
+                  : 'Salve a série ou descarte antes de avançar.'}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Input Area */}
         <View
           className="bg-card p-3 rounded-t-3xl border-t border-border shadow-lg"
@@ -557,6 +767,7 @@ export default function ExerciseScreen() {
             accessibilityLabel={t('a11y.warmupSwitch')}
             onValueChange={(nextValue) => {
               if (!beginDraftMutation()) return;
+              ensureOperationId();
               setIsWarmupMode(nextValue);
               setIsDirty(true);
             }}
@@ -581,6 +792,7 @@ export default function ExerciseScreen() {
                     value={weight}
                     onChangeText={(value) => {
                       if (!beginDraftMutation()) return;
+                      ensureOperationId();
                       setWeight(value);
                       setIsDirty(true);
                     }}
@@ -594,6 +806,7 @@ export default function ExerciseScreen() {
               <TouchableOpacity
                 onPress={() => {
                   if (!beginDraftMutation()) return;
+                  ensureOperationId();
                   setIsDirty(true);
                   toggleActiveSet();
                 }}
@@ -637,6 +850,7 @@ export default function ExerciseScreen() {
                     value={weight}
                     onChangeText={(value) => {
                       if (!beginDraftMutation()) return;
+                      ensureOperationId();
                       setWeight(value);
                       setIsDirty(true);
                     }}
@@ -654,6 +868,7 @@ export default function ExerciseScreen() {
                     value={reps}
                     onChangeText={(value) => {
                       if (!beginDraftMutation()) return;
+                      ensureOperationId();
                       setReps(value);
                       setIsDirty(true);
                     }}
@@ -697,6 +912,7 @@ export default function ExerciseScreen() {
                   value={rir}
                   onValueChange={(value) => {
                     if (!beginDraftMutation()) return;
+                    ensureOperationId();
                     setRir(value);
                     setIsDirty(true);
                     trigger('light');
@@ -796,6 +1012,102 @@ export default function ExerciseScreen() {
           onClose={() => setShowRirExplainer(false)}
           t={t}
         />
+
+        {/* Recovery Decision Modal (Contract C3) */}
+        <SafeModal
+          visible={recoveredDecision.visible}
+          animationType="fade"
+          transparent
+          onRequestClose={handleContinueEditing}
+          accessibilityViewIsModal
+          testID="recovery-decision-dialog"
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            className="flex-1 justify-center items-center bg-black/60 p-6"
+            onPress={handleContinueEditing}
+            accessible={false}
+            accessibilityRole="none"
+          >
+            <TouchableOpacity
+              activeOpacity={1}
+              className="bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl border border-border"
+              onPress={(e) => e.stopPropagation()}
+              accessible={false}
+              accessibilityRole="none"
+            >
+              <Text
+                className="text-text text-xl font-bold mb-3"
+                accessibilityRole="header"
+              >
+                {recoveredDecision.reason === 'ambiguous_legacy'
+                  ? (t('exercise.recoveredAmbiguousTitle') !== 'exercise.recoveredAmbiguousTitle'
+                      ? t('exercise.recoveredAmbiguousTitle')
+                      : 'Série recuperada não confirmada')
+                  : (t('exercise.recoveredDraftTitle') !== 'exercise.recoveredDraftTitle'
+                      ? t('exercise.recoveredDraftTitle')
+                      : 'Série não salva recuperada')}
+              </Text>
+
+              <Text className="text-subtext text-sm mb-6 leading-5">
+                {recoveredDecision.reason === 'ambiguous_legacy'
+                  ? (t('exercise.recoveredAmbiguousMessage') !== 'exercise.recoveredAmbiguousMessage'
+                      ? t('exercise.recoveredAmbiguousMessage')
+                      : 'Encontramos dados de uma série anterior sem confirmação. Deseja salvar esta série antes de avançar, continuar editando ou descartá-la?')
+                  : (t('exercise.recoveredDraftMessage') !== 'exercise.recoveredDraftMessage'
+                      ? t('exercise.recoveredDraftMessage')
+                      : 'Existe uma série pendente recuperada deste exercício. Deseja salvar antes de avançar, continuar editando ou descartar?')}
+              </Text>
+
+              <View className="gap-3">
+                <View testID="recovery-btn-save">
+                  <Button
+                    title={t('exercise.saveAndAdvance') !== 'exercise.saveAndAdvance'
+                      ? t('exercise.saveAndAdvance')
+                      : 'Salvar e avançar'}
+                    variant="primary"
+                    size="md"
+                    fullWidth
+                    onPress={handleSaveRecoveredDraftAndAdvance}
+                    accessibilityLabel={t('exercise.saveAndAdvance') !== 'exercise.saveAndAdvance'
+                      ? t('exercise.saveAndAdvance')
+                      : 'Salvar e avançar'}
+                  />
+                </View>
+
+                <View testID="recovery-btn-continue">
+                  <Button
+                    title={t('exercise.continueEditing') !== 'exercise.continueEditing'
+                      ? t('exercise.continueEditing')
+                      : 'Continuar'}
+                    variant="secondary"
+                    size="md"
+                    fullWidth
+                    onPress={handleContinueEditing}
+                    accessibilityLabel={t('exercise.continueEditing') !== 'exercise.continueEditing'
+                      ? t('exercise.continueEditing')
+                      : 'Continuar'}
+                  />
+                </View>
+
+                <View testID="recovery-btn-discard">
+                  <Button
+                    title={t('exercise.discardDraft') !== 'exercise.discardDraft'
+                      ? t('exercise.discardDraft')
+                      : (t('finish.discardButton') !== 'finish.discardButton' ? t('finish.discardButton') : 'Descartar')}
+                    variant="danger"
+                    size="md"
+                    fullWidth
+                    onPress={handleDiscardRecoveredDraftAndAdvance}
+                    accessibilityLabel={t('exercise.discardDraft') !== 'exercise.discardDraft'
+                      ? t('exercise.discardDraft')
+                      : 'Descartar'}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </SafeModal>
       </View>
     </KeyboardAvoidingView>
   );

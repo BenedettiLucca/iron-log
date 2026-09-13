@@ -8,10 +8,11 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets, personalRecords, routineExercises } from '../../src/db/schema';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
+import { SessionLifecycleService } from '@/services/SessionLifecycleService';
+import { parseLocalizedDecimal } from '@/src/utils/localized-decimal';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
@@ -24,7 +25,6 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
-import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
@@ -188,7 +188,8 @@ export default function FinishSessionScreen() {
 
   const adjustWeight = useCallback((delta: number) => {
     setWeight((prev) => {
-      const current = parseFloat(prev) || 0;
+      const parsed = parseLocalizedDecimal(prev, { allowNegative: false });
+      const current = parsed.status === 'valid' ? parsed.value : (parseFloat(prev) || 0);
       return Math.max(0, current + delta).toString();
     });
   }, []);
@@ -210,14 +211,7 @@ export default function FinishSessionScreen() {
     setShowDiscardDialog(false);
     setIsFinishing(true);
     try {
-      // Soft-delete: also soft-delete any sets belonging to this session
-      await db.update(sets)
-        .set({ deletedAt: Date.now() })
-        .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
-      await db.update(sessions)
-        .set({ deletedAt: Date.now() })
-        .where(eq(sessions.id, Number(sessionId)));
-      await AsyncStorage.removeItem('incomplete_session');
+      await SessionLifecycleService.discardSession({ sessionId: Number(sessionId) });
       router.replace('/(tabs)');
     } catch (e) {
       logger.error(t('finish.finishError'), e);
@@ -233,32 +227,13 @@ export default function FinishSessionScreen() {
     setShowConfirmDialog(false);
 
     try {
-      const endTimestamp = Date.now();
-      const startTimestamp = Number(startTime);
-      const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
-
-      // 1. Atualizar Sessão
-      await db.update(sessions)
-        .set({
-          endTime: endTimestamp,
-          durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
-          bodyWeight: weight ? Number(weight) : null,
-          sRpe: (() => { const r = rpeSchema.safeParse(sRpe); return r.success ? r.data : 7; })(),
-          notes: notes
-        })
-        .where(eq(sessions.id, Number(sessionId)));
-
-      // 2. Salvar Peso na Bio (Sincronização)
-      if (weight) {
-        await db.insert(bodyMetrics).values({
-          date: endTimestamp,
-          type: 'daily',
-          weight: Number(weight)
-        });
-      }
-
-      // 3. Clear incomplete session marker
-      await AsyncStorage.removeItem('incomplete_session');
+      await SessionLifecycleService.finishSession({
+        sessionId: Number(sessionId),
+        startTime: Number(startTime),
+        weight,
+        sRpe,
+        notes,
+      });
 
       // Navegar para o resumo
       router.replace({
@@ -276,7 +251,9 @@ export default function FinishSessionScreen() {
 
   const getWeightDiff = useCallback(() => {
     if (!previousWeight || !weight) return null;
-    const current = parseFloat(weight);
+    const parsed = parseLocalizedDecimal(weight, { allowNegative: false });
+    if (parsed.status !== 'valid') return null;
+    const current = parsed.value;
     const diff = current - previousWeight;
     if (Math.abs(diff) < 0.1) return null;
     return diff;
@@ -364,7 +341,7 @@ export default function FinishSessionScreen() {
           <View className="flex-row items-center gap-3">
             <TextInput
               className="flex-1 bg-background text-text text-4xl font-bold py-4 px-5 rounded-xl border border-border text-center"
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               placeholder="82.5"
               placeholderTextColor={Colors.darkSubtext}
               value={weight}
