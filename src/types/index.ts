@@ -23,7 +23,9 @@ export type SupplementFrequency = 'daily' | 'training_days' | 'rest_days';
 // ---------------------------------------------------------------------------
 
 export type Session = typeof sessions.$inferSelect;
-export type Set = typeof sets.$inferSelect;
+export type Set = Omit<typeof sets.$inferSelect, 'operationId'> & {
+  operationId?: string | null;
+};
 export type Exercise = typeof exercises.$inferSelect;
 export type Routine = typeof routines.$inferSelect;
 export type Folder = typeof folders.$inferSelect;
@@ -126,4 +128,33 @@ export interface ProgramDashboardData {
   avgSRPE: number | null;
   keyLifts: KeyLift[];
   weekCompletionMap: Map<number, WeekCompletionStatus>;
+}
+
+// ---------------------------------------------------------------------------
+// Set Mutation & Idempotency Types (Contract C3)
+// ---------------------------------------------------------------------------
+
+export interface SaveSetInput {
+  sessionId: number;
+  exerciseId: number;
+  routineExerciseId?: number | null;
+  routineId?: number | null;
+  exerciseName?: string | null;
+  weightKg: number;
+  reps: number;
+  durationSeconds?: number | null;
+  rir?: number | null;
+  isWarmup?: boolean;
+  operationId?: string | null;
+  createdAt?: number;
+}
+
+export interface SaveSetResult {
+  set: Set;
+  isDuplicate: boolean;
+}
+
+export interface SaveSetOptions {
+  operationId?: string | null;
+  overrideDuration?: number;
 }

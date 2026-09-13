@@ -165,19 +165,34 @@ export default function HomeScreen() {
   const handleResumeSession = () => {
     if (!incompleteSession) return;
 
-    router.push({
-      pathname: '/session/exercise',
-      params: {
-        sessionId: incompleteSession.sessionId,
-        routineId: incompleteSession.routineId?.toString(),
-        exerciseId: incompleteSession.exerciseId,
-        exerciseName: incompleteSession.exerciseName,
-        target: incompleteSession.target,
-        notes: incompleteSession.notes,
-        routineExerciseId: incompleteSession.routineExerciseId,
-        restSeconds: incompleteSession.restSeconds?.toString(),
-      }
-    });
+    if (incompleteSession.routineId) {
+      router.push({
+        pathname: '/session/[routineId]',
+        params: {
+          routineId: incompleteSession.routineId.toString(),
+          routineName: incompleteSession.routineName || '',
+          sessionId: (incompleteSession.sessionId ?? incompleteSession.id).toString(),
+          startTime: (incompleteSession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
+
+    if (incompleteSession.exerciseId) {
+      router.push({
+        pathname: '/session/exercise',
+        params: {
+          sessionId: incompleteSession.sessionId ?? incompleteSession.id,
+          routineId: incompleteSession.routineId?.toString(),
+          exerciseId: incompleteSession.exerciseId,
+          exerciseName: incompleteSession.exerciseName,
+          target: incompleteSession.target,
+          notes: incompleteSession.notes,
+          routineExerciseId: incompleteSession.routineExerciseId,
+          restSeconds: incompleteSession.restSeconds?.toString(),
+          startTime: (incompleteSession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
   };
 
   return (

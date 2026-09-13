@@ -69,8 +69,10 @@ export const sets = sqliteTable('sets', {
   createdAt: integer('created_at').$defaultFn(() => Date.now()),
   deletedAt: integer('deleted_at'), // Epoch, null = active
   routineExerciseId: integer('routine_exercise_id').references(() => routineExercises.id, { onDelete: 'set null' }),
+  operationId: text('operation_id'),
 }, (t) => [
   index("sets_routine_exercise_id_idx").on(t.routineExerciseId),
+  uniqueIndex("sets_operation_id_unique").on(t.operationId),
 ]);
 
 // TABELA: Métricas Corporais e Fotos

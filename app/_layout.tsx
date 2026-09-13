@@ -1,39 +1,44 @@
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  LogBox,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
 import * as Sentry from '@sentry/react-native';
-import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { and, eq, isNull } from 'drizzle-orm';
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { Stack, useRouter } from 'expo-router';
-import { LogBox } from 'react-native';
+
+import { Colors } from '@/constants/colors';
+import { useThemeColors } from '@/hooks/use-theme-colors';
+import { notificationService } from '@/services/NotificationService';
+import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
+import { logger } from '@/services/logger';
+import { SessionContext } from '@/src/types';
+import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import migrations from '../drizzle/migrations';
+import { db } from '../src/db/client';
+import { sessions } from '../src/db/schema';
+import { I18nProvider, getNestedValue, useI18n } from '../src/i18n/index';
+import { pt as ptTranslations } from '../src/i18n/translations/pt';
+import '../global.css';
+
+// Initialize Sentry as early as possible
+initCrashReporting();
 
 // TODO(#112): remove once the project leaves Expo Go for SDK 57 (or a dev build).
 // The expo-notifications module auto-registers Android push tokens on load, which
 // trips warnOfExpoGoPushUsage in Expo Go (SDK 53+) even though we only use LOCAL
 // notifications (channel + schedule), which remain supported. Dev-only noise.
 LogBox.ignoreLogs(['Android Push notifications (remote notifications) functionality provided by expo-notifications was removed']);
-
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { db } from '../src/db/client';
-import migrations from '../drizzle/migrations';
-import { View, Text, ActivityIndicator, Modal, TouchableOpacity, useColorScheme } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import '../global.css';
-import { useEffect, useState } from 'react';
-import { notificationService } from '@/services/NotificationService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { and, eq, isNull } from 'drizzle-orm';
-import { sessions } from '../src/db/schema';
-
-// Configure Reanimated to reduce strict warnings for animations during render
-import { configureReanimatedLogger } from 'react-native-reanimated';
-import { logger } from '@/services/logger';
-import { SessionContext } from '@/src/types';
-import { ErrorBoundary } from '../components/ErrorBoundary';
-import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
-import { pt as ptTranslations } from '../src/i18n/translations/pt';
-import { Colors } from '@/constants/colors';
-import { useThemeColors } from '@/hooks/use-theme-colors';
-import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
-
-// Initialize Sentry as early as possible
-initCrashReporting();
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
@@ -228,7 +233,12 @@ function Layout() {
         }
 
         // Session is valid, show recovery dialog
-        setRecoverySession(sessionContext);
+        setRecoverySession({
+          ...sessionContext,
+          routineName: sessionContext.routineName || sessionData[0].routineName || '',
+          routineId: sessionContext.routineId ?? sessionData[0].routineId ?? null,
+          startTime: sessionContext.startTime ?? sessionData[0].startTime,
+        });
         setShowRecoveryDialog(true);
       } catch (e) {
         logger.error('Error checking incomplete session', e);
@@ -246,20 +256,34 @@ function Layout() {
     if (!recoverySession) return;
     setShowRecoveryDialog(false);
 
-    router.replace({
-      pathname: '/session/exercise',
-      params: {
-        sessionId: recoverySession.sessionId,
-        routineId: recoverySession.routineId?.toString(),
-        exerciseId: recoverySession.exerciseId,
-        exerciseName: recoverySession.exerciseName,
-        target: recoverySession.target,
-        notes: recoverySession.notes,
-        restSeconds: recoverySession.restSeconds?.toString(),
-        startTime: (recoverySession.startTime ?? Date.now()).toString(),
-        routineExerciseId: recoverySession.routineExerciseId,
-      }
-    });
+    if (recoverySession.routineId) {
+      router.push({
+        pathname: '/session/[routineId]',
+        params: {
+          routineId: recoverySession.routineId.toString(),
+          routineName: recoverySession.routineName || '',
+          sessionId: recoverySession.sessionId.toString(),
+          startTime: (recoverySession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
+
+    if (recoverySession.exerciseId) {
+      router.push({
+        pathname: '/session/exercise',
+        params: {
+          sessionId: recoverySession.sessionId,
+          routineId: recoverySession.routineId?.toString(),
+          exerciseId: recoverySession.exerciseId,
+          exerciseName: recoverySession.exerciseName,
+          target: recoverySession.target,
+          notes: recoverySession.notes,
+          restSeconds: recoverySession.restSeconds?.toString(),
+          startTime: (recoverySession.startTime ?? Date.now()).toString(),
+          routineExerciseId: recoverySession.routineExerciseId,
+        },
+      });
+    }
   };
 
   const handleSaveWorkout = async () => {

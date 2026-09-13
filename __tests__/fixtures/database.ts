@@ -101,6 +101,7 @@ CREATE TABLE sets (
 \tcreated_at integer,
 \tdeleted_at integer,
 \troutine_exercise_id integer,
+\toperation_id text,
 \tFOREIGN KEY (routine_exercise_id) REFERENCES routine_exercises(id) ON UPDATE no action ON DELETE set null,
 \tFOREIGN KEY (session_id) REFERENCES sessions(id) ON UPDATE no action ON DELETE no action,
 \tFOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE no action
@@ -183,6 +184,7 @@ CREATE INDEX pr_exercise_type_idx ON personal_records (exercise_id, record_type)
 CREATE INDEX re_routine_id_idx ON routine_exercises (routine_id);
 CREATE INDEX re_exercise_id_idx ON routine_exercises (exercise_id);
 CREATE INDEX sets_routine_exercise_id_idx ON sets (routine_exercise_id);
+CREATE UNIQUE INDEX sets_operation_id_unique ON sets (operation_id);
 CREATE INDEX sessions_routine_id_idx ON sessions (routine_id);
 CREATE INDEX programs_active_idx ON programs (is_active);
 CREATE INDEX pw_program_id_idx ON program_weeks (program_id);
