@@ -109,10 +109,24 @@ export async function updateProgram(id: number, data: Partial<Program>): Promise
  */
 export async function deleteProgram(id: number): Promise<boolean> {
   try {
-    await db.delete(programExerciseTargets).where(eq(programExerciseTargets.programId, id));
-    await db.delete(programWeeks).where(eq(programWeeks.programId, id));
-    await db.delete(programs).where(eq(programs.id, id));
-    return true;
+    let deleted = false;
+    db.transaction((tx: any) => {
+      const target = tx
+        .select()
+        .from(programs)
+        .where(eq(programs.id, id))
+        .get();
+
+      if (!target) {
+        return;
+      }
+
+      tx.delete(programExerciseTargets).where(eq(programExerciseTargets.programId, id)).run();
+      tx.delete(programWeeks).where(eq(programWeeks.programId, id)).run();
+      tx.delete(programs).where(eq(programs.id, id)).run();
+      deleted = true;
+    });
+    return deleted;
   } catch (e) {
     logger.error('Failed to delete program', e);
     return false;
@@ -124,8 +138,22 @@ export async function deleteProgram(id: number): Promise<boolean> {
  */
 export async function archiveProgram(id: number): Promise<boolean> {
   try {
-    await db.update(programs).set({ isActive: false }).where(eq(programs.isActive, true));
-    return true;
+    let archived = false;
+    db.transaction((tx: any) => {
+      const target = tx
+        .select()
+        .from(programs)
+        .where(eq(programs.id, id))
+        .get();
+
+      if (!target) {
+        return;
+      }
+
+      tx.update(programs).set({ isActive: false }).where(eq(programs.id, id)).run();
+      archived = true;
+    });
+    return archived;
   } catch (e) {
     logger.error('Failed to archive program', e);
     return false;
@@ -137,11 +165,23 @@ export async function archiveProgram(id: number): Promise<boolean> {
  */
 export async function activateProgram(id: number): Promise<boolean> {
   try {
-    db.transaction((tx) => {
+    let activated = false;
+    db.transaction((tx: any) => {
+      const target = tx
+        .select()
+        .from(programs)
+        .where(eq(programs.id, id))
+        .get();
+
+      if (!target) {
+        return;
+      }
+
       tx.update(programs).set({ isActive: false }).where(eq(programs.isActive, true)).run();
       tx.update(programs).set({ isActive: true }).where(eq(programs.id, id)).run();
+      activated = true;
     });
-    return true;
+    return activated;
   } catch (e) {
     logger.error('Failed to activate program', e);
     return false;

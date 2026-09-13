@@ -192,6 +192,59 @@ describe('AnalyticsService real production behavior', () => {
       sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
     });
 
+    it('returns zero streaks when there are no sessions', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        const consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.totalSessions).toBe(0);
+        expect(consistency.currentStreak).toBe(0);
+        expect(consistency.longestStreak).toBe(0);
+        expect(consistency.weeklyFrequency).toBe(0);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('computes streak of 1 for a single week with session', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        db.insert(sessions).values([
+          { id: 1, routineName: 'S1', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+        ]).run();
+
+        const consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(1);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('computes streaks for consecutive vs non-consecutive weeks', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + 3 * week);
+      try {
+        // Consecutive: week 0 and week 1
+        db.insert(sessions).values([
+          { id: 1, routineName: 'W0', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 2, routineName: 'W1', startTime: since + week + 1000, endTime: since + week + 1000 + 3600000 },
+        ]).run();
+
+        let consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(2);
+
+        // Non-consecutive: clear and add week 0 and week 2 (gap in week 1)
+        sqlite.exec('DELETE FROM sessions;');
+        db.insert(sessions).values([
+          { id: 10, routineName: 'W0', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 11, routineName: 'W2', startTime: since + 2 * week + 1000, endTime: since + 2 * week + 1000 + 3600000 },
+        ]).run();
+
+        consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(1);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
     it('computes consistency metrics from finished sessions only, ignoring open sessions', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(since + week);
       try {

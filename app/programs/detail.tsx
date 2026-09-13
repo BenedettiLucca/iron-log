@@ -32,6 +32,8 @@ export default function ProgramDetailScreen() {
     detailError,
     fetchProgramDetails,
     deleteProgram,
+    activateProgram,
+    archiveProgram,
     getCurrentWeek,
     getWeeksUntilDeload,
     getCurrentPhase,
@@ -74,6 +76,33 @@ export default function ProgramDetailScreen() {
   const currentWeek = getCurrentWeek();
   const weeksUntilDeload = getWeeksUntilDeload();
   const currentPhase = getCurrentPhase();
+
+  const handleActivate = async () => {
+    if (!program) return;
+    const success = await activateProgram?.(program.id);
+    if (success) {
+      setToast({ visible: true, message: t('programs.activateSuccess'), type: 'success' });
+    } else {
+      setToast({ visible: true, message: t('programs.activateError'), type: 'error' });
+    }
+  };
+
+  const handleArchive = () => {
+    if (!program) return;
+    setDialog({
+      visible: true,
+      title: t('programs.archiveConfirm'),
+      message: t('programs.archiveMessage'),
+      onConfirm: async () => {
+        const success = await archiveProgram?.(program.id);
+        if (success) {
+          setToast({ visible: true, message: t('programs.archiveSuccess'), type: 'success' });
+        } else {
+          setToast({ visible: true, message: t('programs.archiveError'), type: 'error' });
+        }
+      },
+    });
+  };
 
   const handleDelete = () => {
     if (!program) return;
@@ -312,6 +341,27 @@ export default function ProgramDetailScreen() {
                 {t('programs.noTargets')}
               </Text>
             </Card>
+          )}
+        </View>
+
+        {/* Program Actions */}
+        <View className="mt-4 gap-3">
+          {!program.isActive ? (
+            <Button
+              title={t('programs.activateProgram')}
+              onPress={handleActivate}
+              variant="primary"
+              size="md"
+              fullWidth
+            />
+          ) : (
+            <Button
+              title={t('programs.archiveConfirm')}
+              onPress={handleArchive}
+              variant="secondary"
+              size="md"
+              fullWidth
+            />
           )}
         </View>
 

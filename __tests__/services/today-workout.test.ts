@@ -1,5 +1,5 @@
 import { db, sqlite } from '../fixtures/database';
-import { programs, programWeeks, routines, bodyMetrics } from '@/src/db/schema';
+import { programs, programWeeks, routines } from '@/src/db/schema';
 import { TodayWorkoutService } from '@/services/TodayWorkoutService';
 
 jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
@@ -98,6 +98,30 @@ describe('TodayWorkoutService.getTodayWorkout()', () => {
       weekNumber: 2,
       routineId: null,
       phase: 'deload',
+    });
+
+    const result = await TodayWorkoutService.getTodayWorkout();
+    expect(result).toBeNull();
+  });
+
+  it('returns null when active program startDate is in the future (pre-start)', async () => {
+    const now = Date.now();
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+
+    const routine = await db.insert(routines).values({ name: 'Future Push' }).returning();
+    const program = await db.insert(programs).values({
+      name: 'Future Program',
+      startDate: now + msPerWeek,
+      endDate: now + 5 * msPerWeek,
+      weeksDuration: 4,
+      isActive: true,
+    }).returning();
+
+    await db.insert(programWeeks).values({
+      programId: program[0].id,
+      weekNumber: 1,
+      routineId: routine[0].id,
+      phase: 'accumulation',
     });
 
     const result = await TodayWorkoutService.getTodayWorkout();

@@ -2,6 +2,7 @@ import { db } from '@/src/db/client';
 import { programs, programWeeks, routines } from '@/src/db/schema';
 import { eq } from 'drizzle-orm';
 import { logger } from './logger';
+import { getCurrentWeek } from './program/dashboard';
 
 export interface TodayWorkout {
   routineId: number;
@@ -14,7 +15,7 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 
 /**
  * Resolve the workout scheduled for today based on the ACTIVE program (programs.isActive).
- * Returns null when there is no active program or the current week has no routine assigned (rest day).
+ * Returns null when there is no active program, program has not started yet, or the current week has no routine assigned (rest day).
  */
 async function getTodayWorkout(): Promise<TodayWorkout | null> {
   try {
@@ -28,9 +29,9 @@ async function getTodayWorkout(): Promise<TodayWorkout | null> {
 
     const program = programResult[0];
     const now = Date.now();
-    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-    const elapsed = now - program.startDate;
-    const currentWeek = Math.min(Math.floor(elapsed / msPerWeek) + 1, program.weeksDuration);
+    if (now < program.startDate) return null;
+
+    const currentWeek = getCurrentWeek(program);
 
     const weeksResult = await db
       .select()

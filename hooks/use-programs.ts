@@ -116,9 +116,8 @@ export function usePrograms() {
     if (success) {
       await fetchAllPrograms();
       if (activeProgram?.id === id) {
-        setActiveProgram(null);
-        setWeeks([]);
-        setTargets([]);
+        const updated = await ProgramService.getProgram(id);
+        setActiveProgram(updated);
       }
     }
     return success;
@@ -128,8 +127,14 @@ export function usePrograms() {
     const success = await ProgramService.activateProgram(id);
     if (success) {
       await fetchAllPrograms();
-      const program = await ProgramService.getProgram(id);
+      const [program, w, t] = await Promise.all([
+        ProgramService.getProgram(id),
+        ProgramService.getProgramWeeks(id),
+        ProgramService.getExerciseTargets(id),
+      ]);
       setActiveProgram(program);
+      setWeeks(w);
+      setTargets(t);
     }
     return success;
   }, [fetchAllPrograms]);

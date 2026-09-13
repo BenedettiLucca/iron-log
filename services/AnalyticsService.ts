@@ -1,6 +1,6 @@
 import { db } from '@/src/db/client';
 import { sessions, sets, personalRecords, exercises } from '@/src/db/schema';
-import { desc, asc, isNull, and, sql, gt, inArray, isNotNull, eq } from 'drizzle-orm';
+import { desc, asc, isNull, and, sql, gte, inArray, eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
 
@@ -209,7 +209,7 @@ export const AnalyticsService = {
         .where(and(
           isNull(sessions.deletedAt),
           sql`${sessions.endTime} IS NOT NULL`,
-          gt(sessions.startTime, since)
+          gte(sessions.startTime, since)
         ))
         .orderBy(desc(sessions.startTime));
 
@@ -314,16 +314,19 @@ export const AnalyticsService = {
       // Longest streak
       const sortedWeeks = Array.from(sessionWeeks).sort((a, b) => a - b);
       let longestStreak = 0;
-      let tempStreak = 1;
-      for (let i = 1; i < sortedWeeks.length; i++) {
-        if (sortedWeeks[i] - sortedWeeks[i - 1] === MS_PER_WEEK) {
-          tempStreak++;
-        } else {
-          longestStreak = Math.max(longestStreak, tempStreak);
-          tempStreak = 1;
+      if (sortedWeeks.length > 0) {
+        longestStreak = 1;
+        let tempStreak = 1;
+        for (let i = 1; i < sortedWeeks.length; i++) {
+          if (sortedWeeks[i] - sortedWeeks[i - 1] === MS_PER_WEEK) {
+            tempStreak++;
+          } else {
+            longestStreak = Math.max(longestStreak, tempStreak);
+            tempStreak = 1;
+          }
         }
+        longestStreak = Math.max(longestStreak, tempStreak);
       }
-      longestStreak = Math.max(longestStreak, tempStreak);
 
       // This week / month
       const weekStartMs = getWeekStart(now);
@@ -356,7 +359,11 @@ export const AnalyticsService = {
     try {
       const recentSessions = await db.select()
         .from(sessions)
-        .where(and(isNull(sessions.deletedAt), gt(sessions.startTime, since)))
+        .where(and(
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`,
+          gte(sessions.startTime, since)
+        ))
         .orderBy(asc(sessions.startTime));
 
       const sessionIds = recentSessions.map(s => s.id);
@@ -427,26 +434,44 @@ export const AnalyticsService = {
   async calculateTopExerciseProgressions(since: number): Promise<ExerciseProgression[]> {
     try {
       const PREV_SINCE = since - TWELVE_WEEKS_MS;
+      const effectiveTime = sql`COALESCE(${sets.createdAt}, ${sessions.startTime})`;
 
-      // Recent period
+      // Recent period: [since, ...)
       const recentSets = await db.select({
         exerciseId: sets.exerciseId,
-        exerciseName: sets.exerciseName,
+        exerciseName: sql<string>`COALESCE(${sets.exerciseName}, ${exercises.name})`,
         weightKg: sets.weightKg,
         createdAt: sets.createdAt,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, since), sql`NOT ${sets.isWarmup}`));
+        .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+        .leftJoin(exercises, eq(sets.exerciseId, exercises.id))
+        .where(and(
+          isNull(sets.deletedAt),
+          sql`NOT ${sets.isWarmup}`,
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`,
+          sql`${effectiveTime} >= ${since}`,
+        ));
 
-      // Previous period
+      // Previous period: [PREV_SINCE, since)
       const prevSets = await db.select({
         exerciseId: sets.exerciseId,
-        exerciseName: sets.exerciseName,
+        exerciseName: sql<string>`COALESCE(${sets.exerciseName}, ${exercises.name})`,
         weightKg: sets.weightKg,
         createdAt: sets.createdAt,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, PREV_SINCE), sql`${sets.createdAt} <= ${since}`, sql`NOT ${sets.isWarmup}`));
+        .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+        .leftJoin(exercises, eq(sets.exerciseId, exercises.id))
+        .where(and(
+          isNull(sets.deletedAt),
+          sql`NOT ${sets.isWarmup}`,
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`,
+          sql`${effectiveTime} >= ${PREV_SINCE}`,
+          sql`${effectiveTime} < ${since}`,
+        ));
 
       // Current max weight per exercise
       const currentMax = new Map<number, { name: string; maxWeight: number }>();
@@ -518,14 +543,22 @@ export const AnalyticsService = {
     try {
       const activeSets = await db.select({
         exerciseId: sets.exerciseId,
-        exerciseName: sets.exerciseName,
+        exerciseName: sql<string>`COALESCE(${sets.exerciseName}, ${exercises.name})`,
         weightKg: sets.weightKg,
         reps: sets.reps,
         sessionId: sets.sessionId,
         createdAt: sets.createdAt,
+        date: sql<number | null>`COALESCE(${sets.createdAt}, ${sessions.startTime})`,
       })
         .from(sets)
-        .where(and(isNull(sets.deletedAt), sql`NOT ${sets.isWarmup}`));
+        .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+        .leftJoin(exercises, eq(sets.exerciseId, exercises.id))
+        .where(and(
+          isNull(sets.deletedAt),
+          sql`NOT ${sets.isWarmup}`,
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`
+        ));
 
       return rankEstimated1RMSets(activeSets).slice(0, 10);
     } catch (e) {
@@ -536,8 +569,10 @@ export const AnalyticsService = {
 
   /**
    * Volume by muscle group
-   * Single-pass aggregation joining sets -> exercises, volume = weightKg * reps.
-   * Only live sets (isNull deletedAt, NOT isWarmup).
+   * Single-pass aggregation joining sets -> exercises -> sessions, volume = weightKg * reps.
+   * Only live sets (isNull deletedAt, NOT isWarmup) in completed, non-deleted sessions.
+   * Exercises with NULL or empty muscleGroup are categorized as 'outros'.
+   * Explicitly stored muscleGroup column prevails over exercise name.
    * Returns `{ [group]: volume }` sorted descending by volume.
    */
   async volumeByMuscleGroup(since?: number): Promise<Record<string, number>> {
@@ -545,23 +580,28 @@ export const AnalyticsService = {
       const conditions = [
         isNull(sets.deletedAt),
         sql`NOT ${sets.isWarmup}`,
-        isNotNull(exercises.muscleGroup),
+        isNull(sessions.deletedAt),
+        sql`${sessions.endTime} IS NOT NULL`,
       ];
 
       if (since !== undefined) {
-        conditions.push(gt(sql`COALESCE(${sets.createdAt}, ${sets.id})`, since));
+        conditions.push(sql`COALESCE(${sets.createdAt}, ${sessions.startTime}) >= ${since}`);
       }
+
+      const groupCol = sql<string>`COALESCE(NULLIF(TRIM(${exercises.muscleGroup}), ''), 'outros')`;
+      const volumeSum = sql<number>`SUM(${sets.weightKg} * ${sets.reps})`;
 
       const rows = await db
         .select({
-          muscleGroup: exercises.muscleGroup,
-          volume: sql<number>`SUM(${sets.weightKg} * ${sets.reps})`,
+          muscleGroup: groupCol,
+          volume: volumeSum,
         })
         .from(sets)
         .innerJoin(exercises, eq(sets.exerciseId, exercises.id))
+        .innerJoin(sessions, eq(sets.sessionId, sessions.id))
         .where(and(...conditions))
-        .groupBy(exercises.muscleGroup)
-        .orderBy(desc(sql`SUM(${sets.weightKg} * ${sets.reps})`), asc(exercises.muscleGroup));
+        .groupBy(groupCol)
+        .orderBy(desc(volumeSum), asc(groupCol));
 
       const result: Record<string, number> = {};
       for (const row of rows) {

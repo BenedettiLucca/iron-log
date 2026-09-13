@@ -22,6 +22,7 @@ export default function ProgramsListScreen() {
     isLoading,
     fetchAllPrograms,
     fetchActiveProgram,
+    activateProgram,
     getCurrentWeek,
     getWeeksUntilDeload,
     getCurrentPhase,
@@ -43,13 +44,23 @@ export default function ProgramsListScreen() {
     setRefreshing(false);
   }, [fetchAllPrograms, fetchActiveProgram]);
 
+  const handleActivate = useCallback(async (programId: number) => {
+    const success = await activateProgram(programId);
+    if (success) {
+      setToast({ visible: true, message: t('programs.activateSuccess'), type: 'success' });
+    } else {
+      setToast({ visible: true, message: t('programs.activateError'), type: 'error' });
+    }
+  }, [activateProgram, t, setToast]);
+
   const currentWeek = getCurrentWeek();
   const weeksUntilDeload = getWeeksUntilDeload();
   const currentPhase = getCurrentPhase();
   const activeGoalInfo = activeProgram?.goal ? getGoalBadge(activeProgram.goal, t) : null;
 
   const archivedPrograms = allPrograms.filter(p => !p.isActive);
-  const hasData = activeProgram || archivedPrograms.length > 0;
+  const hasActiveProgram = Boolean(activeProgram && activeProgram.isActive);
+  const hasData = hasActiveProgram || archivedPrograms.length > 0;
 
   if (!isLoading && !hasData) {
     return (
@@ -86,7 +97,7 @@ export default function ProgramsListScreen() {
         }
       >
         {/* Active Program Card */}
-        {activeProgram && (
+        {hasActiveProgram && activeProgram && (
           <View className="mb-2">
             <SectionHeader label={t('programs.active')} className="mb-2" />
             <Card
@@ -160,32 +171,48 @@ export default function ProgramsListScreen() {
             <SectionHeader label={t('programs.archived')} className="mb-2" />
             <View className="border-t border-border/50">
               {archivedPrograms.map((program, index) => (
-                <TouchableOpacity
+                <View
                   key={program.id}
-                  onPress={() => router.push(`/programs/detail?programId=${program.id}`)}
                   className={`py-3 flex-row justify-between items-center min-h-[44px] ${
                     index < archivedPrograms.length - 1 ? 'border-b border-border/50' : ''
                   }`}
-                  accessibilityRole="button"
-                  accessibilityLabel={program.name}
                 >
-                  <View className="flex-1 mr-3">
+                  <TouchableOpacity
+                    onPress={() => router.push(`/programs/detail?programId=${program.id}`)}
+                    className="flex-1 mr-3 min-h-[44px] justify-center"
+                    accessibilityRole="button"
+                    accessibilityLabel={program.name}
+                  >
                     <Text className="text-text font-bold text-base" numberOfLines={2}>
                       {program.name}
                     </Text>
                     <Text className="text-subtext text-xs mt-0.5">
-                      {program.weeksDuration} {t('programs.weeksLabel')} • {getGoalBadge(program.goal, t).label}
+                      {program.weeksDuration} {t('programs.weeksLabel')} • {getGoalBadge(program.goal, t).label} • {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))}
                     </Text>
+                  </TouchableOpacity>
+                  <View className="flex-row items-center gap-2">
+                    <TouchableOpacity
+                      onPress={() => handleActivate(program.id)}
+                      className="bg-primary/10 border border-primary/30 rounded-lg px-3 py-1.5 min-h-[44px] min-w-[44px] justify-center items-center"
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('programs.activate')}: ${program.name}`}
+                    >
+                      <Text className="text-primaryText text-xs font-semibold">
+                        {t('programs.activate')}
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => router.push(`/programs/detail?programId=${program.id}`)}
+                      className="min-h-[44px] min-w-[44px] justify-center items-center"
+                      accessibilityRole="button"
+                      accessibilityLabel={t('programs.detail')}
+                    >
+                      <Svg accessible={false} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <Polyline points="9 18 15 12 9 6" />
+                      </Svg>
+                    </TouchableOpacity>
                   </View>
-                  <View className="flex-row items-center gap-1.5">
-                    <Text className="text-subtext text-xs">
-                      {new Date(program.startDate).toLocaleDateString(getLocaleForLanguage(language))}
-                    </Text>
-                    <Svg accessible={false} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <Polyline points="9 18 15 12 9 6" />
-                    </Svg>
-                  </View>
-                </TouchableOpacity>
+                </View>
               ))}
             </View>
           </View>
