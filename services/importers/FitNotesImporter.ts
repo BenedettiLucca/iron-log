@@ -26,7 +26,7 @@ export function parseFitNotesCsv(csvContent: string): ParsedSessionGroup[] {
     const exerciseName = getField(row, 'Exercise', 'Exercise Name');
     const category = getField(row, 'Category') || 'Treino FitNotes';
 
-    if (!rawDate && !exerciseName) continue;
+    if (!rawDate) continue;
 
     const startTime = parseDateToTimestamp(rawDate);
     const sessionKey = `${startTime}`;
@@ -49,6 +49,11 @@ export function parseFitNotesCsv(csvContent: string): ParsedSessionGroup[] {
     // Detect if weight is in lbs or kgs
     let isLbs = false;
     let rawWeight = '';
+    const unitField = getField(row, 'weight unit', 'weight_unit', 'unit').toLowerCase().trim();
+    if (unitField === 'lbs' || unitField === 'lb') {
+      isLbs = true;
+    }
+
     for (const key of Object.keys(row)) {
       const lower = key.toLowerCase();
       if (lower.includes('weight (lbs)') || lower.includes('lbs')) {

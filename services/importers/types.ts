@@ -7,6 +7,7 @@ export interface ImportResult {
   setsImported: number;
   customExercisesCreated: number;
   skippedSessions: number;
+  collisionsDetected?: number;
   error?: string;
 }
 

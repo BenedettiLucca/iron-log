@@ -203,9 +203,41 @@ export default function SettingsScreen() {
     setLoading(true);
     try {
       const result = await TrackerImportService.importFromFile();
-      if (!result) {
+      if (!result || result.error === 'canceled') {
         return;
       }
+
+      if (!result.success) {
+        if (result.error === 'unsupportedFormat') {
+          setToast({
+            visible: true,
+            message: t('settings.import.unsupportedFormat'),
+            type: 'error',
+          });
+          return;
+        }
+
+        if (result.error === 'emptyFile') {
+          const emptyMsg =
+            t('settings.import.emptyFile') !== 'settings.import.emptyFile'
+              ? t('settings.import.emptyFile')
+              : t('settings.import.error');
+          setToast({
+            visible: true,
+            message: emptyMsg,
+            type: 'error',
+          });
+          return;
+        }
+
+        setToast({
+          visible: true,
+          message: t('settings.import.error'),
+          type: 'error',
+        });
+        return;
+      }
+
       if (result.sessionsCreated === 0 && result.setsImported === 0) {
         setToast({
           visible: true,
@@ -228,7 +260,7 @@ export default function SettingsScreen() {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       let localizedMsg = t('settings.import.error');
-      if (msg === 'UNSUPPORTED_FORMAT') {
+      if (msg === 'UNSUPPORTED_FORMAT' || msg === 'unsupportedFormat') {
         localizedMsg = t('settings.import.unsupportedFormat');
       } else if (msg?.startsWith('settings.import.')) {
         localizedMsg = t(msg);

@@ -1,6 +1,6 @@
 import { db as defaultDb } from '@/src/db/client';
 import { exercises, sessions, sets } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { ImportResult, ParsedSessionGroup, TrackerType } from './types';
 
 /**
@@ -9,9 +9,10 @@ import { ImportResult, ParsedSessionGroup, TrackerType } from './types';
  * Requirements:
  * 1. Synchronous SQLite transaction: db.transaction((tx) => { ... })
  *    (Expo SQLite synchronous transaction - no async/await inside tx callback).
- * 2. Idempotency: Checks existing sessions by startTime to avoid duplicate imports on retry/re-import.
+ * 2. Idempotency: Checks existing active sessions by startTime & routineName to avoid duplicate imports on retry/re-import.
  * 3. Never drops a row: Unrecognized exercises are dynamically created as custom exercises in the `exercises` table.
- * 4. Atomic: Batched in one transaction per file; rollbacks on any thrown error.
+ * 4. Collision reporting: Detects timestamp collisions with distinct sessions, reporting them instead of silently dropping valid workouts.
+ * 5. Atomic: Batched in one transaction per file; rollbacks on any thrown error.
  */
 export function executeImport(
   sessionGroups: ParsedSessionGroup[],
@@ -24,6 +25,7 @@ export function executeImport(
   let setsImported = 0;
   let customExercisesCreated = 0;
   let skippedSessions = 0;
+  let collisionsDetected = 0;
 
   db.transaction((tx: any) => {
     // 1. Build an in-memory lookup cache of existing exercises
@@ -39,16 +41,34 @@ export function executeImport(
 
     // 2. Iterate through each parsed session
     for (const sessionData of sessionGroups) {
-      // Check idempotency: does a session with this exact startTime already exist?
-      const existingSession = tx
-        .select({ id: sessions.id })
+      // Find all active sessions sharing this exact startTime (ignoring soft-deleted sessions)
+      const activeSessionsAtStartTime = tx
+        .select({ id: sessions.id, routineName: sessions.routineName })
         .from(sessions)
-        .where(eq(sessions.startTime, sessionData.startTime))
-        .get();
+        .where(
+          and(
+            eq(sessions.startTime, sessionData.startTime),
+            isNull(sessions.deletedAt)
+          )
+        )
+        .all();
 
-      if (existingSession) {
-        skippedSessions++;
-        continue;
+      if (activeSessionsAtStartTime.length > 0) {
+        // Check if an exact matching session already exists (same startTime and same routineName)
+        const targetRoutine = (sessionData.routineName || '').trim().toLowerCase();
+        const exactMatch = activeSessionsAtStartTime.some(
+          (s: { id: number; routineName: string | null }) =>
+            (s.routineName || '').trim().toLowerCase() === targetRoutine
+        );
+
+        if (exactMatch) {
+          skippedSessions++;
+          continue;
+        }
+
+        // Semantic collision: another session exists at this exact startTime with a different routine name.
+        // Report the collision instead of silently dropping the workout.
+        collisionsDetected++;
       }
 
       // Create new session
@@ -140,5 +160,6 @@ export function executeImport(
     setsImported,
     customExercisesCreated,
     skippedSessions,
+    collisionsDetected,
   };
 }

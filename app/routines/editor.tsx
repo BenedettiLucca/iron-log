@@ -46,7 +46,7 @@ import { setPendingToast } from '@/src/utils/flash-toast';
 import { filterExercisesByEquipmentAndSearch, getAvailableEquipments } from '@/src/utils/exercise-filter';
 import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
 
-type SelectedExercise = {
+export type SelectedExercise = {
   id: number;
   routineExerciseId?: number;
   name: string;
@@ -721,7 +721,7 @@ const getEquipmentLabel = (t: (key: string) => string, key: string): string => {
   return key;
 };
 
-function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
+export function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
   const { t } = useI18n();
   const [search, setSearch] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState<string>('all');
@@ -748,10 +748,10 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
   const filtered = useMemo(() => {
     return filterExercisesByEquipmentAndSearch(
       allExercises ?? [],
-      search,
-      selectedEquipment
+      selectedEquipment,
+      search
     );
-  }, [allExercises, search, selectedEquipment]);
+  }, [allExercises, selectedEquipment, search]);
 
   const createNewExercise = async () => {
     if (!search.trim()) return;
@@ -835,10 +835,11 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                         key={chip.key}
                         onPress={() => setSelectedEquipment(chip.key)}
                         activeOpacity={0.7}
-                        className={`rounded-full py-1.5 px-3.5 border min-h-[36px] items-center justify-center shrink-0 ${
+                        className={`rounded-full py-1.5 px-3.5 border min-h-[44px] items-center justify-center shrink-0 ${
                           isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
                         }`}
                         accessibilityRole="button"
+                        accessibilityLabel={chip.label}
                         accessibilityState={{ selected: isActive }}
                       >
                         <Text className={`text-xs font-semibold uppercase ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>

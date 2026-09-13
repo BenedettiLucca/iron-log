@@ -18,14 +18,15 @@ export type EquipmentKey =
   | 'other';
 
 /** Normalize for comparison: lowercase + strip common accents. */
-function normalize(text: string): string {
+export function normalize(text: string): string {
+  if (!text) return '';
   return text
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-interface ExerciseLike {
+export interface ExerciseLike {
   name?: string | null;
   equipment?: string | null;
 }
@@ -39,7 +40,8 @@ export function deriveEquipmentKey(exercise: ExerciseLike): EquipmentKey | null 
     exercise.equipment === 'peso_corporal' ||
     exercise.equipment === 'elastico' ||
     exercise.equipment === 'cabos' ||
-    exercise.equipment === 'kettlebell'
+    exercise.equipment === 'kettlebell' ||
+    exercise.equipment === 'other'
   ) {
     return exercise.equipment;
   }

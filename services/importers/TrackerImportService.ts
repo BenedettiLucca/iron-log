@@ -16,6 +16,17 @@ export const TrackerImportService = {
     preferredTracker?: TrackerType,
     database?: any
   ): ImportResult {
+    if (!csvContent || !csvContent.trim()) {
+      return {
+        success: false,
+        sessionsCreated: 0,
+        setsImported: 0,
+        customExercisesCreated: 0,
+        skippedSessions: 0,
+        error: 'emptyFile',
+      };
+    }
+
     const tracker = preferredTracker || detectTracker(csvContent);
 
     if (!tracker) {

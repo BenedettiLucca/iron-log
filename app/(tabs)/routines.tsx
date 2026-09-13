@@ -1,9 +1,7 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { db } from '../../src/db/client';
-import { exercises, routines as routinesTable, routineExercises } from '../../src/db/schema';
-import { eq, like } from 'drizzle-orm';
+import { RoutineImportService, RoutineImportError } from '@/services/RoutineImportService';
 import * as Clipboard from 'expo-clipboard';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
@@ -66,6 +64,8 @@ export default function RoutinesListScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { t } = useI18n();
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
+  const isImportingRef = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -128,75 +128,58 @@ export default function RoutinesListScreen() {
   };
 
   const handleImportFromClipboard = async () => {
+    if (isImportingRef.current) return;
+    isImportingRef.current = true;
+    setIsImporting(true);
+
     try {
       const content = await Clipboard.getStringAsync();
-      if (!content) {
+      if (!content || !content.trim()) {
         setToast({ visible: true, message: t('routines.emptyClipboard'), type: 'error' });
         return;
       }
 
-      let data;
-      try {
-          data = JSON.parse(content);
-      } catch {
-          return setToast({ visible: true, message: t('routines.invalidJson'), type: 'error' });
-      }
-
-      if (!data.name || !Array.isArray(data.exercises)) {
-          return setToast({ visible: true, message: t('routines.invalidJsonStructure'), type: 'error' });
-      }
-
-      const existingRoutine = await db.select().from(routinesTable).where(eq(routinesTable.name, data.name));
-      if (existingRoutine.length > 0) {
-        return setToast({ visible: true, message: t('routines.duplicateName', { name: data.name }), type: 'error' });
-      }
-
-      const routineRes = await db.insert(routinesTable).values({
-          name: data.name,
-          description: data.description || ''
-      }).returning();
-      const routineId = routineRes[0].id;
-
-      let order = 1;
-      for (const item of data.exercises) {
-        if (!item.name) continue;
-
-        const exName = item.name.trim();
-        const type = item.type === 'duration' ? 'duration' : 'strength';
-
-        const existing = await db.select().from(exercises).where(like(exercises.name, exName));
-        let exerciseId;
-
-        if (existing.length > 0) {
-            exerciseId = existing[0].id;
-        } else {
-            try {
-                const newEx = await db.insert(exercises).values({ name: exName, type }).returning();
-                exerciseId = newEx[0].id;
-            } catch (err) {
-                logger.error(t('common.createExerciseError'), err);
-                continue;
-            }
-        }
-
-        if (exerciseId) {
-            await db.insert(routineExercises).values({
-                routineId,
-                exerciseId,
-                orderIndex: order++,
-                target: item.target || null,
-                notes: item.notes || null,
-                restSeconds: item.rest ? Number(item.rest) : null
-            });
-        }
-      }
-
-      fetchRoutines();
-      setToast({ visible: true, message: t('routines.importedWithExercises', { name: data.name, count: order - 1 }), type: 'success' });
-
+      const result = await RoutineImportService.importRoutine(content);
+      await fetchRoutines();
+      setToast({
+        visible: true,
+        message: t('routines.importedWithExercises', {
+          name: result.routineName,
+          count: result.exercisesCount,
+        }),
+        type: 'success',
+      });
     } catch (e) {
-      logger.error(t('common.operationError'), e);
-      setToast({ visible: true, message: t('routines.importError'), type: 'error' });
+      if (e instanceof RoutineImportError) {
+        switch (e.code) {
+          case 'EMPTY_PAYLOAD':
+            setToast({ visible: true, message: t('routines.emptyClipboard'), type: 'error' });
+            break;
+          case 'INVALID_JSON':
+            setToast({ visible: true, message: t('routines.invalidJson'), type: 'error' });
+            break;
+          case 'INVALID_STRUCTURE':
+            setToast({ visible: true, message: t('routines.invalidJsonStructure'), type: 'error' });
+            break;
+          case 'DUPLICATE_ROUTINE_NAME':
+            setToast({
+              visible: true,
+              message: t('routines.duplicateName', { name: e.routineName || '' }),
+              type: 'error',
+            });
+            break;
+          default:
+            logger.error(t('common.operationError'), e);
+            setToast({ visible: true, message: t('routines.importError'), type: 'error' });
+            break;
+        }
+      } else {
+        logger.error(t('common.operationError'), e);
+        setToast({ visible: true, message: t('routines.importError'), type: 'error' });
+      }
+    } finally {
+      isImportingRef.current = false;
+      setIsImporting(false);
     }
   };
 
@@ -359,11 +342,13 @@ export default function RoutinesListScreen() {
       <View className="p-4 border-t border-border bg-card shadow-lg">
         <View className="flex-row gap-3">
             <Button 
-            title={t('routines.import')}
-            onPress={handleImportFromClipboard}
-            variant="secondary"
-            size="sm"
-            style={{ flex: 1, minHeight: 44 }}
+              title={t('routines.import')}
+              onPress={handleImportFromClipboard}
+              variant="secondary"
+              size="sm"
+              disabled={isImporting}
+              loading={isImporting}
+              style={{ flex: 1, minHeight: 44 }}
             />
             <Button
             title={t('routines.createNewRoutine')}

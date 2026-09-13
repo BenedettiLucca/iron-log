@@ -26,7 +26,7 @@ export function parseHevyCsv(csvContent: string): ParsedSessionGroup[] {
     const workoutTitle = getField(row, 'title', 'workout_title') || 'Hevy Workout';
     const exerciseTitle = getField(row, 'exercise_title', 'exercise');
 
-    if (!rawStartTime && !exerciseTitle) continue;
+    if (!rawStartTime) continue;
 
     const startTime = parseDateToTimestamp(rawStartTime);
     const sessionKey = `${startTime}_${workoutTitle}`;
@@ -34,7 +34,7 @@ export function parseHevyCsv(csvContent: string): ParsedSessionGroup[] {
     let session = sessionMap.get(sessionKey);
     if (!session) {
       const rawEndTime = getField(row, 'end_time', 'end time');
-      const endTime = rawEndTime ? parseDateToTimestamp(rawEndTime) : null;
+      const endTime = rawEndTime && rawEndTime.trim() ? parseDateToTimestamp(rawEndTime) : null;
       const durationMinutes =
         endTime && endTime > startTime
           ? Math.round((endTime - startTime) / 60000)
@@ -54,9 +54,17 @@ export function parseHevyCsv(csvContent: string): ParsedSessionGroup[] {
 
     if (!exerciseTitle) continue;
 
-    const rawWeight = getField(row, 'weight_kg', 'weight', 'weight_lbs');
+    const unitField = getField(row, 'weight_unit', 'unit').toLowerCase().trim();
+    const hasLbsHeader = Object.keys(row).some((k) => {
+      const lower = k.toLowerCase().trim();
+      return lower === 'weight_lbs' || lower === 'weight (lbs)' || (lower.includes('weight') && lower.includes('lbs'));
+    });
+    const isLbs = hasLbsHeader || unitField === 'lbs' || unitField === 'lb';
+    const rawWeight = isLbs
+      ? getField(row, 'weight_lbs', 'weight', 'weight_kg')
+      : getField(row, 'weight_kg', 'weight', 'weight_lbs');
     let weight = parseFloat(rawWeight) || 0;
-    if (Object.keys(row).some((k) => k.toLowerCase().includes('weight_lbs'))) {
+    if (isLbs && weight > 0) {
       weight = Math.round(weight * 0.45359237 * 100) / 100;
     }
 

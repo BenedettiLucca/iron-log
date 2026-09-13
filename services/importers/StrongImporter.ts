@@ -26,7 +26,7 @@ export function parseStrongCsv(csvContent: string): ParsedSessionGroup[] {
     const workoutName = getField(row, 'Workout Name', 'Workout') || 'Strong Workout';
     const exerciseName = getField(row, 'Exercise Name', 'Exercise');
 
-    if (!rawDate && !exerciseName) continue;
+    if (!rawDate) continue;
 
     const startTime = parseDateToTimestamp(rawDate);
     const sessionKey = `${startTime}_${workoutName}`;
@@ -35,14 +35,14 @@ export function parseStrongCsv(csvContent: string): ParsedSessionGroup[] {
     if (!session) {
       const rawDuration = getField(row, 'Duration');
       const durationMinutes = parseDurationToMinutes(rawDuration);
-      const endTime = durationMinutes ? startTime + durationMinutes * 60000 : null;
+      const endTime = durationMinutes && durationMinutes > 0 ? startTime + durationMinutes * 60000 : null;
       const workoutNotes = getField(row, 'Workout Notes') || null;
 
       session = {
         routineName: workoutName,
         startTime,
         endTime,
-        durationMinutes,
+        durationMinutes: durationMinutes && durationMinutes > 0 ? durationMinutes : null,
         notes: workoutNotes,
         sets: [],
       };
@@ -51,8 +51,30 @@ export function parseStrongCsv(csvContent: string): ParsedSessionGroup[] {
 
     if (!exerciseName) continue;
 
-    const rawWeight = getField(row, 'Weight', 'Weight (kg)', 'Weight (lbs)');
-    const weight = parseFloat(rawWeight) || 0;
+    let isLbs = false;
+    let rawWeight = '';
+
+    const unitField = getField(row, 'Weight Unit', 'Weight unit', 'Unit').toLowerCase().trim();
+    if (unitField === 'lbs' || unitField === 'lb') {
+      isLbs = true;
+    }
+
+    const matchedLbsKey = Object.keys(row).find((k) => {
+      const lower = k.toLowerCase().trim();
+      return lower === 'weight (lbs)' || lower === 'weight_lbs' || (lower.includes('weight') && lower.includes('lbs'));
+    });
+
+    if (matchedLbsKey && row[matchedLbsKey] !== undefined && row[matchedLbsKey].trim() !== '') {
+      isLbs = true;
+      rawWeight = row[matchedLbsKey];
+    } else {
+      rawWeight = getField(row, 'Weight', 'Weight (kg)', 'Weight (kgs)');
+    }
+
+    let weight = parseFloat(rawWeight) || 0;
+    if (isLbs && weight > 0) {
+      weight = Math.round(weight * 0.45359237 * 100) / 100;
+    }
     const reps = parseInt(getField(row, 'Reps'), 10) || 0;
     const rawSeconds = getField(row, 'Seconds', 'Duration');
     const durationSeconds = parseDurationToSeconds(rawSeconds);
