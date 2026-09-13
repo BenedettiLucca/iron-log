@@ -169,6 +169,13 @@
       "when": 1788671471592,
       "tag": "0023_luxuriant_the_stranger",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1789257994881,
+      "tag": "0024_happy_living_mummy",
+      "breakpoints": true
     }
   ]
 }
