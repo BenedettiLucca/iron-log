@@ -10,7 +10,7 @@ import { parseLocalizedDecimal } from '../src/utils/localized-decimal';
 import { setInputSchema } from '../src/validators/forms';
 import { useI18n } from '../src/i18n/index';
 import { useHaptics } from './use-haptics';
-import { checkPersonalRecords, reconcilePersonalRecords } from './use-personal-records';
+import { checkPersonalRecords, reconcilePersonalRecordsSync } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
 import { SessionDraft } from '../src/utils/session-draft';
@@ -524,8 +524,8 @@ export function useExerciseSets({
 
       await loadData();
 
-      // Check for Personal Records (only for new, non-duplicate, non-warmup strength sets)
-      if (!mutationResult.isDuplicate && !isWarmupMode && !isDuration && saved) {
+      // Check for Personal Records (only for new, non-duplicate, non-warmup sets)
+      if (!mutationResult.isDuplicate && !isWarmupMode && saved) {
         const prResult = await checkPersonalRecords({
           exerciseId,
           sessionId,
@@ -533,7 +533,7 @@ export function useExerciseSets({
           isWarmup: isWarmupMode,
         });
 
-        if (prResult.isWeightPR || prResult.isRepsPR) {
+        if (prResult.isWeightPR || prResult.isRepsPR || prResult.isDurationPR) {
           trigger('success');
           setToast({ visible: true, message: t('finish.prText'), type: 'success' });
         }
@@ -601,9 +601,11 @@ export function useExerciseSets({
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
       const deletedSet = sessionSets.find(set => set.id === setId);
-      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
+      db.transaction((tx) => {
+        tx.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId)).run();
+        reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
+      });
       if (deletedSet) registerDeletedSet(deletedSet);
-      await reconcilePersonalRecords({ exerciseId, sessionId });
       await loadData();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
@@ -633,18 +635,22 @@ export function useExerciseSets({
     if (!editingSet) return false;
     
     try {
-      await db.update(sets)
-        .set({
-          weightKg: weight,
-          // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
-          reps: reps ?? editingSet.reps,
-          durationSeconds: duration ?? editingSet.durationSeconds,
-          rir: rir ?? editingSet.rir,
-          isEdited: true,
-        })
-        .where(eq(sets.id, editingSet.id));
-      
-      await reconcilePersonalRecords({ exerciseId, sessionId });
+      db.transaction((tx) => {
+        tx.update(sets)
+          .set({
+            weightKg: weight,
+            // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
+            reps: reps ?? editingSet.reps,
+            durationSeconds: duration ?? editingSet.durationSeconds,
+            rir: rir ?? editingSet.rir,
+            isEdited: true,
+          })
+          .where(eq(sets.id, editingSet.id))
+          .run();
+
+        reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
+      });
+
       await loadData();
       setShowSetEditor(false);
       setEditingSet(null);
