@@ -3,8 +3,14 @@ import { View, Text, Image, Modal, useColorScheme, type LayoutChangeEvent } from
 import Slider from '@react-native-community/slider';
 import { Button } from './Button';
 import { Pressable } from './Pressable';
+import { PhotoOverlay } from './PhotoOverlay';
 import { getThemeColors } from '@/constants/colors';
-import { useI18n } from '../src/i18n/index';
+import { useI18n } from '@/src/i18n/index';
+
+export interface PhotoComparisonOverlayData {
+  weight: string | null;
+  waist: string | null;
+}
 
 interface PhotoComparisonProps {
   visible: boolean;
@@ -12,9 +18,19 @@ interface PhotoComparisonProps {
   beforeUri: string | null;
   afterUri: string | null;
   label: string;
+  beforeOverlay?: PhotoComparisonOverlayData | null;
+  afterOverlay?: PhotoComparisonOverlayData | null;
 }
 
-export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }: PhotoComparisonProps) {
+export function PhotoComparison({
+  visible,
+  onClose,
+  beforeUri,
+  afterUri,
+  label,
+  beforeOverlay,
+  afterOverlay,
+}: PhotoComparisonProps) {
   const { t } = useI18n();
   const colorScheme = useColorScheme();
   const theme = getThemeColors(colorScheme);
@@ -79,6 +95,9 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               resizeMode="contain"
               accessible={false}
             />
+            {beforeOverlay && (
+              <PhotoOverlay weight={beforeOverlay.weight} waist={beforeOverlay.waist} />
+            )}
 
             {/* After Image (clipped by slider) */}
             <View
@@ -91,6 +110,9 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
                 resizeMode="contain"
                 accessible={false}
               />
+              {afterOverlay && (
+                <PhotoOverlay weight={afterOverlay.weight} waist={afterOverlay.waist} />
+              )}
             </View>
 
             {/* Divider Line */}
@@ -125,7 +147,7 @@ export function PhotoComparison({ visible, onClose, beforeUri, afterUri, label }
               {t('photoComparison.slider')}
             </Text>
             <Slider
-              style={{ width: '100%', height: 40 }}
+              style={{ width: '100%', height: 44 }}
               minimumValue={0}
               maximumValue={1}
               step={0.01}

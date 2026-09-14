@@ -6,16 +6,26 @@ interface PhotoOverlayProps {
 }
 
 export function PhotoOverlay({ weight, waist }: PhotoOverlayProps) {
-  if (!weight && !waist) return null;
+  const hasWeight = Boolean(weight && weight.trim());
+  const hasWaist = Boolean(waist && waist.trim());
+
+  if (!hasWeight && !hasWaist) return null;
+
+  const label = [hasWeight ? weight : null, hasWaist ? waist : null].filter(Boolean).join(', ');
 
   return (
-    <View testID="photo-overlay" className="absolute bottom-0 left-0 right-0 flex-row justify-between px-3 py-2">
-      {weight && (
+    <View
+      testID="photo-overlay"
+      accessible
+      accessibilityLabel={label}
+      className="absolute bottom-0 left-0 right-0 flex-row justify-between px-3 py-2"
+    >
+      {hasWeight && (
         <View className="bg-black/60 px-2.5 py-1 rounded-lg">
           <Text className="text-white text-xs font-bold">{weight}</Text>
         </View>
       )}
-      {waist && (
+      {hasWaist && (
         <View className="bg-black/60 px-2.5 py-1 rounded-lg">
           <Text className="text-white text-xs font-bold">{waist}</Text>
         </View>

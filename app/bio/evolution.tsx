@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, useWindowDimensions, useColorScheme } from 'react-native';
+import { View, Text, ScrollView, FlatList, Image, useWindowDimensions, useColorScheme, type ListRenderItemInfo } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
 import { db } from '../../src/db/client';
 import { bodyMetrics } from '../../src/db/schema';
@@ -7,12 +7,14 @@ import { LineChart } from 'react-native-gifted-charts';
 import { Button } from '../../components/Button';
 import { Card } from '../../components/Card';
 import { EmptyState } from '../../components/EmptyState';
-import { PhotoComparison } from '../../components/PhotoComparison';
+import { PhotoComparison, type PhotoComparisonOverlayData } from '../../components/PhotoComparison';
+import { MonthlyCheckinComparison } from '../../components/MonthlyCheckinComparison';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { BodyMetric } from '@/src/types';
 import { getThemeColors } from '@/constants/colors';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
+import { getPhotoOverlayData } from '../../src/utils/checkin';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { SectionHeader } from '../../components/SectionHeader';
@@ -31,20 +33,6 @@ import type {
   TimestampedChartValue,
 } from '../../src/utils/chart-periods';
 
-// Helper to find the best matching photo pair (same pose preferred)
-const getBestPhotoPair = (latest: BodyMetric, previous: BodyMetric) => {
-  if (latest.photoFront && previous.photoFront) {
-    return { before: previous.photoFront, after: latest.photoFront };
-  }
-  if (latest.photoBack && previous.photoBack) {
-    return { before: previous.photoBack, after: latest.photoBack };
-  }
-  if (latest.photoSide && previous.photoSide) {
-    return { before: previous.photoSide, after: latest.photoSide };
-  }
-  return null;
-};
-
 export default function EvolutionScreen() {
   const { t, language } = useI18n();
   const { width: screenWidth } = useWindowDimensions();
@@ -59,12 +47,23 @@ export default function EvolutionScreen() {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const [comparison, setComparison] = useState({
+  const [comparison, setComparison] = useState<{
+    visible: boolean;
+    beforeUri: string | null;
+    afterUri: string | null;
+    label: string;
+    beforeOverlay: PhotoComparisonOverlayData | null;
+    afterOverlay: PhotoComparisonOverlayData | null;
+  }>({
     visible: false,
-    beforeUri: null as string | null,
-    afterUri: null as string | null,
+    beforeUri: null,
+    afterUri: null,
     label: '',
+    beforeOverlay: null,
+    afterOverlay: null,
   });
+  const [comparisonMonthId, setComparisonMonthId] = useState<number | null>(null);
+  const [isComparing, setIsComparing] = useState(false);
   const [analytics, setAnalytics] = useState({
     weightChangeRate: 0,
     averageWeight: 0,
@@ -143,6 +142,42 @@ export default function EvolutionScreen() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const renderPhotoCard = useCallback(
+    ({ item: entry }: ListRenderItemInfo<BodyMetric>) => (
+      <View key={entry.id} className="mb-8">
+        <View className="flex-row items-center gap-2 mb-4">
+          <View className="h-[1px] flex-1 bg-border" />
+          <Text className="text-primaryText font-bold text-sm tracking-widest">
+            {new Date(entry.date).toLocaleDateString(getLocaleForLanguage(language))}
+          </Text>
+          <View className="h-[1px] flex-1 bg-border" />
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={true} className="gap-4 pl-2">
+          {entry.photoFront && (
+            <View>
+              <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+              <Text className="text-center text-subtext text-xs mt-2 font-bold">{t('bioEvolution.front')}</Text>
+            </View>
+          )}
+          {entry.photoBack && (
+            <View>
+              <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+              <Text className="text-center text-subtext text-xs mt-2 font-bold">{t('bioEvolution.back')}</Text>
+            </View>
+          )}
+          {entry.photoSide && (
+            <View>
+              <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
+              <Text className="text-center text-subtext text-xs mt-2 font-bold">{t('bioEvolution.side')}</Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    ),
+    [language, t]
+  );
 
   const renderChart = (
     data: TimestampedChartValue[],
@@ -277,6 +312,13 @@ export default function EvolutionScreen() {
     return <ErrorState message={errorMessage} onRetry={loadData} />;
   }
 
+  const selectedComparisonIndex = comparisonMonthId != null
+    ? photos.findIndex((p) => p.id === comparisonMonthId)
+    : 0;
+  const currentComparisonIndex = selectedComparisonIndex >= 0 ? selectedComparisonIndex : 0;
+  const currentComparisonMetric = photos[currentComparisonIndex] ?? null;
+  const previousComparisonMetric = photos[currentComparisonIndex + 1] ?? null;
+
   const getDelta = (dataList: { value: number }[]) => {
     if (!dataList || dataList.length < 2) return null;
     return (dataList[dataList.length - 1]?.value || 0) - (dataList[0]?.value || 0);
@@ -342,7 +384,58 @@ export default function EvolutionScreen() {
         </View>
       )}
 
-      <ScrollView className="flex-1 px-4" nestedScrollEnabled contentContainerStyle={{ paddingBottom: 40 }}>
+      {activeTab === 'photos' ? (
+        <View className="flex-1 px-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <SectionHeader label={isComparing ? t('bio.monthlyCheckin') : t('bio.recentPhotos')} />
+            {photos.length >= 2 && (
+              <Button
+                title={isComparing ? t('checkin.photosTab') : t('common.compare')}
+                onPress={() => setIsComparing((prev) => !prev)}
+                variant="secondary"
+                size="sm"
+              />
+            )}
+          </View>
+
+          {isComparing && photos.length >= 1 && currentComparisonMetric ? (
+            <MonthlyCheckinComparison
+              current={currentComparisonMetric}
+              previous={previousComparisonMetric}
+              allMetrics={photos}
+              onSelectMonth={(m) => setComparisonMonthId(m.id)}
+              onOpenSlider={(before, after, label) =>
+                setComparison({
+                  visible: true,
+                  beforeUri: before,
+                  afterUri: after,
+                  label,
+                  beforeOverlay: previousComparisonMetric ? getPhotoOverlayData(previousComparisonMetric) : null,
+                  afterOverlay: currentComparisonMetric ? getPhotoOverlayData(currentComparisonMetric) : null,
+                })
+              }
+            />
+          ) : (
+            <FlatList
+              data={photos}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={renderPhotoCard}
+              initialNumToRender={3}
+              maxToRenderPerBatch={3}
+              windowSize={5}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              ListEmptyComponent={
+                <View className="items-center mt-10">
+                  <Text className="text-4xl mb-4">📷</Text>
+                  <Text className="text-subtext text-center">{t('bioEvolution.noPhotos')}</Text>
+                  <Text className="text-subtext/60 text-xs text-center mt-2">{t('bioEvolution.noPhotosDesc')}</Text>
+                </View>
+              }
+            />
+          )}
+        </View>
+      ) : (
+        <ScrollView className="flex-1 px-4" nestedScrollEnabled contentContainerStyle={{ paddingBottom: 40 }}>
           {activeTab === 'weight' && (
               renderChart(weightData, t('bio.weightEvolution'), theme.primaryText, 'kg', 'latest')
           )}
@@ -353,75 +446,6 @@ export default function EvolutionScreen() {
                 {renderChart(measuresData.arm, t("bioEvolution.arm"), theme.secondaryText, 'cm')}
                 {renderChart(measuresData.chest, t("bioEvolution.chest"), theme.accentText, 'cm')}
               </>
-          )}
-
-          {activeTab === 'photos' && (
-               <View className="gap-4">
-                   <View className="flex-row justify-between items-center mb-4">
-                       <SectionHeader label={t("bio.recentPhotos")} />
-                       {photos.length >= 2 && (
-                           <Button
-                               title={t("common.compare")}
-                               onPress={() => {
-                                   const latest = photos[0];
-                                   const previous = photos[1];
-                                   if (latest && previous) {
-                                       const pair = getBestPhotoPair(latest, previous);
-                                       if (pair) {
-                                           setComparison({
-                                               visible: true,
-                                               beforeUri: pair.before,
-                                               afterUri: pair.after,
-                                               label: t('bio.latestCheckins'),
-                                           });
-                                       }
-                                   }
-                               }}
-                               variant="secondary"
-                               size="sm"
-                           />
-                       )}
-                   </View>
-                   {photos.length === 0 && (
-                     <View className="items-center mt-10">
-                         <Text className="text-4xl mb-4">📷</Text>
-                         <Text className="text-subtext text-center">{t("bioEvolution.noPhotos")}</Text>
-                         <Text className="text-subtext/60 text-xs text-center mt-2">{t("bioEvolution.noPhotosDesc")}</Text>
-                     </View>
-                   )}
-                   {photos.map((entry) => (
-                      <View key={entry.id} className="mb-8">
-                          <View className="flex-row items-center gap-2 mb-4">
-                            <View className="h-[1px] flex-1 bg-border" />
-                            <Text className="text-primaryText font-bold text-sm tracking-widest">
-                                {new Date(entry.date).toLocaleDateString(getLocaleForLanguage(language))}
-                            </Text>
-                            <View className="h-[1px] flex-1 bg-border" />
-                          </View>
-
-                          <ScrollView horizontal showsHorizontalScrollIndicator={true} className="gap-4 pl-2">
-                              {entry.photoFront && (
-                                  <View>
-                                      <Image source={{ uri: entry.photoFront }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.front")}</Text>
-                                  </View>
-                              )}
-                              {entry.photoBack && (
-                                  <View>
-                                      <Image source={{ uri: entry.photoBack }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.back")}</Text>
-                                  </View>
-                              )}
-                              {entry.photoSide && (
-                                  <View>
-                                      <Image source={{ uri: entry.photoSide }} className="w-48 h-64 rounded-2xl bg-black" resizeMode="cover" />
-                                      <Text className="text-center text-subtext text-xs mt-2 font-bold">{t("bioEvolution.side")}</Text>
-                                  </View>
-                              )}
-                          </ScrollView>
-                      </View>
-                  ))}
-               </View>
           )}
 
           {activeTab === 'analytics' && (
@@ -531,6 +555,7 @@ export default function EvolutionScreen() {
               </View>
           )}
        </ScrollView>
+      )}
 
        {/* Photo Comparison Modal */}
        <PhotoComparison
@@ -538,7 +563,9 @@ export default function EvolutionScreen() {
            beforeUri={comparison.beforeUri}
            afterUri={comparison.afterUri}
            label={comparison.label}
-           onClose={() => setComparison({ visible: false, beforeUri: null, afterUri: null, label: '' })}
+           beforeOverlay={comparison.beforeOverlay}
+           afterOverlay={comparison.afterOverlay}
+           onClose={() => setComparison({ visible: false, beforeUri: null, afterUri: null, label: '', beforeOverlay: null, afterOverlay: null })}
        />
      </View>
   );
