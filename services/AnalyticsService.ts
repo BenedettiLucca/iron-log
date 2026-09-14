@@ -1,8 +1,9 @@
 import { db } from '@/src/db/client';
-import { sessions, sets, personalRecords, exercises } from '@/src/db/schema';
+import { sessions, sets, personalRecords, exercises, bodyMetrics } from '@/src/db/schema';
 import { desc, asc, isNull, and, sql, gte, inArray, eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
+import { isDisplayableBodyMetricValue } from '@/src/utils/body-metrics';
 
 /**
  * Analytics Service for Iron Log
@@ -67,6 +68,18 @@ export interface RankedEstimated1RM {
   date: number | null;
 }
 
+export interface KeyStats {
+  recentVolume: number;
+  recentSessionsCount: number;
+  recentAvgRpe: number | null;
+  recentAvgDur: number | null;
+  recentPRsCount: number;
+  prevVolume: number;
+  prevAvgRpe: number | null;
+  prevAvgDur: number | null;
+  prevPRsCount: number;
+}
+
 export interface DashboardAnalytics {
   strengthScore: StrengthScore;
   consistency: ConsistencyData;
@@ -74,6 +87,8 @@ export interface DashboardAnalytics {
   topExercises: ExerciseProgression[];
   totalPRs: number;
   estimated1RM: RankedEstimated1RM[];
+  keyStats: KeyStats;
+  volumeDistribution: Record<string, number>;
 }
 
 // ---------------------------------------------------------------------------
@@ -174,24 +189,312 @@ const MS_PER_WEEK = 7 * MS_PER_DAY;
 const TWELVE_WEEKS_MS = 12 * MS_PER_WEEK;
 
 // ---------------------------------------------------------------------------
+// Pure Computation Helpers
+// ---------------------------------------------------------------------------
+
+export function computeStrengthScoreFromData(
+  recentSessions: { id: number; startTime: number }[],
+  allSets: { sessionId: number; weightKg: number; reps: number; isWarmup: boolean }[],
+  since: number,
+  now = Date.now(),
+): StrengthScore {
+  const sessionIds = recentSessions.map(s => s.id);
+
+  if (sessionIds.length === 0) {
+    return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, labelKey: 'noData' };
+  }
+
+  // Volume Score (0-40): Based on average weekly volume
+  const totalVolume = allSets
+    .filter(s => !s.isWarmup && s.reps > 0 && s.weightKg > 0)
+    .reduce((sum, s) => sum + (s.weightKg * s.reps), 0);
+
+  const weeksSpan = Math.max(1, Math.ceil((now - since) / MS_PER_WEEK));
+  const avgWeeklyVolume = totalVolume / weeksSpan;
+
+  // Volume scoring: 0kg=0, 5000kg=20, 15000kg=35, 30000+=40
+  const volumeScore = Math.min(40, Math.round(
+    avgWeeklyVolume <= 5000 ? (avgWeeklyVolume / 5000) * 20 :
+    avgWeeklyVolume <= 15000 ? 20 + ((avgWeeklyVolume - 5000) / 10000) * 15 :
+    35 + Math.min(5, ((avgWeeklyVolume - 15000) / 15000) * 5)
+  ));
+
+  // Intensity Score (0-30): Based on avg weight per set
+  const workingSets = allSets.filter(s => !s.isWarmup && s.weightKg > 0);
+  const avgWeight = workingSets.length > 0
+    ? workingSets.reduce((sum, s) => sum + s.weightKg, 0) / workingSets.length
+    : 0;
+
+  // Intensity scoring: 0kg=0, 20kg=10, 50kg=20, 80+=30
+  const intensityScore = Math.min(30, Math.round(
+    avgWeight <= 20 ? (avgWeight / 20) * 10 :
+    avgWeight <= 50 ? 10 + ((avgWeight - 20) / 30) * 10 :
+    20 + Math.min(10, ((avgWeight - 50) / 30) * 10)
+  ));
+
+  // Consistency Score (0-30): Based on sessions per week
+  const avgSessionsPerWeek = recentSessions.length / weeksSpan;
+  const consistencyScore = Math.min(30, Math.round(
+    avgSessionsPerWeek <= 2 ? (avgSessionsPerWeek / 2) * 15 :
+    avgSessionsPerWeek <= 4 ? 15 + ((avgSessionsPerWeek - 2) / 2) * 10 :
+    25 + Math.min(5, ((avgSessionsPerWeek - 4) / 2) * 5)
+  ));
+
+  const totalScore = volumeScore + intensityScore + consistencyScore;
+
+  let labelKey: string;
+  if (totalScore >= 80) labelKey = 'elite';
+  else if (totalScore >= 60) labelKey = 'advanced';
+  else if (totalScore >= 35) labelKey = 'intermediate';
+  else labelKey = 'beginner';
+
+  return { totalScore, volumeScore, intensityScore, consistencyScore, labelKey };
+}
+
+export function computeConsistencyFromData(
+  allActiveSessions: { startTime: number }[],
+  since: number,
+  now = Date.now(),
+): ConsistencyData {
+  const recentSessions = allActiveSessions.filter(s => s.startTime >= since);
+
+  // Weekly frequency (last 12 weeks)
+  const weeksSpan = Math.max(1, Math.ceil((now - since) / MS_PER_WEEK));
+  const weeklyFrequency = Math.round((recentSessions.length / weeksSpan) * 10) / 10;
+
+  // Current streak
+  const weekStart = getWeekStart(now);
+  let currentStreak = 0;
+  let checkWeek = weekStart;
+
+  const sessionWeeks = new Set(allActiveSessions.map(s => getWeekStart(s.startTime)));
+
+  while (sessionWeeks.has(checkWeek)) {
+    currentStreak++;
+    checkWeek -= MS_PER_WEEK;
+  }
+
+  // Longest streak
+  const sortedWeeks = Array.from(sessionWeeks).sort((a, b) => a - b);
+  let longestStreak = 0;
+  if (sortedWeeks.length > 0) {
+    longestStreak = 1;
+    let tempStreak = 1;
+    for (let i = 1; i < sortedWeeks.length; i++) {
+      if (sortedWeeks[i] - sortedWeeks[i - 1] === MS_PER_WEEK) {
+        tempStreak++;
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak);
+        tempStreak = 1;
+      }
+    }
+    longestStreak = Math.max(longestStreak, tempStreak);
+  }
+
+  // This week / month
+  const weekStartMs = getWeekStart(now);
+  const monthStart = new Date(now);
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const monthStartMs = monthStart.getTime();
+
+  const sessionsThisWeek = allActiveSessions.filter(s => s.startTime >= weekStartMs).length;
+  const sessionsThisMonth = allActiveSessions.filter(s => s.startTime >= monthStartMs).length;
+
+  return {
+    weeklyFrequency,
+    currentStreak,
+    longestStreak,
+    totalSessions: allActiveSessions.length,
+    sessionsThisWeek,
+    sessionsThisMonth,
+  };
+}
+
+export function computeVolumeTrendsFromData(
+  recentSessions: { id: number; startTime: number }[],
+  allSets: { sessionId: number; weightKg: number; reps: number; isWarmup: boolean }[],
+  since: number,
+): VolumeTrend[] {
+  if (recentSessions.length === 0) return [];
+
+  // Group by ISO week
+  const weekMap = new Map<string, { volume: number; sets: number; sessions: Set<number> }>();
+
+  // Initialize all weeks in range
+  const start = new Date(since);
+  for (let i = 0; i <= 12; i++) {
+    const weekDate = new Date(start.getTime() + i * MS_PER_WEEK);
+    const weekKey = getISOWeek(weekDate.getTime());
+    if (!weekMap.has(weekKey)) {
+      weekMap.set(weekKey, { volume: 0, sets: 0, sessions: new Set() });
+    }
+  }
+
+  const setsBySession = new Map<number, typeof allSets>();
+  for (const set of allSets) {
+    if (set.isWarmup) continue;
+    const list = setsBySession.get(set.sessionId);
+    if (list) {
+      list.push(set);
+    } else {
+      setsBySession.set(set.sessionId, [set]);
+    }
+  }
+
+  for (const session of recentSessions) {
+    const weekKey = getISOWeek(session.startTime);
+    const entry = weekMap.get(weekKey);
+    if (!entry) continue;
+    entry.sessions.add(session.id);
+
+    const sessionSets = setsBySession.get(session.id);
+    if (sessionSets) {
+      for (const set of sessionSets) {
+        entry.volume += (set.weightKg * set.reps);
+        entry.sets++;
+      }
+    }
+  }
+
+  return Array.from(weekMap.entries()).map(([week, data]) => ({
+    week,
+    totalVolume: Math.round(data.volume),
+    totalSets: data.sets,
+    sessionCount: data.sessions.size,
+    avgVolumePerSession: data.sessions.size > 0 ? Math.round(data.volume / data.sessions.size) : 0,
+  }));
+}
+
+export function computeKeyStatsFromData(
+  allActiveSessions: { id: number; startTime: number; sRpe?: number | null; durationMinutes?: number | null }[],
+  allSets: { sessionId: number; weightKg: number; reps: number; isWarmup: boolean }[],
+  prs: { date: number }[],
+  thirtyDaysAgoMs: number,
+  sixtyDaysAgoMs: number,
+): KeyStats {
+  const recentSessions = allActiveSessions.filter(s => s.startTime >= thirtyDaysAgoMs);
+  const prevSessions = allActiveSessions.filter(s => s.startTime >= sixtyDaysAgoMs && s.startTime < thirtyDaysAgoMs);
+
+  const recentSessionIds = new Set(recentSessions.map(s => s.id));
+  const prevSessionIds = new Set(prevSessions.map(s => s.id));
+
+  const recentVolume = allSets
+    .filter(set => recentSessionIds.has(set.sessionId) && !set.isWarmup)
+    .reduce((sum, set) => sum + (set.weightKg * set.reps), 0);
+
+  const prevVolume = allSets
+    .filter(set => prevSessionIds.has(set.sessionId) && !set.isWarmup)
+    .reduce((sum, set) => sum + (set.weightKg * set.reps), 0);
+
+  const recentRpeSessions = recentSessions.filter(s => s.sRpe != null && s.sRpe > 0);
+  const prevRpeSessions = prevSessions.filter(s => s.sRpe != null && s.sRpe > 0);
+
+  const recentAvgRpe = recentRpeSessions.length > 0
+    ? recentRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / recentRpeSessions.length
+    : null;
+  const prevAvgRpe = prevRpeSessions.length > 0
+    ? prevRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / prevRpeSessions.length
+    : null;
+
+  const recentDurSessions = recentSessions.filter(s => s.durationMinutes != null && s.durationMinutes > 0);
+  const prevDurSessions = prevSessions.filter(s => s.durationMinutes != null && s.durationMinutes > 0);
+
+  const recentAvgDur = recentDurSessions.length > 0
+    ? recentDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / recentDurSessions.length
+    : null;
+  const prevAvgDur = prevDurSessions.length > 0
+    ? prevDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / prevDurSessions.length
+    : null;
+
+  const recentPRsCount = prs.filter(pr => pr.date >= thirtyDaysAgoMs).length;
+  const prevPRsCount = prs.filter(pr => pr.date >= sixtyDaysAgoMs && pr.date < thirtyDaysAgoMs).length;
+
+  return {
+    recentVolume,
+    recentSessionsCount: recentSessions.length,
+    recentAvgRpe,
+    recentAvgDur,
+    recentPRsCount,
+    prevVolume,
+    prevAvgRpe,
+    prevAvgDur,
+    prevPRsCount,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Main Analytics Computation
 // ---------------------------------------------------------------------------
 
 export const AnalyticsService = {
 
   async getFullAnalytics(): Promise<DashboardAnalytics> {
-    const TWELVE_WEEKS_AGO = Date.now() - TWELVE_WEEKS_MS;
+    const now = Date.now();
+    const TWELVE_WEEKS_AGO = now - TWELVE_WEEKS_MS;
+    const thirtyDaysAgoMs = now - 30 * MS_PER_DAY;
+    const sixtyDaysAgoMs = now - 60 * MS_PER_DAY;
 
-    const [strengthScore, consistency, volumeTrends, topExercises, totalPRs, estimated1RM] = await Promise.all([
-      this.calculateStrengthScore(TWELVE_WEEKS_AGO),
-      this.calculateConsistency(TWELVE_WEEKS_AGO),
-      this.calculateVolumeTrends(TWELVE_WEEKS_AGO),
+    // Directed aggregations and snapshot queries in parallel
+    const [allActiveSessions, topExercises, totalPRs, estimated1RM, volumeDistribution, recentPRs] = await Promise.all([
+      db.select({
+        id: sessions.id,
+        startTime: sessions.startTime,
+        sRpe: sessions.sRpe,
+        durationMinutes: sessions.durationMinutes,
+      })
+        .from(sessions)
+        .where(and(
+          isNull(sessions.deletedAt),
+          sql`${sessions.endTime} IS NOT NULL`
+        ))
+        .orderBy(desc(sessions.startTime)),
       this.calculateTopExerciseProgressions(TWELVE_WEEKS_AGO),
       this.countTotalPRs(),
       this.calculateEstimated1RMs(),
+      this.volumeByMuscleGroup(thirtyDaysAgoMs),
+      db.select({
+        date: personalRecords.date,
+      })
+        .from(personalRecords)
+        .where(gte(personalRecords.date, sixtyDaysAgoMs)),
     ]);
 
-    return { strengthScore, consistency, volumeTrends, topExercises, totalPRs, estimated1RM };
+    const recentSessionsDesc = allActiveSessions.filter(s => s.startTime >= TWELVE_WEEKS_AGO);
+    const sessionIds12w = recentSessionsDesc.map(s => s.id);
+
+    const sets12w = sessionIds12w.length > 0
+      ? await db.select({
+          id: sets.id,
+          sessionId: sets.sessionId,
+          weightKg: sets.weightKg,
+          reps: sets.reps,
+          isWarmup: sets.isWarmup,
+        })
+          .from(sets)
+          .where(and(
+            isNull(sets.deletedAt),
+            inArray(sets.sessionId, sessionIds12w),
+          ))
+      : [];
+
+    const recentSessionsAsc = [...recentSessionsDesc].reverse();
+
+    const strengthScore = computeStrengthScoreFromData(recentSessionsDesc, sets12w, TWELVE_WEEKS_AGO, now);
+    const consistency = computeConsistencyFromData(allActiveSessions, TWELVE_WEEKS_AGO, now);
+    const volumeTrends = computeVolumeTrendsFromData(recentSessionsAsc, sets12w, TWELVE_WEEKS_AGO);
+    const keyStats = computeKeyStatsFromData(allActiveSessions, sets12w, recentPRs, thirtyDaysAgoMs, sixtyDaysAgoMs);
+
+    return {
+      strengthScore,
+      consistency,
+      volumeTrends,
+      topExercises,
+      totalPRs,
+      estimated1RM,
+      keyStats,
+      volumeDistribution,
+    };
   },
 
   /**
@@ -204,7 +507,10 @@ export const AnalyticsService = {
    */
   async calculateStrengthScore(since: number): Promise<StrengthScore> {
     try {
-      const recentSessions = await db.select()
+      const recentSessions = await db.select({
+        id: sessions.id,
+        startTime: sessions.startTime,
+      })
         .from(sessions)
         .where(and(
           isNull(sessions.deletedAt),
@@ -220,58 +526,19 @@ export const AnalyticsService = {
       }
 
       // Get all sets for these sessions
-      const allSets = await db.select()
+      const allSets = await db.select({
+        sessionId: sets.sessionId,
+        weightKg: sets.weightKg,
+        reps: sets.reps,
+        isWarmup: sets.isWarmup,
+      })
         .from(sets)
         .where(and(
           isNull(sets.deletedAt),
           inArray(sets.sessionId, sessionIds),
         ));
 
-      // Volume Score (0-40): Based on average weekly volume
-      const totalVolume = allSets
-        .filter(s => !s.isWarmup && s.reps > 0 && s.weightKg > 0)
-        .reduce((sum, s) => sum + (s.weightKg * s.reps), 0);
-
-      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (MS_PER_WEEK)));
-      const avgWeeklyVolume = totalVolume / weeksSpan;
-
-      // Volume scoring: 0kg=0, 5000kg=20, 15000kg=35, 30000+=40
-      const volumeScore = Math.min(40, Math.round(
-        avgWeeklyVolume <= 5000 ? (avgWeeklyVolume / 5000) * 20 :
-        avgWeeklyVolume <= 15000 ? 20 + ((avgWeeklyVolume - 5000) / 10000) * 15 :
-        35 + Math.min(5, ((avgWeeklyVolume - 15000) / 15000) * 5)
-      ));
-
-      // Intensity Score (0-30): Based on avg weight per set
-      const workingSets = allSets.filter(s => !s.isWarmup && s.weightKg > 0);
-      const avgWeight = workingSets.length > 0
-        ? workingSets.reduce((sum, s) => sum + s.weightKg, 0) / workingSets.length
-        : 0;
-
-      // Intensity scoring: 0kg=0, 20kg=10, 50kg=20, 80+=30
-      const intensityScore = Math.min(30, Math.round(
-        avgWeight <= 20 ? (avgWeight / 20) * 10 :
-        avgWeight <= 50 ? 10 + ((avgWeight - 20) / 30) * 10 :
-        20 + Math.min(10, ((avgWeight - 50) / 30) * 10)
-      ));
-
-      // Consistency Score (0-30): Based on sessions per week
-      const avgSessionsPerWeek = recentSessions.length / weeksSpan;
-      const consistencyScore = Math.min(30, Math.round(
-        avgSessionsPerWeek <= 2 ? (avgSessionsPerWeek / 2) * 15 :
-        avgSessionsPerWeek <= 4 ? 15 + ((avgSessionsPerWeek - 2) / 2) * 10 :
-        25 + Math.min(5, ((avgSessionsPerWeek - 4) / 2) * 5)
-      ));
-
-      const totalScore = volumeScore + intensityScore + consistencyScore;
-
-      let labelKey: string;
-      if (totalScore >= 80) labelKey = 'elite';
-      else if (totalScore >= 60) labelKey = 'advanced';
-      else if (totalScore >= 35) labelKey = 'intermediate';
-      else labelKey = 'beginner';
-
-      return { totalScore, volumeScore, intensityScore, consistencyScore, labelKey };
+      return computeStrengthScoreFromData(recentSessions, allSets, since);
     } catch (e) {
       logger.error('Failed to calculate strength score', e);
       return { totalScore: 0, volumeScore: 0, intensityScore: 0, consistencyScore: 0, labelKey: 'error' };
@@ -284,7 +551,10 @@ export const AnalyticsService = {
    */
   async calculateConsistency(since: number): Promise<ConsistencyData> {
     try {
-      const allActiveSessions = await db.select()
+      const allActiveSessions = await db.select({
+        id: sessions.id,
+        startTime: sessions.startTime,
+      })
         .from(sessions)
         .where(and(
           isNull(sessions.deletedAt),
@@ -292,60 +562,7 @@ export const AnalyticsService = {
         ))
         .orderBy(desc(sessions.startTime));
 
-      const recentSessions = allActiveSessions.filter(s => s.startTime >= since);
-
-      // Weekly frequency (last 12 weeks)
-      const weeksSpan = Math.max(1, Math.ceil((Date.now() - since) / (MS_PER_WEEK)));
-      const weeklyFrequency = Math.round((recentSessions.length / weeksSpan) * 10) / 10;
-
-      // Current streak
-      const now = Date.now();
-      const weekStart = getWeekStart(now);
-      let currentStreak = 0;
-      let checkWeek = weekStart;
-
-      const sessionWeeks = new Set(allActiveSessions.map(s => getWeekStart(s.startTime)));
-
-      while (sessionWeeks.has(checkWeek)) {
-        currentStreak++;
-        checkWeek -= MS_PER_WEEK;
-      }
-
-      // Longest streak
-      const sortedWeeks = Array.from(sessionWeeks).sort((a, b) => a - b);
-      let longestStreak = 0;
-      if (sortedWeeks.length > 0) {
-        longestStreak = 1;
-        let tempStreak = 1;
-        for (let i = 1; i < sortedWeeks.length; i++) {
-          if (sortedWeeks[i] - sortedWeeks[i - 1] === MS_PER_WEEK) {
-            tempStreak++;
-          } else {
-            longestStreak = Math.max(longestStreak, tempStreak);
-            tempStreak = 1;
-          }
-        }
-        longestStreak = Math.max(longestStreak, tempStreak);
-      }
-
-      // This week / month
-      const weekStartMs = getWeekStart(now);
-      const monthStart = new Date();
-      monthStart.setDate(1);
-      monthStart.setHours(0, 0, 0, 0);
-      const monthStartMs = monthStart.getTime();
-
-      const sessionsThisWeek = allActiveSessions.filter(s => s.startTime >= weekStartMs).length;
-      const sessionsThisMonth = allActiveSessions.filter(s => s.startTime >= monthStartMs).length;
-
-      return {
-        weeklyFrequency,
-        currentStreak,
-        longestStreak,
-        totalSessions: allActiveSessions.length,
-        sessionsThisWeek,
-        sessionsThisMonth,
-      };
+      return computeConsistencyFromData(allActiveSessions, since);
     } catch (e) {
       logger.error('Failed to calculate consistency', e);
       throw e;
@@ -357,7 +574,10 @@ export const AnalyticsService = {
    */
   async calculateVolumeTrends(since: number): Promise<VolumeTrend[]> {
     try {
-      const recentSessions = await db.select()
+      const recentSessions = await db.select({
+        id: sessions.id,
+        startTime: sessions.startTime,
+      })
         .from(sessions)
         .where(and(
           isNull(sessions.deletedAt),
@@ -369,59 +589,19 @@ export const AnalyticsService = {
       const sessionIds = recentSessions.map(s => s.id);
       if (sessionIds.length === 0) return [];
 
-      const allSets = await db.select()
+      const allSets = await db.select({
+        sessionId: sets.sessionId,
+        weightKg: sets.weightKg,
+        reps: sets.reps,
+        isWarmup: sets.isWarmup,
+      })
         .from(sets)
         .where(and(
           isNull(sets.deletedAt),
           inArray(sets.sessionId, sessionIds),
         ));
 
-      // Group by ISO week
-      const weekMap = new Map<string, { volume: number; sets: number; sessions: Set<number> }>();
-
-      // Initialize all weeks in range
-      const start = new Date(since);
-      for (let i = 0; i <= 12; i++) {
-        const weekDate = new Date(start.getTime() + i * MS_PER_WEEK);
-        const weekKey = getISOWeek(weekDate.getTime());
-        if (!weekMap.has(weekKey)) {
-          weekMap.set(weekKey, { volume: 0, sets: 0, sessions: new Set() });
-        }
-      }
-
-      const setsBySession = new Map<number, typeof allSets>();
-      for (const set of allSets) {
-        if (set.isWarmup) continue;
-        const list = setsBySession.get(set.sessionId);
-        if (list) {
-          list.push(set);
-        } else {
-          setsBySession.set(set.sessionId, [set]);
-        }
-      }
-
-      for (const session of recentSessions) {
-        const weekKey = getISOWeek(session.startTime);
-        const entry = weekMap.get(weekKey);
-        if (!entry) continue;
-        entry.sessions.add(session.id);
-
-        const sessionSets = setsBySession.get(session.id);
-        if (sessionSets) {
-          for (const set of sessionSets) {
-            entry.volume += (set.weightKg * set.reps);
-            entry.sets++;
-          }
-        }
-      }
-
-      return Array.from(weekMap.entries()).map(([week, data]) => ({
-        week,
-        totalVolume: Math.round(data.volume),
-        totalSets: data.sets,
-        sessionCount: data.sessions.size,
-        avgVolumePerSession: data.sessions.size > 0 ? Math.round(data.volume / data.sessions.size) : 0,
-      }));
+      return computeVolumeTrendsFromData(recentSessions, allSets, since);
     } catch (e) {
       logger.error('Failed to calculate volume trends', e);
       throw e;
@@ -436,30 +616,12 @@ export const AnalyticsService = {
       const PREV_SINCE = since - TWELVE_WEEKS_MS;
       const effectiveTime = sql`COALESCE(${sets.createdAt}, ${sessions.startTime})`;
 
-      // Recent period: [since, ...)
-      const recentSets = await db.select({
+      const combinedSets = await db.select({
         exerciseId: sets.exerciseId,
         exerciseName: sql<string>`COALESCE(${sets.exerciseName}, ${exercises.name})`,
         weightKg: sets.weightKg,
         createdAt: sets.createdAt,
-      })
-        .from(sets)
-        .innerJoin(sessions, eq(sets.sessionId, sessions.id))
-        .leftJoin(exercises, eq(sets.exerciseId, exercises.id))
-        .where(and(
-          isNull(sets.deletedAt),
-          sql`NOT ${sets.isWarmup}`,
-          isNull(sessions.deletedAt),
-          sql`${sessions.endTime} IS NOT NULL`,
-          sql`${effectiveTime} >= ${since}`,
-        ));
-
-      // Previous period: [PREV_SINCE, since)
-      const prevSets = await db.select({
-        exerciseId: sets.exerciseId,
-        exerciseName: sql<string>`COALESCE(${sets.exerciseName}, ${exercises.name})`,
-        weightKg: sets.weightKg,
-        createdAt: sets.createdAt,
+        effectiveTime: sql<number>`${effectiveTime}`,
       })
         .from(sets)
         .innerJoin(sessions, eq(sets.sessionId, sessions.id))
@@ -470,25 +632,24 @@ export const AnalyticsService = {
           isNull(sessions.deletedAt),
           sql`${sessions.endTime} IS NOT NULL`,
           sql`${effectiveTime} >= ${PREV_SINCE}`,
-          sql`${effectiveTime} < ${since}`,
         ));
 
       // Current max weight per exercise
       const currentMax = new Map<number, { name: string; maxWeight: number }>();
-      for (const s of recentSets) {
-        if (!s.exerciseName) continue;
-        const existing = currentMax.get(s.exerciseId);
-        if (!existing || s.weightKg > existing.maxWeight) {
-          currentMax.set(s.exerciseId, { name: s.exerciseName, maxWeight: s.weightKg });
-        }
-      }
-
-      // Previous max weight per exercise
       const previousMax = new Map<number, number>();
-      for (const s of prevSets) {
-        const existing = previousMax.get(s.exerciseId);
-        if (existing === undefined || s.weightKg > existing) {
-          previousMax.set(s.exerciseId, s.weightKg);
+
+      for (const s of combinedSets) {
+        if (!s.exerciseName) continue;
+        if (s.effectiveTime >= since) {
+          const existing = currentMax.get(s.exerciseId);
+          if (!existing || s.weightKg > existing.maxWeight) {
+            currentMax.set(s.exerciseId, { name: s.exerciseName, maxWeight: s.weightKg });
+          }
+        } else if (s.effectiveTime >= PREV_SINCE && s.effectiveTime < since) {
+          const existing = previousMax.get(s.exerciseId);
+          if (existing === undefined || s.weightKg > existing) {
+            previousMax.set(s.exerciseId, s.weightKg);
+          }
         }
       }
 
@@ -614,6 +775,33 @@ export const AnalyticsService = {
     } catch (e) {
       logger.error('Failed to calculate volume by muscle group', e);
       return {};
+    }
+  },
+
+  /** Get body weight history for charting, sorted by date asc */
+  async getBodyWeightHistory(): Promise<{ timestamp: number; value: number }[]> {
+    try {
+      const rows = await db
+        .select({
+          date: bodyMetrics.date,
+          weight: bodyMetrics.weight,
+        })
+        .from(bodyMetrics)
+        .where(and(
+          sql`${bodyMetrics.weight} IS NOT NULL`,
+          sql`${bodyMetrics.weight} > 0`
+        ))
+        .orderBy(asc(bodyMetrics.date));
+
+      return rows
+        .filter(r => isDisplayableBodyMetricValue(r.weight) && r.weight! > 0)
+        .map(r => ({
+          timestamp: r.date,
+          value: r.weight!,
+        }));
+    } catch (e) {
+      logger.error('Failed to get body weight history', e);
+      return [];
     }
   },
 };

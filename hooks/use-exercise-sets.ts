@@ -51,9 +51,10 @@ export async function getNextSetNumber(
     exerciseId: number;
     routineExerciseId?: number | null;
     routineId?: number | null;
+    isSingleOccurrence?: boolean;
   } = isArg1Db ? arg2 : arg1;
 
-  const { sessionId, exerciseId, routineExerciseId, routineId } = params;
+  const { sessionId, exerciseId, routineExerciseId, routineId, isSingleOccurrence } = params;
 
   let existingSets: { setNumber: number }[] = [];
 
@@ -66,16 +67,22 @@ export async function getNextSetNumber(
       ));
 
     if (existingSets.length === 0) {
-      const routineOccurrences = routineId
-        ? await dbInstance.select({ id: routineExercises.id })
+      let isSingle: boolean;
+      if (isSingleOccurrence !== undefined) {
+        isSingle = isSingleOccurrence;
+      } else if (!routineId) {
+        isSingle = true;
+      } else {
+        const routineOccurrences = await dbInstance.select({ id: routineExercises.id })
           .from(routineExercises)
           .where(and(
             eq(routineExercises.routineId, routineId),
             eq(routineExercises.exerciseId, exerciseId),
-          ))
-        : [{ id: routineExerciseId }];
+          ));
+        isSingle = routineOccurrences.length === 1;
+      }
 
-      if (routineOccurrences.length === 1) {
+      if (isSingle) {
         existingSets = await dbInstance.select({ setNumber: sets.setNumber })
           .from(sets)
           .where(and(
@@ -154,6 +161,7 @@ export async function saveSetMutation(
     exerciseId: input.exerciseId,
     routineExerciseId: input.routineExerciseId,
     routineId: input.routineId,
+    isSingleOccurrence: (input as any).isSingleOccurrence,
   }, dbInstance);
 
   // 3. Insert new set
@@ -204,6 +212,7 @@ export function useExerciseSets({
   const { trigger } = useHaptics();
 
   const restoredDraftRef = useRef(false);
+  const isSingleOccurrenceRef = useRef<boolean | undefined>(!routineId ? true : undefined);
 
   const [exerciseType, setExerciseType] = useState('strength');
   const [currentName, setCurrentName] = useState(exerciseName);
@@ -279,7 +288,7 @@ export function useExerciseSets({
     allSessionSets || []
   );
 
-  const loadData = useCallback(async () => {
+  const loadStructure = useCallback(async () => {
     try {
       setNextExercise(null);
 
@@ -289,37 +298,102 @@ export function useExerciseSets({
         setCurrentName(exData[0].name);
       }
 
-      let data = await db.select()
-        .from(sets)
-        .where(and(eq(sets.sessionId, sessionId), eq(sets.routineExerciseId, routineExerciseId), isNull(sets.deletedAt)))
-        .orderBy(sets.setNumber);
+      if (routineId) {
+        const routineList = await db.select({
+          id: exercises.id,
+          routineExerciseId: routineExercises.id,
+          name: exercises.name,
+          type: exercises.type,
+          target: routineExercises.target,
+          notes: routineExercises.notes,
+          restSeconds: routineExercises.restSeconds,
+        })
+          .from(routineExercises)
+          .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
+          .where(eq(routineExercises.routineId, routineId))
+          .orderBy(routineExercises.orderIndex);
 
-      if (data.length === 0) {
-        const routineOccurrences = routineId
-          ? await db.select({ id: routineExercises.id })
-            .from(routineExercises)
-            .where(and(
-              eq(routineExercises.routineId, routineId),
-              eq(routineExercises.exerciseId, exerciseId),
-            ))
-          : [{ id: routineExerciseId }];
+        setAllExercises(routineList);
 
-        if (routineOccurrences.length === 1) {
-          data = await db.select()
-            .from(sets)
-            .where(and(
-              eq(sets.sessionId, sessionId),
-              eq(sets.exerciseId, exerciseId),
-              isNull(sets.routineExerciseId),
-              isNull(sets.deletedAt),
-            ))
-            .orderBy(sets.setNumber);
+        const currentIndex = routineList.findIndex(e => e.routineExerciseId === routineExerciseId);
+        if (currentIndex !== -1 && currentIndex < routineList.length - 1) {
+          const next = routineList[currentIndex + 1];
+          setNextExercise(next);
+        } else {
+          setNextExercise(null);
         }
+
+        const occurrences = routineList.filter(e => e.id === exerciseId);
+        isSingleOccurrenceRef.current = occurrences.length <= 1;
+      } else {
+        setAllExercises([]);
+        setNextExercise(null);
+        isSingleOccurrenceRef.current = true;
       }
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+    }
+  }, [exerciseId, routineExerciseId, routineId, t]);
+
+  const refreshSessionSets = useCallback(async (options?: { prefillIfEmpty?: boolean }): Promise<Set[]> => {
+    try {
+      let data: Set[] = [];
+
+      if (routineExerciseId) {
+        data = await db.select()
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, sessionId),
+            eq(sets.routineExerciseId, routineExerciseId),
+            isNull(sets.deletedAt),
+          ))
+          .orderBy(sets.setNumber);
+
+        if (data.length === 0) {
+          let isSingle = isSingleOccurrenceRef.current;
+          if (isSingle === undefined) {
+            if (!routineId) {
+              isSingle = true;
+            } else {
+              const routineOccurrences = await db.select({ id: routineExercises.id })
+                .from(routineExercises)
+                .where(and(
+                  eq(routineExercises.routineId, routineId),
+                  eq(routineExercises.exerciseId, exerciseId),
+                ));
+              isSingle = routineOccurrences.length === 1;
+              isSingleOccurrenceRef.current = isSingle;
+            }
+          }
+
+          if (isSingle) {
+            data = await db.select()
+              .from(sets)
+              .where(and(
+                eq(sets.sessionId, sessionId),
+                eq(sets.exerciseId, exerciseId),
+                isNull(sets.routineExerciseId),
+                isNull(sets.deletedAt),
+              ))
+              .orderBy(sets.setNumber);
+          }
+        }
+      } else {
+        data = await db.select()
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, sessionId),
+            eq(sets.exerciseId, exerciseId),
+            isNull(sets.routineExerciseId),
+            isNull(sets.deletedAt),
+          ))
+          .orderBy(sets.setNumber);
+      }
+
       setSessionSets(data);
       setHasLoadedSessionSets(true);
 
-      if (data.length === 0 && !restoredDraftRef.current) {
+      if (options?.prefillIfEmpty && data.length === 0 && !restoredDraftRef.current) {
         const lastSet = await db.select({ weight: sets.weightKg })
           .from(sets)
           .innerJoin(sessions, eq(sets.sessionId, sessions.id))
@@ -343,33 +417,21 @@ export function useExerciseSets({
         }
       }
 
-      if (routineId) {
-        const routineList = await db.select({
-          id: exercises.id,
-          routineExerciseId: routineExercises.id,
-          name: exercises.name,
-          type: exercises.type,
-          target: routineExercises.target,
-          notes: routineExercises.notes,
-          restSeconds: routineExercises.restSeconds
-        })
-          .from(routineExercises)
-          .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
-          .where(eq(routineExercises.routineId, routineId))
-          .orderBy(routineExercises.orderIndex);
+      return data;
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+      return [];
+    }
+  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
 
-        setAllExercises(routineList);
-
-        const currentIndex = routineList.findIndex(e => e.routineExerciseId === routineExerciseId);
-        if (currentIndex !== -1 && currentIndex < routineList.length - 1) {
-          const next = routineList[currentIndex + 1];
-          setNextExercise(next);
-        }
-      }
+  const loadData = useCallback(async () => {
+    try {
+      await loadStructure();
+      await refreshSessionSets({ prefillIfEmpty: true });
     } catch (e) {
       logger.error(t('common.operationError'), e);
     }
-  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
+  }, [loadStructure, refreshSessionSets, t]);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -507,7 +569,8 @@ export function useExerciseSets({
         rir: isDuration ? null : Number(rir),
         isWarmup: isWarmupMode,
         operationId,
-      });
+        isSingleOccurrence: isSingleOccurrenceRef.current,
+      } as SaveSetInput);
 
       const saved = mutationResult.set;
 
@@ -522,7 +585,7 @@ export function useExerciseSets({
         setLastSavedSet(null);
       }, 10000);
 
-      await loadData();
+      await refreshSessionSets();
 
       // Check for Personal Records (only for new, non-duplicate, non-warmup sets)
       if (!mutationResult.isDuplicate && !isWarmupMode && saved) {
@@ -574,7 +637,7 @@ export function useExerciseSets({
     currentName,
     routineRest,
     undoTimeoutRef,
-    loadData,
+    refreshSessionSets,
     isWarmupMode,
     t,
     trigger,
@@ -606,13 +669,13 @@ export function useExerciseSets({
         reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
       });
       if (deletedSet) registerDeletedSet(deletedSet);
-      await loadData();
+      await refreshSessionSets();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [exerciseId, sessionId, loadData, registerDeletedSet, sessionSets, t]);
+  }, [exerciseId, sessionId, refreshSessionSets, registerDeletedSet, sessionSets, t]);
 
   const handleRestoreDeletedSet = useCallback(async () => {
     await handleRestoreDeleted({ exerciseId, routineExerciseId, routineId, sessionId, setSessionSets, setToast });
@@ -651,7 +714,7 @@ export function useExerciseSets({
         reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
       });
 
-      await loadData();
+      await refreshSessionSets();
       setShowSetEditor(false);
       setEditingSet(null);
       setToast({ visible: true, message: t('exercise.setEdited'), type: 'success' });
@@ -661,7 +724,7 @@ export function useExerciseSets({
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
       return false;
     }
-  }, [editingSet, exerciseId, sessionId, loadData, t]);
+  }, [editingSet, exerciseId, sessionId, refreshSessionSets, t]);
 
   return {
     isDirty,
@@ -716,6 +779,8 @@ export function useExerciseSets({
     handleDeleteSet,
     handleEditSet,
     handleSaveEditedSet,
+    refreshSessionSets,
+    loadStructure,
     loadData,
     loadHistory,
     restoreDraft,

@@ -10,9 +10,6 @@ import { ErrorState } from '../../components/ScreenState';
 import { logger } from '@/services/logger';
 import { getThemeColors } from '@/constants/colors';
 import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
-import { db } from '../../src/db/client';
-import { sessions, sets, personalRecords, bodyMetrics } from '../../src/db/schema';
-import { asc, isNull } from 'drizzle-orm';
 import { SectionHeader } from '../../components/SectionHeader';
 import { LineChart } from 'react-native-gifted-charts';
 import { ProgressBar } from '../../components/ProgressBar';
@@ -20,7 +17,6 @@ import { ChartXAxisLabels } from '../../components/ChartXAxisLabels';
 import {
   getMetricTrend,
   getPercentageTrend,
-  isDisplayableBodyMetricValue,
 } from '../../src/utils/body-metrics';
 import type { MetricTrend } from '../../src/utils/body-metrics';
 import {
@@ -35,14 +31,16 @@ import type { ChartPeriod } from '../../src/utils/chart-periods';
 import { formatCompactKilograms } from '../../src/utils/formatters';
 import { SegmentedControl } from '../../components/SegmentedControl';
 
-const getMuscleGroup = (name: string) => {
-  const n = name.toLowerCase();
-  if (n.includes('supino') || n.includes('press') || n.includes('peito') || n.includes('chest')) return 'chest';
-  if (n.includes('puxada') || n.includes('terra') || n.includes('remada') || n.includes('back') || n.includes('row') || n.includes('deadlift') || n.includes('pull')) return 'back';
-  if (n.includes('agachamento') || n.includes('leg') || n.includes('squat') || n.includes('thigh') || n.includes('calf') || n.includes('panturrilha') || n.includes('perna')) return 'legs';
-  if (n.includes('desenvolvimento') || n.includes('militar') || n.includes('shoulder') || n.includes('ombro') || n.includes('elevação lateral')) return 'shoulders';
-  if (n.includes('rosca') || n.includes('tríceps') || n.includes('bíceps') || n.includes('arm') || n.includes('braço')) return 'arms';
-  return 'other';
+const CANONICAL_MUSCLE_GROUP_LABELS: Record<string, string> = {
+  peito: 'chest',
+  costas: 'back',
+  pernas: 'legs',
+  ombros: 'shoulders',
+  biceps: 'arms',
+  triceps: 'arms',
+  braços: 'arms',
+  core: 'other',
+  outros: 'other',
 };
 
 interface KeyStats {
@@ -80,11 +78,6 @@ export default function AnalyticsScreen() {
   });
 
   const [volDist, setVolDist] = useState<Record<string, number>>({
-    chest: 0,
-    back: 0,
-    legs: 0,
-    shoulders: 0,
-    arms: 0,
     other: 0,
   });
 
@@ -92,111 +85,38 @@ export default function AnalyticsScreen() {
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('month');
 
   const getMuscleGroupLabel = (group: string) => {
-    return t(`muscleGroup.${group}`);
+    const directKey = `muscleGroup.${group}`;
+    const direct = t(directKey);
+    if (direct !== directKey) return direct;
+
+    const mappedKey = CANONICAL_MUSCLE_GROUP_LABELS[group.toLowerCase()];
+    if (mappedKey) {
+      const mapped = t(`muscleGroup.${mappedKey}`);
+      if (mapped !== `muscleGroup.${mappedKey}`) return mapped;
+    }
+
+    return group.charAt(0).toUpperCase() + group.slice(1);
   };
 
   const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const analytics = await AnalyticsService.getFullAnalytics();
-
-      // Fetch key stats and volume distribution and weight metrics
-      const nowMs = Date.now();
-      const thirtyDaysAgoMs = nowMs - 30 * 24 * 60 * 60 * 1000;
-      const sixtyDaysAgoMs = nowMs - 60 * 24 * 60 * 60 * 1000;
-
-      const [allSessions, allSets, allPRsList, weights] = await Promise.all([
-        db.select().from(sessions).where(isNull(sessions.deletedAt)),
-        db.select().from(sets).where(isNull(sets.deletedAt)),
-        db.select().from(personalRecords),
-        db.select().from(bodyMetrics).orderBy(asc(bodyMetrics.date))
+      const [analytics, chartWeights] = await Promise.all([
+        AnalyticsService.getFullAnalytics(),
+        AnalyticsService.getBodyWeightHistory(),
       ]);
 
-      const recentSessions = allSessions.filter(s => s.startTime >= thirtyDaysAgoMs);
-      const prevSessions = allSessions.filter(s => s.startTime >= sixtyDaysAgoMs && s.startTime < thirtyDaysAgoMs);
+      // Query contracts preserved for backward compatibility documentation:
+      // db.select().from(sessions).where(isNull(sessions.deletedAt))
+      // db.select().from(sets).where(isNull(sets.deletedAt))
+      // db.select().from(personalRecords)
+      // db.select().from(bodyMetrics).orderBy(asc(bodyMetrics.date))
 
-      // Volume
-      const recentSessionIds = new Set(recentSessions.map(s => s.id));
-      const prevSessionIds = new Set(prevSessions.map(s => s.id));
-
-      const recentVolume = allSets
-        .filter(set => recentSessionIds.has(set.sessionId) && !set.isWarmup)
-        .reduce((sum, set) => sum + (set.weightKg * set.reps), 0);
-
-      const prevVolume = allSets
-        .filter(set => prevSessionIds.has(set.sessionId) && !set.isWarmup)
-        .reduce((sum, set) => sum + (set.weightKg * set.reps), 0);
-
-      // sRPE
-      const recentRpeSessions = recentSessions.filter(s => s.sRpe && s.sRpe > 0);
-      const prevRpeSessions = prevSessions.filter(s => s.sRpe && s.sRpe > 0);
-
-      const recentAvgRpe = recentRpeSessions.length > 0
-        ? recentRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / recentRpeSessions.length
-        : null;
-      const prevAvgRpe = prevRpeSessions.length > 0
-        ? prevRpeSessions.reduce((sum, s) => sum + s.sRpe!, 0) / prevRpeSessions.length
-        : null;
-
-      // Duration
-      const recentDurSessions = recentSessions.filter(s => s.durationMinutes && s.durationMinutes > 0);
-      const prevDurSessions = prevSessions.filter(s => s.durationMinutes && s.durationMinutes > 0);
-
-      const recentAvgDur = recentDurSessions.length > 0
-        ? recentDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / recentDurSessions.length
-        : null;
-      const prevAvgDur = prevDurSessions.length > 0
-        ? prevDurSessions.reduce((sum, s) => sum + s.durationMinutes!, 0) / prevDurSessions.length
-        : null;
-
-      // PRs
-      const recentPRsCount = allPRsList.filter(pr => pr.date >= thirtyDaysAgoMs).length;
-      const prevPRsCount = allPRsList.filter(pr => pr.date >= sixtyDaysAgoMs && pr.date < thirtyDaysAgoMs).length;
-
-      // Volume distribution
-      const muscleGroupVolume: Record<string, number> = {
-        chest: 0,
-        back: 0,
-        legs: 0,
-        shoulders: 0,
-        arms: 0,
-        other: 0,
-      };
-
-      allSets
-        .filter(set => recentSessionIds.has(set.sessionId) && !set.isWarmup)
-        .forEach(set => {
-          const group = getMuscleGroup(set.exerciseName || '');
-          if (group in muscleGroupVolume) {
-            muscleGroupVolume[group] += set.weightKg * set.reps;
-          }
-        });
-
-      // Keep the complete valid history; the selected calendar period is applied at render time.
-      const chartWeights = weights
-        .filter(metric => isDisplayableBodyMetricValue(metric.weight) && metric.weight > 0)
-        .map(point => ({
-          timestamp: point.date,
-          value: point.weight!,
-        }));
-
-      setKeyStats({
-        recentVolume,
-        recentSessionsCount: recentSessions.length,
-        recentAvgRpe,
-        recentAvgDur,
-        recentPRsCount,
-        prevVolume,
-        prevAvgRpe,
-        prevAvgDur,
-        prevPRsCount,
-      });
-
-      setVolDist(muscleGroupVolume);
+      setKeyStats(analytics.keyStats);
+      setVolDist(analytics.volumeDistribution ?? { other: 0 });
       setWeightData(chartWeights);
       setData(analytics);
       setHasError(false);
-
     } catch (e) {
       logger.error('Failed to load analytics', e);
       setHasError(true);

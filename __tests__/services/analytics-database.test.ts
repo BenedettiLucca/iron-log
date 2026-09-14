@@ -17,7 +17,7 @@ const since = Date.UTC(2026, 0, 5);
 const week = 7 * 86400000;
 
 beforeEach(() => {
-  sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
+  sqlite.exec('DELETE FROM program_exercise_targets; DELETE FROM programs; DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
 });
 afterAll(() => sqlite.close());
 
