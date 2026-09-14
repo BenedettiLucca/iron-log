@@ -102,7 +102,14 @@ case "$cmd" in
   stop)
     if serial_alive; then
       "$ADB" -s "$DEVICE_SERIAL" emu kill >/dev/null 2>&1 || pkill -f "qemu.*$AVD_NAME" || true
-      echo "stopped: $DEVICE_SERIAL"
+      # wait for actual shutdown — a fire-and-forget kill races with an immediate `boot`
+      local_deadline=$((SECONDS + 20))
+      while serial_alive && [ $SECONDS -lt $local_deadline ]; do sleep 1; done
+      if serial_alive; then
+        echo "WARN: $DEVICE_SERIAL still visible after 20s — check qemu process"
+      else
+        echo "stopped: $DEVICE_SERIAL"
+      fi
     else
       echo "emulator already offline"
     fi
