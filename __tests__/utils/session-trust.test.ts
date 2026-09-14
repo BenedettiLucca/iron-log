@@ -36,6 +36,20 @@ describe('set editor validation', () => {
       rir: 0,
     });
   });
+
+  it('accepts pt-BR comma decimal weight and normalizes to float (#129)', () => {
+    expect(parseEditedSetInput({
+      weight: '45,5',
+      reps: '8',
+      rir: '2',
+      isDuration: false,
+    })).toEqual({
+      ok: true,
+      weightKg: 45.5,
+      reps: 8,
+      rir: 2,
+    });
+  });
 });
 
 describe('session trust guards', () => {
