@@ -141,6 +141,45 @@ Ao encontrar problema, registre em `docs/qa/<data>-<tema>.md`:
 
 ## Limitações conhecidas
 
+### Mapa: o que automatiza vs. o que continua humano (validado empiricamente 2026-09-14)
+
+**Automatizado (agent executa sozinho, já provado):**
+
+| Capacidade | Como |
+|---|---|
+| Boot/lifecycle do AVD, install, launch, reset | `scripts/qa.sh` (condições reais via ADB, sem sleep) |
+| Observar UI estruturada (labels/texto/frames) | `device_snapshot` (a11y tree) |
+| Interação semântica (tap/type/swipe/long-press/back/home) | `device_tap_element`, `device_type`, `device_swipe` etc. |
+| Screenshot / gravação de vídeo como evidência | `device_screenshot`, `device_screen_recording` |
+| Estado/lifecycle do app, permissões (detectar diálogo) | `device_app_state`, `device_get_alert_text`, `device_dismiss_alert` |
+| Logcat, crashes, correlação JS | `device_logs`, `qa.sh logs` |
+| **Inspeção do runtime JS (Hermes CDP)** | `hermes_targets` + `hermes_cdp` (Runtime.evaluate/Debugger.* — provado com app vivo) |
+| Regressão determinística de smoke | Maestro `.maestro/*.yaml` |
+| Detecção de bug funcional, screenshot+log+stack, ciclo fix→rebuild→retest | protocolo AGENTS.md |
+
+**Precisa de julgamento (agente executa, humano avalia):**
+
+| Capacidade | Por quê |
+|---|---|
+| "Está bonito/legível?" — layout, contraste, hierarquia visual | screenshot o agente tira; *julgamento estético* é seu |
+| Aceitação de produto ("esse fluxo faz sentido pra usar na academia?") | critério é seu, não do agente |
+| Ferida de UX subjetiva (haptics, timing, animação "cansa") | só sentindo no device físico |
+
+**Humano no device físico (irredutível, hoje):**
+
+| Capacidade | Por quê |
+|---|---|
+| Sensores reais: GPS, barômetro, acelerômetro em movimento | emulador simula, não reproduz |
+| Notificações/push em condições reais (Doze, battery killer do fabricante) | comportamento OEM não existe no AOSP emulator |
+| Desempenho percebido (jank, térmica, bateria) | swiftshader ≠ GPU real |
+| Integrações com contas/contatos/sistema (share targets, Drive OAuth) | ambiente de conta real |
+
+**Regra de bolso:** ~85-90% do ciclo issue→PR roda sem você. O humano entra em 3 pontos:
+(1) definir *o que* é aceitável (critério), (2) validar *como parece* (estética/UX), (3) o que só
+existe fora do emulador (sensores/OEM/desempenho).
+
+### Limitações técnicas
+
 - **KVM é hard requirement.** Emulador x86_64 (r37+) aborta sem `/dev/kvm` —
   "x86_64 emulation currently requires hardware acceleration". `SVM` precisa estar **habilitado na
   BIOS** (AMD); `kvm_amd` então auto-carrega. Sem isso `qa.sh boot` falha com
@@ -154,6 +193,12 @@ Ao encontrar problema, registre em `docs/qa/<data>-<tema>.md`:
 - Metro + Hermes CDP exigem build debug; QA de build release fica restrito a UI + logcat.
 - GPU é `swiftshader_indirect` (software): suficiente pra QA; performance de animações no emulador
   não representa device físico.
+- **`device_type` no backend Android NÃO limpa o campo** (descreve que limpa; 0.4.0 não faz) —
+  vira concatenação. Limpar antes via foco+deletes ou usar ADB `input text`. Issue upstream.
+- **Snackbar dev "Open debugger to view warnings" cobre a barra de ação** e engole taps nos CTAs
+  (visto 2×). Fechar pelo X antes de interagir com a parte de baixo da tela; só existe em debug.
+- Multi-página Hermes: app com state restoration expõe 2 targets; `hermes_cdp` escolhe o `-1`
+  (primeiro). Se um dia avaliar runtime errado, conferir `hermes_targets` antes.
 
 ## Troubleshooting
 
@@ -163,7 +208,7 @@ Ao encontrar problema, registre em `docs/qa/<data>-<tema>.md`:
 | `emulator died during boot` | KVM ausente (SVM off) ou GPU | habilite SVM; log em `.qa-artifacts/emulator.log` |
 | `adb devices` vazio com qemu vivo | adb server stale | `adb kill-server && adb start-server` |
 | Maestro falha no launch | app não instalado | `qa.sh install` antes |
-| `device_snapshot`: "unexpected certificate" / "APK path could not be resolved" | helper `io.metamask.devicemcp.snapshothelper` órfão/incompatível após desinstalar-reinstalar manual | desinstalar helper (`adb uninstall -t io.metamask.devicemcp.snapshothelper`) e reiniciar a sessão MCP — server novo auto-instala o APK correto. Interação via ADB (`input tap/text`) e screenshots continuam funcionando nesse meio tempo |
-| Instalação manual do helper falha: `INSTALL_FAILED_TEST_ONLY` | APK do helper é test-only | usar `adb install -t -r <apk>` (APK em `dist/android/` do pacote npm) |
+| `device_snapshot`/tools com helper: "unexpected certificate" de forma intermitente | device-mcp fixa o pin do cert do helper **por processo de server** (TOFU); reinstalar o helper sob servers vivos deixa pins antigos inválidos → aceita/rejeita alternando entre processos | **não reinstale o helper com a sessão viva**; se precisar: reinstall com `adb install --no-incremental -t -r` (o modo incremental corrompe a verificação) e reinicie a sessão MCP (restart do desktop app) — server fresco fixa pin novo e volta a funcionar |
+| Instalação manual do helper falha: `INSTALL_FAILED_TEST_ONLY` | APK do helper é test-only | `adb install --no-incremental -t -r <apk>` (APK em `dist/android/` do pacote npm); **`--no-incremental` é obrigatório** |
 | MCP device-mcp "awaiting selection" | >1 device conectado | `device_select_device` com `emulator-5554` |
 | Emulator não abre janela no uso manual | scripts sobem `-no-window` | para sessão interativa: `emulator -avd ironlog-qa` direto |
