@@ -1,0 +1,12 @@
+# Iron Log — smoke: visit every bottom tab
+appId: com.lucca.ironlog
+name: smoke / tabs navigation
+---
+- launchApp
+- tapOn: "Treinos"
+- tapOn: "Histórico"
+- tapOn: "Biometria"
+- tapOn: "Ajustes"
+- assertVisible: "Configurações"
+- tapOn: "Início"
+- assertVisible: "Início"

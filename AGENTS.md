@@ -68,3 +68,35 @@ validações diferentes de typecheck, lint e Jest; não misture esses níveis no
 Stage apenas os arquivos pretendidos; use Conventional Commits, não bypass hooks e não adicione
 créditos de agente/LLM. Push, merge, release ou alteração de dados externos exigem autorização
 explícita e verificação posterior. A resposta final deve separar fato, inferência e opinião.
+
+## QA Android agent-native (obrigatório para mudanças em UI/fluxo)
+
+Qualquer mudança em `app/`, `components/`, `hooks/` ou `services/` que afete comportamento visível
+deve ser validada no AVD antes de PR — automação e gates executáveis primeiro, julgamento depois.
+
+```bash
+scripts/qa.sh boot       # sobe AVD headless ironlog-qa (espera sys.boot_completed, sem sleep fixo)
+scripts/qa.sh install    # builda assembleDebug (se necessário) e instala
+scripts/qa.sh app        # lança o app
+scripts/qa.sh smoke      # suíte Maestro (.maestro/*.yaml) — DEVE passar 100% antes de PR
+scripts/qa.sh logs       # logcat filtrado (ReactNativeJS/ReactNative/crashes)
+scripts/qa.sh snap       # screenshot em .qa-artifacts/
+scripts/qa.sh reset      # pm clear — estado limpo para o próximo teste
+scripts/qa.sh stop       # desliga o emulador
+```
+
+Protocolo para coding agents (agy/oc/Hermes):
+
+1. `scripts/qa.sh boot` → `install` → `app`. Nunca presuma que o emulador está pronto: use os
+   comandos, que esperam condições reais via ADB.
+2. QA exploratório via MCP `device-mcp` (tools `device_*`, `hermes_*`) — prefira
+   `device_snapshot`/labels de acessibilidade a coordenadas; screenshot só como fallback.
+3. Fluxo quebrado = colete evidência (`qa.sh snap` + `qa.sh logs`), diagnostique, corrija, rebuild
+   e re-teste. Sem gates Android passando, não há "pronto".
+4. Cenário valioso descoberto em QA exploratório vira flow `.maestro/` (regressão determinística).
+   Testes não são rubber stamp: nunca afrouxe uma assertion sem justificativa explícita no diff.
+5. Requisito de ambiente: `/dev/kvm` é **obrigatório** (módulo `kvm_amd`; ver
+   `docs/agentic-android-qa.md`). Emulador x86_64 **se recusa a bootar sem KVM** — não é apenas
+   mais lento.
+
+Detalhes de arquitetura e troubleshooting: `docs/agentic-android-qa.md`.

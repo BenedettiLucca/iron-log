@@ -1,0 +1,16 @@
+# Iron Log — smoke: start empty workout from Home CTA
+appId: com.lucca.ironlog
+name: smoke / start workout
+---
+- launchApp
+- assertVisible: "Início"
+- tapOn:
+    text: "Iniciar Treino"
+    optional: true
+- tapOn:
+    text: "Iniciar"
+    index: 0
+    optional: true
+- assertVisible:
+    id: "session-screen"
+    optional: true
