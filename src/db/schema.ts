@@ -73,6 +73,12 @@ export const sets = sqliteTable('sets', {
 }, (t) => [
   index("sets_routine_exercise_id_idx").on(t.routineExerciseId),
   uniqueIndex("sets_operation_id_unique").on(t.operationId),
+  // T25: IDX_C — sets(exercise_id, deleted_at): eliminates table filter after exercise_id seek.
+  // Targets reconcilePersonalRecordsTx hot-path. Gain: 87% median reduction (10k-set fixture).
+  index("sets_exercise_deleted_idx").on(t.exerciseId, t.deletedAt),
+  // T25: IDX_D — sets(session_id, exercise_id, deleted_at, set_number): eliminates temp B-TREE sort.
+  // Targets use-exercise-sets refreshSessionSets (active session, every set change). Gain: 88%.
+  index("sets_session_exercise_deleted_setnum_idx").on(t.sessionId, t.exerciseId, t.deletedAt, t.setNumber),
 ]);
 
 // TABELA: Métricas Corporais e Fotos
@@ -182,6 +188,7 @@ export const sessionsRoutineIdx = index("sessions_routine_id_idx").on(sessions.r
 export const programsActiveIdx = index("programs_active_idx").on(programs.isActive);
 export const programWeeksProgramIdx = index("pw_program_id_idx").on(programWeeks.programId);
 export const programExerciseTargetsIdx = index("pet_program_exercise_idx").on(programExerciseTargets.programId, programExerciseTargets.exerciseId);
+
 
 // TABELA: Suplementos
 export const supplements = sqliteTable('supplements', {

@@ -193,6 +193,8 @@ CREATE INDEX supplement_logs_date_idx ON supplement_logs (date);
 CREATE INDEX supplement_logs_supplement_id_idx ON supplement_logs (supplement_id);
 CREATE INDEX supplement_logs_compound_idx ON supplement_logs (supplement_id, date);
 CREATE INDEX supplements_active_idx ON supplements (is_active);
+CREATE INDEX sets_exercise_deleted_idx ON sets (exercise_id, deleted_at);
+CREATE INDEX sets_session_exercise_deleted_setnum_idx ON sets (session_id, exercise_id, deleted_at, set_number);
 `;
 
 sqlite.exec(schemaDdl);

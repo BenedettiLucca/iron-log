@@ -176,6 +176,13 @@
       "when": 1789257994881,
       "tag": "0024_happy_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1789423286407,
+      "tag": "0025_sturdy_tigra",
+      "breakpoints": true
     }
   ]
 }
