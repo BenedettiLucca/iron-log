@@ -10,6 +10,7 @@ import {
   DailyActivityBucket,
   HeatmapDay,
 } from '@/services/ActivityHeatmapService';
+import { isValidDateKey } from '@/services/HistoryQueryService';
 
 interface ActivityHeatmapProps {
   data?: DailyActivityBucket[];
@@ -86,8 +87,11 @@ export function ActivityHeatmap({
     if (onDayPress) {
       const bucket = localData.find((b) => b.date === day.date);
       onDayPress(day.date, bucket);
-    } else if (day.sessions > 0) {
-      router.push('/(tabs)/history');
+    } else if (day.sessions > 0 && isValidDateKey(day.date)) {
+      router.push({
+        pathname: '/(tabs)/history',
+        params: { date: day.date },
+      });
     }
   };
 

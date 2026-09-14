@@ -29,8 +29,8 @@ const incompleteSessionSection = sourceSection(indexSource, '{/* Incomplete Sess
 const activeProgramSection = sourceSection(indexSource, '{/* Active Program / Dashboard */}', '{/* Key Lifts Dashboard */}');
 const keyLiftsSection = sourceSection(indexSource, '{/* Key Lifts Dashboard */}', 'home.lastSession');
 const availableRoutinesSection = sourceSection(indexSource, 'home.availableRoutines', '</ScrollView>');
-const historyRowsSection = sourceSection(historySource, 'renderItem={({ item, index })', '<Dialog');
-const historyRetrySection = sourceSection(historySource, 'if (dayError)', 'return renderEmpty()');
+const historyRowsSection = sourceSection(historySource, 'const renderSessionItem', '<Dialog');
+const historyRetrySection = sourceSection(historySource, 'if (dayError)', 'accessibilityRole="button"');
 const programDetailSummary = sourceSection(programsDetailSource, '{/* Program Info Card */}', '{/* Weeks List */}');
 const programWeekExerciseSection = sourceSection(programsWeekDetailSource, '{/* Exercise List */}', "SectionHeader label={t('programs.dashboard.sessions')");
 const programWeekSelectorSection = sourceSection(programsWeekDetailSource, '{/* Week Grid */}', '<ScrollView className="flex-1 px-4"');
@@ -172,10 +172,15 @@ describe('Sprint 3 information hierarchy', () => {
   });
 
   it('History preserves database queries and interface components', () => {
-    expect(historySource).toContain('isNull(sessions.deletedAt)');
-    expect(historySource).toContain('inArray(sets.sessionId, sessionIds)');
-    expect(historySource).toContain('isNull(sets.deletedAt)');
-    expect(historySource).toContain('.set({ deletedAt: Date.now() })');
+    // Queries de listagem migram para HistoryQueryService; soft-delete de sessão continua na tela.
+    const historyQueriesSource = readSource('../../services/HistoryQueryService.ts');
+    expect(historyQueriesSource).toContain('isNull(sessions.deletedAt)');
+    expect(historyQueriesSource).toContain('inArray(sets.sessionId, sessionIds)');
+    expect(historyQueriesSource).toContain('isNull(sets.deletedAt)');
+    // Soft-delete de sessão migrou para SessionLifecycleService (transacional, T08).
+    const lifecycleSource = readSource('../../services/SessionLifecycleService.ts');
+    expect(lifecycleSource).toMatch(/\.set\(\{ deletedAt: now \}\)/);
+    expect(historySource).toContain('SessionLifecycleService.deleteSession');
     expect(historySource).toContain('setSelectedDate(\'\')');
     expect(historySource).toContain('Calendar');
     expect(historySource).toContain('RefreshControl');

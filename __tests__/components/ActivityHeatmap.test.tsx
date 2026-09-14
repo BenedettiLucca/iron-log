@@ -148,13 +148,16 @@ describe('ActivityHeatmap component', () => {
     });
   });
 
-  it('navigates to history on session cell press when no onDayPress is provided', () => {
+  it('navigates to history on session cell press with validated date key when no onDayPress is provided', () => {
     const { getByLabelText } = render(<ActivityHeatmap data={sampleData} />);
 
     const cell = getByLabelText('2026-06-02: 2 treinos, 75 min');
     fireEvent.press(cell);
 
-    expect(mockPush).toHaveBeenCalledWith('/(tabs)/history');
+    expect(mockPush).toHaveBeenCalledWith({
+      pathname: '/(tabs)/history',
+      params: { date: '2026-06-02' },
+    });
   });
 
   it('displays selected day details in UI when clicked', () => {
