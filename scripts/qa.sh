@@ -20,7 +20,8 @@ wait_boot() {
       return 1
     fi
     # emulator process may die mid-boot — surface it instead of sleeping forever
-    if ! pgrep -f "qemu.*$AVD_NAME" >/dev/null 2>&1 && ! serial_alive; then
+    # (pattern covers both the launcher binary and the re-exec'd qemu-system process)
+    if ! pgrep -f "(emulator|qemu).*${AVD_NAME}" >/dev/null 2>&1 && ! serial_alive; then
       echo "emulator died during boot — see $EVIDENCE_DIR/emulator.log"
       return 1
     fi
@@ -32,12 +33,13 @@ case "$cmd" in
   boot)
     mkdir -p "$REPO/$EVIDENCE_DIR"
     if serial_alive; then echo "ONLINE (already booted): $DEVICE_SERIAL"; exit 0; fi
-    # clear stale server state so a dead emulator doesn't hold the port
-    "$ADB" kill-server >/dev/null 2>&1 || true
+    # ensure adb server exists; never kill-server — it disrupts other concurrent sessions
     "$ADB" start-server >/dev/null 2>&1 || true
     export ANDROID_HOME JAVA_HOME
+    # quick boot by default (warm restore in seconds); COLD_BOOT=1 forces -no-snapshot
     nohup "$ANDROID_HOME/emulator/emulator" -avd "$AVD_NAME" \
-      -port "$EMU_PORT" -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot \
+      -port "$EMU_PORT" -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect \
+      ${COLD_BOOT:+-no-snapshot} \
       > "$REPO/$EVIDENCE_DIR/emulator.log" 2>&1 &
     echo "booting $AVD_NAME on port $EMU_PORT (pid $!)"
     wait_boot
