@@ -43,6 +43,11 @@ jobs:
       - name: Lint
         run: npm run lint -- --max-warnings=0
 
+      - name: Clear jest transform cache
+        # #143 — stale transform cache between CI runs made session-lifecycle
+        # fault-injection flip-flop (state persisted in /tmp jest cache).
+        run: npx jest --clearCache
+
       - name: Test and coverage
         run: npm run test:coverage -- --runInBand --watchAll=false
 
