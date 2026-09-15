@@ -1,0 +1,10 @@
+# Iron Log — smoke: cold launch reaches Home with bottom tabs
+appId: com.lucca.ironlog
+name: smoke / app launch
+---
+- launchApp
+- assertVisible: "Início"
+- assertVisible: "Treinos"
+- assertVisible: "Histórico"
+- assertVisible: "Biometria"
+- assertVisible: "Ajustes"

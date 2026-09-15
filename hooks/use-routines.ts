@@ -44,29 +44,45 @@ export function useRoutines() {
 
   const duplicateRoutine = useCallback(async (id: number, newName: string): Promise<boolean> => {
     try {
-      const original = await db.select().from(routines).where(eq(routines.id, id));
-      if (!original.length) return false;
+      let duplicated = false;
+      db.transaction((tx) => {
+        const original = tx.select().from(routines).where(eq(routines.id, id)).all();
+        if (!original.length) return;
 
-      const newRoutine = await db.insert(routines).values({
-        name: newName,
-        description: original[0].description,
-        folder: original[0].folder,
-        isTemplate: false,
-      }).returning();
+        const newRoutine = tx.insert(routines).values({
+          name: newName,
+          description: original[0].description,
+          folder: original[0].folder,
+          isTemplate: false,
+        }).returning({ id: routines.id }).get();
 
-      const exs = await db.select().from(routineExercises).where(eq(routineExercises.routineId, id));
-      if (exs.length && newRoutine.length) {
-        await db.insert(routineExercises).values(
-          exs.map(ex => ({
-            routineId: newRoutine[0].id,
-            exerciseId: ex.exerciseId,
-            orderIndex: ex.orderIndex,
-            target: ex.target,
-            notes: ex.notes,
-            restSeconds: ex.restSeconds,
-          }))
-        );
-      }
+        if (!newRoutine) {
+          throw new Error('Failed to insert duplicated routine');
+        }
+
+        const exs = tx
+          .select()
+          .from(routineExercises)
+          .where(eq(routineExercises.routineId, id))
+          .orderBy(routineExercises.orderIndex)
+          .all();
+
+        if (exs.length > 0) {
+          tx.insert(routineExercises).values(
+            exs.map((ex) => ({
+              routineId: newRoutine.id,
+              exerciseId: ex.exerciseId,
+              orderIndex: ex.orderIndex,
+              target: ex.target,
+              notes: ex.notes,
+              restSeconds: ex.restSeconds,
+            }))
+          ).run();
+        }
+        duplicated = true;
+      });
+
+      if (!duplicated) return false;
 
       await fetchRoutines();
       return true;

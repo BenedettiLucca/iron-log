@@ -10,7 +10,19 @@ import { logger } from '@/services/logger';
  * Generates CSV files for sessions, sets, and body metrics.
  */
 
-function escapeCsvField(value: unknown): string {
+export interface CsvExportFileResult {
+  path: string;
+  offered: boolean;
+  error?: string;
+}
+
+export interface CsvExportResult {
+  success: boolean;
+  sessions: CsvExportFileResult;
+  metrics: CsvExportFileResult;
+}
+
+export function escapeCsvField(value: unknown): string {
   const str = String(value ?? '');
   if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
     return `"${str.replace(/"/g, '""')}"`;
@@ -18,13 +30,14 @@ function escapeCsvField(value: unknown): string {
   return str;
 }
 
-function toCsvRow(fields: unknown[]): string {
+export function toCsvRow(fields: unknown[]): string {
   return fields.map(escapeCsvField).join(',');
 }
 
-function formatDateBR(epoch: number | null): string {
-  if (!epoch) return '';
+export function formatDateBR(epoch: number | null): string {
+  if (epoch == null) return '';
   const d = new Date(epoch);
+  if (Number.isNaN(d.getTime())) return '';
   return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
 }
 
@@ -146,9 +159,15 @@ export const CsvExportService = {
   },
 
   /**
-   * Export all data and share as a single CSV file
+   * Export all data (sessions + body metrics) and share via explicit two-step sharing flow.
+   * Both CSVs are offered sequentially with per-file status tracked.
    */
-  async exportAllAndShare(): Promise<void> {
+  async exportAllAndShare(): Promise<CsvExportResult> {
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+      throw new Error('services.sharingUnavailable');
+    }
+
     try {
       const [sessionsCsv, metricsCsv] = await Promise.all([
         this.exportSessionsCsv(),
@@ -165,21 +184,89 @@ export const CsvExportService = {
       const metricsPath = FileSystem.cacheDirectory + `ironlog_metrics_${timestamp}.csv`;
       await FileSystem.writeAsStringAsync(metricsPath, metricsCsv, { encoding: FileSystem.EncodingType.UTF8 });
 
-      // Share both files (zip if available, otherwise just sessions)
-      if (await Sharing.isAvailableAsync()) {
-        // ponytail: sharing only sessions for now — metrics file written for future multi-file share
+      const result: CsvExportResult = {
+        success: false,
+        sessions: { path: sessionsPath, offered: false },
+        metrics: { path: metricsPath, offered: false },
+      };
+
+      // Step 1: Share sessions CSV
+      try {
         await Sharing.shareAsync(sessionsPath, {
-          dialogTitle: 'Exportar Dados Iron Log',
+          dialogTitle: 'Exportar Sessões Iron Log (1/2)',
           UTI: 'public.comma-separated-values-text',
           mimeType: 'text/csv',
         });
+        result.sessions.offered = true;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        result.sessions.error = msg;
+        logger.error('Failed to share sessions CSV', e);
+        return result;
       }
 
-      logger.info('CSV export completed');
+      // Step 2: Share body metrics CSV
+      try {
+        await Sharing.shareAsync(metricsPath, {
+          dialogTitle: 'Exportar Métricas Iron Log (2/2)',
+          UTI: 'public.comma-separated-values-text',
+          mimeType: 'text/csv',
+        });
+        result.metrics.offered = true;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        result.metrics.error = msg;
+        logger.error('Failed to share body metrics CSV', e);
+        return result;
+      }
+
+      result.success = result.sessions.offered && result.metrics.offered;
+      logger.info('CSV export completed (sessions and metrics offered)');
+      return result;
     } catch (e) {
       logger.error('Failed to export CSV', e);
       throw e;
     }
+  },
+
+  /**
+   * Export only sessions CSV and share
+   */
+  async exportSessionsAndShare(): Promise<string> {
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+      throw new Error('services.sharingUnavailable');
+    }
+    const sessionsCsv = await this.exportSessionsCsv();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const sessionsPath = FileSystem.cacheDirectory + `ironlog_sessions_${timestamp}.csv`;
+    await FileSystem.writeAsStringAsync(sessionsPath, sessionsCsv, { encoding: FileSystem.EncodingType.UTF8 });
+    await Sharing.shareAsync(sessionsPath, {
+      dialogTitle: 'Exportar Sessões Iron Log',
+      UTI: 'public.comma-separated-values-text',
+      mimeType: 'text/csv',
+    });
+    return sessionsPath;
+  },
+
+  /**
+   * Export only body metrics CSV and share
+   */
+  async exportBodyMetricsAndShare(): Promise<string> {
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
+      throw new Error('services.sharingUnavailable');
+    }
+    const metricsCsv = await this.exportBodyMetricsCsv();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const metricsPath = FileSystem.cacheDirectory + `ironlog_metrics_${timestamp}.csv`;
+    await FileSystem.writeAsStringAsync(metricsPath, metricsCsv, { encoding: FileSystem.EncodingType.UTF8 });
+    await Sharing.shareAsync(metricsPath, {
+      dialogTitle: 'Exportar Métricas Iron Log',
+      UTI: 'public.comma-separated-values-text',
+      mimeType: 'text/csv',
+    });
+    return metricsPath;
   },
 
   /**
@@ -188,7 +275,7 @@ export const CsvExportService = {
   async exportSessionCsv(sessionId: number): Promise<string> {
     const sessionData = await db.select()
       .from(sessions)
-      .where(eq(sessions.id, sessionId));
+      .where(and(eq(sessions.id, sessionId), isNull(sessions.deletedAt)));
 
     if (!sessionData.length) return '';
 

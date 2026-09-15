@@ -44,6 +44,13 @@ describe('ProgramService real production behavior', () => {
       const program = makeProgram({ startDate: now - 10 * msPerWeek, weeksDuration: 6 });
       expect(getCurrentWeek(program)).toBe(6);
     });
+
+    it('returns week 1 and never 0 or negative for a future program before startDate', () => {
+      const now = Date.now();
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      const program = makeProgram({ startDate: now + 3 * msPerWeek, weeksDuration: 6 });
+      expect(getCurrentWeek(program)).toBe(1);
+    });
   });
 
   describe('getWeeksUntilDeload (imported from services/program/dashboard)', () => {

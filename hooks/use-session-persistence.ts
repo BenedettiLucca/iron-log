@@ -27,6 +27,7 @@ interface UseSessionPersistenceReturn {
 interface SessionContext {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId: number | null;
   exerciseName: string;
   routineId: number | null;
   target?: string;
@@ -43,11 +44,13 @@ interface SessionContext {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   activeSetStartedAt: number | null;
+  operationId?: string | null;
 }
 
 interface SessionPersistenceOptions {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId?: number | null;
   routineId: number | null;
   exerciseName: string;
   currentName: string;
@@ -65,12 +68,14 @@ interface SessionPersistenceOptions {
   target?: string;
   notes?: string;
   restSeconds?: number | null;
+  operationId?: string | null;
 }
 
 function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
   return {
     sessionId: opts.sessionId,
     exerciseId: opts.exerciseId,
+    routineExerciseId: opts.routineExerciseId ?? null,
     exerciseName: opts.currentName,
     routineId: opts.routineId,
     target: opts.target,
@@ -87,6 +92,7 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
     activeSetTime: opts.activeSetTime,
     isActiveSetRunning: opts.isActiveSetRunning,
     activeSetStartedAt: opts.activeSetStartedAt,
+    operationId: opts.operationId ?? null,
   };
 }
 

@@ -33,7 +33,9 @@ describe('Sprint 6 tabs & goals accessibility contracts', () => {
     const historyLines = historySource.split('\n');
     const errorLine = historyLines.findIndex((l) => l.includes('⚠️'));
     expect(errorLine).toBeGreaterThanOrEqual(0);
-    expect(historyLines[errorLine]).toMatch(/accessible=\{false\}|importantForAccessibility/);
+    // Emoji em sua própria linha: a declaração do Text que o contém é a linha anterior imediata.
+    const historyEmojiContext = [historyLines[errorLine - 1], historyLines[errorLine], historyLines[errorLine + 1]].join('\n');
+    expect(historyEmojiContext).toMatch(/accessible=\{false\}|importantForAccessibility/);
 
     const goalsSource = source('app/bio/goals.tsx');
     const goalsLines = goalsSource.split('\n');

@@ -116,13 +116,28 @@ export function usePrograms() {
     if (success) {
       await fetchAllPrograms();
       if (activeProgram?.id === id) {
-        setActiveProgram(null);
-        setWeeks([]);
-        setTargets([]);
+        const updated = await ProgramService.getProgram(id);
+        setActiveProgram(updated);
       }
     }
     return success;
   }, [fetchAllPrograms, activeProgram]);
+
+  const activateProgram = useCallback(async (id: number): Promise<boolean> => {
+    const success = await ProgramService.activateProgram(id);
+    if (success) {
+      await fetchAllPrograms();
+      const [program, w, t] = await Promise.all([
+        ProgramService.getProgram(id),
+        ProgramService.getProgramWeeks(id),
+        ProgramService.getExerciseTargets(id),
+      ]);
+      setActiveProgram(program);
+      setWeeks(w);
+      setTargets(t);
+    }
+    return success;
+  }, [fetchAllPrograms]);
 
   const setWeekRoutine = useCallback(async (
     programId: number,
@@ -256,6 +271,7 @@ export function usePrograms() {
     updateProgram,
     deleteProgram,
     archiveProgram,
+    activateProgram,
     setWeekRoutine,
     setAllWeeks,
     setExerciseTarget,

@@ -1,32 +1,45 @@
-import * as Sentry from '@sentry/react-native';
-import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
-import { Stack, useRouter } from 'expo-router';
-
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
-import { db } from '../src/db/client';
-import migrations from '../drizzle/migrations';
-import { View, Text, ActivityIndicator, Modal, TouchableOpacity, useColorScheme } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import '../global.css';
 import { useEffect, useState } from 'react';
-import { notificationService } from '@/services/NotificationService';
+import {
+  ActivityIndicator,
+  LogBox,
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { configureReanimatedLogger } from 'react-native-reanimated';
+import * as Sentry from '@sentry/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { and, eq, isNull } from 'drizzle-orm';
-import { sessions } from '../src/db/schema';
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import { Stack, useRouter } from 'expo-router';
 
-// Configure Reanimated to reduce strict warnings for animations during render
-import { configureReanimatedLogger } from 'react-native-reanimated';
-import { logger } from '@/services/logger';
-import { SessionContext } from '@/src/types';
-import { ErrorBoundary } from '../components/ErrorBoundary';
-import { I18nProvider, useI18n, getNestedValue } from '../src/i18n/index';
-import { pt as ptTranslations } from '../src/i18n/translations/pt';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
+import { notificationService } from '@/services/NotificationService';
+import { initCrashReporting, isCrashReportingEnabled } from '@/services/crash-reporting';
+import { logger } from '@/services/logger';
+import { SessionContext } from '@/src/types';
 import { buildSessionRecoveryA11y } from '@/src/utils/session-recovery-a11y';
+import { useNotificationResponseRouting, NotificationGuidanceType } from '@/src/utils/notification-routing';
+import { ErrorBoundary } from '../components/ErrorBoundary';
+import migrations from '../drizzle/migrations';
+import { db } from '../src/db/client';
+import { sessions } from '../src/db/schema';
+import { I18nProvider, getNestedValue, useI18n } from '../src/i18n/index';
+import { pt as ptTranslations } from '../src/i18n/translations/pt';
+import '../global.css';
 
 // Initialize Sentry as early as possible
 initCrashReporting();
+
+// TODO(#112): remove once the project leaves Expo Go for SDK 57 (or a dev build).
+// The expo-notifications module auto-registers Android push tokens on load, which
+// trips warnOfExpoGoPushUsage in Expo Go (SDK 53+) even though we only use LOCAL
+// notifications (channel + schedule), which remain supported. Dev-only noise.
+LogBox.ignoreLogs(['Android Push notifications (remote notifications) functionality provided by expo-notifications was removed']);
 
 configureReanimatedLogger({
   strict: false, // Disable strict mode to suppress warnings about reading shared values during render
@@ -171,6 +184,118 @@ function SessionRecoveryModal({ visible, onResume, onSave, onDismiss, dontShowAg
   );
 }
 
+function NotificationPermissionModal({
+  visible,
+  type = 'pre_prompt',
+  onRequestPermission,
+  onOpenSettings,
+  onDismiss,
+}: {
+  visible: boolean;
+  type?: NotificationGuidanceType;
+  onRequestPermission?: () => void;
+  onOpenSettings?: () => void;
+  onDismiss: () => void;
+}) {
+  const { t } = useI18n();
+
+  const getLabel = (key: string, fallback: string) => {
+    const val = t(key);
+    return val !== key ? val : fallback;
+  };
+
+  let title = getLabel('notifications.prePromptTitle', 'Lembretes e Notificações');
+  let description = getLabel(
+    'notifications.prePromptMessage',
+    'Ative as notificações para receber alertas ao término do tempo de descanso entre séries e lembretes para seu check-in mensal.'
+  );
+  let primaryLabel = getLabel('notifications.prePromptEnable', 'Ativar Notificações');
+  let onPrimary = onRequestPermission;
+
+  if (type === 'blocked') {
+    title = getLabel('notifications.blockedTitle', 'Notificações Desativadas');
+    description = getLabel(
+      'notifications.blockedMessage',
+      'As notificações estão bloqueadas nas configurações do aparelho. Abra as configurações para permitir notificações do Iron Log.'
+    );
+    primaryLabel = getLabel('notifications.openSettings', 'Abrir Configurações');
+    onPrimary = onOpenSettings;
+  } else if (type === 'denied') {
+    title = getLabel('notifications.deniedTitle', 'Notificações Negadas');
+    description = getLabel(
+      'notifications.deniedMessage',
+      'Sem permissão, você não receberá avisos sonoros de descanso ou do check-in mensal.'
+    );
+    primaryLabel = getLabel('notifications.prePromptEnable', 'Tentar Novamente');
+    onPrimary = onRequestPermission;
+  } else if (type === 'unavailable') {
+    title = getLabel('notifications.unavailableTitle', 'Notificações no Expo Go');
+    description = getLabel(
+      'notifications.unavailableMessage',
+      'No Expo Go, as permissões de notificação são gerenciadas diretamente pelo sistema.'
+    );
+    primaryLabel = '';
+    onPrimary = undefined;
+  }
+
+  const dismissLabel = getLabel('common.cancel', 'Agora Não');
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onDismiss}
+    >
+      <View
+        className="flex-1 justify-center items-center"
+        accessibilityViewIsModal
+        accessibilityLabel={title}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          className="absolute inset-0 bg-black/40"
+          onPress={onDismiss}
+          accessibilityRole="button"
+          accessibilityLabel={dismissLabel}
+        />
+        <View className="bg-card rounded-2xl p-6 m-6 max-w-sm w-full shadow-xl">
+          <Text className="text-text text-xl font-bold mb-3" accessibilityRole="header">
+            {title}
+          </Text>
+          <Text className="text-subtext text-base mb-5 leading-6">
+            {description}
+          </Text>
+          <View className="flex-col gap-3">
+            {Boolean(primaryLabel && onPrimary) && (
+              <TouchableOpacity
+                className="py-3 px-4 rounded-xl items-center bg-primary min-h-[44px] justify-center"
+                onPress={onPrimary}
+                accessibilityRole="button"
+                accessibilityLabel={primaryLabel}
+              >
+                <Text className="text-onPrimary font-semibold text-base">
+                  {primaryLabel}
+                </Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              className="py-3 px-4 rounded-xl items-center bg-background border border-border min-h-[44px] justify-center"
+              onPress={onDismiss}
+              accessibilityRole="button"
+              accessibilityLabel={dismissLabel}
+            >
+              <Text className="text-text font-semibold text-base">
+                {dismissLabel}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 function Layout() {
   const { success, error } = useMigrations(db, migrations);
   const colorScheme = useColorScheme() ?? 'light';
@@ -181,6 +306,23 @@ function Layout() {
   const [recoverySession, setRecoverySession] = useState<SessionContext | null>(null);
   const [showRecoveryDialog, setShowRecoveryDialog] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+
+  // Notification response routing (cold & warm) and contextual pre-prompt wiring
+  const {
+    showPromptModal,
+    modalType,
+    handleRequestPermission,
+    handleOpenSettings,
+    handleDismissModal,
+  } = useNotificationResponseRouting({
+    success,
+    router,
+    db,
+    asyncStorage: AsyncStorage,
+    onSessionResumed: () => {
+      setShowRecoveryDialog(false);
+    },
+  });
 
   // Initialize notifications after migrations complete
   useEffect(() => {
@@ -221,7 +363,12 @@ function Layout() {
         }
 
         // Session is valid, show recovery dialog
-        setRecoverySession(sessionContext);
+        setRecoverySession({
+          ...sessionContext,
+          routineName: sessionContext.routineName || sessionData[0].routineName || '',
+          routineId: sessionContext.routineId ?? sessionData[0].routineId ?? null,
+          startTime: sessionContext.startTime ?? sessionData[0].startTime,
+        });
         setShowRecoveryDialog(true);
       } catch (e) {
         logger.error('Error checking incomplete session', e);
@@ -239,19 +386,34 @@ function Layout() {
     if (!recoverySession) return;
     setShowRecoveryDialog(false);
 
-    router.replace({
-      pathname: '/session/exercise',
-      params: {
-        sessionId: recoverySession.sessionId,
-        routineId: recoverySession.routineId?.toString(),
-        exerciseId: recoverySession.exerciseId,
-        exerciseName: recoverySession.exerciseName,
-        target: recoverySession.target,
-        notes: recoverySession.notes,
-        restSeconds: recoverySession.restSeconds?.toString(),
-        startTime: (recoverySession.startTime ?? Date.now()).toString()
-      }
-    });
+    if (recoverySession.routineId) {
+      router.push({
+        pathname: '/session/[routineId]',
+        params: {
+          routineId: recoverySession.routineId.toString(),
+          routineName: recoverySession.routineName || '',
+          sessionId: recoverySession.sessionId.toString(),
+          startTime: (recoverySession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
+
+    if (recoverySession.exerciseId) {
+      router.push({
+        pathname: '/session/exercise',
+        params: {
+          sessionId: recoverySession.sessionId,
+          routineId: recoverySession.routineId?.toString(),
+          exerciseId: recoverySession.exerciseId,
+          exerciseName: recoverySession.exerciseName,
+          target: recoverySession.target,
+          notes: recoverySession.notes,
+          restSeconds: recoverySession.restSeconds?.toString(),
+          startTime: (recoverySession.startTime ?? Date.now()).toString(),
+          routineExerciseId: recoverySession.routineExerciseId,
+        },
+      });
+    }
   };
 
   const handleSaveWorkout = async () => {
@@ -316,6 +478,14 @@ function Layout() {
         onDismiss={handleDismissDialog}
         dontShowAgain={dontShowAgain}
         setDontShowAgain={setDontShowAgain}
+      />
+
+      <NotificationPermissionModal
+        visible={showPromptModal}
+        type={modalType}
+        onRequestPermission={handleRequestPermission}
+        onOpenSettings={handleOpenSettings}
+        onDismiss={handleDismissModal}
       />
     </GestureHandlerRootView>
     </I18nProvider>

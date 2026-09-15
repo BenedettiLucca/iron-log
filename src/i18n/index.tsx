@@ -24,6 +24,37 @@ const translations: Record<Language, Translations> = { pt, en, es, zh };
 
 const LANGUAGE_KEY = '@ironlog_language';
 
+export async function getStoredLanguage(): Promise<Language> {
+  try {
+    const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
+    if (stored && (stored === 'pt' || stored === 'en' || stored === 'es' || stored === 'zh')) {
+      return stored as Language;
+    }
+  } catch {}
+  return 'pt';
+}
+
+export function translate(key: string, vars?: Record<string, string | number>, lang: Language = 'pt'): string {
+  let value = getNestedValue(translations[lang], key);
+  if (value === undefined) {
+    value = getNestedValue(translations.pt, key);
+  }
+  if (value === undefined) return key;
+
+  if (vars) {
+    Object.entries(vars).forEach(([k, v]) => {
+      value = value!.replaceAll(`{${k}}`, String(v));
+    });
+  }
+
+  return value;
+}
+
+export async function getTranslation(key: string, vars?: Record<string, string | number>, lang?: Language): Promise<string> {
+  const activeLang = lang ?? (await getStoredLanguage());
+  return translate(key, vars, activeLang);
+}
+
 interface I18nContextType {
   language: Language;
   setLanguage: (lang: Language) => Promise<void>;
@@ -56,12 +87,12 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
 
   useEffect(() => {
     if (initialLanguage) return;
-    
+
     // Safety timeout: never block app load for more than 500ms
     const timeoutId = setTimeout(() => {
       setReady(true);
     }, 500);
-    
+
     AsyncStorage.getItem(LANGUAGE_KEY)
       .then((stored) => {
         clearTimeout(timeoutId);
@@ -74,7 +105,7 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
         clearTimeout(timeoutId);
         setReady(true);
       });
-      
+
     return () => clearTimeout(timeoutId);
   }, [initialLanguage]);
 
@@ -85,19 +116,7 @@ export function I18nProvider({ children, initialLanguage }: { children: ReactNod
 
   const t = useCallback(
     (key: string, vars?: Record<string, string | number>): string => {
-      let value = getNestedValue(translations[language], key);
-      if (value === undefined) {
-        value = getNestedValue(translations.pt, key);
-      }
-      if (value === undefined) return key;
-      
-      if (vars) {
-        Object.entries(vars).forEach(([k, v]) => {
-          value = value!.replaceAll(`{${k}}`, String(v));
-        });
-      }
-      
-      return value;
+      return translate(key, vars, language);
     },
     [language]
   );

@@ -121,3 +121,27 @@ jest.mock('@sentry/react-native', () => ({
   wrap: jest.fn((c) => c),
 }));
 
+jest.mock('expo-notifications', () => ({
+  SchedulableTriggerInputTypes: { TIME_INTERVAL: 'timeInterval', DATE: 'date' },
+  AndroidNotificationPriority: { HIGH: 'high' },
+  AndroidImportance: { HIGH: 'high' },
+  scheduleNotificationAsync: jest.fn(),
+  cancelScheduledNotificationAsync: jest.fn(),
+  setNotificationChannelAsync: jest.fn(),
+}));
+
+jest.mock('expo-constants', () => ({ executionEnvironment: 'storeClient' }));
+
+jest.mock('expo-device', () => ({ isDevice: true }));
+
+
+jest.mock('expo-keep-awake', () => ({
+  activateKeepAwakeAsync: jest.fn(),
+  deactivateKeepAwake: jest.fn(),
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve(null)),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+}));

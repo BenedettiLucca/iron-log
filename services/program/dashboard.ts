@@ -1,6 +1,6 @@
 import { db } from '@/src/db/client';
 import { programWeeks, sets, sessions } from '@/src/db/schema';
-import { eq, and, desc, between, sql } from 'drizzle-orm';
+import { eq, and, desc, gte, lt, sql } from 'drizzle-orm';
 import { logger } from '../logger';
 import type { Program, ProgramWeek, ProgramPhase, Session } from '@/src/types';
 
@@ -10,13 +10,16 @@ function castProgramWeek(row: Record<string, unknown>): ProgramWeek {
 }
 
 /**
- * Calculate the current week number of the program
+ * Calculate the current week number of the program (clamped to 1..weeksDuration).
+ * Before startDate, returns week 1 and never 0 or negative.
  */
 export function getCurrentWeek(program: Program): number {
   const now = Date.now();
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
   const elapsed = now - program.startDate;
-  return Math.min(Math.floor(elapsed / msPerWeek) + 1, program.weeksDuration);
+  const calculated = Math.floor(elapsed / msPerWeek) + 1;
+  const maxWeeks = Math.max(1, program.weeksDuration);
+  return Math.max(1, Math.min(calculated, maxWeeks));
 }
 
 /**
@@ -40,10 +43,16 @@ export function getCurrentPhase(program: Program): string {
 }
 
 /**
- * Get total volume for the current week of a program
+ * Get total volume for the current week of a program.
+ * Same population as completion: requires finished session matching planned routine for the week,
+ * excluding soft-deleted sessions, soft-deleted sets, and warmup sets.
+ * Boundaries are start-inclusive, end-exclusive.
  */
 export async function getWeeklyVolume(program: Program): Promise<number> {
   try {
+    const now = Date.now();
+    if (now < program.startDate) return 0;
+
     const current = getCurrentWeek(program);
     const msPerWeek = 7 * 24 * 60 * 60 * 1000;
     const weekStart = program.startDate + (current - 1) * msPerWeek;
@@ -55,11 +64,22 @@ export async function getWeeklyVolume(program: Program): Promise<number> {
       })
       .from(sets)
       .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+      .innerJoin(
+        programWeeks,
+        and(
+          eq(programWeeks.programId, program.id),
+          eq(programWeeks.weekNumber, current),
+          eq(sessions.routineId, programWeeks.routineId)
+        )
+      )
       .where(
         and(
-          between(sessions.startTime, weekStart, weekEnd),
+          gte(sessions.startTime, weekStart),
+          lt(sessions.startTime, weekEnd),
           eq(sets.isWarmup, false),
-          sql`${sessions.deletedAt} IS NULL`
+          sql`${sessions.deletedAt} IS NULL`,
+          sql`${sessions.endTime} IS NOT NULL`,
+          sql`${sets.deletedAt} IS NULL`
         )
       );
 
@@ -71,31 +91,54 @@ export async function getWeeklyVolume(program: Program): Promise<number> {
 }
 
 /**
- * Get average weekly volume for the last N weeks of a program
+ * Get average weekly volume for the last N weeks of a program.
+ * Same population as completion and weekly volume: completed sessions matching planned routine,
+ * excluding soft-deleted sessions, soft-deleted sets, and warmup sets.
  */
 export async function getAverageWeeklyVolume(program: Program, weeks: number = 4): Promise<number> {
-  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  const now = Date.now();
-  const start = now - (weeks * msPerWeek);
+  try {
+    const now = Date.now();
+    if (now < program.startDate) return 0;
 
-  const result = await db
-    .select({
-      totalVolume: sql<number>`COALESCE(SUM(${sets.weightKg} * ${sets.reps}), 0)`,
-      weekCount: sql<number>`COUNT(DISTINCT CAST((${sessions.startTime} - ${program.startDate}) / ${msPerWeek} AS INTEGER))`,
-    })
-    .from(sets)
-    .innerJoin(sessions, eq(sets.sessionId, sessions.id))
-    .where(
-      and(
-        between(sessions.startTime, start, now),
-        eq(sets.isWarmup, false),
-        sql`${sessions.deletedAt} IS NULL`
+    const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+    const start = Math.max(program.startDate, now - (weeks * msPerWeek));
+
+    const result = await db
+      .select({
+        totalVolume: sql<number>`COALESCE(SUM(${sets.weightKg} * ${sets.reps}), 0)`,
+        weekCount: sql<number>`COUNT(DISTINCT ${programWeeks.weekNumber})`,
+      })
+      .from(sets)
+      .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+      .innerJoin(
+        programWeeks,
+        and(
+          eq(programWeeks.programId, program.id),
+          eq(
+            programWeeks.weekNumber,
+            sql<number>`CAST((${sessions.startTime} - ${program.startDate}) / ${msPerWeek} AS INTEGER) + 1`
+          ),
+          eq(sessions.routineId, programWeeks.routineId)
+        )
       )
-    );
+      .where(
+        and(
+          gte(sessions.startTime, start),
+          lt(sessions.startTime, now),
+          eq(sets.isWarmup, false),
+          sql`${sessions.deletedAt} IS NULL`,
+          sql`${sessions.endTime} IS NOT NULL`,
+          sql`${sets.deletedAt} IS NULL`
+        )
+      );
 
-  const total = result[0]?.totalVolume ?? 0;
-  const weekCount = result[0]?.weekCount ?? 1;
-  return weekCount > 0 ? Math.round(total / weekCount) : 0;
+    const total = result[0]?.totalVolume ?? 0;
+    const weekCount = result[0]?.weekCount ?? 0;
+    return weekCount > 0 ? Math.round(total / weekCount) : 0;
+  } catch (e) {
+    logger.error('Failed to get average weekly volume', e);
+    return 0;
+  }
 }
 
 /**
@@ -107,9 +150,11 @@ export async function getAverageSRPE(program: Program): Promise<number | null> {
     .from(sessions)
     .where(
       and(
-        between(sessions.startTime, program.startDate, program.endDate),
+        gte(sessions.startTime, program.startDate),
+        lt(sessions.startTime, program.endDate),
         sql`${sessions.sRpe} IS NOT NULL`,
-        sql`${sessions.deletedAt} IS NULL`
+        sql`${sessions.deletedAt} IS NULL`,
+        sql`${sessions.endTime} IS NOT NULL`
       )
     );
 
@@ -119,10 +164,14 @@ export async function getAverageSRPE(program: Program): Promise<number | null> {
 /**
  * Get completion status for each week of a program.
  * Returns a map: weekNumber -> 'done' | 'missed' | 'deload' | 'future'
+ * C5: Belonging requires finished session matching planned routine in week window.
+ * Routine B does not complete week A; null routine is absence of plan, not wildcard.
+ * Before startDate, all weeks are 'future'.
  */
 export async function getWeekCompletionMap(program: Program): Promise<Map<number, 'done' | 'missed' | 'deload' | 'future'>> {
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
   const currentWeek = getCurrentWeek(program);
+  const now = Date.now();
   
   // Local implementation of getProgramWeeks to stay self-contained
   const weeksRows = await db
@@ -133,6 +182,29 @@ export async function getWeekCompletionMap(program: Program): Promise<Map<number
   const weeks = weeksRows.map(r => castProgramWeek(r as unknown as Record<string, unknown>));
 
   const weekMap = new Map<number, 'done' | 'missed' | 'deload' | 'future'>();
+
+  if (now < program.startDate) {
+    for (const w of weeks) {
+      weekMap.set(w.weekNumber, 'future');
+    }
+    return weekMap;
+  }
+
+  const programEnd = program.startDate + program.weeksDuration * msPerWeek;
+  const completedSessions = await db
+    .select({
+      routineId: sessions.routineId,
+      startTime: sessions.startTime,
+    })
+    .from(sessions)
+    .where(
+      and(
+        gte(sessions.startTime, program.startDate),
+        lt(sessions.startTime, programEnd),
+        sql`${sessions.deletedAt} IS NULL`,
+        sql`${sessions.endTime} IS NOT NULL`
+      )
+    );
 
   for (const w of weeks) {
     if (w.weekNumber > currentWeek) {
@@ -145,28 +217,28 @@ export async function getWeekCompletionMap(program: Program): Promise<Map<number
       continue;
     }
 
-    // Check if any session exists in this week
+    if (!w.routineId) {
+      weekMap.set(w.weekNumber, 'missed');
+      continue;
+    }
+
     const weekStart = program.startDate + (w.weekNumber - 1) * msPerWeek;
     const weekEnd = weekStart + msPerWeek;
 
-    const sessionCount = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(sessions)
-      .where(
-        and(
-          between(sessions.startTime, weekStart, weekEnd),
-          sql`${sessions.deletedAt} IS NULL`
-        )
-      );
+    const hasMatchingSession = completedSessions.some(
+      s => s.routineId === w.routineId && s.startTime >= weekStart && s.startTime < weekEnd
+    );
 
-    weekMap.set(w.weekNumber, (sessionCount[0]?.count ?? 0) > 0 ? 'done' : 'missed');
+    weekMap.set(w.weekNumber, hasMatchingSession ? 'done' : 'missed');
   }
 
   return weekMap;
 }
 
 /**
- * Get sessions for a specific week of a program
+ * Get sessions for a specific week of a program.
+ * Returns only completed, non-deleted sessions matching the planned routine for that week.
+ * Boundaries are start-inclusive, end-exclusive.
  */
 export async function getSessionsForWeek(program: Program, weekNumber: number): Promise<Session[]> {
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
@@ -174,12 +246,33 @@ export async function getSessionsForWeek(program: Program, weekNumber: number): 
   const weekEnd = weekStart + msPerWeek;
 
   return db
-    .select()
+    .select({
+      id: sessions.id,
+      routineId: sessions.routineId,
+      routineName: sessions.routineName,
+      startTime: sessions.startTime,
+      endTime: sessions.endTime,
+      bodyWeight: sessions.bodyWeight,
+      sRpe: sessions.sRpe,
+      notes: sessions.notes,
+      durationMinutes: sessions.durationMinutes,
+      deletedAt: sessions.deletedAt,
+    })
     .from(sessions)
+    .innerJoin(
+      programWeeks,
+      and(
+        eq(programWeeks.programId, program.id),
+        eq(programWeeks.weekNumber, weekNumber),
+        eq(sessions.routineId, programWeeks.routineId)
+      )
+    )
     .where(
       and(
-        between(sessions.startTime, weekStart, weekEnd),
-        sql`${sessions.deletedAt} IS NULL`
+        gte(sessions.startTime, weekStart),
+        lt(sessions.startTime, weekEnd),
+        sql`${sessions.deletedAt} IS NULL`,
+        sql`${sessions.endTime} IS NOT NULL`
       )
     )
     .orderBy(desc(sessions.startTime)) as unknown as Promise<Session[]>;
@@ -208,7 +301,8 @@ export async function getKeyLifts(program: Program, limit: number = 5): Promise<
     .innerJoin(sessions, eq(sets.sessionId, sessions.id))
     .where(
       and(
-        between(sessions.startTime, program.startDate, program.endDate),
+        gte(sessions.startTime, program.startDate),
+        lt(sessions.startTime, program.endDate),
         eq(sets.isWarmup, false),
         sql`${sessions.deletedAt} IS NULL`,
         sql`${sets.deletedAt} IS NULL`

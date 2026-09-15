@@ -6,6 +6,7 @@ import {
   isDisplayableBodyMetricValue,
 } from '../../src/utils/body-metrics';
 import { BodyMetric } from '../../src/types';
+import { parseLocalizedDecimal } from '../../src/utils/localized-decimal';
 
 const makeMetric = (overrides: Partial<BodyMetric>): BodyMetric => ({
   id: 1,
@@ -119,5 +120,28 @@ describe('metric presentation helpers', () => {
     expect(isDisplayableBodyMetricValue(1000)).toBe(false);
     expect(isDisplayableBodyMetricValue(Number.NaN)).toBe(false);
     expect(isDisplayableBodyMetricValue(Number.POSITIVE_INFINITY)).toBe(false);
+  });
+});
+
+describe('Contract C2 decimal parsing for body metrics', () => {
+  it('validates that C2 parsed decimal strings pass isDisplayableBodyMetricValue', () => {
+    const commaParsed = parseLocalizedDecimal('74,5', { allowNegative: false });
+    const dotParsed = parseLocalizedDecimal('74.5', { allowNegative: false });
+
+    expect(commaParsed.status).toBe('valid');
+    expect(dotParsed.status).toBe('valid');
+    if (commaParsed.status === 'valid' && dotParsed.status === 'valid') {
+      expect(isDisplayableBodyMetricValue(commaParsed.value)).toBe(true);
+      expect(isDisplayableBodyMetricValue(dotParsed.value)).toBe(true);
+      expect(commaParsed.value).toBe(dotParsed.value);
+    }
+  });
+
+  it('rejects negative numbers and out-of-range values in decimal inputs', () => {
+    const negativeRes = parseLocalizedDecimal('-74.5', { allowNegative: false });
+    expect(negativeRes.status).toBe('invalid');
+
+    const outOfRange = 1200;
+    expect(isDisplayableBodyMetricValue(outOfRange)).toBe(false);
   });
 });

@@ -99,6 +99,9 @@ export const en = {
     activeWorkout: 'Active Workout',
     generateExampleRoutines: 'Generate Example Routines',
     continue: 'Continue',
+    todayWorkout: "Today's Workout",
+    weekLabel: 'Week {week}',
+    start: 'Start',
 
   },
   bio: {
@@ -362,6 +365,12 @@ export const en = {
     exerciseProgressPlural: '{current} of {total} exercises',
     exercisesCompletedProgressSingular: '{current} of {total} exercise completed',
     exercisesCompletedProgressPlural: '{current} of {total} exercises completed',
+    bodyWeightTitle: 'Body Weight',
+    bodyWeightMessage: 'Enter today\'s body weight (kg) before starting.',
+    bodyWeightSkip: 'Skip',
+    bodyWeightSave: 'Save',
+    bodyWeightInvalid: 'Enter a valid weight',
+    bodyWeightSaved: 'Weight saved!',
 
   },
   exercise: {
@@ -468,6 +477,9 @@ export const en = {
   },
 
   finish: {
+    emptyTitle: 'No sets logged',
+    emptyBody: 'This session has no evidence yet. Log a set or discard it.',
+    logSetButton: 'Log a set',
     title: 'Finish Workout',
     review: 'Review your data before saving',
     stats: 'Session Statistics',
@@ -559,7 +571,7 @@ export const en = {
     reportCopied: 'Report copied!',
     volume: 'Volume (kg)',
     minutes: 'Minutes',
-    copied: '✓ Copied',
+    copied: '✓ Copiado',
     copyText: '📋 Copy Text',
     share: '📤 Share',
     exportCsv: '📊 Export CSV',
@@ -638,6 +650,10 @@ export const en = {
     csvExportSuccess: 'Data exported to CSV!',
     exportAlexandriaJson: 'Export Alexandria JSON',
     exportCsvBtn: 'Export CSV',
+    exportManifest: 'Export Schedule Manifest',
+    exportManifestBtn: 'Export Schedule Manifest',
+    manifestExportSuccess: 'Schedule manifest exported successfully!',
+    manifestExportError: 'Failed to export schedule manifest.',
     googleConnected: 'Connected to Google Drive!',
     tokenExpired: 'Sessão expirada',
     tokenExpiredDesc: 'Your Google session has expired. Please reconnect to continue.',
@@ -653,6 +669,17 @@ export const en = {
     csvExportError: 'Failed to export CSV.',
     exportError: 'Failed to export.',
     importError: 'Failed to import.',
+    keepAwake: 'Keep screen on during workout',
+    import: {
+      button: 'Import from another app',
+      description: 'Import workout history from Strong, Hevy, or FitNotes via CSV file.',
+      selectFile: 'Select CSV file',
+      successTitle: 'Import Completed',
+      successMessage: '{sessions} sessions and {sets} sets imported. {custom} custom exercises created.',
+      noNewData: 'No new sessions found to import (data already imported).',
+      unsupportedFormat: 'Unrecognized CSV format. Strong, Hevy, and FitNotes are supported.',
+      error: 'Failed to import CSV file.',
+    },
   },
   about: {
     title: 'About Iron Log',
@@ -795,6 +822,16 @@ export const en = {
     insightVolumeStableDesc: 'Your workout volume remained stable in the last 30 days.',
     insightFrequencyTitle: 'Workout frequency',
     insightFrequencyDesc: '{value} workouts/week average in the last 12 weeks.',
+    activityHeatmap: 'Annual Activity',
+    heatmapSubtitle: 'Workouts in the last 365 days',
+    heatmapLess: 'Less',
+    heatmapMore: 'More',
+    heatmapTotalWorkouts: '{count} workouts',
+    heatmapActiveDays: '{count} active days',
+    heatmapTotalHours: '{hours}h {minutes}m',
+    heatmapNoWorkouts: 'No workouts',
+    heatmapDayA11y: '{date}: {sessions} workouts, {minutes} min',
+    heatmapDayEmptyA11y: '{date}: no workouts',
   },
 
   muscleGroup: {
@@ -805,6 +842,19 @@ export const en = {
     arms: 'Arms',
     other: 'Other',
   },
+
+  equipment: {
+    all: 'All',
+    barra: 'Barbell',
+    halteres: 'Dumbbells',
+    maquina: 'Machine',
+    peso_corporal: 'Bodyweight',
+    elastico: 'Resistance Band',
+    cabos: 'Cables',
+    kettlebell: 'Kettlebell',
+    other: 'Other',
+  },
+
 
   bioEvolution: {
     avgWeight: 'Average Weight',
@@ -1143,4 +1193,16 @@ export const en = {
         min: 'min',
       },
     },
+  notifications: {
+    checkinTitle: "📊 Monthly Check-in",
+    checkinBody: "Time for your monthly check-in! Take front, back, and side photos.",
+    supplementTitle: "💊 Supplement Reminder",
+    supplementBody: "Time to take {name} ({dosage})",
+    supplementBodyNoDosage: "Time to take {name}",
+    testTitle: "🧪 Test Notification",
+    testBody: "This is a test notification from Iron Log",
+    restTitle: "Rest complete",
+    restBodyNext: "Next: {name}",
+    restBodyDefault: "Time for the next set",
+  },
 };

@@ -28,6 +28,7 @@ describe('buildSessionVerdictsMarkdown', () => {
     const verdicts: ExerciseVerdict[] = [
       {
         exerciseId: 1,
+        routineExerciseId: null,
         exerciseName: 'Bench Press',
         targetRange: { sets: 3, minReps: 8, maxReps: 12 },
         workingSets: [],
@@ -49,6 +50,7 @@ describe('buildSessionVerdictsMarkdown', () => {
     const verdicts: ExerciseVerdict[] = [
       {
         exerciseId: 2,
+        routineExerciseId: null,
         exerciseName: 'Plank',
         targetRange: null,
         workingSets: [],

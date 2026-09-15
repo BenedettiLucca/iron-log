@@ -42,10 +42,11 @@ export async function getDoubleProgressionStatus(
         and(
           eq(sets.exerciseId, exerciseId),
           eq(sets.isWarmup, false),
-          sql`${sets.deletedAt} IS NULL`
+          sql`${sets.deletedAt} IS NULL`,
+          sql`${sessions.deletedAt} IS NULL`
         )
       )
-      .orderBy(desc(sets.createdAt))
+      .orderBy(desc(sql`COALESCE(${sets.createdAt}, ${sessions.startTime})`))
       .limit(target.targetSets * 3); // enough for 3 sessions
 
     let lastPerformance: DoubleProgressionStatus['lastPerformance'] = null;

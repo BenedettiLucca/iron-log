@@ -26,9 +26,9 @@ describe('AnalyticsService real production behavior', () => {
       expect(estimateE1RM(80, 10)).toBe(106.7);
     });
 
-    it('calculates 1RM for high reps (20)', () => {
-      // 60 * (1 + 20/30) = 60 * 1.6667 = 100
-      expect(estimateE1RM(60, 20)).toBe(100);
+    it('refuses to estimate 1RM above 12 reps', () => {
+      expect(estimateE1RM(60, 13)).toBe(0);
+      expect(estimateE1RM(60, 20)).toBe(0);
     });
 
     it('returns 0 for zero weight', () => {
@@ -87,10 +87,10 @@ describe('AnalyticsService real production behavior', () => {
     it('computes volume, intensity, and consistency scores correctly for 1 week span', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(since + week);
       try {
-        // 2 sessions in the week
+        // 2 finished sessions in the week
         db.insert(sessions).values([
-          { id: 1, routineName: 'Legs A', startTime: since + 1000 },
-          { id: 2, routineName: 'Legs B', startTime: since + 2000 },
+          { id: 1, routineName: 'Legs A', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 2, routineName: 'Legs B', startTime: since + 2000, endTime: since + 2000 + 3600000 },
         ]).run();
 
         // Each session has 1 working set (21kg x 10 = 210 volume) and 1 warmup
@@ -117,9 +117,9 @@ describe('AnalyticsService real production behavior', () => {
     it('computes advanced/elite scores when volume and intensity are high', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(since + week);
       try {
-        // 5 sessions in the week
+        // 5 finished sessions in the week
         for (let i = 1; i <= 5; i++) {
-          db.insert(sessions).values({ id: i, routineName: `Session ${i}`, startTime: since + i * 1000 }).run();
+          db.insert(sessions).values({ id: i, routineName: `Session ${i}`, startTime: since + i * 1000, endTime: since + i * 1000 + 3600000 }).run();
           // Each session: 5 working sets of 100kg x 10 reps = 5000kg volume per session -> total 25000kg
           for (let s = 1; s <= 5; s++) {
             db.insert(sets).values({
@@ -141,6 +141,122 @@ describe('AnalyticsService real production behavior', () => {
         // total = 38 + 30 + 28 = 96 -> elite
         expect(score.totalScore).toBeGreaterThanOrEqual(80);
         expect(score.labelKey).toBe('elite');
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('ignores open (endTime null) sessions and computes score from finished sessions only', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        // 1 finished session + 1 open (endTime null) session
+        db.insert(sessions).values([
+          { id: 1, routineName: 'Finished Session', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 2, routineName: 'Open Session', startTime: since + 2000, endTime: null },
+        ]).run();
+
+        // Finished session sets: 21kg x 10 = 210 volume
+        db.insert(sets).values([
+          { sessionId: 1, exerciseId: 1, exerciseName: 'Squat', setNumber: 1, weightKg: 20, reps: 10, isWarmup: true },
+          { sessionId: 1, exerciseId: 1, exerciseName: 'Squat', setNumber: 2, weightKg: 21, reps: 10, isWarmup: false },
+        ]).run();
+
+        // Open session sets: large volume that must be ignored
+        db.insert(sets).values([
+          { sessionId: 2, exerciseId: 1, exerciseName: 'Squat', setNumber: 1, weightKg: 200, reps: 10, isWarmup: false },
+          { sessionId: 2, exerciseId: 1, exerciseName: 'Squat', setNumber: 2, weightKg: 200, reps: 10, isWarmup: false },
+        ]).run();
+
+        const score = await AnalyticsService.calculateStrengthScore(since);
+        // Computed only from session 1 (1 finished session):
+        // volume = 210 -> volumeScore: 1
+        // avgWeight = 21 -> intensityScore: 10
+        // 1 session / 1 week -> consistencyScore: 8 (Math.round((1/2)*15) = 8)
+        // totalScore = 19 -> beginner
+        expect(score.volumeScore).toBe(1);
+        expect(score.intensityScore).toBe(10);
+        expect(score.consistencyScore).toBe(8);
+        expect(score.totalScore).toBe(19);
+        expect(score.labelKey).toBe('beginner');
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+  });
+
+  describe('calculateConsistency (real service via synthetic database)', () => {
+    const since = Date.UTC(2026, 0, 5);
+    const week = 7 * 86400000;
+
+    beforeEach(() => {
+      sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
+    });
+
+    it('returns zero streaks when there are no sessions', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        const consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.totalSessions).toBe(0);
+        expect(consistency.currentStreak).toBe(0);
+        expect(consistency.longestStreak).toBe(0);
+        expect(consistency.weeklyFrequency).toBe(0);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('computes streak of 1 for a single week with session', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        db.insert(sessions).values([
+          { id: 1, routineName: 'S1', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+        ]).run();
+
+        const consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(1);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('computes streaks for consecutive vs non-consecutive weeks', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + 3 * week);
+      try {
+        // Consecutive: week 0 and week 1
+        db.insert(sessions).values([
+          { id: 1, routineName: 'W0', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 2, routineName: 'W1', startTime: since + week + 1000, endTime: since + week + 1000 + 3600000 },
+        ]).run();
+
+        let consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(2);
+
+        // Non-consecutive: clear and add week 0 and week 2 (gap in week 1)
+        sqlite.exec('DELETE FROM sessions;');
+        db.insert(sessions).values([
+          { id: 10, routineName: 'W0', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 11, routineName: 'W2', startTime: since + 2 * week + 1000, endTime: since + 2 * week + 1000 + 3600000 },
+        ]).run();
+
+        consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.longestStreak).toBe(1);
+      } finally {
+        jest.restoreAllMocks();
+      }
+    });
+
+    it('computes consistency metrics from finished sessions only, ignoring open sessions', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(since + week);
+      try {
+        // 1 finished session + 1 open session
+        db.insert(sessions).values([
+          { id: 1, routineName: 'Finished Session', startTime: since + 1000, endTime: since + 1000 + 3600000 },
+          { id: 2, routineName: 'Open Session', startTime: since + 2000, endTime: null },
+        ]).run();
+
+        const consistency = await AnalyticsService.calculateConsistency(since);
+        expect(consistency.totalSessions).toBe(1);
+        expect(consistency.weeklyFrequency).toBe(1);
       } finally {
         jest.restoreAllMocks();
       }

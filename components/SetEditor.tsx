@@ -126,7 +126,9 @@ export function SetEditor({
       accessibilityViewIsModal
     >
       <View className="flex-1 justify-center items-center bg-black/40 p-6">
-        <Card className="w-full max-w-sm p-6">
+        {/* Bound to ~50% of a typical viewport so the executed-set list stays visible.
+            Uses a fixed max-height to avoid Dimensions.get() which is unavailable in JSDOM tests. */}
+        <Card className="w-full max-w-sm p-6" style={{ maxHeight: 480 }}>
           <Text className="text-text text-2xl font-bold mb-2 text-center" accessibilityRole="header">
             {t('setEditor.title', { number: setNumber })}
           </Text>
@@ -142,7 +144,7 @@ export function SetEditor({
                   <TextInput
                     ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"
@@ -192,7 +194,7 @@ export function SetEditor({
                   <TextInput
                     ref={weightRef}
                     className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
-                    keyboardType="numeric"
+                    keyboardType="decimal-pad"
                     value={weight}
                     onChangeText={(v) => { setWeight(v); setWeightError(undefined); }}
                     placeholder="0"

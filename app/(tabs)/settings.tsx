@@ -7,12 +7,16 @@ import * as WebBrowser from 'expo-web-browser';
 import { DatabaseBackupService } from '../../services/DatabaseBackupService';
 import { CsvExportService } from '../../services/CsvExportService';
 import { AlexandriaExportService } from '../../services/AlexandriaExportService';
+import { TrackerImportService } from '../../services/importers';
+import { ScheduleManifestService } from '../../services/ScheduleManifestService';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
 import { useNotifications } from '@/hooks/use-notifications';
+import { useKeepAwakeSetting } from '@/hooks/use-keep-awake-setting';
 import { useI18n } from '../../src/i18n/index';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { useToast } from '../../hooks/use-toast';
+import { calculateTokenExpiresAt, isTokenExpired } from '@/src/utils/google-token';
 import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 
@@ -133,6 +137,7 @@ export default function SettingsScreen() {
   const { toast, setToast } = useToast();
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
+  const { enabled: keepAwakeEnabled, setSetting: setKeepAwakeEnabled } = useKeepAwakeSetting();
 
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -145,8 +150,8 @@ export default function SettingsScreen() {
       setAccessToken(response.authentication?.accessToken || null);
       // Google access tokens expire in ~1 hour; store the expiry time
       const expiresIn = response.authentication?.expiresIn;
-      const issuedAt = response.authentication?.issuedAt ?? Date.now();
-      setTokenExpiresAt(expiresIn ? issuedAt + expiresIn * 1000 : Date.now() + 3600 * 1000);
+      const issuedAt = response.authentication?.issuedAt;
+      setTokenExpiresAt(calculateTokenExpiresAt(issuedAt, expiresIn));
       setToast({ visible: true, message: t('settings.googleConnected'), type: 'success' });
     }
   }, [response, t, setToast]);
@@ -194,11 +199,87 @@ export default function SettingsScreen() {
     });
   };
 
+  const handleTrackerImport = async () => {
+    setLoading(true);
+    try {
+      const result = await TrackerImportService.importFromFile();
+      if (!result || result.error === 'canceled') {
+        return;
+      }
+
+      if (!result.success) {
+        if (result.error === 'unsupportedFormat') {
+          setToast({
+            visible: true,
+            message: t('settings.import.unsupportedFormat'),
+            type: 'error',
+          });
+          return;
+        }
+
+        if (result.error === 'emptyFile') {
+          const emptyMsg =
+            t('settings.import.emptyFile') !== 'settings.import.emptyFile'
+              ? t('settings.import.emptyFile')
+              : t('settings.import.error');
+          setToast({
+            visible: true,
+            message: emptyMsg,
+            type: 'error',
+          });
+          return;
+        }
+
+        setToast({
+          visible: true,
+          message: t('settings.import.error'),
+          type: 'error',
+        });
+        return;
+      }
+
+      if (result.sessionsCreated === 0 && result.setsImported === 0) {
+        setToast({
+          visible: true,
+          message: t('settings.import.noNewData'),
+          type: 'info',
+        });
+      } else {
+        setDialog({
+          visible: true,
+          title: t('settings.import.successTitle'),
+          message: t('settings.import.successMessage', {
+            sessions: result.sessionsCreated,
+            sets: result.setsImported,
+            custom: result.customExercisesCreated,
+          }),
+          type: 'default',
+          onConfirm: () => setDialog(prev => ({ ...prev, visible: false })),
+        });
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      let localizedMsg = t('settings.import.error');
+      if (msg === 'UNSUPPORTED_FORMAT' || msg === 'unsupportedFormat') {
+        localizedMsg = t('settings.import.unsupportedFormat');
+      } else if (msg?.startsWith('settings.import.')) {
+        localizedMsg = t(msg);
+      }
+      setToast({
+        visible: true,
+        message: localizedMsg,
+        type: 'error',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCloudBackup = async () => {
     if (!accessToken) return;
 
     // Check if token is expired or about to expire (5 min buffer)
-    if (tokenExpiresAt && Date.now() > tokenExpiresAt - 5 * 60 * 1000) {
+    if (isTokenExpired(tokenExpiresAt)) {
       setAccessToken(null);
       setTokenExpiresAt(null);
       setDialog({
@@ -228,11 +309,36 @@ export default function SettingsScreen() {
   const handleCsvExport = async () => {
     setLoading(true);
     try {
-      await CsvExportService.exportAllAndShare();
-      setToast({ visible: true, message: t('settings.csvExportSuccess'), type: 'success' });
+      const result = await CsvExportService.exportAllAndShare();
+      if (result.success) {
+        const successMsg = t('settings.csvExportOffered') !== 'settings.csvExportOffered'
+          ? t('settings.csvExportOffered')
+          : t('settings.csvExportSuccess');
+        setToast({ visible: true, message: successMsg, type: 'success' });
+      } else if (result.sessions.offered && !result.metrics.offered) {
+        const partialMsg = t('settings.csvExportPartialSuccess') !== 'settings.csvExportPartialSuccess'
+          ? t('settings.csvExportPartialSuccess')
+          : 'Sessões oferecidas; falha ao compartilhar métricas.';
+        setToast({ visible: true, message: partialMsg, type: 'error' });
+      } else {
+        setToast({ visible: true, message: t('settings.csvExportError'), type: 'error' });
+      }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.csvExportError'), type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleScheduleManifestExport = async () => {
+    setLoading(true);
+    try {
+      await ScheduleManifestService.exportAndShare();
+      setToast({ visible: true, message: t('settings.manifestExportSuccess'), type: 'success' });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setToast({ visible: true, message: (msg?.startsWith('services.') ? t(msg) : msg) || t('settings.manifestExportError'), type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -303,6 +409,23 @@ export default function SettingsScreen() {
 
       <View className="border-b border-border/40" />
 
+      {/* Keep Awake Section */}
+      <View className="py-2">
+        <View className="flex-row items-center justify-between py-3.5">
+          <View className="flex-1">
+            <Text className="text-text font-semibold text-sm">{t("settings.keepAwake")}</Text>
+          </View>
+          <Switch
+            value={keepAwakeEnabled}
+            onValueChange={setKeepAwakeEnabled}
+            trackColor={{ false: theme.border, true: theme.primary }}
+            thumbColor={theme.onPrimary}
+          />
+        </View>
+      </View>
+
+      <View className="border-b border-border/40" />
+
       {/* Local Backup Section */}
       <View className="py-2">
         <SectionHeader label={t("settings.localBackup")} className="mb-1.5" />
@@ -320,6 +443,13 @@ export default function SettingsScreen() {
             label={t("settings.importData")}
             onPress={handleImport}
             icon={<UploadIcon color={theme.primaryText} />}
+            loading={loading}
+          />
+
+          <RowButton
+            label={t("settings.import.button")}
+            onPress={handleTrackerImport}
+            icon={<FileIcon color={theme.primaryText} />}
             loading={loading}
             noBorder
           />
@@ -382,6 +512,23 @@ export default function SettingsScreen() {
             noBorder
           />
         </View>
+      </View>
+
+      <View className="border-b border-border/40" />
+
+      {/* Schedule Manifest Section */}
+      <View className="py-2">
+        <SectionHeader label={t("settings.exportManifest")} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">
+          {t("settings.exportManifest")}
+        </Text>
+        <RowButton
+          label={t("settings.exportManifestBtn")}
+          onPress={handleScheduleManifestExport}
+          icon={<ExportIcon color={theme.primaryText} />}
+          loading={loading}
+          noBorder
+        />
       </View>
 
       <View className="border-b border-border/40" />

@@ -1,4 +1,4 @@
-import { generateExerciseVerdict } from '@/src/utils/session-verdicts';
+import { generateExerciseVerdict, generateSessionVerdicts } from '@/src/utils/session-verdicts';
 import { SummarySet } from '@/src/utils/session-summary';
 
 const t = (key: string, vars?: Record<string, string | number>) => {
@@ -122,5 +122,120 @@ describe('generateExerciseVerdict', () => {
     expect(result.result).toBe('within');
     expect(result.verdict).toBe('hold');
     expect(result.confidence).toBe('high');
+  });
+
+  it('preserves durationSeconds on workingSets and routineExerciseId on verdict', () => {
+    const sets: SummarySet[] = [
+      {
+        exerciseId: 5,
+        exerciseName: 'Plank',
+        routineExerciseId: 42,
+        setNumber: 1,
+        reps: 0,
+        weightKg: 0,
+        durationSeconds: 44,
+        rir: null,
+        isWarmup: false,
+        deletedAt: null,
+      },
+      {
+        exerciseId: 5,
+        exerciseName: 'Plank',
+        routineExerciseId: 42,
+        setNumber: 2,
+        reps: 0,
+        weightKg: 0,
+        durationSeconds: 32,
+        rir: null,
+        isWarmup: false,
+        deletedAt: null,
+      },
+    ];
+
+    const result = generateExerciseVerdict(5, 'Plank', null, sets, t);
+    expect(result.routineExerciseId).toBe(42);
+    expect(result.workingSets).toEqual([
+      {
+        setNumber: 1,
+        weightKg: 0,
+        reps: 0,
+        durationSeconds: 44,
+        rir: null,
+      },
+      {
+        setNumber: 2,
+        weightKg: 0,
+        reps: 0,
+        durationSeconds: 32,
+        rir: null,
+      },
+    ]);
+  });
+});
+
+describe('generateSessionVerdicts', () => {
+  it('remains occurrence-aware for repeated exercises with distinct routineExerciseIds (A/B/A)', () => {
+    const sets: SummarySet[] = [
+      {
+        exerciseId: 1,
+        exerciseName: 'Bench Press',
+        routineExerciseId: 101,
+        setNumber: 1,
+        reps: 8,
+        weightKg: 80,
+        durationSeconds: null,
+        rir: null,
+        isWarmup: false,
+        deletedAt: null,
+      },
+      {
+        exerciseId: 2,
+        exerciseName: 'Pull-up',
+        routineExerciseId: 102,
+        setNumber: 1,
+        reps: 10,
+        weightKg: 0,
+        durationSeconds: null,
+        rir: null,
+        isWarmup: false,
+        deletedAt: null,
+      },
+      {
+        exerciseId: 1,
+        exerciseName: 'Bench Press (Burnout)',
+        routineExerciseId: 103,
+        setNumber: 1,
+        reps: 15,
+        weightKg: 50,
+        durationSeconds: null,
+        rir: null,
+        isWarmup: false,
+        deletedAt: null,
+      },
+    ];
+
+    const targetsMap = new Map<string | number, string>([
+      ['routine:101', '1x8-10'],
+      ['routine:102', '1x8-12'],
+      ['routine:103', '1x12-15'],
+    ]);
+
+    const verdicts = generateSessionVerdicts(sets, targetsMap, t);
+    expect(verdicts).toHaveLength(3);
+
+    expect(verdicts[0].exerciseId).toBe(1);
+    expect(verdicts[0].routineExerciseId).toBe(101);
+    expect(verdicts[0].exerciseName).toBe('Bench Press');
+    expect(verdicts[0].result).toBe('within');
+
+    expect(verdicts[1].exerciseId).toBe(2);
+    expect(verdicts[1].routineExerciseId).toBe(102);
+    expect(verdicts[1].exerciseName).toBe('Pull-up');
+    expect(verdicts[1].result).toBe('within');
+
+    expect(verdicts[2].exerciseId).toBe(1);
+    expect(verdicts[2].routineExerciseId).toBe(103);
+    expect(verdicts[2].exerciseName).toBe('Bench Press (Burnout)');
+    expect(verdicts[2].result).toBe('top');
   });
 });

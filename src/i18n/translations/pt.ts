@@ -104,6 +104,9 @@ export const pt = {
     activeWorkout: 'Treino Ativo',
     generateExampleRoutines: 'Gerar Rotinas de Exemplo',
     continue: 'Continuar',
+    todayWorkout: "Treino de Hoje",
+    weekLabel: 'Semana {week}',
+    start: 'Iniciar',
 
   },
 
@@ -381,6 +384,12 @@ export const pt = {
     exerciseProgressPlural: '{current} de {total} exercícios',
     exercisesCompletedProgressSingular: '{current} de {total} exercício concluído',
     exercisesCompletedProgressPlural: '{current} de {total} exercícios concluídos',
+    bodyWeightTitle: 'Peso Corporal',
+    bodyWeightMessage: 'Informe seu peso corporal de hoje (kg) antes de começar.',
+    bodyWeightSkip: 'Pular',
+    bodyWeightSave: 'Salvar',
+    bodyWeightInvalid: 'Digite um peso válido',
+    bodyWeightSaved: 'Peso salvo!',
 
   },
 
@@ -491,6 +500,9 @@ export const pt = {
 
   // Finish
   finish: {
+    emptyTitle: 'Nenhuma série registrada',
+    emptyBody: 'Esta sessão ainda não tem evidência. Registre uma série ou descarte.',
+    logSetButton: 'Registrar série',
     title: 'Finalizar Treino',
     review: 'Revise seus dados antes de salvar',
     stats: 'Estatísticas da Sessão',
@@ -502,7 +514,7 @@ export const pt = {
     lastWeight: 'Anterior: {weight}kg ({date})',
     srpe: 'Esforço Percebido (sRPE)',
     regenerative: 'Regenerativo',
-    maximum: 'Máximo',
+    maximum: 'Mácimo',
     noteTemplates: 'Notas Rápidas',
     fasting: 'Jejum',
     fastingText: 'Treino feito em jejum',
@@ -665,6 +677,10 @@ export const pt = {
     csvExportSuccess: 'Dados exportados em CSV!',
     exportAlexandriaJson: 'Exportar Alexandria JSON',
     exportCsvBtn: 'Exportar CSV',
+    exportManifest: 'Exportar Manifest',
+    exportManifestBtn: 'Exportar Manifest',
+    manifestExportSuccess: 'Manifest exportado com sucesso!',
+    manifestExportError: 'Falha ao exportar manifest.',
     googleConnected: 'Conectado ao Google Drive!',
     tokenExpired: 'Sessão expirada',
     tokenExpiredDesc: 'Sua sessão do Google expirou. Por favor, reconecte para continuar.',
@@ -680,6 +696,17 @@ export const pt = {
     csvExportError: 'Falha ao exportar CSV.',
     exportError: 'Falha ao exportar.',
     importError: 'Falha ao importar.',
+    keepAwake: 'Manter tela ligada durante o treino',
+    import: {
+      button: 'Importar de outro app',
+      description: 'Importe seu histórico de treinos do Strong, Hevy ou FitNotes via arquivo CSV.',
+      selectFile: 'Selecionar arquivo CSV',
+      successTitle: 'Importação Concluída',
+      successMessage: '{sessions} sessões e {sets} séries importadas. {custom} exercícios customizados criados.',
+      noNewData: 'Nenhuma sessão nova encontrada para importar (dados já atualizados).',
+      unsupportedFormat: 'Formato CSV não reconhecido. Suportamos Strong, Hevy e FitNotes.',
+      error: 'Erro ao importar arquivo CSV.',
+    },
   },
 
   // About
@@ -826,6 +853,16 @@ export const pt = {
     insightVolumeStableDesc: 'Seu volume de treino permaneceu estável nos últimos 30 dias.',
     insightFrequencyTitle: 'Frequência de treinos',
     insightFrequencyDesc: '{value} treinos/semana na média das últimas 12 semanas.',
+    activityHeatmap: 'Atividade Anual',
+    heatmapSubtitle: 'Treinos nos últimos 365 dias',
+    heatmapLess: 'Menos',
+    heatmapMore: 'Mais',
+    heatmapTotalWorkouts: '{count} treinos',
+    heatmapActiveDays: '{count} dias ativos',
+    heatmapTotalHours: '{hours}h {minutes}m',
+    heatmapNoWorkouts: 'Nenhum treino',
+    heatmapDayA11y: '{date}: {sessions} treinos, {minutes} min',
+    heatmapDayEmptyA11y: '{date}: sem treinos',
   },
 
   muscleGroup: {
@@ -836,6 +873,19 @@ export const pt = {
     arms: 'Braços',
     other: 'Outros',
   },
+
+  equipment: {
+    all: 'Todos',
+    barra: 'Barra',
+    halteres: 'Halteres',
+    maquina: 'Máquina',
+    peso_corporal: 'Peso Corporal',
+    elastico: 'Elástico',
+    cabos: 'Cabos',
+    kettlebell: 'Kettlebell',
+    other: 'Outro',
+  },
+
 
   bioEvolution: {
     avgWeight: 'Peso Médio',
@@ -1174,4 +1224,16 @@ export const pt = {
         min: 'min',
       },
     },
+  notifications: {
+    checkinTitle: "📊 Check-in Mensal",
+    checkinBody: "Hora do check-in mensal! Tire fotos de frente, costas e lateral.",
+    supplementTitle: "💊 Lembrete de Suplemento",
+    supplementBody: "Hora de tomar {name} ({dosage})",
+    supplementBodyNoDosage: "Hora de tomar {name}",
+    testTitle: "🧪 Notificação de Teste",
+    testBody: "Esta é uma notificação de teste do Iron Log",
+    restTitle: "Descanso concluído",
+    restBodyNext: "Próximo: {name}",
+    restBodyDefault: "Hora da próxima série",
+  },
 };

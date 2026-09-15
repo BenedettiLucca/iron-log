@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import type { NavigationAction } from '@react-navigation/native';
 import { db } from '../../src/db/client';
 import { routines, routineExercises, exercises } from '../../src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { Toast } from '../../components/Toast';
 import { Input } from '../../components/Input';
@@ -33,6 +33,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SectionHeader } from '@/components/SectionHeader';
 import { isFormDirty } from '@/src/utils/form-dirty';
 import {
+  buildRoutineExercisePersistencePlan,
   buildRoutineExerciseRows,
   buildSaveAsTemplateValues,
 } from '@/src/utils/routine-template-integrity';
@@ -42,10 +43,12 @@ import {
   normalizeRoutineName,
 } from '@/src/utils/routine-name';
 import { setPendingToast } from '@/src/utils/flash-toast';
+import { filterExercisesByEquipmentAndSearch, getAvailableEquipments } from '@/src/utils/exercise-filter';
 import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
 
-type SelectedExercise = {
+export type SelectedExercise = {
   id: number;
+  routineExerciseId?: number;
   name: string;
   target?: string;
   notes?: string;
@@ -98,6 +101,7 @@ export default function RoutineEditorScreen() {
 
       const joins = await db.select({
         id: exercises.id,
+        routineExerciseId: routineExercises.id,
         name: exercises.name,
         order: routineExercises.orderIndex,
         target: routineExercises.target,
@@ -111,6 +115,7 @@ export default function RoutineEditorScreen() {
 
       const loadedExercises = joins.map(j => ({
           id: j.id,
+          routineExerciseId: j.routineExerciseId,
           name: j.name,
           target: j.target || '',
           notes: j.notes || '',
@@ -246,7 +251,6 @@ export default function RoutineEditorScreen() {
             .set({ name: normalizedName, description, folder })
             .where(eq(routines.id, routineId))
             .run();
-          tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
         } else {
           const created = tx
             .insert(routines)
@@ -257,9 +261,34 @@ export default function RoutineEditorScreen() {
           routineId = created.id;
         }
 
-        tx.insert(routineExercises)
-          .values(buildRoutineExerciseRows(routineId, selectedExercises))
-          .run();
+        if (isEditing) {
+          const existingRows = tx
+            .select({ id: routineExercises.id })
+            .from(routineExercises)
+            .where(eq(routineExercises.routineId, routineId))
+            .all();
+          const plan = buildRoutineExercisePersistencePlan(
+            routineId,
+            selectedExercises,
+            existingRows.map(row => row.id),
+          );
+          plan.deleteIds.forEach(id => {
+            tx.delete(routineExercises).where(eq(routineExercises.id, id)).run();
+          });
+          plan.updates.forEach(update => {
+            tx.update(routineExercises)
+              .set(update.values)
+              .where(and(eq(routineExercises.id, update.id), eq(routineExercises.routineId, routineId)))
+              .run();
+          });
+          if (plan.inserts.length > 0) {
+            tx.insert(routineExercises).values(plan.inserts).run();
+          }
+        } else {
+          tx.insert(routineExercises)
+            .values(buildRoutineExerciseRows(routineId, selectedExercises))
+            .run();
+        }
       });
 
       bypassRef.current = true;
@@ -335,10 +364,28 @@ export default function RoutineEditorScreen() {
           .set({ ...buildSaveAsTemplateValues(normalizedName, description), folder })
           .where(eq(routines.id, routineId))
           .run();
-        tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
-        tx.insert(routineExercises)
-          .values(buildRoutineExerciseRows(routineId, selectedExercises))
-          .run();
+        const existingRows = tx
+          .select({ id: routineExercises.id })
+          .from(routineExercises)
+          .where(eq(routineExercises.routineId, routineId))
+          .all();
+        const plan = buildRoutineExercisePersistencePlan(
+          routineId,
+          selectedExercises,
+          existingRows.map(row => row.id),
+        );
+        plan.deleteIds.forEach(id => {
+          tx.delete(routineExercises).where(eq(routineExercises.id, id)).run();
+        });
+        plan.updates.forEach(update => {
+          tx.update(routineExercises)
+            .set(update.values)
+            .where(and(eq(routineExercises.id, update.id), eq(routineExercises.routineId, routineId)))
+            .run();
+        });
+        if (plan.inserts.length > 0) {
+          tx.insert(routineExercises).values(plan.inserts).run();
+        }
       });
 
       setPendingToast({ message: t('routines.savedAsTemplate'), type: 'success' });
@@ -666,30 +713,53 @@ export default function RoutineEditorScreen() {
   );
 }
 
-function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
+const getEquipmentLabel = (t: (key: string) => string, key: string): string => {
+  const knownKeys = ['all', 'barra', 'halteres', 'maquina', 'peso_corporal', 'elastico', 'cabos', 'kettlebell', 'other'];
+  if (knownKeys.includes(key)) {
+    return t(`equipment.${key}`);
+  }
+  return key;
+};
+
+export function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean, onClose: () => void, onSelect: (ex: SelectedExercise) => void }) {
   const { t } = useI18n();
   const [search, setSearch] = useState('');
+  const [selectedEquipment, setSelectedEquipment] = useState<string>('all');
   const { data: allExercises } = useLiveQuery(db.select().from(exercises));
-  const [filtered, setFiltered] = useState<typeof allExercises>([]);
   const [newType, setNewType] = useState<'strength' | 'duration'>('strength');
   const [editingEx, setEditingEx] = useState<{id: number, name: string} | null>(null);
   const [editName, setEditName] = useState('');
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' as 'success' | 'error' | 'info' });
 
-  useEffect(() => {
-    if (allExercises) {
-      setFiltered(
-        allExercises.filter(e => e.name.toLowerCase().includes(search.toLowerCase()))
-      );
-    }
-  }, [search, allExercises]);
+  const availableEquipments = useMemo(() => {
+    return getAvailableEquipments(allExercises ?? []);
+  }, [allExercises]);
+
+  const equipmentChips = useMemo(() => {
+    return [
+      { key: 'all', label: t('equipment.all') },
+      ...availableEquipments.map((eqKey) => ({
+        key: eqKey,
+        label: getEquipmentLabel(t, eqKey),
+      })),
+    ];
+  }, [availableEquipments, t]);
+
+  const filtered = useMemo(() => {
+    return filterExercisesByEquipmentAndSearch(
+      allExercises ?? [],
+      selectedEquipment,
+      search
+    );
+  }, [allExercises, selectedEquipment, search]);
 
   const createNewExercise = async () => {
     if (!search.trim()) return;
     try {
       const res = await db.insert(exercises).values({
-          name: search,
-          type: newType
+          name: search.trim(),
+          type: newType,
+          equipment: selectedEquipment !== 'all' ? selectedEquipment : null,
       }).returning();
       onSelect({ id: res[0].id, name: res[0].name });
     } catch {
@@ -701,7 +771,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
       if (!editingEx || !editName.trim()) return;
       try {
           await db.update(exercises)
-            .set({ name: editName })
+            .set({ name: editName.trim() })
             .where(eq(exercises.id, editingEx.id));
           setEditingEx(null);
           setEditName('');
@@ -723,7 +793,7 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
           />
         </View>
 
-        <View className="p-4">
+        <View className="p-4 flex-1">
             {editingEx ? (
                 <Card className="mb-4 border-primary">
                     <Text className="text-subtext text-xs mb-2">{t('routines.editing', { name: editingEx.name })}</Text>
@@ -747,8 +817,39 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                     value={search}
                     onChangeText={setSearch}
                     autoFocus
-                    containerStyle={{ marginBottom: 16 }}
+                    containerStyle={{ marginBottom: 12 }}
                 />
+            )}
+
+            {equipmentChips.length > 1 && (
+              <View className="mb-3">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  {equipmentChips.map((chip) => {
+                    const isActive = selectedEquipment === chip.key;
+                    return (
+                      <TouchableOpacity
+                        key={chip.key}
+                        onPress={() => setSelectedEquipment(chip.key)}
+                        activeOpacity={0.7}
+                        className={`rounded-full py-1.5 px-3.5 border min-h-[44px] items-center justify-center shrink-0 ${
+                          isActive ? 'bg-primary border-transparent' : 'bg-card border-border'
+                        }`}
+                        accessibilityRole="button"
+                        accessibilityLabel={chip.label}
+                        accessibilityState={{ selected: isActive }}
+                      >
+                        <Text className={`text-xs font-semibold uppercase ${isActive ? 'text-onPrimary' : 'text-subtext'}`}>
+                          {chip.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
             )}
 
             <FlatList
@@ -798,9 +899,16 @@ function ExercisePickerModal({ visible, onClose, onSelect }: { visible: boolean,
                 >
                     <View className="flex-1">
                         <Text className="text-text font-bold text-lg">{item.name}</Text>
-                        {item.type === 'duration' && (
-                            <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start mt-1 uppercase">{t("routines.tempo")}</Text>
-                        )}
+                        <View className="flex-row gap-2 mt-1 flex-wrap">
+                          {item.type === 'duration' && (
+                              <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start uppercase">{t("routines.tempo")}</Text>
+                          )}
+                          {item.equipment ? (
+                              <Text className="text-xs bg-background text-subtext px-2 py-0.5 rounded border border-border self-start uppercase">
+                                {getEquipmentLabel(t, item.equipment)}
+                              </Text>
+                          ) : null}
+                        </View>
                     </View>
                     
                     <TouchableOpacity 

@@ -9,6 +9,7 @@ const keyboardSafeForms = [
   { file: 'app/bio/goals.tsx', containers: 1 },
   { file: 'app/routines/editor.tsx', containers: 1 },
   { file: 'app/(tabs)/bio.tsx', containers: 1 },
+  { file: 'components/FolderManagerModal.tsx', containers: 1 },
 ] as const;
 
 const keyboardSafeContainerPattern = /<(?:ScrollView|FlatList)\b(?=[^>]*\bautomaticallyAdjustKeyboardInsets\b)(?=[^>]*\bkeyboardShouldPersistTaps="handled")(?=[^>]*\bkeyboardDismissMode="on-drag")[^>]*>/g;
@@ -31,6 +32,27 @@ describe('shared form keyboard safety', () => {
 
     expect(editor).toContain('KeyboardAvoidingView');
     expect(editor).toContain("behavior={Platform.OS === 'ios' ? 'padding' : 'height'}");
+  });
+
+  it('resizes the folder manager sheet above the Android keyboard', () => {
+    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
+
+    expect(modal).toContain('KeyboardAvoidingView');
+    expect(modal).toContain("behavior={Platform.OS === 'ios' ? 'padding' : 'height'}");
+  });
+
+  it('scrolls both folder inputs and their CTAs into view when focused', () => {
+    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
+
+    expect(modal).toContain('scrollResponderScrollNativeHandleToKeyboard');
+    expect(modal).toContain('scrollViewRef');
+    expect(modal.match(/onFocus=\{handleFolderInputFocus\}/g) ?? []).toHaveLength(2);
+  });
+
+  it('bounds the folder sheet so lower rows can scroll above the keyboard', () => {
+    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
+
+    expect(modal).toContain('flexShrink: 1');
   });
 
   it('scrolls every routine exercise field above the Android keyboard and fixed footer when focused', () => {

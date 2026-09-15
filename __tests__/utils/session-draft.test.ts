@@ -97,4 +97,29 @@ describe('session draft recovery', () => {
     expect(hasPendingSessionDraft({ isDirty: false, activeSetTime: 0, isActiveSetRunning: true })).toBe(true);
     expect(hasPendingSessionDraft({ isDirty: false, activeSetTime: 0, isActiveSetRunning: false })).toBe(false);
   });
+
+  it('restores draft with stable operationId and rejects invalid operationId types', () => {
+    const withOpId = { ...persisted, operationId: 'op-stable-123' };
+    expect(resolveSessionDraft(withOpId, { sessionId: 42, exerciseId: 7 })).toEqual(
+      expect.objectContaining({
+        operationId: 'op-stable-123',
+      }),
+    );
+
+    // Whitespace trimmed
+    const withWhitespace = { ...persisted, operationId: '  op-trimmed-456  ' };
+    expect(resolveSessionDraft(withWhitespace, { sessionId: 42, exerciseId: 7 })).toEqual(
+      expect.objectContaining({
+        operationId: 'op-trimmed-456',
+      }),
+    );
+
+    // Empty/blank operationId falls back to undefined (legacy/unassigned)
+    const withBlank = { ...persisted, operationId: '   ' };
+    expect(resolveSessionDraft(withBlank, { sessionId: 42, exerciseId: 7 })?.operationId).toBeUndefined();
+
+    // Invalid non-string operationId is rejected
+    expect(resolveSessionDraft({ ...persisted, operationId: 12345 }, { sessionId: 42, exerciseId: 7 })).toBeNull();
+    expect(resolveSessionDraft({ ...persisted, operationId: true }, { sessionId: 42, exerciseId: 7 })).toBeNull();
+  });
 });

@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, real, uniqueIndex, index, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, integer, real, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
 
 // TABELA: Templates de Treino (Ex: Treino A, Treino B)
 export const routines = sqliteTable('routines', {
@@ -20,11 +20,14 @@ export const exercises = sqliteTable('exercises', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   type: text('type').notNull().default('strength'), // 'strength' | 'duration'
+  muscleGroup: text('muscle_group'),
+  equipment: text('equipment'),
   defaultRestSeconds: integer('default_rest_seconds').default(90),
 });
 
 // TABELA: Exercícios contidos em uma Rotina (Join Table com ordem)
 export const routineExercises = sqliteTable('routine_exercises', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
   routineId: integer('routine_id').references(() => routines.id),
   exerciseId: integer('exercise_id').references(() => exercises.id),
   orderIndex: integer('order_index'),
@@ -32,7 +35,8 @@ export const routineExercises = sqliteTable('routine_exercises', {
   notes: text('notes'),   // Ex: "Banco altura 4, foco na negativa"
   restSeconds: integer('rest_seconds'), // Tempo de descanso em segundos
 }, (t) => [
-  primaryKey({ columns: [t.routineId, t.exerciseId] }),
+  index("re_routine_id_idx").on(t.routineId),
+  index("re_exercise_id_idx").on(t.exerciseId),
 ]);
 
 // TABELA: Sessões de Treino
@@ -64,7 +68,18 @@ export const sets = sqliteTable('sets', {
   isEdited: integer('is_edited', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at').$defaultFn(() => Date.now()),
   deletedAt: integer('deleted_at'), // Epoch, null = active
-});
+  routineExerciseId: integer('routine_exercise_id').references(() => routineExercises.id, { onDelete: 'set null' }),
+  operationId: text('operation_id'),
+}, (t) => [
+  index("sets_routine_exercise_id_idx").on(t.routineExerciseId),
+  uniqueIndex("sets_operation_id_unique").on(t.operationId),
+  // T25: IDX_C — sets(exercise_id, deleted_at): eliminates table filter after exercise_id seek.
+  // Targets reconcilePersonalRecordsTx hot-path. Gain: 87% median reduction (10k-set fixture).
+  index("sets_exercise_deleted_idx").on(t.exerciseId, t.deletedAt),
+  // T25: IDX_D — sets(session_id, exercise_id, deleted_at, set_number): eliminates temp B-TREE sort.
+  // Targets use-exercise-sets refreshSessionSets (active session, every set change). Gain: 88%.
+  index("sets_session_exercise_deleted_setnum_idx").on(t.sessionId, t.exerciseId, t.deletedAt, t.setNumber),
+]);
 
 // TABELA: Métricas Corporais e Fotos
 export const bodyMetrics = sqliteTable('body_metrics', {
@@ -169,12 +184,11 @@ export const setsSessionIdx = index("sets_session_id_idx").on(sets.sessionId);
 export const setsExerciseIdx = index("sets_exercise_id_idx").on(sets.exerciseId);
 export const bodyMetricsDateIdx = index("body_metrics_date_idx").on(bodyMetrics.date);
 export const personalRecordsExerciseIdx = index("pr_exercise_type_idx").on(personalRecords.exerciseId, personalRecords.recordType);
-export const routineExercisesRoutineIdx = index("re_routine_id_idx").on(routineExercises.routineId);
-export const routineExercisesExerciseIdx = index("re_exercise_id_idx").on(routineExercises.exerciseId);
 export const sessionsRoutineIdx = index("sessions_routine_id_idx").on(sessions.routineId);
 export const programsActiveIdx = index("programs_active_idx").on(programs.isActive);
 export const programWeeksProgramIdx = index("pw_program_id_idx").on(programWeeks.programId);
 export const programExerciseTargetsIdx = index("pet_program_exercise_idx").on(programExerciseTargets.programId, programExerciseTargets.exerciseId);
+
 
 // TABELA: Suplementos
 export const supplements = sqliteTable('supplements', {
@@ -203,4 +217,3 @@ export const supplementLogs = sqliteTable('supplement_logs', {
   index("supplement_logs_supplement_id_idx").on(t.supplementId),
   index("supplement_logs_compound_idx").on(t.supplementId, t.date),
 ]);
-

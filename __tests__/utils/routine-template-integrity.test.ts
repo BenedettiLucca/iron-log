@@ -1,4 +1,5 @@
 import {
+  buildRoutineExercisePersistencePlan,
   buildRoutineExerciseRows,
   buildRoutineRowsFromTemplate,
   buildSaveAsTemplateValues,
@@ -39,8 +40,49 @@ describe('routine/template integrity helpers', () => {
     });
   });
 
+  it('keeps existing occurrence ids stable while inserting, reordering, and removing rows', () => {
+    expect(buildRoutineExercisePersistencePlan(42, [
+      { id: 10, routineExerciseId: 101, target: '3x8' },
+      { id: 20, target: '4x6' },
+      { id: 10, routineExerciseId: 103, target: '3x10' },
+    ], [101, 102, 103])).toEqual({
+      deleteIds: [102],
+      updates: [
+        {
+          id: 101,
+          values: {
+            exerciseId: 10,
+            orderIndex: 1,
+            target: '3x8',
+            notes: undefined,
+            restSeconds: undefined,
+          },
+        },
+        {
+          id: 103,
+          values: {
+            exerciseId: 10,
+            orderIndex: 3,
+            target: '3x10',
+            notes: undefined,
+            restSeconds: undefined,
+          },
+        },
+      ],
+      inserts: [{
+        routineId: 42,
+        exerciseId: 20,
+        orderIndex: 2,
+        target: '4x6',
+        notes: undefined,
+        restSeconds: undefined,
+      }],
+    });
+  });
+
   it('maps the real joined exercise name and nullable metadata', () => {
     expect(mapTemplateExercise({
+      routineExerciseId: 70,
       exerciseId: 7,
       name: 'Bench Press',
       target: null,
@@ -48,6 +90,7 @@ describe('routine/template integrity helpers', () => {
       restSeconds: null,
       orderIndex: 3,
     })).toEqual({
+      routineExerciseId: 70,
       exerciseId: 7,
       name: 'Bench Press',
       target: '',
@@ -60,6 +103,7 @@ describe('routine/template integrity helpers', () => {
   it('preserves template exercise order and fields when creating a routine', () => {
     const templateExercises: TemplateExercise[] = [
       {
+        routineExerciseId: 100,
         exerciseId: 10,
         name: 'Squat',
         target: '3x8',
@@ -68,6 +112,7 @@ describe('routine/template integrity helpers', () => {
         orderIndex: 4,
       },
       {
+        routineExerciseId: 200,
         exerciseId: 20,
         name: 'Bench',
         target: '4x6',

@@ -1,21 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from '../src/db/client';
 import { sets, exercises, sessions, routineExercises } from '../src/db/schema';
-import { eq, and, desc, isNull, ne } from 'drizzle-orm';
+import { eq, and, desc, isNull, ne, sql } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { countCompletedRoutineExercises } from '../src/utils/exercise';
 import { logger } from '../services/logger';
-import { Set } from '../src/types';
+import { Set, SaveSetInput, SaveSetResult } from '../src/types';
+import { parseLocalizedDecimal } from '../src/utils/localized-decimal';
 import { setInputSchema } from '../src/validators/forms';
 import { useI18n } from '../src/i18n/index';
 import { useHaptics } from './use-haptics';
-import { checkPersonalRecords } from './use-personal-records';
+import { checkPersonalRecords, reconcilePersonalRecordsSync } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
 import { SessionDraft } from '../src/utils/session-draft';
+import { scheduleRestNotification, cancelRestNotification } from '../services/NotificationService';
 
 export interface RoutineExerciseListItem {
   id: number;
+  routineExerciseId: number;
   name: string;
   type: string;
   target: string | null;
@@ -26,14 +29,181 @@ export interface RoutineExerciseListItem {
 export interface UseExerciseSetsProps {
   sessionId: number;
   exerciseId: number;
+  routineExerciseId: number;
   routineId: number | null;
   exerciseName: string;
   routineRest: number | null;
 }
 
+/**
+ * Calculates next set number deterministically per occurrence.
+ * Includes tombstones (deletedAt is not null) so undo/restore never causes collision.
+ * Handles legacy NULL routineExerciseId safely in multi-occurrence routines (A/B/A).
+ */
+export async function getNextSetNumber(
+  arg1: any,
+  arg2?: any,
+): Promise<number> {
+  const isArg1Db = arg1 && (typeof arg1.select === 'function');
+  const dbInstance = isArg1Db ? arg1 : (arg2 || db);
+  const params: {
+    sessionId: number;
+    exerciseId: number;
+    routineExerciseId?: number | null;
+    routineId?: number | null;
+    isSingleOccurrence?: boolean;
+  } = isArg1Db ? arg2 : arg1;
+
+  const { sessionId, exerciseId, routineExerciseId, routineId, isSingleOccurrence } = params;
+
+  let existingSets: { setNumber: number }[] = [];
+
+  if (routineExerciseId) {
+    existingSets = await dbInstance.select({ setNumber: sets.setNumber })
+      .from(sets)
+      .where(and(
+        eq(sets.sessionId, sessionId),
+        eq(sets.routineExerciseId, routineExerciseId),
+      ));
+
+    if (existingSets.length === 0) {
+      let isSingle: boolean;
+      if (isSingleOccurrence !== undefined) {
+        isSingle = isSingleOccurrence;
+      } else if (!routineId) {
+        isSingle = true;
+      } else {
+        const routineOccurrences = await dbInstance.select({ id: routineExercises.id })
+          .from(routineExercises)
+          .where(and(
+            eq(routineExercises.routineId, routineId),
+            eq(routineExercises.exerciseId, exerciseId),
+          ));
+        isSingle = routineOccurrences.length === 1;
+      }
+
+      if (isSingle) {
+        existingSets = await dbInstance.select({ setNumber: sets.setNumber })
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, sessionId),
+            eq(sets.exerciseId, exerciseId),
+            isNull(sets.routineExerciseId),
+          ));
+      }
+    }
+  } else {
+    existingSets = await dbInstance.select({ setNumber: sets.setNumber })
+      .from(sets)
+      .where(and(
+        eq(sets.sessionId, sessionId),
+        eq(sets.exerciseId, exerciseId),
+        isNull(sets.routineExerciseId),
+      ));
+  }
+
+  if (existingSets.length === 0) {
+    return 1;
+  }
+
+  const maxSet = Math.max(...existingSets.map(s => s.setNumber));
+  return maxSet + 1;
+}
+
+/**
+ * Finds an existing set by operationId.
+ */
+export async function findSetByOperationId(
+  operationId: string,
+  dbInstance = db,
+): Promise<Set | null> {
+  if (!operationId || !operationId.trim()) return null;
+  const result = await dbInstance.select()
+    .from(sets)
+    .where(eq(sets.operationId, operationId.trim()))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+/**
+ * Idempotent set mutation (Contract C3).
+ * - Stable operation ID persisted on set.
+ * - Retry with the same operation ID returns existing set (isDuplicate: true).
+ * - Different operation ID with same values is allowed (never dedupe by load/reps).
+ * - Scoped set numbering with tombstone safety.
+ */
+export async function saveSetMutation(
+  arg1: any,
+  arg2?: any,
+): Promise<SaveSetResult> {
+  const isArg1Db = arg1 && (typeof arg1.select === 'function');
+  const dbInstance = isArg1Db ? arg1 : (arg2 || db);
+  const input: SaveSetInput = isArg1Db ? arg2 : arg1;
+
+  const normalizedOpId = input.operationId && input.operationId.trim().length > 0
+    ? input.operationId.trim()
+    : null;
+
+  // 1. Idempotent check
+  if (normalizedOpId) {
+    const existing = await findSetByOperationId(normalizedOpId, dbInstance);
+    if (existing) {
+      return {
+        set: existing,
+        isDuplicate: true,
+      };
+    }
+  }
+
+  // 2. Compute deterministic next setNumber
+  const nextSetNumber = await getNextSetNumber({
+    sessionId: input.sessionId,
+    exerciseId: input.exerciseId,
+    routineExerciseId: input.routineExerciseId,
+    routineId: input.routineId,
+    isSingleOccurrence: (input as any).isSingleOccurrence,
+  }, dbInstance);
+
+  // 3. Insert new set
+  try {
+    const inserted = await dbInstance.insert(sets).values({
+      sessionId: input.sessionId,
+      exerciseId: input.exerciseId,
+      routineExerciseId: input.routineExerciseId ?? null,
+      exerciseName: input.exerciseName ?? null,
+      setNumber: nextSetNumber,
+      weightKg: input.weightKg,
+      reps: input.reps,
+      durationSeconds: input.durationSeconds ?? null,
+      rir: input.rir ?? null,
+      isWarmup: input.isWarmup ?? false,
+      createdAt: input.createdAt ?? Date.now(),
+      operationId: normalizedOpId,
+    }).returning();
+
+    return {
+      set: inserted[0],
+      isDuplicate: false,
+    };
+  } catch (error: any) {
+    // Graceful fallback for unique constraint collisions on operation_id
+    if (normalizedOpId) {
+      const existingAfterCollision = await findSetByOperationId(normalizedOpId, dbInstance);
+      if (existingAfterCollision) {
+        return {
+          set: existingAfterCollision,
+          isDuplicate: true,
+        };
+      }
+    }
+    throw error;
+  }
+}
+
 export function useExerciseSets({
   sessionId,
   exerciseId,
+  routineExerciseId,
   routineId,
   exerciseName,
   routineRest,
@@ -42,6 +212,7 @@ export function useExerciseSets({
   const { trigger } = useHaptics();
 
   const restoredDraftRef = useRef(false);
+  const isSingleOccurrenceRef = useRef<boolean | undefined>(!routineId ? true : undefined);
 
   const [exerciseType, setExerciseType] = useState('strength');
   const [currentName, setCurrentName] = useState(exerciseName);
@@ -107,7 +278,7 @@ export function useExerciseSets({
 
   // Count completed exercises (based on target sets met)
   const { data: allSessionSets } = useLiveQuery(
-    db.select({ exerciseId: sets.exerciseId, isWarmup: sets.isWarmup })
+    db.select({ exerciseId: sets.exerciseId, routineExerciseId: sets.routineExerciseId, isWarmup: sets.isWarmup })
       .from(sets)
       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
   );
@@ -117,7 +288,7 @@ export function useExerciseSets({
     allSessionSets || []
   );
 
-  const loadData = useCallback(async () => {
+  const loadStructure = useCallback(async () => {
     try {
       setNextExercise(null);
 
@@ -127,34 +298,15 @@ export function useExerciseSets({
         setCurrentName(exData[0].name);
       }
 
-      const data = await db.select()
-        .from(sets)
-        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
-        .orderBy(sets.setNumber);
-      setSessionSets(data);
-      setHasLoadedSessionSets(true);
-
-      if (data.length === 0 && !restoredDraftRef.current) {
-        const lastSet = await db.select({ weight: sets.weightKg })
-          .from(sets)
-          .where(and(eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
-          .orderBy(desc(sets.createdAt))
-          .limit(1);
-
-        if (lastSet.length > 0 && lastSet[0].weight && !restoredDraftRef.current) {
-          // Pre-fill from history: does NOT mark dirty
-          setWeight(lastSet[0].weight.toString());
-        }
-      }
-
       if (routineId) {
         const routineList = await db.select({
           id: exercises.id,
+          routineExerciseId: routineExercises.id,
           name: exercises.name,
           type: exercises.type,
           target: routineExercises.target,
           notes: routineExercises.notes,
-          restSeconds: routineExercises.restSeconds
+          restSeconds: routineExercises.restSeconds,
         })
           .from(routineExercises)
           .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
@@ -163,16 +315,123 @@ export function useExerciseSets({
 
         setAllExercises(routineList);
 
-        const currentIndex = routineList.findIndex(e => e.id === exerciseId);
+        const currentIndex = routineList.findIndex(e => e.routineExerciseId === routineExerciseId);
         if (currentIndex !== -1 && currentIndex < routineList.length - 1) {
           const next = routineList[currentIndex + 1];
           setNextExercise(next);
+        } else {
+          setNextExercise(null);
         }
+
+        const occurrences = routineList.filter(e => e.id === exerciseId);
+        isSingleOccurrenceRef.current = occurrences.length <= 1;
+      } else {
+        setAllExercises([]);
+        setNextExercise(null);
+        isSingleOccurrenceRef.current = true;
       }
     } catch (e) {
       logger.error(t('common.operationError'), e);
     }
-  }, [sessionId, exerciseId, routineId, t]);
+  }, [exerciseId, routineExerciseId, routineId, t]);
+
+  const refreshSessionSets = useCallback(async (options?: { prefillIfEmpty?: boolean }): Promise<Set[]> => {
+    try {
+      let data: Set[] = [];
+
+      if (routineExerciseId) {
+        data = await db.select()
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, sessionId),
+            eq(sets.routineExerciseId, routineExerciseId),
+            isNull(sets.deletedAt),
+          ))
+          .orderBy(sets.setNumber);
+
+        if (data.length === 0) {
+          let isSingle = isSingleOccurrenceRef.current;
+          if (isSingle === undefined) {
+            if (!routineId) {
+              isSingle = true;
+            } else {
+              const routineOccurrences = await db.select({ id: routineExercises.id })
+                .from(routineExercises)
+                .where(and(
+                  eq(routineExercises.routineId, routineId),
+                  eq(routineExercises.exerciseId, exerciseId),
+                ));
+              isSingle = routineOccurrences.length === 1;
+              isSingleOccurrenceRef.current = isSingle;
+            }
+          }
+
+          if (isSingle) {
+            data = await db.select()
+              .from(sets)
+              .where(and(
+                eq(sets.sessionId, sessionId),
+                eq(sets.exerciseId, exerciseId),
+                isNull(sets.routineExerciseId),
+                isNull(sets.deletedAt),
+              ))
+              .orderBy(sets.setNumber);
+          }
+        }
+      } else {
+        data = await db.select()
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, sessionId),
+            eq(sets.exerciseId, exerciseId),
+            isNull(sets.routineExerciseId),
+            isNull(sets.deletedAt),
+          ))
+          .orderBy(sets.setNumber);
+      }
+
+      setSessionSets(data);
+      setHasLoadedSessionSets(true);
+
+      if (options?.prefillIfEmpty && data.length === 0 && !restoredDraftRef.current) {
+        const lastSet = await db.select({ weight: sets.weightKg })
+          .from(sets)
+          .innerJoin(sessions, eq(sets.sessionId, sessions.id))
+          .where(and(
+            eq(sets.exerciseId, exerciseId),
+            ne(sets.sessionId, sessionId),
+            isNull(sets.deletedAt),
+            isNull(sessions.deletedAt),
+          ))
+          .orderBy(
+            desc(sessions.startTime),
+            desc(sql`coalesce(${sets.createdAt}, ${sessions.startTime})`),
+            desc(sets.setNumber),
+            desc(sets.id),
+          )
+          .limit(1);
+
+        if (lastSet.length > 0 && lastSet[0].weight != null && !restoredDraftRef.current) {
+          // Pre-fill from history: does NOT mark dirty
+          setWeight(lastSet[0].weight.toString());
+        }
+      }
+
+      return data;
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+      return [];
+    }
+  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
+
+  const loadData = useCallback(async () => {
+    try {
+      await loadStructure();
+      await refreshSessionSets({ prefillIfEmpty: true });
+    } catch (e) {
+      logger.error(t('common.operationError'), e);
+    }
+  }, [loadStructure, refreshSessionSets, t]);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -192,9 +451,14 @@ export function useExerciseSets({
           isNull(sets.deletedAt),
           isNull(sessions.deletedAt)
         ))
+        .orderBy(
+          desc(sessions.startTime),
+          desc(sql`coalesce(${sets.createdAt}, ${sessions.startTime})`),
+          desc(sets.setNumber),
+          desc(sets.id),
+        )
         .limit(20);
 
-      history.sort((a, b) => b.date - a.date);
       setHistoryData(history);
     } catch (e) {
       logger.error(t("exercise.sqlHistoryError"), e);
@@ -207,17 +471,70 @@ export function useExerciseSets({
     loadHistory();
   }, [loadData, loadHistory]);
 
-  const handleSaveSet = useCallback(async (overrideDuration?: number): Promise<boolean> => {
+  useEffect(() => {
+    if (timerStatus === 'idle') {
+      cancelRestNotification();
+    }
+  }, [timerStatus]);
+
+  useEffect(() => {
+    return () => {
+      cancelRestNotification();
+    };
+  }, []);
+
+  const handleSaveSet = useCallback(async (
+    overrideDuration?: number,
+    operationIdOrOptions?: string | { operationId?: string | null } | null,
+  ): Promise<boolean> => {
     if (isSaving) return false;
+
+    const operationId = typeof operationIdOrOptions === 'string'
+      ? operationIdOrOptions
+      : operationIdOrOptions?.operationId ?? null;
 
     const isDuration = exerciseType === 'duration';
 
-    const finalDuration = overrideDuration !== undefined ? overrideDuration : (duration ? Number(duration) : 0);
-    const finalReps = reps ? Number(reps) : 0;
+    // Parse localized decimal (Contract C2)
+    const weightResult = parseLocalizedDecimal(weight, { allowNegative: false });
+    if (weightResult.status === 'invalid') {
+      setToast({ visible: true, message: t('common.invalidData'), type: 'error' });
+      return false;
+    }
+    if (!isDuration && weightResult.status === 'empty') {
+      setToast({ visible: true, message: t('exercise.enterWeight'), type: 'error' });
+      return false;
+    }
+
+    let finalDuration = 0;
+    if (overrideDuration !== undefined) {
+      finalDuration = overrideDuration;
+    } else if (duration) {
+      const durResult = parseLocalizedDecimal(duration, { allowNegative: false });
+      if (durResult.status === 'invalid') {
+        setToast({ visible: true, message: t('common.invalidData'), type: 'error' });
+        return false;
+      }
+      finalDuration = durResult.value ?? 0;
+    }
+
+    let finalReps = 0;
+    if (!isDuration) {
+      if (!reps || !reps.trim()) {
+        setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
+        return false;
+      }
+      const trimmedReps = reps.trim();
+      if (!/^\d+$/.test(trimmedReps) || parseInt(trimmedReps, 10) <= 0) {
+        setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
+        return false;
+      }
+      finalReps = parseInt(trimmedReps, 10);
+    }
 
     // Validate with Zod
     const setValidation = setInputSchema.safeParse({
-      weightKg: Number(weight),
+      weightKg: weight,
       reps: isDuration ? 0 : finalReps,
       durationSeconds: isDuration ? finalDuration : null,
       rir: isDuration ? null : Number(rir),
@@ -236,30 +553,29 @@ export function useExerciseSets({
       setToast({ visible: true, message: t('exercise.enterReps'), type: 'error' });
       return false;
     }
-    if (!isDuration && !weight) {
-      setToast({ visible: true, message: t('exercise.enterWeight'), type: 'error' });
-      return false;
-    }
 
     setIsSaving(true);
 
     try {
-      const nextSetNumber = (sessionSets?.length || 0) + 1;
-
-      const result = await db.insert(sets).values({
+      const mutationResult = await saveSetMutation({
         sessionId,
         exerciseId,
+        routineExerciseId,
         exerciseName: currentName,
-        setNumber: nextSetNumber,
+        routineId,
         weightKg: setValidation.data.weightKg,
         reps: isDuration ? 0 : finalReps,
         durationSeconds: isDuration ? finalDuration : null,
         rir: isDuration ? null : Number(rir),
         isWarmup: isWarmupMode,
-      }).returning();
+        operationId,
+        isSingleOccurrence: isSingleOccurrenceRef.current,
+      } as SaveSetInput);
+
+      const saved = mutationResult.set;
 
       // Store for undo
-      setLastSavedSet(result[0]);
+      setLastSavedSet(saved);
 
       // Clear undo after 10 seconds
       if (undoTimeoutRef.current) {
@@ -269,18 +585,18 @@ export function useExerciseSets({
         setLastSavedSet(null);
       }, 10000);
 
-      await loadData();
+      await refreshSessionSets();
 
-      // Check for Personal Records (only for non-warmup strength sets)
-      if (!isWarmupMode && !isDuration && result[0]) {
+      // Check for Personal Records (only for new, non-duplicate, non-warmup sets)
+      if (!mutationResult.isDuplicate && !isWarmupMode && saved) {
         const prResult = await checkPersonalRecords({
           exerciseId,
           sessionId,
-          savedSet: result[0],
+          savedSet: saved,
           isWarmup: isWarmupMode,
         });
 
-        if (prResult.isWeightPR || prResult.isRepsPR) {
+        if (prResult.isWeightPR || prResult.isRepsPR || prResult.isDurationPR) {
           trigger('success');
           setToast({ visible: true, message: t('finish.prText'), type: 'success' });
         }
@@ -292,10 +608,11 @@ export function useExerciseSets({
       setIsDirty(false);
       resetActiveSet();
 
-      if (!isDuration) {
+      if (!isDuration && !mutationResult.isDuplicate) {
         const restTime = routineRest || 90;
         setTimerTarget(Date.now() + restTime * 1000);
         setTimerStatus('running');
+        scheduleRestNotification({ seconds: restTime, exerciseName: currentName });
       }
 
       return true;
@@ -306,35 +623,63 @@ export function useExerciseSets({
     } finally {
       setIsSaving(false);
     }
-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
+  }, [
+    isSaving,
+    exerciseType,
+    duration,
+    reps,
+    weight,
+    rir,
+    sessionId,
+    exerciseId,
+    routineExerciseId,
+    routineId,
+    currentName,
+    routineRest,
+    undoTimeoutRef,
+    refreshSessionSets,
+    isWarmupMode,
+    t,
+    trigger,
+    setLastSavedSet,
+    setTimerStatus,
+    setTimerTarget,
+    resetActiveSet,
+    setIsDirty,
+  ]);
 
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({
       exerciseId,
+      routineExerciseId,
+      routineId,
       sessionId,
       exerciseType,
       setSessionSets,
       setCurrentName,
       setToast,
     });
-  }, [hookHandleUndo, exerciseId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
+  }, [hookHandleUndo, exerciseId, routineExerciseId, routineId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
 
   const handleDeleteSet = useCallback(async (setId: number) => {
     try {
       const deletedSet = sessionSets.find(set => set.id === setId);
-      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId));
+      db.transaction((tx) => {
+        tx.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, setId)).run();
+        reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
+      });
       if (deletedSet) registerDeletedSet(deletedSet);
-      await loadData();
+      await refreshSessionSets();
       setToast({ visible: true, message: t('exercise.setDeleted'), type: 'success' });
     } catch (e) {
       logger.error(t('common.operationError'), e);
       setToast({ visible: true, message: t('exercise.deleteSetError'), type: 'error' });
     }
-  }, [loadData, registerDeletedSet, sessionSets, t]);
+  }, [exerciseId, sessionId, refreshSessionSets, registerDeletedSet, sessionSets, t]);
 
   const handleRestoreDeletedSet = useCallback(async () => {
-    await handleRestoreDeleted({ exerciseId, sessionId, setSessionSets, setToast });
-  }, [exerciseId, handleRestoreDeleted, sessionId]);
+    await handleRestoreDeleted({ exerciseId, routineExerciseId, routineId, sessionId, setSessionSets, setToast });
+  }, [exerciseId, routineExerciseId, routineId, handleRestoreDeleted, sessionId]);
 
   const handleEditSet = useCallback(async (setId: number) => {
     try {
@@ -353,18 +698,23 @@ export function useExerciseSets({
     if (!editingSet) return false;
     
     try {
-      await db.update(sets)
-        .set({
-          weightKg: weight,
-          // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
-          reps: reps ?? editingSet.reps,
-          durationSeconds: duration ?? editingSet.durationSeconds,
-          rir: rir ?? editingSet.rir,
-          isEdited: true,
-        })
-        .where(eq(sets.id, editingSet.id));
-      
-      await loadData();
+      db.transaction((tx) => {
+        tx.update(sets)
+          .set({
+            weightKg: weight,
+            // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
+            reps: reps ?? editingSet.reps,
+            durationSeconds: duration ?? editingSet.durationSeconds,
+            rir: rir ?? editingSet.rir,
+            isEdited: true,
+          })
+          .where(eq(sets.id, editingSet.id))
+          .run();
+
+        reconcilePersonalRecordsSync({ exerciseId, sessionId, tx });
+      });
+
+      await refreshSessionSets();
       setShowSetEditor(false);
       setEditingSet(null);
       setToast({ visible: true, message: t('exercise.setEdited'), type: 'success' });
@@ -374,7 +724,7 @@ export function useExerciseSets({
       setToast({ visible: true, message: t('exercise.editSetError'), type: 'error' });
       return false;
     }
-  }, [editingSet, loadData, t]);
+  }, [editingSet, exerciseId, sessionId, refreshSessionSets, t]);
 
   return {
     isDirty,
@@ -429,6 +779,8 @@ export function useExerciseSets({
     handleDeleteSet,
     handleEditSet,
     handleSaveEditedSet,
+    refreshSessionSets,
+    loadStructure,
     loadData,
     loadHistory,
     restoreDraft,

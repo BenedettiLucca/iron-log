@@ -24,6 +24,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
 import { resolveScreenState } from '@/src/utils/screen-state';
 import { generateSessionVerdicts, type ExerciseVerdict } from '@/src/utils/session-verdicts';
+import { formatLoggedSet } from '@/src/utils/session-contract';
 
 export default function SummaryScreen() {
   const { t, language } = useI18n();
@@ -67,9 +68,10 @@ export default function SummaryScreen() {
         .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
 
       // 3. Buscar Targets da Rotina (Se houver routineId)
-      const targetsMap = new Map<number, string>();
+      const targetsMap = new Map<string, string>();
       if (session.routineId) {
         const reData = await db.select({
+          routineExerciseId: routineExercises.id,
           exId: routineExercises.exerciseId,
           target: routineExercises.target
         })
@@ -77,7 +79,16 @@ export default function SummaryScreen() {
           .where(eq(routineExercises.routineId, session.routineId));
 
         reData.forEach(r => {
-          if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+          if (r.target) {
+            const key = r.routineExerciseId != null
+              ? `routine:${r.routineExerciseId}`
+              : `exercise:${r.exId}`;
+            targetsMap.set(key, r.target);
+            if (r.exId != null) {
+              const legacyKey = `exercise:${r.exId}`;
+              if (!targetsMap.has(legacyKey)) targetsMap.set(legacyKey, r.target);
+            }
+          }
         });
       }
 
@@ -249,7 +260,7 @@ export default function SummaryScreen() {
               const targetStr = v.targetRange
                 ? `${v.targetRange.sets}x${v.targetRange.minReps === v.targetRange.maxReps ? v.targetRange.minReps : `${v.targetRange.minReps}-${v.targetRange.maxReps}`}`
                 : '-';
-              const actualStr = v.workingSets.map(s => `${s.weightKg}kg x ${s.reps}`).join(', ');
+              const actualStr = v.workingSets.map(s => formatLoggedSet(s)).join(', ');
 
               const getBadgeStyles = (verdict: typeof v) => {
                 if (verdict.verdict === 'increase') {
@@ -276,7 +287,10 @@ export default function SummaryScreen() {
               const { bgClass, textClass, label: badgeLabel } = getBadgeStyles(v);
 
               return (
-                <Card key={v.exerciseId} className="mb-3">
+                <Card
+                  key={v.routineExerciseId != null ? `routine:${v.routineExerciseId}` : `exercise:${v.exerciseId}`}
+                  className="mb-3"
+                >
                   <View className="flex-row justify-between items-center mb-1">
                     <Text className="text-text font-bold text-base flex-1 mr-2">{v.exerciseName}</Text>
                     <View className={`px-2.5 py-1 rounded-full ${bgClass}`}>

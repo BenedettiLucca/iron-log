@@ -107,3 +107,6 @@ GEMINI.md
 *.keystore
 *.old.*
 .secrets/
+
+# Android QA artifacts
+.qa-artifacts/

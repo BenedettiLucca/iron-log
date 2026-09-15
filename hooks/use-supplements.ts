@@ -4,6 +4,7 @@ import { supplements, supplementLogs } from '@/src/db/schema';
 import { eq, and, desc, asc, gte, inArray } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { Supplement, SupplementLog } from '@/src/types';
+import { notificationService } from '@/services/NotificationService';
 
 export function useSupplements() {
   const [items, setItems] = useState<Supplement[]>([]);
@@ -85,7 +86,39 @@ export function useSupplements() {
 
   const addSupplement = useCallback(async (supplement: Omit<Supplement, 'id'>): Promise<boolean> => {
     try {
-      await db.insert(supplements).values(supplement);
+      let targetId: number | undefined;
+      const insertResult = await db.insert(supplements).values(supplement).returning();
+      if (Array.isArray(insertResult) && insertResult.length > 0) {
+        targetId = insertResult[0]?.id;
+      }
+
+      if (targetId == null) {
+        const latest = await db
+          .select({ id: supplements.id })
+          .from(supplements)
+          .where(eq(supplements.name, supplement.name))
+          .orderBy(desc(supplements.id))
+          .limit(1);
+        if (latest.length > 0) {
+          targetId = latest[0].id;
+        }
+      }
+
+      if (targetId != null) {
+        const isTargetActive = Boolean(supplement.isActive);
+        if (isTargetActive && supplement.reminderTime) {
+          await notificationService.scheduleSupplementReminder({
+            id: targetId,
+            name: supplement.name,
+            dosage: supplement.dosage,
+            reminderTime: supplement.reminderTime,
+            isActive: isTargetActive,
+          });
+        } else {
+          await notificationService.cancelSupplementReminder(targetId);
+        }
+      }
+
       await fetchSupplements();
       return true;
     } catch (e) {
@@ -97,6 +130,24 @@ export function useSupplements() {
   const updateSupplement = useCallback(async (id: number, updates: Partial<Supplement>): Promise<boolean> => {
     try {
       await db.update(supplements).set(updates).where(eq(supplements.id, id));
+
+      const updatedRows = await db
+        .select()
+        .from(supplements)
+        .where(eq(supplements.id, id))
+        .limit(1);
+
+      const updated = updatedRows[0];
+      if (updated) {
+        if (updated.isActive && updated.reminderTime) {
+          await notificationService.scheduleSupplementReminder(updated);
+        } else {
+          await notificationService.cancelSupplementReminder(id);
+        }
+      } else {
+        await notificationService.cancelSupplementReminder(id);
+      }
+
       await fetchSupplements();
       return true;
     } catch (e) {
@@ -108,6 +159,7 @@ export function useSupplements() {
   const deleteSupplement = useCallback(async (id: number): Promise<boolean> => {
     try {
       await db.update(supplements).set({ isActive: false }).where(eq(supplements.id, id));
+      await notificationService.cancelSupplementReminder(id);
       await fetchSupplements();
       return true;
     } catch (e) {
@@ -236,6 +288,7 @@ export function useSupplements() {
         for (const item of defaultStack) {
           await db.insert(supplements).values(item);
         }
+        await notificationService.scheduleAllSupplementReminders();
         await fetchSupplements();
       }
       return true;

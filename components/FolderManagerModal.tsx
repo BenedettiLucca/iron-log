@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import type { FocusEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -57,6 +58,7 @@ export function FolderManagerModal({
 }: FolderManagerModalProps) {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [newFolderName, setNewFolderName] = useState('');
   const [editingFolder, setEditingFolder] = useState<Folder | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -66,6 +68,19 @@ export function FolderManagerModal({
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const isSubmitting = isCreating || isRenaming || isDeleting;
+
+  const handleFolderInputFocus = (event: FocusEvent) => {
+    const target = event.target;
+    if (target == null) return;
+
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(
+        target,
+        80,
+        true
+      );
+    });
+  };
 
   const resetForm = () => {
     setNewFolderName('');
@@ -142,12 +157,12 @@ export function FolderManagerModal({
             accessible={false}
           />
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{ maxHeight: '92%' }}
           >
             <View
               className="bg-background rounded-t-3xl border-t border-border"
-              style={{ paddingBottom: Math.max(insets.bottom, 16) }}
+              style={{ paddingBottom: Math.max(insets.bottom, 16), flexShrink: 1 }}
             >
               <View className="px-4 py-4 border-b border-border flex-row items-center justify-between">
                 <Text
@@ -165,6 +180,9 @@ export function FolderManagerModal({
               </View>
 
               <ScrollView
+                ref={scrollViewRef}
+                style={{ flexShrink: 1 }}
+                automaticallyAdjustKeyboardInsets
                 keyboardShouldPersistTaps="handled"
                 keyboardDismissMode="on-drag"
                 contentContainerStyle={{ padding: 16, gap: 16 }}
@@ -188,15 +206,7 @@ export function FolderManagerModal({
                     showCharacterCount
                     error={editingFolder ? undefined : formError}
                     editable={!isSubmitting}
-                  />
-                  <Button
-                    title={t('routines.createFolder')}
-                    onPress={() => void handleCreate()}
-                    variant="primary"
-                    fullWidth
-                    loading={isCreating}
-                    disabled={isSubmitting || !!editingFolder}
-                    style={{ marginTop: 12 }}
+                    onFocus={handleFolderInputFocus}
                   />
                 </Card>
 
@@ -228,6 +238,7 @@ export function FolderManagerModal({
                                 error={formError}
                                 editable={!isSubmitting}
                                 autoFocus
+                                onFocus={handleFolderInputFocus}
                               />
                               <View className="flex-row gap-2 mt-3">
                                 <Button
@@ -299,6 +310,20 @@ export function FolderManagerModal({
                   </View>
                 </View>
               </ScrollView>
+
+              {/* Footer CTA pinned inside KAV, outside ScrollView so it never scrolls under the keyboard.
+                  On Android, KAV behavior='height' is kept because the footer must track the keyboard height
+                  when the ScrollView is not active (e.g., no input focused yet). */}
+              <View className="px-4 py-4" style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
+                <Button
+                  title={t('routines.createFolder')}
+                  onPress={() => void handleCreate()}
+                  variant="primary"
+                  fullWidth
+                  loading={isCreating}
+                  disabled={isSubmitting || !!editingFolder}
+                />
+              </View>
             </View>
           </KeyboardAvoidingView>
         </View>

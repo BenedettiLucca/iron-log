@@ -8,10 +8,11 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState, useEffect, useCallback } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets, personalRecords, routineExercises } from '../../src/db/schema';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
+import { SessionLifecycleService } from '@/services/SessionLifecycleService';
+import { parseLocalizedDecimal } from '@/src/utils/localized-decimal';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
 import { Stopwatch } from '../../components/Stopwatch';
@@ -24,11 +25,12 @@ import { logger } from '@/services/logger';
 import { Colors } from '@/constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import { safeParseParams, finishParamsSchema } from '@/src/validators/routes';
-import { rpeSchema } from '@/src/validators/forms';
 import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
 import { buildSessionSummary } from '@/src/utils/session-summary';
 import { useToast } from '../../hooks/use-toast';
+import { useSessionKeepAwake } from '../../hooks/use-keep-awake-setting';
 import { canActOnFinishStats } from '@/src/utils/session-trust';
+import { evaluateFinishIntent } from '@/src/utils/session-contract';
 
 interface NoteTemplate {
   label: string;
@@ -41,6 +43,7 @@ export default function FinishSessionScreen() {
   const { t, language } = useI18n();
   const theme = useThemeColors();
   const { toast, setToast } = useToast();
+  useSessionKeepAwake();
   const SRPE_DESCRIPTIONS: Record<number, string> = {
     1: t('finish.recovery'),
     2: t('finish.sRPEVeryLight'),
@@ -84,6 +87,11 @@ export default function FinishSessionScreen() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
+  const intent = evaluateFinishIntent({
+    workingSetCount: sessionStats.totalSets,
+    isSaving: isFinishing,
+  });
+
   // Pré-carregar peso da Bio e calcular estatísticas
   useEffect(() => {
     const loadData = async () => {
@@ -119,9 +127,10 @@ export default function FinishSessionScreen() {
           .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
 
         // Get targets Map
-        const targetsMap = new Map<number, string>();
+        const targetsMap = new Map<string, string>();
         if (session.routineId) {
           const reData = await db.select({
+            routineExerciseId: routineExercises.id,
             exId: routineExercises.exerciseId,
             target: routineExercises.target
           })
@@ -129,7 +138,16 @@ export default function FinishSessionScreen() {
             .where(eq(routineExercises.routineId, session.routineId));
 
           reData.forEach(r => {
-            if (r.exId && r.target) targetsMap.set(r.exId, r.target);
+            if (r.target) {
+              const key = r.routineExerciseId != null
+                ? `routine:${r.routineExerciseId}`
+                : `exercise:${r.exId}`;
+              targetsMap.set(key, r.target);
+              if (r.exId != null) {
+                const legacyKey = `exercise:${r.exId}`;
+                if (!targetsMap.has(legacyKey)) targetsMap.set(legacyKey, r.target);
+              }
+            }
           });
         }
 
@@ -170,7 +188,8 @@ export default function FinishSessionScreen() {
 
   const adjustWeight = useCallback((delta: number) => {
     setWeight((prev) => {
-      const current = parseFloat(prev) || 0;
+      const parsed = parseLocalizedDecimal(prev, { allowNegative: false });
+      const current = parsed.status === 'valid' ? parsed.value : (parseFloat(prev) || 0);
       return Math.max(0, current + delta).toString();
     });
   }, []);
@@ -183,11 +202,7 @@ export default function FinishSessionScreen() {
   }, []);
 
   const handleFinish = () => {
-    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
-    if (sessionStats.totalSets === 0) {
-      setShowDiscardDialog(true);
-      return;
-    }
+    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError) || intent.kind === 'empty') return;
     setShowConfirmDialog(true);
   };
 
@@ -196,14 +211,7 @@ export default function FinishSessionScreen() {
     setShowDiscardDialog(false);
     setIsFinishing(true);
     try {
-      // Soft-delete: also soft-delete any sets belonging to this session
-      await db.update(sets)
-        .set({ deletedAt: Date.now() })
-        .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
-      await db.update(sessions)
-        .set({ deletedAt: Date.now() })
-        .where(eq(sessions.id, Number(sessionId)));
-      await AsyncStorage.removeItem('incomplete_session');
+      await SessionLifecycleService.discardSession({ sessionId: Number(sessionId) });
       router.replace('/(tabs)');
     } catch (e) {
       logger.error(t('finish.finishError'), e);
@@ -213,37 +221,19 @@ export default function FinishSessionScreen() {
   };
 
   const confirmFinish = async () => {
+    if (!intent.persist) return;
     if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
     setIsFinishing(true);
     setShowConfirmDialog(false);
 
     try {
-      const endTimestamp = Date.now();
-      const startTimestamp = Number(startTime);
-      const durationMinutes = Math.round((endTimestamp - startTimestamp) / 60000);
-
-      // 1. Atualizar Sessão
-      await db.update(sessions)
-        .set({
-          endTime: endTimestamp,
-          durationMinutes: durationMinutes > 0 ? durationMinutes : 1,
-          bodyWeight: weight ? Number(weight) : null,
-          sRpe: (() => { const r = rpeSchema.safeParse(sRpe); return r.success ? r.data : 7; })(),
-          notes: notes
-        })
-        .where(eq(sessions.id, Number(sessionId)));
-
-      // 2. Salvar Peso na Bio (Sincronização)
-      if (weight) {
-        await db.insert(bodyMetrics).values({
-          date: endTimestamp,
-          type: 'daily',
-          weight: Number(weight)
-        });
-      }
-
-      // 3. Clear incomplete session marker
-      await AsyncStorage.removeItem('incomplete_session');
+      await SessionLifecycleService.finishSession({
+        sessionId: Number(sessionId),
+        startTime: Number(startTime),
+        weight,
+        sRpe,
+        notes,
+      });
 
       // Navegar para o resumo
       router.replace({
@@ -261,7 +251,9 @@ export default function FinishSessionScreen() {
 
   const getWeightDiff = useCallback(() => {
     if (!previousWeight || !weight) return null;
-    const current = parseFloat(weight);
+    const parsed = parseLocalizedDecimal(weight, { allowNegative: false });
+    if (parsed.status !== 'valid') return null;
+    const current = parsed.value;
     const diff = current - previousWeight;
     if (Math.abs(diff) < 0.1) return null;
     return diff;
@@ -330,6 +322,13 @@ export default function FinishSessionScreen() {
           </View>
         </Card>
 
+        {intent.kind === 'empty' ? (
+          <Card className="mb-6">
+            <Text className="text-text font-bold text-base mb-1">{t('finish.emptyTitle')}</Text>
+            <Text className="text-subtext text-sm">{t('finish.emptyBody')}</Text>
+          </Card>
+        ) : (
+          <>
         {/* Peso Corporal */}
         <Card className="mb-6">
           <View className="flex-row justify-between items-center mb-2">
@@ -342,7 +341,7 @@ export default function FinishSessionScreen() {
           <View className="flex-row items-center gap-3">
             <TextInput
               className="flex-1 bg-background text-text text-4xl font-bold py-4 px-5 rounded-xl border border-border text-center"
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               placeholder="82.5"
               placeholderTextColor={Colors.darkSubtext}
               value={weight}
@@ -466,29 +465,58 @@ export default function FinishSessionScreen() {
             accessibilityLabel={t('finish.observations')}
           />
         </Card>
+          </>
+        )}
 
         <View className="gap-3 mt-4">
-          <Button
-            title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
-            onPress={handleFinish}
-            variant="primary"
-            size="lg"
-            fullWidth
-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
-            loading={isFinishing}
-          />
-          <Button
-            title={t('finish.discardButton')}
-            onPress={() => {
-              if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
-                setShowDiscardDialog(true);
-              }
-            }}
-            variant="danger"
-            size="md"
-            fullWidth
-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
-          />
+          {intent.kind === 'empty' ? (
+            <>
+              <Button
+                title={t('finish.logSetButton')}
+                onPress={() => router.back()}
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={!canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+              <Button
+                title={t('finish.discardButton')}
+                onPress={() => {
+                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                    setShowDiscardDialog(true);
+                  }
+                }}
+                variant="ghost"
+                size="md"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+            </>
+          ) : (
+            <>
+              <Button
+                title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
+                onPress={handleFinish}
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+                loading={isFinishing}
+              />
+              <Button
+                title={t('finish.discardButton')}
+                onPress={() => {
+                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+                    setShowDiscardDialog(true);
+                  }
+                }}
+                variant="ghost"
+                size="md"
+                fullWidth
+                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+              />
+            </>
+          )}
         </View>
 
       </ScrollView>

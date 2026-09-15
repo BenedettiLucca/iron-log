@@ -55,7 +55,12 @@ validações diferentes de typecheck, lint e Jest; não misture esses níveis no
    testes que outra sessão possa estar produzindo.
 2. Não use `git reset --hard`, `git clean`, checkout destrutivo ou `git stash` para limpar o repo.
 3. Faça a menor mudança coerente, rode primeiro o teste afetado e só depois o gate mais amplo.
-4. Antes de concluir, rode `git diff --check`, revise o diff completo e registre qualquer skip,
+4. Antes de implementar mudança não-trivial, valide a abordagem em si: questione se o desenho
+   escolhido é o correto, não apenas se o código está correto dentro da solução proposta. Se a
+   abordagem parecer errada, pare e reporte antes de codificar.
+5. Review adversarial não expande escopo: run sem erro não recebe "melhoria" especulativa nem
+   refactor fora do ticket; registre como issue separada.
+6. Antes de concluir, rode `git diff --check`, revise o diff completo e registre qualquer skip,
    falha preexistente ou validação que depende de Android/credenciais.
 
 ## Git e definição de pronto
@@ -63,3 +68,35 @@ validações diferentes de typecheck, lint e Jest; não misture esses níveis no
 Stage apenas os arquivos pretendidos; use Conventional Commits, não bypass hooks e não adicione
 créditos de agente/LLM. Push, merge, release ou alteração de dados externos exigem autorização
 explícita e verificação posterior. A resposta final deve separar fato, inferência e opinião.
+
+## QA Android agent-native (obrigatório para mudanças em UI/fluxo)
+
+Qualquer mudança em `app/`, `components/`, `hooks/` ou `services/` que afete comportamento visível
+deve ser validada no AVD antes de PR — automação e gates executáveis primeiro, julgamento depois.
+
+```bash
+scripts/qa.sh boot       # sobe AVD headless ironlog-qa (espera sys.boot_completed, sem sleep fixo)
+scripts/qa.sh install    # builda assembleDebug (se necessário) e instala
+scripts/qa.sh app        # lança o app
+scripts/qa.sh smoke      # suíte Maestro (.maestro/*.yaml) — DEVE passar 100% antes de PR
+scripts/qa.sh logs       # logcat filtrado (ReactNativeJS/ReactNative/crashes)
+scripts/qa.sh snap       # screenshot em .qa-artifacts/
+scripts/qa.sh reset      # pm clear — estado limpo para o próximo teste
+scripts/qa.sh stop       # desliga o emulador
+```
+
+Protocolo para coding agents (agy/oc/Hermes):
+
+1. `scripts/qa.sh boot` → `install` → `app`. Nunca presuma que o emulador está pronto: use os
+   comandos, que esperam condições reais via ADB.
+2. QA exploratório via MCP `device-mcp` (tools `device_*`, `hermes_*`) — prefira
+   `device_snapshot`/labels de acessibilidade a coordenadas; screenshot só como fallback.
+3. Fluxo quebrado = colete evidência (`qa.sh snap` + `qa.sh logs`), diagnostique, corrija, rebuild
+   e re-teste. Sem gates Android passando, não há "pronto".
+4. Cenário valioso descoberto em QA exploratório vira flow `.maestro/` (regressão determinística).
+   Testes não são rubber stamp: nunca afrouxe uma assertion sem justificativa explícita no diff.
+5. Requisito de ambiente: `/dev/kvm` é **obrigatório** (módulo `kvm_amd`; ver
+   `docs/agentic-android-qa.md`). Emulador x86_64 **se recusa a bootar sem KVM** — não é apenas
+   mais lento.
+
+Detalhes de arquitetura e troubleshooting: `docs/agentic-android-qa.md`.

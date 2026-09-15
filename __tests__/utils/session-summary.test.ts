@@ -153,6 +153,29 @@ describe('buildSessionSummary', () => {
     expect(report).toContain('- [Bench Press] Result: Top of range | Verdict: Increase load | Next Load: Next time try 102.5kg');
   });
 
+  it('uses the exercise fallback target for legacy sets without occurrence attribution', () => {
+    const { report } = buildSessionSummary({
+      session: baseSession,
+      targetsMap: new Map([['exercise:101', '3x8']]),
+      t,
+      locale: 'en-US',
+      setsData: [{
+        exerciseId: 101,
+        exerciseName: 'Bench Press',
+        setNumber: 1,
+        weightKg: 100,
+        reps: 8,
+        durationSeconds: null,
+        rir: 2,
+        deletedAt: null,
+        isWarmup: false,
+        routineExerciseId: null,
+      }],
+    });
+
+    expect(report).toContain('[Bench Press] (Target: 3x8): S1: 8x100kgxRIR2');
+  });
+
   it('includes anomaly flags and hides verdict guidance when no rep-range target exists', () => {
     const { report } = buildSessionSummary({
       session: baseSession,

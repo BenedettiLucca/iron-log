@@ -1,4 +1,7 @@
 import { generateSessionVerdicts } from './session-verdicts';
+import { getRoutineOccurrenceKey } from './session-occurrence';
+
+export { getRoutineOccurrenceKey } from './session-occurrence';
 
 type TFunction = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -12,6 +15,18 @@ export interface SummarySet {
   rir: number | null;
   deletedAt?: number | null;
   isWarmup: boolean;
+  routineExerciseId?: number | null;
+}
+
+function lookupTarget(
+  targetsMap: Map<string | number, string>,
+  occurrenceKey: string,
+  exerciseId: number
+): string | undefined {
+  let target = targetsMap.get(occurrenceKey);
+  if (target == null) target = targetsMap.get(`exercise:${exerciseId}`);
+  if (target == null) target = targetsMap.get(exerciseId);
+  return target;
 }
 
 export interface SummarySession {
@@ -28,6 +43,7 @@ interface ExerciseSummary {
   name: string;
   sets: SummarySet[];
   exId: number;
+  key: string;
   target?: string;
 }
 
@@ -41,7 +57,7 @@ export interface SessionStats {
 export interface BuildSessionSummaryInput {
   session: SummarySession;
   setsData: SummarySet[];
-  targetsMap: Map<number, string>;
+  targetsMap: Map<string | number, string>;
   t: TFunction;
   locale: string;
 }
@@ -63,15 +79,16 @@ export function buildSessionSummary({
   const exercisesMap = new Map<string, ExerciseSummary>();
 
   activeSets.forEach(set => {
+    const key = getRoutineOccurrenceKey(set.routineExerciseId, set.exerciseId);
     const exName = set.exerciseName || `${t('common.exercise')} ${set.exerciseId}`;
-    if (!exercisesMap.has(exName)) {
-      exercisesMap.set(exName, { sets: [], exId: set.exerciseId, name: exName });
+    if (!exercisesMap.has(key)) {
+      exercisesMap.set(key, { sets: [], exId: set.exerciseId, name: exName, key });
     }
-    exercisesMap.get(exName)!.sets.push(set);
+    exercisesMap.get(key)!.sets.push(set);
   });
 
   exercisesMap.forEach((data) => {
-    const target = targetsMap.get(data.exId);
+    const target = lookupTarget(targetsMap, data.key, data.exId);
     if (target) data.target = target;
   });
 

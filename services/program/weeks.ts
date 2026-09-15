@@ -77,10 +77,12 @@ export async function setAllWeeks(
   }[]
 ): Promise<boolean> {
   try {
-    await db.delete(programWeeks).where(eq(programWeeks.programId, programId));
-    if (weeks.length > 0) {
-      await db.insert(programWeeks).values(weeks.map(w => ({ programId, ...w })));
-    }
+    db.transaction((tx: any) => {
+      tx.delete(programWeeks).where(eq(programWeeks.programId, programId)).run();
+      if (weeks.length > 0) {
+        tx.insert(programWeeks).values(weeks.map(w => ({ programId, ...w }))).run();
+      }
+    });
     return true;
   } catch (e) {
     logger.error('Failed to set all weeks', e);

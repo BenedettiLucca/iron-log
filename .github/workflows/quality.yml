@@ -43,8 +43,22 @@ jobs:
       - name: Lint
         run: npm run lint -- --max-warnings=0
 
-      - name: Test and coverage
-        run: npm run test:coverage -- --runInBand --watchAll=false
+      - name: Clear jest transform cache
+        # #143 — stale transform cache between CI runs made session-lifecycle
+        # fault-injection flip-flop (state persisted in /tmp jest cache).
+        run: npx jest --clearCache
+
+      - name: Test and coverage (app suites)
+        # #143 — session-lifecycle fault-injection is order-sensitive when run
+        # in the same jest process as React Testing Library suites (RTL act()
+        # leaves timers that interleave with synchronous better-sqlite3
+        # transactions). Run it in its own pass, everything else together.
+        run: npm run test:coverage -- --watchAll=false --testPathIgnorePatterns '/node_modules/' 'services/session-lifecycle'
+
+      - name: Test and coverage (session lifecycle)
+        # no --coverage here: global thresholds are enforced by the app-suites
+        # step; this isolated pass only proves the fault-injection behavior.
+        run: npx jest __tests__/services/session-lifecycle.test.ts --runInBand --watchAll=false
 
       - name: Export Android bundle
         run: npm run export:android

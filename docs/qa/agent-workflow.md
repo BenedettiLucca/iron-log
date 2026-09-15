@@ -21,6 +21,7 @@ Understanding the boundary of each test tier avoids false confidence and brittle
 1. **Host Unit Tests (`__tests__/**/*.{test,spec}.{ts,tsx}`)**:
    - Run in Node/Jest with jsdom / react-native mock environment.
    - Test pure business logic, formatters, state reducers, and isolated components.
+   - Automated coverage thresholds (`npm run test:coverage`) enforce utility coverage (`src/utils/**/*.{js,jsx,ts,tsx}`) rather than total codebase coverage; other areas rely on targeted contract, service, and screen suites.
 2. **Host Database Integration (`__tests__/services/*-database.test.ts`)**:
    - Uses in-memory SQLite (`better-sqlite3`) initialized via synthetic DDL identical to `src/db/schema.ts`.
    - Foreign key constraints enabled (`PRAGMA foreign_keys = ON`).
@@ -29,9 +30,10 @@ Understanding the boundary of each test tier avoids false confidence and brittle
 3. **Hermes Bundle Export (`npm run export:android && npm run verify:android-export`)**:
    - Generates production Android bytecode bundle via Metro and Hermes (`.hbc`).
    - Validates that no Node-only imports, unresolvable platform dependencies, or asset path syntax errors reach native runtime.
-4. **Device / Emulator E2E**:
-   - Actual native Android execution via `scripts/run-android.sh`.
+4. **Device / Emulator E2E (Agentic QA on AVD)**:
+   - Actual native Android execution on the dedicated AVD via `scripts/qa.sh` (see §7).
    - Exercises real Android SQLite (`expo-sqlite`), Android notification channels, Haptics, and background task resumption.
+   - Interactive/exploratory layer runs through the `device-mcp` MCP server (structured UI tree, semantic taps, screenshots, logcat, Hermes CDP); deterministic regression runs through Maestro flows in `.maestro/`.
 
 ---
 
@@ -42,9 +44,10 @@ Understanding the boundary of each test tier avoids false confidence and brittle
 # Typecheck TypeScript
 npx --yes npm@10.9.7 run typecheck
 
-# Lint (zero-warning policy)
-npx expo lint --max-warnings=0
+# Lint (displays warnings without hiding output)
+npm run lint
 
+# Note: Strict zero-warning enforcement (npx expo lint --max-warnings=0) is tracked until pre-existing root warnings are cleared in T04.
 # Run a single focused test file
 npx --yes npm@10.9.7 run test -- __tests__/services/analytics-database.test.ts --watchAll=false
 ```
@@ -56,8 +59,8 @@ npm run verify
 ```
 This executes sequentially:
 1. `npm run typecheck` (`tsc --noEmit`)
-2. `npm run lint` (`expo lint --max-warnings=0`)
-3. `npm run test:coverage` (`jest --coverage --runInBand`)
+2. `npm run lint` (`expo lint`)
+3. `npm run test:coverage` (`jest --coverage` — enforces utility coverage on `src/utils/**/*.{js,jsx,ts,tsx}`; this is utility coverage, not total codebase coverage; `--runInBand` is not passed here and remains reserved for benchmarks)
 4. `npm run export:android` (`expo export --platform android --max-workers 1 --output-dir dist`)
 5. `npm run verify:android-export` (`node scripts/verify-android-export.js`)
 
@@ -125,3 +128,53 @@ When testing manually or on real devices/emulators:
    - **Export**: Export CSV/JSON, verify output structure.
 4. **Device Confirmation**:
    - Prior to any destructive device command (`adb uninstall`, `pm clear`), verify connected target with `adb devices` to prevent touching user hardware.
+
+---
+
+## 7. Agentic Android QA (canonical issue → AVD → PR loop)
+
+The full protocol lives in `docs/agentic-android-qa.md` (architecture, tool matrix, troubleshooting).
+This section is the binding contract for agents.
+
+### Canonical loop for any change touching `app/`, `components/`, `hooks/`, `services/`
+
+```bash
+scripts/qa.sh boot        # AVD up, waits on real boot condition (~25s with quick boot)
+scripts/qa.sh build       # assembleDebug (skippable when APK is fresh)
+scripts/qa.sh install     # install APK on AVD
+scripts/qa.sh app         # ensure Metro (debug builds) + launch
+scripts/qa.sh smoke       # Maestro suite — MUST pass before PR
+scripts/qa.sh logs        # logcat (RN/crash) when investigating
+scripts/qa.sh snap        # screenshot evidence into .qa-artifacts/
+scripts/qa.sh reset       # pm clear between independent scenarios
+scripts/qa.sh stop        # tear down
+```
+
+### Hard rules
+
+1. **Static gates are necessary, not sufficient.** Green typecheck/lint/Jest does not close a UI/flow
+   change; the AVD gate does. Device QA is a different validation level than host suites — report
+   them separately, never as one.
+2. **Snapshot before tap.** Drive interaction through accessibility labels (`device_tap_element`),
+   coordinates only as last resort for unlabeled elements (e.g. the RN dev snackbar ✕).
+3. **Evidence discipline.** A bug report without `qa.sh snap` + `qa.sh logs` + expected/actual is
+   incomplete. Keep artifacts in `.qa-artifacts/` (gitignored); reference paths in the PR.
+4. **uiautomator caveat.** Empty EditTexts report their **placeholder** as `value` — confirm field
+   state by typing into it and re-snapshotting before claiming prefilled-value bugs.
+5. **Explore, then canonize.** Valuable exploratory scenarios become Maestro flows. Never loosen an
+   existing flow's assertion to make it pass — behavioral changes require explicit justification in
+   the diff.
+6. **device-mcp hygiene.** Snapshot helper trust is per-server-process (TOFU): never reinstall
+   `io.metamask.devicemcp.snapshothelper` while MCP servers are live; recovery in
+   `docs/agentic-android-qa.md` (Troubleshooting).
+
+### Acceptance checklist (paste into task briefs)
+
+- [ ] Host gates: `npm run typecheck && npm run lint && npm run test:coverage` (+ `audit:high` when deps change)
+- [ ] `scripts/qa.sh boot && install && app` — feature exercised on AVD
+- [ ] Happy path walked via `device-mcp` (semantic taps, snapshot-verified state transitions)
+- [ ] ≥2 edge cases explored (empty input, invalid separator, interruption/backgrounding — as applicable)
+- [ ] `scripts/qa.sh logs` reviewed for new warnings/crashes
+- [ ] `scripts/qa.sh smoke` green (new scenario captured as flow when valuable)
+- [ ] `git diff --check` clean; evidence referenced; validations that still depend on physical device/release build explicitly listed as open items
+

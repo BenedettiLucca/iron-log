@@ -1,3 +1,5 @@
+import { TodayWorkoutService } from '../../services/TodayWorkoutService';
+import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +46,7 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [todayWorkout, setTodayWorkout] = useState<import('../../services/TodayWorkoutService').TodayWorkout | null>(null);
 
   const isLoading = routinesLoading || sessionsLoading || programsLoading;
 
@@ -57,6 +60,29 @@ export default function HomeScreen() {
       setErrorMessage(t('states.errorBody'));
     }
   }, [fetchRoutines, fetchHomeData, fetchActiveProgram, t]);
+
+  useEffect(() => {
+    TodayWorkoutService.getTodayWorkout().then(setTodayWorkout).catch(e => {
+      logger.error('Failed to fetch today workout', e);
+    });
+  }, []);
+
+  const handleStartTodayWorkout = useCallback(() => {
+    if (!todayWorkout) return;
+    const validated = safeParseParams(sessionParamsSchema, {
+      routineId: String(todayWorkout.routineId),
+      routineName: todayWorkout.routineName,
+    }, 'HomeScreen');
+    if (!validated) return;
+    router.push({
+      pathname: '/session/[routineId]',
+      params: {
+        routineId: String(todayWorkout.routineId),
+        routineName: todayWorkout.routineName,
+        _ts: Date.now().toString(),
+      },
+    });
+  }, [todayWorkout, router]);
 
   useEffect(() => {
     if (activeProgram) {
@@ -139,17 +165,34 @@ export default function HomeScreen() {
   const handleResumeSession = () => {
     if (!incompleteSession) return;
 
-    router.push({
-      pathname: '/session/exercise',
-      params: {
-        sessionId: incompleteSession.sessionId,
-        routineId: incompleteSession.routineId?.toString(),
-        exerciseId: incompleteSession.exerciseId,
-        exerciseName: incompleteSession.exerciseName,
-        target: incompleteSession.target,
-        notes: incompleteSession.notes,
-      }
-    });
+    if (incompleteSession.routineId) {
+      router.push({
+        pathname: '/session/[routineId]',
+        params: {
+          routineId: incompleteSession.routineId.toString(),
+          routineName: incompleteSession.routineName || '',
+          sessionId: (incompleteSession.sessionId ?? incompleteSession.id).toString(),
+          startTime: (incompleteSession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
+
+    if (incompleteSession.exerciseId) {
+      router.push({
+        pathname: '/session/exercise',
+        params: {
+          sessionId: incompleteSession.sessionId ?? incompleteSession.id,
+          routineId: incompleteSession.routineId?.toString(),
+          exerciseId: incompleteSession.exerciseId,
+          exerciseName: incompleteSession.exerciseName,
+          target: incompleteSession.target,
+          notes: incompleteSession.notes,
+          routineExerciseId: incompleteSession.routineExerciseId,
+          restSeconds: incompleteSession.restSeconds?.toString(),
+          startTime: (incompleteSession.startTime ?? Date.now()).toString(),
+        },
+      });
+    }
   };
 
   return (
@@ -197,6 +240,42 @@ export default function HomeScreen() {
                 </View>
                 <View className="bg-primary px-3 py-2 rounded-lg">
                   <Text className="text-onPrimary font-bold text-sm">{t("home.continue")}</Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        )}
+
+        {/* Today's Workout Card */}
+        {todayWorkout && (
+          <View className="mt-4">
+            <SectionHeader label={t("home.todayWorkout")} className="mb-2" />
+            <Card
+              pressable
+              onPress={handleStartTodayWorkout}
+              className="bg-primary/10 border border-primary/20"
+              accessibilityLabel={`${t("home.todayWorkout")}: ${todayWorkout.routineName}. ${t("home.weekLabel", { week: todayWorkout.weekNumber })} • ${todayWorkout.dayName}`}
+            >
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center gap-3">
+                  <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
+                    <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.primaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
+                      <Path d="M6 5H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                      <Path d="M8 8H7v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                      <Path d="M20 5h-2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z" />
+                      <Path d="M17 8h-1v8h1a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1z" />
+                      <Path d="M9 12h6" />
+                    </Svg>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text text-lg font-bold" numberOfLines={2}>{todayWorkout.routineName}</Text>
+                    <Text className="text-subtext text-xs mt-0.5">
+                      {t("home.weekLabel", { week: todayWorkout.weekNumber })} • {todayWorkout.dayName}
+                    </Text>
+                  </View>
+                </View>
+                <View className="bg-primary px-3 py-2 rounded-lg">
+                  <Text className="text-onPrimary font-bold text-sm">{t("home.start")}</Text>
                 </View>
               </View>
             </Card>

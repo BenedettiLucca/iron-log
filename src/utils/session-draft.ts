@@ -8,6 +8,14 @@ export interface SessionDraft {
   activeSetTime: number;
   isActiveSetRunning: boolean;
   activeSetStartedAt: number | null;
+  operationId?: string | null;
+}
+
+export function createOperationId(): string {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+  return `op-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
 
 type SessionDraftState = {
@@ -29,7 +37,7 @@ export function hasPendingSessionDraft(state: SessionDraftState): boolean {
 
 export function resolveSessionDraft(
   value: unknown,
-  identity: { sessionId: number; exerciseId: number }
+  identity: { sessionId: number; exerciseId: number; routineExerciseId?: number }
 ): SessionDraft | null {
   if (value === null || value === undefined || !identity) return null;
 
@@ -68,6 +76,27 @@ export function resolveSessionDraft(
     exerciseId !== identity.exerciseId
   ) {
     return null;
+  }
+
+  const routineExerciseId = obj.routineExerciseId;
+  if (routineExerciseId !== undefined && routineExerciseId !== null) {
+    if (
+      typeof routineExerciseId !== 'number' ||
+      !Number.isFinite(routineExerciseId) ||
+      !Number.isInteger(routineExerciseId) ||
+      routineExerciseId <= 0
+    ) {
+      return null;
+    }
+  }
+
+  if (identity.routineExerciseId !== undefined && identity.routineExerciseId > 0) {
+    if (
+      typeof routineExerciseId !== 'number' ||
+      routineExerciseId !== identity.routineExerciseId
+    ) {
+      return null;
+    }
   }
 
   if (typeof obj.weight !== 'string') return null;
@@ -128,6 +157,15 @@ export function resolveSessionDraft(
 
   if (!hasPendingSessionDraft(obj)) return null;
 
+  let operationId: string | undefined = undefined;
+  if (obj.operationId !== undefined && obj.operationId !== null) {
+    if (typeof obj.operationId !== 'string') return null;
+    const trimmed = obj.operationId.trim();
+    if (trimmed.length > 0) {
+      operationId = trimmed;
+    }
+  }
+
   return {
     weight: obj.weight,
     reps: obj.reps,
@@ -138,5 +176,6 @@ export function resolveSessionDraft(
     activeSetTime,
     isActiveSetRunning,
     activeSetStartedAt,
+    ...(operationId ? { operationId } : {}),
   };
 }

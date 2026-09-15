@@ -13,6 +13,7 @@ const numericParam = z.coerce.number().int().positive();
 export const exerciseParamsSchema = z.object({
   sessionId: numericParam,
   exerciseId: numericParam,
+  routineExerciseId: numericParam,
   exerciseName: z.string().min(1),
   routineId: z.string().optional().nullable().transform(v => v ? Number(v) : null),
   target: z.string().optional().default(''),

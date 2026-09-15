@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { db } from '../src/db/client';
-import { sets, exercises } from '../src/db/schema';
+import { sets, exercises, routineExercises } from '../src/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { logger } from '../services/logger';
 import { Set } from '../src/types';
 import { useI18n } from '../src/i18n';
+import { reconcilePersonalRecordsSync } from './use-personal-records';
 
 type ToastSetter = (toast: {
   visible: boolean;
@@ -14,6 +15,8 @@ type ToastSetter = (toast: {
 
 type SessionSetState = {
   exerciseId: number;
+  routineExerciseId: number;
+  routineId: number | null;
   sessionId: number;
   setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
   setToast?: ToastSetter;
@@ -45,14 +48,37 @@ export function useSessionUndo(): UseSessionUndoReturn {
   }, []);
 
   const refreshSessionSets = useCallback(async (opts: SessionSetState) => {
-    const data = await db.select()
+    let data = await db.select()
       .from(sets)
       .where(and(
         eq(sets.sessionId, opts.sessionId),
-        eq(sets.exerciseId, opts.exerciseId),
+        eq(sets.routineExerciseId, opts.routineExerciseId),
         isNull(sets.deletedAt),
       ))
       .orderBy(sets.setNumber);
+
+    if (data.length === 0) {
+      const routineOccurrences = opts.routineId
+        ? await db.select({ id: routineExercises.id })
+          .from(routineExercises)
+          .where(and(
+            eq(routineExercises.routineId, opts.routineId),
+            eq(routineExercises.exerciseId, opts.exerciseId),
+          ))
+        : [{ id: opts.routineExerciseId }];
+
+      if (routineOccurrences.length === 1) {
+        data = await db.select()
+          .from(sets)
+          .where(and(
+            eq(sets.sessionId, opts.sessionId),
+            eq(sets.exerciseId, opts.exerciseId),
+            isNull(sets.routineExerciseId),
+            isNull(sets.deletedAt),
+          ))
+          .orderBy(sets.setNumber);
+      }
+    }
     opts.setSessionSets(data);
   }, []);
 
@@ -70,7 +96,10 @@ export function useSessionUndo(): UseSessionUndoReturn {
     if (!lastSavedSet) return;
 
     try {
-      await db.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id));
+      db.transaction((tx) => {
+        tx.update(sets).set({ deletedAt: Date.now() }).where(eq(sets.id, lastSavedSet.id)).run();
+        reconcilePersonalRecordsSync({ exerciseId: opts.exerciseId, sessionId: opts.sessionId, tx });
+      });
       setLastSavedSet(null);
 
       const exData = await db.select().from(exercises).where(eq(exercises.id, opts.exerciseId));
@@ -90,7 +119,10 @@ export function useSessionUndo(): UseSessionUndoReturn {
     if (!lastDeletedSet) return;
 
     try {
-      await db.update(sets).set({ deletedAt: null }).where(eq(sets.id, lastDeletedSet.id));
+      db.transaction((tx) => {
+        tx.update(sets).set({ deletedAt: null }).where(eq(sets.id, lastDeletedSet.id)).run();
+        reconcilePersonalRecordsSync({ exerciseId: opts.exerciseId, sessionId: opts.sessionId, tx });
+      });
       setLastDeletedSet(null);
       if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
       await refreshSessionSets(opts);

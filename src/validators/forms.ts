@@ -1,16 +1,27 @@
 import { z } from 'zod';
+import { parseLocalizedDecimal } from '../utils/localized-decimal';
 
 /**
  * Form input validation schemas
  * Prevents invalid data from reaching the database
  */
 
+const preprocessDecimal = (v: unknown, options?: { allowNegative?: boolean }) => {
+  const res = parseLocalizedDecimal(v, options);
+  if (res.status === 'valid') return res.value;
+  if (res.status === 'empty') return undefined;
+  return Number.NaN;
+};
+
 // Daily weight input
 export const weightInputSchema = z.object({
-  weight: z.coerce.number()
-    .positive()
-    .max(500)
-    .finite(),
+  weight: z.preprocess(
+    (v) => preprocessDecimal(v, { allowNegative: false }),
+    z.number()
+      .positive()
+      .max(500)
+      .finite(),
+  ),
 });
 
 export type WeightInput = z.infer<typeof weightInputSchema>;
@@ -18,23 +29,23 @@ export type WeightInput = z.infer<typeof weightInputSchema>;
 // Monthly check-in input (aligned with checkin-validation.ts — empty string = undefined, NOT 0)
 export const monthlyCheckinSchema = z.object({
   waist: z.preprocess(
-    (v) => v === '' || v == null ? undefined : Number(v),
+    (v) => preprocessDecimal(v, { allowNegative: false }),
     z.number().min(0).max(300).optional(),
   ),
   armRight: z.preprocess(
-    (v) => v === '' || v == null ? undefined : Number(v),
+    (v) => preprocessDecimal(v, { allowNegative: false }),
     z.number().min(0).max(100).optional(),
   ),
   thighRight: z.preprocess(
-    (v) => v === '' || v == null ? undefined : Number(v),
+    (v) => preprocessDecimal(v, { allowNegative: false }),
     z.number().min(0).max(200).optional(),
   ),
   chest: z.preprocess(
-    (v) => v === '' || v == null ? undefined : Number(v),
+    (v) => preprocessDecimal(v, { allowNegative: false }),
     z.number().min(0).max(300).optional(),
   ),
   calf: z.preprocess(
-    (v) => v === '' || v == null ? undefined : Number(v),
+    (v) => preprocessDecimal(v, { allowNegative: false }),
     z.number().min(0).max(100).optional(),
   ),
 });
@@ -43,10 +54,13 @@ export type MonthlyCheckinInput = z.infer<typeof monthlyCheckinSchema>;
 
 // Set input (during exercise)
 export const setInputSchema = z.object({
-  weightKg: z.coerce.number()
-    .min(0)
-    .max(999)
-    .finite(),
+  weightKg: z.preprocess(
+    (v) => preprocessDecimal(v, { allowNegative: false }),
+    z.number()
+      .min(0)
+      .max(999)
+      .finite(),
+  ),
   reps: z.coerce.number()
     .int()
     .min(0)
@@ -102,10 +116,11 @@ export type ParseEditedSetResult = EditedSetParsedOk | EditedSetParsedErr;
 export function parseEditedSetInput(input: EditedSetRawInput): ParseEditedSetResult {
   const errors: EditedSetFieldErrors = {};
 
-  const weightKg = Number(input.weight);
-  if (!Number.isFinite(weightKg) || weightKg < 0) {
+  const weightResult = parseLocalizedDecimal(input.weight, { allowNegative: false });
+  if (weightResult.status !== 'valid') {
     errors.weight = 'invalid';
   }
+  const weightKg = weightResult.status === 'valid' ? weightResult.value : 0;
 
   if (input.isDuration) {
     const durationSeconds = Number(input.duration ?? '');
@@ -163,9 +178,12 @@ export function parseEditedSetInput(input: EditedSetRawInput): ParseEditedSetRes
 // Goal input
 export const goalInputSchema = z.object({
   type: z.enum(['weight', 'waist', 'armRight', 'thighRight', 'chest', 'calf']),
-  targetValue: z.coerce.number()
-    .positive()
-    .max(9999),
+  targetValue: z.preprocess(
+    (v) => preprocessDecimal(v, { allowNegative: false }),
+    z.number()
+      .positive()
+      .max(9999),
+  ),
   targetDate: z.date().refine(d => d.getTime() > Date.now()),
 });
 

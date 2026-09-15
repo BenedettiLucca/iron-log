@@ -1,0 +1,2 @@
+CREATE INDEX `sets_exercise_deleted_idx` ON `sets` (`exercise_id`,`deleted_at`);--> statement-breakpoint
+CREATE INDEX `sets_session_exercise_deleted_setnum_idx` ON `sets` (`session_id`,`exercise_id`,`deleted_at`,`set_number`);
