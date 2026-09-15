@@ -64,6 +64,8 @@ export default function RoutinesListScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { t } = useI18n();
   const [previewRoutine, setPreviewRoutine] = useState<{ id: number; name: string } | null>(null);
+  // #144 — navigation request parked until the preview modal has unmounted.
+  const [pendingQuickStart, setPendingQuickStart] = useState<{ id: number; name: string } | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const isImportingRef = useRef(false);
 
@@ -126,6 +128,15 @@ export default function RoutinesListScreen() {
   const handleQuickStart = (routineId: number, routineName: string) => {
     router.push(buildSessionStartRoute({ id: routineId, name: routineName }));
   };
+
+  // #144 — navigate only after React committed the modal unmount (previewRoutine is null).
+  useEffect(() => {
+    if (pendingQuickStart) {
+      handleQuickStart(pendingQuickStart.id, pendingQuickStart.name);
+      setPendingQuickStart(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingQuickStart]);
 
   const handleImportFromClipboard = async () => {
     if (isImportingRef.current) return;
@@ -385,9 +396,16 @@ export default function RoutinesListScreen() {
         onClose={() => setPreviewRoutine(null)}
         onStart={() => {
           if (previewRoutine) {
-            handleQuickStart(previewRoutine.id, previewRoutine.name);
+            // #144 — stash the request and close the modal. Navigation happens
+            // in the effect after React has committed the modal unmount; a
+            // synchronous push here gets cancelled by the native stack while
+            // the Modal is dismissing, orphaning the session row it creates.
+            setPendingQuickStart({
+              id: previewRoutine.id,
+              name: previewRoutine.name,
+            });
+            setPreviewRoutine(null);
           }
-          setPreviewRoutine(null);
         }}
       />
 
