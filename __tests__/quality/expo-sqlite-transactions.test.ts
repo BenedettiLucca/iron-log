@@ -14,15 +14,9 @@ function collectSourceFiles(relativeDirectory: string): string[] {
 }
 
 describe('Expo SQLite transaction safety', () => {
-  it('never passes an async callback to the synchronous transaction API', () => {
-    const violations = sourceRoots
-      .flatMap(collectSourceFiles)
-      .filter((relativePath) =>
-        /\.transaction\s*\(\s*async\b/.test(fs.readFileSync(path.join(root, relativePath), 'utf8')),
-      );
-
-    expect(violations).toEqual([]);
-  });
+  // `.transaction(async ...)` is banned by ESLint `no-restricted-syntax` (error)
+  // in eslint.config.js — migrated there from the source-grep test that used to
+  // live here.
 
   it('keeps routine editor duplicate-name and same-frame save guards wired', () => {
     const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
