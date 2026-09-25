@@ -53,9 +53,14 @@ type SessionOperation =
   | 'navigating';
 
 // Fallback for headless test environments where react-native mock does not include Modal
-const SafeModal = (Modal || (({ children, visible, ...props }: any) => (
+type FallbackModalProps = {
+  children?: React.ReactNode;
+  visible?: boolean;
+} & Record<string, unknown>;
+
+const SafeModal = (Modal || (({ children, visible, ...props }: FallbackModalProps) => (
   visible ? <View {...props}>{children}</View> : null
-))) as React.ComponentType<any>;
+))) as React.ComponentType<FallbackModalProps>;
 
 export default function ExerciseScreen() {
   const router = useRouter();

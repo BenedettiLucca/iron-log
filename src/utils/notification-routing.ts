@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Linking } from 'react-native';
-import { eq, and, isNull } from 'drizzle-orm';
+import type { Router } from 'expo-router';
+import { eq, and, isNull, type SQL } from 'drizzle-orm';
 import { sessions } from '../db/schema';
 import { logger } from '@/services/logger';
 import { supportsNativeNotifications } from './runtime-environment';
@@ -23,7 +24,7 @@ export const ALLOWED_NOTIFICATION_ROUTES = [
 
 export type AllowedNotificationRoute = (typeof ALLOWED_NOTIFICATION_ROUTES)[number];
 
-export function isAllowedNotificationRoute(route: unknown): boolean {
+export function isAllowedNotificationRoute(route: unknown): route is AllowedNotificationRoute {
   if (typeof route !== 'string') return false;
   const cleanRoute = route.split('?')[0].trim();
   if (!cleanRoute) return false;
@@ -34,8 +35,8 @@ export function isAllowedNotificationRoute(route: unknown): boolean {
 
 export interface ResolvedNotificationTarget {
   type: 'route' | 'rest_recovery';
-  pathname?: string;
-  params?: Record<string, any>;
+  pathname?: AllowedNotificationRoute;
+  params?: NotificationRouteParams;
 }
 
 export function resolveNotificationTarget(data: unknown): ResolvedNotificationTarget | null {
@@ -77,15 +78,26 @@ export function resolveNotificationTarget(data: unknown): ResolvedNotificationTa
   return null;
 }
 
+/**
+ * Minimal structural type for the Drizzle runner this module needs.
+ * Accepts both the production `ExpoSQLiteDatabase` and test fixtures
+ * (e.g. the better-sqlite3 drizzle instance in __tests__/fixtures/database).
+ */
+export interface NotificationRecoveryDb {
+  select(): {
+    from(table: typeof sessions): {
+      where(condition: SQL | undefined): Promise<(typeof sessions.$inferSelect)[]>;
+    };
+  };
+}
+
 export interface RestRecoveryOptions {
-  db: any;
+  db: NotificationRecoveryDb;
   asyncStorage: {
     getItem: (key: string) => Promise<string | null>;
     removeItem: (key: string) => Promise<void>;
   };
-  router: {
-    push: (route: any) => void;
-  };
+  router: Pick<Router, 'push'>;
   onSuccess?: () => void;
 }
 
@@ -99,14 +111,27 @@ export async function handleRestNotificationRecovery({
     const sessionJson = await asyncStorage.getItem('incomplete_session');
     if (!sessionJson) return false;
 
-    let sessionContext: any;
+    let sessionContext: {
+      sessionId?: number | string;
+      id?: number | string;
+      routineId?: number | string | null;
+      routineName?: string;
+      startTime?: number | string;
+      exerciseId?: number | string;
+      exerciseName?: string;
+      target?: number | string | null;
+      notes?: string | null;
+      restSeconds?: number | string;
+      routineExerciseId?: number | string;
+    } | null;
     try {
       sessionContext = JSON.parse(sessionJson);
     } catch {
       return false;
     }
+    if (!sessionContext) return false;
 
-    const sessionId = sessionContext?.sessionId ?? sessionContext?.id;
+    const sessionId = Number(sessionContext.sessionId ?? sessionContext.id);
     if (!sessionId) return false;
 
     // Check session in database: must exist, not deleted, not finished
@@ -150,9 +175,9 @@ export async function handleRestNotificationRecovery({
           sessionId: sessionId.toString(),
           routineId: routineId ? routineId.toString() : undefined,
           exerciseId: sessionContext.exerciseId,
-          exerciseName: sessionContext.exerciseName,
-          target: sessionContext.target,
-          notes: sessionContext.notes,
+          exerciseName: sessionContext.exerciseName ?? undefined,
+          target: sessionContext.target ?? undefined,
+          notes: sessionContext.notes ?? undefined,
           restSeconds:
             sessionContext.restSeconds !== undefined && sessionContext.restSeconds !== null
               ? sessionContext.restSeconds.toString()
@@ -171,7 +196,25 @@ export async function handleRestNotificationRecovery({
 }
 
 export interface ProcessNotificationResponseOptions extends RestRecoveryOptions {
-  response: any;
+  /**
+   * Minimal structural shape of an expo-notifications response.
+   * Kept loose (readonly view of unknown payloads) because expo's own
+   * `NotificationResponse` type is only importable statically and this
+   * module deliberately lazy-loads expo-notifications.
+   */
+  response:
+    | {
+        actionIdentifier?: string;
+        notification?: {
+          id?: string;
+          request?: {
+            identifier?: string;
+            content?: { data?: unknown };
+          };
+        };
+      }
+    | null
+    | undefined;
   processedResponseIds: Set<string>;
 }
 
@@ -208,15 +251,28 @@ export async function processNotificationResponse({
     return handleRestNotificationRecovery({ db, asyncStorage, router, onSuccess });
   }
 
-  if (target.type === 'route' && target.pathname) {
-    router.push({
-      pathname: target.pathname,
-      params: target.params,
-    });
+  if (target.type === 'route') {
+    pushResolvedTarget(router, target);
     return true;
   }
 
   return false;
+}
+
+type NotificationRouteParams = Record<string, string | number | boolean | undefined>;
+
+/**
+ * Single typed-routes bridge: `target` comes from `resolveNotificationTarget`,
+ * whose pathname is validated against ALLOWED_NOTIFICATION_ROUTES and whose
+ * params are primitives (expo serializes params to strings in URLs anyway).
+ * The one cast widens the allowlist union to expo's per-route Href union; every
+ * allowlist member is a real route in the generated route map.
+ */
+function pushResolvedTarget(router: Pick<Router, 'push'>, target: ResolvedNotificationTarget): void {
+  if (target.type !== 'route' || !target.pathname) return;
+  router.push({ pathname: target.pathname, params: target.params } as Parameters<
+    Pick<Router, 'push'>['push']
+  >[0]);
 }
 
 export type NotificationGuidanceType =
@@ -269,8 +325,8 @@ export async function dismissNotificationPrePrompt(
 
 export interface UseNotificationResponseRoutingOptions {
   success: boolean;
-  router: { push: (route: any) => void };
-  db: any;
+  router: RestRecoveryOptions['router'];
+  db: NotificationRecoveryDb;
   asyncStorage: {
     getItem: (key: string) => Promise<string | null>;
     setItem: (key: string, value: string) => Promise<void>;

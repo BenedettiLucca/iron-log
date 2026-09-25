@@ -23,7 +23,7 @@ module.exports = defineConfig([
     //   moves the guard to review time with zero test LOC.
     files: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}', 'hooks/**/*.ts', 'services/**/*.ts', 'src/**/*.{ts,tsx}', 'constants/**/*.ts'],
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       'no-restricted-syntax': [
         'error',
         {

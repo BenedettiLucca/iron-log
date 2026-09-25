@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod';
+import type { bodyMetrics } from '../db/schema';
 
 /**
  * Preprocesses a string-or-undefined field:
@@ -122,14 +123,17 @@ export function hasMonthlyCheckinContent(params: {
  */
 export function buildCheckinEntryData(params: {
   validated: StrictMonthlyCheckin;
-  existingData?: Record<string, any>;
+  /** Existing monthly row (or one of its picks) used as fallback for omitted fields. */
+  existingData?: Partial<Omit<typeof bodyMetrics.$inferSelect, 'id'>>;
   photos: { front: string | null; back: string | null; side: string | null };
   photoNotes: Record<string, string>;
   weight: number | null;
   date: number;
 }) {
   const { validated, existingData, photos, photoNotes, weight, date } = params;
-  const fallback = (field: string) => existingData?.[field] ?? null;
+  const fallback = <K extends keyof Omit<typeof bodyMetrics.$inferSelect, 'id'>>(
+    field: K,
+  ): typeof bodyMetrics.$inferSelect[K] | null => existingData?.[field] ?? null;
 
   return {
     date,
