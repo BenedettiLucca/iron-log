@@ -212,3 +212,21 @@ existe fora do emulador (sensores/OEM/desempenho).
 | Instalação manual do helper falha: `INSTALL_FAILED_TEST_ONLY` | APK do helper é test-only | `adb install --no-incremental -t -r <apk>` (APK em `dist/android/` do pacote npm); **`--no-incremental` é obrigatório** |
 | MCP device-mcp "awaiting selection" | >1 device conectado | `device_select_device` com `emulator-5554` |
 | Emulator não abre janela no uso manual | scripts sobem `-no-window` | para sessão interativa: `emulator -avd ironlog-qa` direto |
+
+## Notas #112 — dev build (append-only, análise; nada disto foi executado/instalado)
+
+> Contrato completo: `docs/plans/il112-devbuild-contract.md`. Status: aguardando aprovação do owner.
+
+- **`android/` não é um projeto nativo completo no git.** `/android` está no `.gitignore`; só
+  `android/app/build.gradle` é rastreado. `qa.sh build` (`./gradlew assembleDebug`) e `qa.sh install`
+  pressupõem um `android/` já gerado por `expo prebuild`/`expo run:android`. Num clone/worktree limpo
+  isso falha até gerar o projeto nativo.
+- **Cuidado ao rodar `expo prebuild`:** o `build.gradle` rastreado é customizado (signing release via
+  `IRONLOG_RELEASE_*`, `versionCode 10` vs `app.json` 9). Faça backup antes e confira
+  `git diff -- android/app/build.gradle` depois.
+- **Versão alvo do dev client para o SDK 54 instalado (54.0.37):** `expo-dev-client ~6.0.21`
+  (`node_modules/expo/bundledNativeModules.json`). Instalar só via `npx expo install expo-dev-client`.
+  `expo-dev-client` **ainda não está instalado**; hoje o `assembleDebug` do `qa.sh` é um debug build
+  RN comum (Metro via `adb reverse`), que serve para emulador e device físico por USB.
+- **Maestro com dev client:** `launchApp` abriria o launcher; usar `openLink` com
+  `exp+iron-log://expo-development-client/?url=…` (subflow proposto no contrato, ainda não criado).
