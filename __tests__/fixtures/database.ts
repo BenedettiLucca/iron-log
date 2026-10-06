@@ -195,6 +195,20 @@ CREATE INDEX supplement_logs_compound_idx ON supplement_logs (supplement_id, dat
 CREATE INDEX supplements_active_idx ON supplements (is_active);
 CREATE INDEX sets_exercise_deleted_idx ON sets (exercise_id, deleted_at);
 CREATE INDEX sets_session_exercise_deleted_setnum_idx ON sets (session_id, exercise_id, deleted_at, set_number);
+CREATE TABLE session_exercises (
+	id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	session_id integer NOT NULL,
+	routine_exercise_id integer,
+	exercise_id integer NOT NULL,
+	position integer NOT NULL,
+	status text DEFAULT 'pending' NOT NULL,
+	removed_at integer,
+	FOREIGN KEY (session_id) REFERENCES sessions(id) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (routine_exercise_id) REFERENCES routine_exercises(id) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE cascade
+);
+CREATE UNIQUE INDEX se_session_routine_exercise_unique ON session_exercises (session_id, routine_exercise_id);
+CREATE INDEX se_session_status_position_idx ON session_exercises (session_id, status, position);
 `;
 
 sqlite.exec(schemaDdl);
