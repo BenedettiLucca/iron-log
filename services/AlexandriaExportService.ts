@@ -52,6 +52,7 @@ export interface AlexandriaSession {
     routine_name: string | null;
     body_weight: number | null;
     set_count: number;
+    body_weight_provenance: 'measured' | 'borrowed' | null;
   };
 }
 
@@ -139,6 +140,7 @@ export function buildSessionRecord(
     bodyWeight: number | null;
     sRpe: number | null;
     notes: string | null;
+    weightProvenance?: 'measured' | 'borrowed' | null;
   },
   sessionSets: {
     exerciseName: string | null;
@@ -199,6 +201,7 @@ export function buildSessionRecord(
       routine_name: routineName ?? null,
       body_weight: session.bodyWeight ?? null,
       set_count: sessionSets.length,
+      body_weight_provenance: session.weightProvenance ?? null,
     },
   };
 }
