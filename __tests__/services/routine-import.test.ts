@@ -396,4 +396,89 @@ describe('RoutineImportService', () => {
       expect(imported?.id).not.toBe(archived.id);
     });
   });
+
+  describe('issue #64 regression: import conflict check filters by name AND active', () => {
+    it('imports a distinct name successfully when active routines exist', async () => {
+      // Regression lock for 7f5b92b: the old chained .where() calls silently
+      // dropped the name filter, so the check degenerated to "any active
+      // routine exists" and this distinct-name import would be wrongly
+      // rejected with DUPLICATE_ROUTINE_NAME.
+      db.insert(routines)
+        .values({ name: 'Treino A', description: 'Seed active routine', folder: 'Geral' })
+        .run();
+
+      const payload = {
+        name: 'Treino B',
+        exercises: [{ name: 'Supino', target: '4x10' }],
+      };
+
+      const result = await RoutineImportService.importRoutine(payload, db);
+
+      expect(result.success).toBe(true);
+      expect(result.routineName).toBe('Treino B');
+
+      const allRoutines = db.select().from(routines).all();
+      expect(allRoutines).toHaveLength(2);
+      const imported = allRoutines.find((r) => r.name === 'Treino B');
+      expect(imported?.isArchived).toBe(false);
+      const seed = allRoutines.find((r) => r.name === 'Treino A');
+      expect(seed?.isArchived).toBe(false);
+    });
+
+    it('imports a routine reusing an archived name without suffixing', async () => {
+      // Seed an archived 'Legacy' routine; no active routine uses that name.
+      // Current behavior: the import succeeds under the same name, with no
+      // suffix. The contract's "with name suffixing" wording is flagged as an
+      // owner question - suffixing is intentionally NOT implemented here.
+      const legacy = db
+        .insert(routines)
+        .values({ name: 'Legacy', folder: 'Geral' })
+        .returning()
+        .get();
+      await db.update(routines).set({ isArchived: true }).where(eq(routines.id, legacy.id)).run();
+
+      const payload = {
+        name: 'Legacy',
+        description: 'New import',
+        exercises: [{ name: 'Agachamento', target: '3x12' }],
+      };
+
+      const result = await RoutineImportService.importRoutine(payload, db);
+
+      expect(result.success).toBe(true);
+      expect(result.routineName).toBe('Legacy');
+
+      // Two rows named 'Legacy': the archived seed and the new active import.
+      const allRoutines = db.select().from(routines).all();
+      expect(allRoutines.filter((r) => r.name === 'Legacy')).toHaveLength(2);
+      const imported = allRoutines.find((r) => r.name === 'Legacy' && !r.isArchived);
+      expect(imported).toBeDefined();
+      expect(imported?.id).not.toBe(legacy.id);
+    });
+
+    it('still rejects an active duplicate with DUPLICATE_ROUTINE_NAME', async () => {
+      const active = db
+        .insert(routines)
+        .values({ name: 'Treino A', description: 'Original', folder: 'Geral' })
+        .returning()
+        .get();
+
+      const payload = {
+        name: 'Treino A',
+        description: 'Conflicting import',
+        exercises: [{ name: 'Supino', target: '4x10' }],
+      };
+
+      await expect(RoutineImportService.importRoutine(payload, db)).rejects.toMatchObject({
+        code: 'DUPLICATE_ROUTINE_NAME',
+      });
+
+      // Original routine untouched, no new routine row, no exercise links.
+      const routinesInDb = db.select().from(routines).all();
+      expect(routinesInDb).toHaveLength(1);
+      expect(routinesInDb[0].id).toBe(active.id);
+      expect(routinesInDb[0].description).toBe('Original');
+      expect(db.select().from(routineExercises).all()).toHaveLength(0);
+    });
+  });
 });
