@@ -183,6 +183,20 @@
       "when": 1789423286407,
       "tag": "0025_sturdy_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1791307072106,
+      "tag": "0026_brave_kitty_pryde",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "6",
+      "when": 1791311624200,
+      "tag": "0027_windy_ozymandias",
+      "breakpoints": true
     }
   ]
 }

@@ -128,8 +128,8 @@ export async function importRoutine(
         .select({ id: routines.id, name: routines.name })
         .from(routines)
         .where(eq(routines.name, trimmedRoutineName))
+        .where(eq(routines.isArchived, false))
         .all();
-
       if (existingRoutine.length > 0) {
         throw new RoutineImportError(
           'DUPLICATE_ROUTINE_NAME',
@@ -211,6 +211,7 @@ export async function importRoutine(
           description: validated.description || '',
           folder: validated.folder || 'Geral',
           isTemplate: false,
+          isArchived: false,
         })
         .returning({ id: routines.id, name: routines.name })
         .get();
