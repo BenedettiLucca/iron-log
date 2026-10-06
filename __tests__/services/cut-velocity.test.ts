@@ -3,6 +3,7 @@ import {
   detectCutVelocityAdvisory,
   detectCutVelocityAdvisories,
   CUT_VELOCITY_DEFAULTS,
+  CUT_VELOCITY_THRESHOLD,
   type MeasuredWeightEntry,
   type SessionTopLoad,
 } from '@/services/cut-velocity';
@@ -10,8 +11,7 @@ import {
 /**
  * #75 — Cut velocity load advisory (pure policy module).
  *
- * Connective-tissue risk ADVISORY (tendon-strength-gap framework):
- * Informational context only, NO clinical claims.
+ * Informational trend context only; not medical advice; consult a qualified professional for health decisions.
  *
  * Upstream anchors:
  * - epic/il-74-plateau: top-set derivation, PR tie-break rule, RIR regression rule, Trust II filtering.
@@ -43,6 +43,8 @@ describe('cut-velocity load advisory (Issue #75)', () => {
     it('exports owner-tunable default constants', () => {
       expect(CUT_VELOCITY_DEFAULTS.MIN_CUT_WINDOW_DAYS).toBe(14);
       expect(CUT_VELOCITY_DEFAULTS.CUT_RATE_BW_PERCENT_PER_WEEK).toBe(0.5);
+      expect(CUT_VELOCITY_DEFAULTS.CUT_VELOCITY_THRESHOLD).toBe(0.5);
+      expect(CUT_VELOCITY_THRESHOLD).toBe(0.5);
       expect(CUT_VELOCITY_DEFAULTS.MIN_WEIGHT_SAMPLES).toBe(2);
       expect(CUT_VELOCITY_DEFAULTS.LOAD_RISING_WINDOW_SESSIONS).toBe(3);
       expect(CUT_VELOCITY_DEFAULTS.LOAD_RISING_MIN_INCREASES).toBe(2);
@@ -175,6 +177,27 @@ describe('cut-velocity load advisory (Issue #75)', () => {
       expect(result.cutPhase).toBe(false);
       expect(result.advisory).toBe('none');
     });
+
+    it('regression: 80 -> 79.2001 kg over 14 days must NOT enter cutPhase (raw vs rounded)', () => {
+      // 80kg down to 79.2001kg over 14 days (2 weeks):
+      // Raw velocity = -0.39995 kg/week -> raw loss rate = 0.4999375% bw/week < 0.5% threshold.
+      // Rounded velocity would be -0.40 kg/week (0.50% bw/week), which must NOT prematurely trigger cutPhase.
+      const weights: MeasuredWeightEntry[] = [
+        { date: baseTime, weightKg: 80.0 },
+        { date: baseTime + 14 * DAY_MS, weightKg: 79.2001 },
+      ];
+
+      const loads: SessionTopLoad[] = [
+        sessionLoad(1, baseTime + 2 * DAY_MS, 100, 8),
+        sessionLoad(2, baseTime + 8 * DAY_MS, 105, 8),
+        sessionLoad(3, baseTime + 14 * DAY_MS, 110, 8),
+      ];
+
+      const result = detectCutVelocity(weights, loads);
+
+      expect(result.cutPhase).toBe(false);
+      expect(result.advisory).toBe('none');
+    });
   });
 
   describe('insufficient data handling (never silently-green)', () => {
@@ -222,16 +245,28 @@ describe('cut-velocity load advisory (Issue #75)', () => {
       expect(result.state).toBe('insufficient-data');
     });
 
-    it('returns insufficient-data during a cut when top-load history has fewer than 2 valid sessions', () => {
+    it('returns insufficient-data during a cut when top-load history has fewer than 3 valid sessions', () => {
       const weights: MeasuredWeightEntry[] = [
         { date: baseTime, weightKg: 80.0 },
         { date: baseTime + 14 * DAY_MS, weightKg: 78.6 },
       ];
-      const result = detectCutVelocity(weights, [
+
+      // 1 session -> insufficient-data
+      const result1 = detectCutVelocity(weights, [
         sessionLoad(1, baseTime + 2 * DAY_MS, 100, 8),
       ]);
-      expect(result.cutPhase).toBe(true);
-      expect(result.advisory).toBe('insufficient-data');
+      expect(result1.cutPhase).toBe(true);
+      expect(result1.advisory).toBe('insufficient-data');
+      expect(result1.state).toBe('insufficient-data');
+
+      // 2 sessions (fewer than 3 sessions) -> must be advisory: 'insufficient-data' (NOT stable/none)
+      const result2 = detectCutVelocity(weights, [
+        sessionLoad(1, baseTime + 2 * DAY_MS, 100, 8),
+        sessionLoad(2, baseTime + 8 * DAY_MS, 100, 8),
+      ]);
+      expect(result2.cutPhase).toBe(true);
+      expect(result2.advisory).toBe('insufficient-data');
+      expect(result2.state).toBe('insufficient-data');
     });
   });
 
@@ -274,6 +309,32 @@ describe('cut-velocity load advisory (Issue #75)', () => {
       expect(result.cutPhase).toBe(true);
       expect(result.velocityKgPerWeek).toBeCloseTo(-0.7, 1);
       expect(result.advisory).toBe('load_rising_during_cut');
+    });
+
+    it('excludes rows explicitly tagged with provenance: carried', () => {
+      const weights: MeasuredWeightEntry[] = [
+        { date: baseTime, weightKg: 80.0, provenance: 'measured' },
+        { date: baseTime + 7 * DAY_MS, weightKg: 70.0, provenance: 'carried' }, // should be ignored
+        { date: baseTime + 14 * DAY_MS, weightKg: 78.6, provenance: 'measured' },
+      ];
+
+      const result = detectCutVelocity(weights, loads);
+      expect(result.cutPhase).toBe(true);
+      expect(result.velocityKgPerWeek).toBeCloseTo(-0.7, 1);
+      expect(result.advisory).toBe('load_rising_during_cut');
+    });
+
+    it('excludes rows tagged with non-measured provenance (whitelisting measured)', () => {
+      const weights: MeasuredWeightEntry[] = [
+        { date: baseTime, weightKg: 80.0, provenance: 'measured' },
+        { date: baseTime + 7 * DAY_MS, weightKg: 70.0, provenance: 'estimated' }, // non-measured, should be ignored
+        { date: baseTime + 14 * DAY_MS, weightKg: 78.6, weightProvenance: 'carried' }, // carried weightProvenance, ignored
+      ];
+
+      // After excluding 'estimated' and 'carried', only 1 measured entry remains -> insufficient-data
+      const result = detectCutVelocity(weights, loads);
+      expect(result.advisory).toBe('insufficient-data');
+      expect(result.state).toBe('insufficient-data');
     });
 
     it('filters out non-positive or null weights', () => {
@@ -442,6 +503,38 @@ describe('cut-velocity load advisory (Issue #75)', () => {
       expect(result.overall.advisory).toBe('load_rising_during_cut');
       expect(result.byExercise.bench.advisory).toBe('load_rising_during_cut');
       expect(result.byExercise.squat.advisory).toBe('none');
+    });
+
+    it('returns insufficient-data when exercise map is empty', () => {
+      const weights: MeasuredWeightEntry[] = [
+        { date: baseTime, weightKg: 80.0 },
+        { date: baseTime + 14 * DAY_MS, weightKg: 78.6 },
+      ];
+
+      const result = detectCutVelocityAdvisories(weights, {});
+      expect(result.overall.advisory).toBe('insufficient-data');
+      expect(result.overall.state).toBe('insufficient-data');
+      expect(result.overall.details?.loadTrend).toBe('insufficient-data');
+      expect(result.byExercise).toEqual({});
+    });
+
+    it('returns insufficient-data when all exercises in map have fewer than 3 sessions', () => {
+      const weights: MeasuredWeightEntry[] = [
+        { date: baseTime, weightKg: 80.0 },
+        { date: baseTime + 14 * DAY_MS, weightKg: 78.6 },
+      ];
+
+      const map = {
+        bench: [
+          sessionLoad(1, baseTime + 2 * DAY_MS, 100, 8),
+          sessionLoad(2, baseTime + 8 * DAY_MS, 105, 8),
+        ],
+      };
+
+      const result = detectCutVelocityAdvisories(weights, map);
+      expect(result.overall.advisory).toBe('insufficient-data');
+      expect(result.overall.state).toBe('insufficient-data');
+      expect(result.byExercise.bench.advisory).toBe('insufficient-data');
     });
   });
 

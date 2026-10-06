@@ -1,15 +1,11 @@
 /**
- * Cut-velocity load advisory — connective-tissue risk policy module (Issue #75).
+ * Cut-velocity load advisory policy module (Issue #75).
  *
- * Connective-tissue risk ADVISORY (tendon-strength-gap framework):
- * During an aggressive cut (sustained measured-weight loss), muscle recovery
- * and collagen synthesis can lag behind neuromuscular adaptations. When top
- * loads continue to rise under steep caloric deficits, the gap between tendon
- * tensile strength and muscular output widens, increasing strain.
+ * Informational trend context only; not medical advice; consult a qualified professional for health decisions.
  *
- * This policy surfaces a non-blocking informational flag ('load_rising_during_cut')
- * to provide training context. It makes NO clinical or medical claims — wording is
- * purely informational and non-medical.
+ * During a cut phase (sustained measured-weight loss), top working load trends
+ * are monitored. If top load trends are rising during a cut phase, this policy
+ * surfaces a non-blocking informational advisory ('load_rising_during_cut').
  *
  * Approved upstream anchors:
  * 1. plateau-detection conventions (branch epic/il-74-plateau):
@@ -33,7 +29,7 @@ export interface SessionTopLoad {
 /**
  * Measured weight entry.
  * Follows epic/il-147-contract semantics: only verified measured weights count.
- * Rows with provenance: 'borrowed', isWeightMeasured: false, or hasBodyMetric: false are excluded.
+ * Rows with provenance: 'borrowed', 'carried', isWeightMeasured: false, or hasBodyMetric: false are excluded.
  */
 export interface MeasuredWeightEntry {
   date?: number;
@@ -42,8 +38,8 @@ export interface MeasuredWeightEntry {
   weightKg?: number | null;
   weight?: number | null;
   bodyWeight?: number | null;
-  provenance?: 'measured' | 'borrowed' | string | null;
-  weightProvenance?: 'measured' | 'borrowed' | string | null;
+  provenance?: 'measured' | 'borrowed' | 'carried' | string | null;
+  weightProvenance?: 'measured' | 'borrowed' | 'carried' | string | null;
   isWeightMeasured?: boolean | null;
   hasBodyMetric?: boolean | null;
   source?: 'body_metrics' | 'session' | string;
@@ -61,6 +57,8 @@ export const CUT_VELOCITY_DEFAULTS = {
   MIN_CUT_WINDOW_DAYS: 14,
   /** Cut velocity threshold: >=0.5% bodyweight/week sustained. Default: 0.5%. */
   CUT_RATE_BW_PERCENT_PER_WEEK: 0.5,
+  /** Cut velocity threshold (% bw lost per week). Default: 0.5%. */
+  CUT_VELOCITY_THRESHOLD: 0.5,
   /** Minimum number of measured weight samples required. Default: 2. */
   MIN_WEIGHT_SAMPLES: 2,
   /** Number of recent sessions to inspect for top-load trend. Default: 3 sessions. */
@@ -72,6 +70,9 @@ export const CUT_VELOCITY_DEFAULTS = {
   /** Same weight + reps with higher RIR = regression (load too light). Default: true. */
   RIR_REGRESSION: true,
 } as const;
+
+/** Canonical cut velocity threshold constant alias */
+export const CUT_VELOCITY_THRESHOLD = CUT_VELOCITY_DEFAULTS.CUT_VELOCITY_THRESHOLD;
 
 export interface CutVelocityOptions {
   /** Minimum window in days to assess sustained cut. Defaults to CUT_VELOCITY_DEFAULTS.MIN_CUT_WINDOW_DAYS (14). */
@@ -132,14 +133,16 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_PER_WEEK = 7 * MS_PER_DAY;
 
 /**
- * Filter out borrowed/carried or unmeasured weights (branch epic/il-147-contract semantics).
+ * Filter out unmeasured, borrowed, carried, or non-measured provenance weights
+ * (branch epic/il-147-contract semantics: whitelists 'measured' provenance).
  */
 export function isMeasuredWeight(entry: MeasuredWeightEntry): boolean {
   if (!entry || typeof entry !== 'object') return false;
 
-  // Reject borrowed or carried values
-  if (entry.provenance === 'borrowed') return false;
-  if (entry.weightProvenance === 'borrowed') return false;
+  // Whitelist 'measured' provenance: reject if provenance or weightProvenance is set to non-'measured'
+  // Explicitly accepts and excludes 'borrowed', 'carried', and any non-'measured' value
+  if (entry.provenance != null && entry.provenance !== 'measured') return false;
+  if (entry.weightProvenance != null && entry.weightProvenance !== 'measured') return false;
 
   // Reject explicit unmeasured flag
   if (entry.isWeightMeasured === false) return false;
@@ -212,6 +215,7 @@ function isRegression(
 
 /**
  * Evaluates top-load trend over the recent session window.
+ * Requires at least 3 sessions of top-load history; fewer than 3 sessions returns 'insufficient-data'.
  */
 export function evaluateLoadTrend(
   history: SessionTopLoad[],
@@ -227,7 +231,8 @@ export function evaluateLoadTrend(
     .slice()
     .sort((a, b) => a.startTime - b.startTime || a.sessionId - b.sessionId);
 
-  if (live.length < 2) {
+  // Fewer than 3 sessions of top-load history -> insufficient data to evaluate trend
+  if (live.length < 3 || live.length < windowSessions) {
     return 'insufficient-data';
   }
 
@@ -380,21 +385,23 @@ function evaluateWeightVelocity(
     velocity = den > 0 ? num / den : (endPoint.weightKg - baseline.weightKg) / windowSpanWeeks;
   }
 
-  const velocityKgPerWeek = Math.round(velocity * 100) / 100;
-  const baselineWeightKg = baseline.weightKg;
-  const currentWeightKg = endPoint.weightKg;
-
-  // Rate of weight loss (% of bodyweight per week)
+  // Classification uses raw values; rounding is display-only.
+  // Compare raw velocity/loss rate to the threshold without premature rounding.
   let lossRatePercentPerWeek = 0;
   let cutPhase = false;
 
-  if (velocityKgPerWeek < 0) {
-    const lossRateKgPerWeek = -velocityKgPerWeek;
-    lossRatePercentPerWeek = Math.round(((lossRateKgPerWeek / baselineWeightKg) * 100) * 100) / 100;
-    if (lossRatePercentPerWeek >= cutRateBwPercentPerWeek) {
+  if (velocity < 0) {
+    const rawLossRateKgPerWeek = -velocity;
+    const rawLossRatePercentPerWeek = (rawLossRateKgPerWeek / baseline.weightKg) * 100;
+    if (rawLossRatePercentPerWeek >= cutRateBwPercentPerWeek) {
       cutPhase = true;
     }
+    lossRatePercentPerWeek = Math.round(rawLossRatePercentPerWeek * 100) / 100;
   }
+
+  const velocityKgPerWeek = Math.round(velocity * 100) / 100;
+  const baselineWeightKg = baseline.weightKg;
+  const currentWeightKg = endPoint.weightKg;
 
   return {
     isSufficient: true,
@@ -409,11 +416,11 @@ function evaluateWeightVelocity(
 }
 
 /**
- * Pure policy evaluation for connective-tissue risk advisory.
+ * Pure policy evaluation for cut-velocity load advisory.
  *
  * Evaluates whether:
- * 1. An aggressive cut phase is sustained (measured-weight loss >= cutRateBwPercentPerWeek over minCutWindowDays).
- * 2. Top working loads keep rising during the cut (increased in >= 2 of last 3 sessions).
+ * 1. A cut phase is sustained (measured-weight loss >= cutRateBwPercentPerWeek over minCutWindowDays).
+ * 2. Top working loads keep rising during the cut phase (increased in >= 2 of last 3 sessions).
  *
  * Missing or insufficient data returns explicit state 'insufficient-data', never silently green.
  */
@@ -443,7 +450,7 @@ export function detectCutVelocity(
     };
   }
 
-  // If user is not in a cut, the connective-tissue cut advisory does not fire
+  // If user is not in a cut phase, the advisory does not fire
   if (!weightEval.cutPhase) {
     return {
       cutPhase: false,
@@ -491,13 +498,15 @@ export function detectCutVelocity(
       lossRatePercentPerWeek: weightEval.lossRatePercentPerWeek,
       baselineWeightKg: weightEval.baselineWeightKg,
       currentWeightKg: weightEval.currentWeightKg,
+      ...(loadTrend === 'insufficient-data' ? { insufficientReason: 'insufficient_load_history' } : {}),
     },
   };
 }
 
 /**
  * Multi-exercise evaluation: evaluates per-exercise top-load histories.
- * The overall advisory fires if ANY exercise experiences rising top loads during a sustained cut.
+ * The overall advisory fires if ANY exercise experiences rising top loads during a sustained cut phase.
+ * If the exercise map is empty, returns 'insufficient-data' (never silently green).
  */
 export function detectCutVelocityAdvisories(
   weightHistory: MeasuredWeightEntry[],
@@ -533,14 +542,14 @@ export function detectCutVelocityAdvisories(
   let overallAdvisory: CutAdvisory;
   let overallState: 'evaluated' | 'insufficient-data';
 
-  if (!weightEval.isSufficient) {
+  if (!weightEval.isSufficient || entries.length === 0) {
     overallAdvisory = 'insufficient-data';
     overallState = 'insufficient-data';
-  } else if (!weightEval.cutPhase) {
-    overallAdvisory = 'none';
-    overallState = 'evaluated';
   } else if (anyRising) {
     overallAdvisory = 'load_rising_during_cut';
+    overallState = 'evaluated';
+  } else if (!weightEval.cutPhase) {
+    overallAdvisory = 'none';
     overallState = 'evaluated';
   } else if (allInsufficient) {
     overallAdvisory = 'insufficient-data';
@@ -550,18 +559,28 @@ export function detectCutVelocityAdvisories(
     overallState = 'evaluated';
   }
 
+  const overallLoadTrend: LoadTrend = entries.length === 0
+    ? 'insufficient-data'
+    : anyRising
+      ? 'rising'
+      : allInsufficient
+        ? 'insufficient-data'
+        : 'stable';
+
   const overall: CutVelocityResult = {
     cutPhase: weightEval.cutPhase,
     velocityKgPerWeek: weightEval.velocityKgPerWeek,
     advisory: overallAdvisory,
     state: overallState,
     details: {
-      loadTrend: anyRising ? 'rising' : (allInsufficient ? 'insufficient-data' : 'stable'),
+      loadTrend: overallLoadTrend,
       measuredWeightSamples: weightEval.sampleCount,
       weightDaysSpan: weightEval.daysSpan,
       lossRatePercentPerWeek: weightEval.lossRatePercentPerWeek,
       baselineWeightKg: weightEval.baselineWeightKg,
       currentWeightKg: weightEval.currentWeightKg,
+      ...(entries.length === 0 ? { insufficientReason: 'empty_exercise_history' } : {}),
+      ...(!weightEval.isSufficient && weightEval.insufficientReason ? { insufficientReason: weightEval.insufficientReason } : {}),
     },
   };
 
