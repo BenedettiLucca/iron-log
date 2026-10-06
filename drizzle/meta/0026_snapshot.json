@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "2b132848-379c-40ec-b69f-a380d147aedd",
+  "id": "a381966a-7965-450c-8d4c-81fdd9d509bf",
   "prevId": "de83ce8d-e540-4dc7-81e0-2f39fbb90457",
   "tables": {
     "body_metrics": {
@@ -817,17 +817,25 @@
       "indexes": {
         "routines_name_unique": {
           "name": "routines_name_unique",
-          "columns": ["name"],
+          "columns": [
+            "name"
+          ],
           "isUnique": true,
           "where": "is_archived = 0"
         },
         "routines_folder_idx": {
           "name": "routines_folder_idx",
-          "columns": ["folder"]
+          "columns": [
+            "folder"
+          ],
+          "isUnique": false
         },
         "routines_is_archived_idx": {
           "name": "routines_is_archived_idx",
-          "columns": ["is_archived"]
+          "columns": [
+            "is_archived"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},

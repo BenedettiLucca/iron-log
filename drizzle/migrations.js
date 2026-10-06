@@ -27,8 +27,7 @@ import m0022 from './0022_fair_karnak.sql';
 import m0023 from './0023_luxuriant_the_stranger.sql';
 import m0024 from './0024_happy_living_mummy.sql';
 import m0025 from './0025_sturdy_tigra.sql';
-import m0026 from './0026_brave_kitty_pryde.sql';
-import m0027 from './0027_windy_ozymandias.sql';
+import m0026 from './0026_dear_next_avengers.sql';
 
   export default {
     journal,
@@ -59,8 +58,7 @@ m0022,
 m0023,
 m0024,
 m0025,
-m0026,
-m0027
+m0026
     }
   }
   

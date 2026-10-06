@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { db as defaultDb } from '@/src/db/client';
 import { exercises, routineExercises, routines } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { logger } from './logger';
 import { normalizeExerciseName } from '@/services/RoutineShareService';
 import { isRoutineNameUniqueConstraintError } from '@/src/utils/routine-name';
@@ -127,8 +127,7 @@ export async function importRoutine(
       const existingRoutine = tx
         .select({ id: routines.id, name: routines.name })
         .from(routines)
-        .where(eq(routines.name, trimmedRoutineName))
-        .where(eq(routines.isArchived, false))
+        .where(and(eq(routines.name, trimmedRoutineName), eq(routines.isArchived, false)))
         .all();
       if (existingRoutine.length > 0) {
         throw new RoutineImportError(
