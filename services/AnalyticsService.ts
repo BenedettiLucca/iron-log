@@ -4,6 +4,7 @@ import { desc, asc, isNull, and, sql, gte, inArray, eq } from 'drizzle-orm';
 import { logger } from '@/services/logger';
 import { getISOWeek, getWeekStart } from '@/src/utils/date-utils';
 import { isDisplayableBodyMetricValue } from '@/src/utils/body-metrics';
+import { shouldExcludeFromStrengthVolume } from './cardio-policy';
 
 /**
  * Analytics Service for Iron Log
@@ -38,6 +39,7 @@ export interface VolumeTrend {
   totalSets: number;
   sessionCount: number;
   avgVolumePerSession: number;
+  cardioDistanceMeters?: number;
 }
 
 export interface ExerciseProgression {
@@ -313,13 +315,13 @@ export function computeConsistencyFromData(
 
 export function computeVolumeTrendsFromData(
   recentSessions: { id: number; startTime: number }[],
-  allSets: { sessionId: number; weightKg: number; reps: number; isWarmup: boolean }[],
+  allSets: { sessionId: number; weightKg: number; reps: number; isWarmup: boolean; distanceMeters?: number | null }[],
   since: number,
 ): VolumeTrend[] {
   if (recentSessions.length === 0) return [];
 
   // Group by ISO week
-  const weekMap = new Map<string, { volume: number; sets: number; sessions: Set<number> }>();
+  const weekMap = new Map<string, { volume: number; sets: number; cardioDistance: number; sessions: Set<number> }>();
 
   // Initialize all weeks in range
   const start = new Date(since);
@@ -327,7 +329,7 @@ export function computeVolumeTrendsFromData(
     const weekDate = new Date(start.getTime() + i * MS_PER_WEEK);
     const weekKey = getISOWeek(weekDate.getTime());
     if (!weekMap.has(weekKey)) {
-      weekMap.set(weekKey, { volume: 0, sets: 0, sessions: new Set() });
+      weekMap.set(weekKey, { volume: 0, sets: 0, cardioDistance: 0, sessions: new Set() });
     }
   }
 
@@ -351,8 +353,13 @@ export function computeVolumeTrendsFromData(
     const sessionSets = setsBySession.get(session.id);
     if (sessionSets) {
       for (const set of sessionSets) {
-        entry.volume += (set.weightKg * set.reps);
+        if (!shouldExcludeFromStrengthVolume(set)) {
+          entry.volume += (set.weightKg * set.reps);
+        }
         entry.sets++;
+        if (set.distanceMeters && set.distanceMeters > 0) {
+          entry.cardioDistance += set.distanceMeters;
+        }
       }
     }
   }
@@ -363,6 +370,7 @@ export function computeVolumeTrendsFromData(
     totalSets: data.sets,
     sessionCount: data.sessions.size,
     avgVolumePerSession: data.sessions.size > 0 ? Math.round(data.volume / data.sessions.size) : 0,
+    ...(data.cardioDistance > 0 ? { cardioDistanceMeters: data.cardioDistance } : {}),
   }));
 }
 
@@ -469,6 +477,7 @@ export const AnalyticsService = {
           sessionId: sets.sessionId,
           weightKg: sets.weightKg,
           reps: sets.reps,
+          distanceMeters: sets.distanceMeters,
           isWarmup: sets.isWarmup,
         })
           .from(sets)
@@ -593,6 +602,8 @@ export const AnalyticsService = {
         sessionId: sets.sessionId,
         weightKg: sets.weightKg,
         reps: sets.reps,
+        durationSeconds: sets.durationSeconds,
+        distanceMeters: sets.distanceMeters,
         isWarmup: sets.isWarmup,
       })
         .from(sets)

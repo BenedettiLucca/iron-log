@@ -175,6 +175,7 @@ export async function saveSetMutation(
       weightKg: input.weightKg,
       reps: input.reps,
       durationSeconds: input.durationSeconds ?? null,
+      distanceMeters: input.distanceMeters ?? null,
       rir: input.rir ?? null,
       isWarmup: input.isWarmup ?? false,
       createdAt: input.createdAt ?? Date.now(),

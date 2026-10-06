@@ -95,6 +95,7 @@ CREATE TABLE sets (
 \tweight_kg real NOT NULL,
 \treps integer NOT NULL,
 \tduration_seconds integer,
+\tdistance_meters real,
 \trir integer,
 \tis_warmup integer DEFAULT 0 NOT NULL,
 \tis_edited integer DEFAULT 0 NOT NULL,

@@ -63,6 +63,7 @@ export const sets = sqliteTable('sets', {
   weightKg: real('weight_kg').notNull(),
   reps: integer('reps').notNull(),
   durationSeconds: integer('duration_seconds'),
+  distanceMeters: real('distance_meters'),
   rir: integer('rir'),
   isWarmup: integer('is_warmup', { mode: 'boolean' }).notNull().default(false),
   isEdited: integer('is_edited', { mode: 'boolean' }).notNull().default(false),

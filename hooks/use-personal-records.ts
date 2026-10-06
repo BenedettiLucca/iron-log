@@ -2,6 +2,7 @@ import { db } from '../src/db/client';
 import { personalRecords, sets, sessions } from '../src/db/schema';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { logger } from '../services/logger';
+import { isFasterCardioTime } from '../services/cardio-policy';
 
 export interface CheckPRResult {
   isWeightPR: boolean;
@@ -18,6 +19,7 @@ export interface CheckPROptions {
     reps: number | null;
     rir?: number | null;
     durationSeconds?: number | null;
+    distanceMeters?: number | null;
     setNumber?: number;
     createdAt?: number | null;
   };
@@ -225,8 +227,10 @@ export function checkPersonalRecordsSync(
 
     if (isDuration) {
       const duration = savedSet.durationSeconds!;
+      const distance = savedSet.distanceMeters ?? null;
       const setDetails = JSON.stringify({
         durationSeconds: duration,
+        distanceMeters: distance,
         weightKg: savedSet.weightKg ?? null,
         reps: savedSet.reps ?? null,
         rir: savedSet.rir ?? null,
@@ -238,6 +242,7 @@ export function checkPersonalRecordsSync(
       const existingDurationPR = dbInstance.select({
         id: personalRecords.id,
         value: personalRecords.value,
+        setDetails: personalRecords.setDetails,
       })
         .from(personalRecords)
         .where(and(
@@ -246,7 +251,31 @@ export function checkPersonalRecordsSync(
         ))
         .get();
 
-      if (!existingDurationPR || duration > existingDurationPR.value) {
+      let shouldUpgrade = false;
+      if (!existingDurationPR) {
+        shouldUpgrade = true;
+      } else if (distance != null && distance > 0) {
+        let existingDistance: number | null = null;
+        if (existingDurationPR.setDetails) {
+          try {
+            const p = JSON.parse(existingDurationPR.setDetails);
+            if (typeof p.distanceMeters === 'number') {
+              existingDistance = p.distanceMeters;
+            }
+          } catch {
+            // ignore
+          }
+        }
+        if (existingDistance == null || existingDistance === distance) {
+          shouldUpgrade = isFasterCardioTime(duration, existingDurationPR.value);
+        } else if (distance > existingDistance) {
+          shouldUpgrade = true;
+        }
+      } else {
+        shouldUpgrade = duration > existingDurationPR.value;
+      }
+
+      if (shouldUpgrade) {
         dbInstance.insert(personalRecords).values({
           exerciseId,
           sessionId,
@@ -339,6 +368,7 @@ export function reconcilePersonalRecordsSync(
         weightKg: sets.weightKg,
         reps: sets.reps,
         durationSeconds: sets.durationSeconds,
+        distanceMeters: sets.distanceMeters,
         rir: sets.rir,
         isWarmup: sets.isWarmup,
         createdAt: sets.createdAt,
@@ -489,14 +519,31 @@ export function reconcilePersonalRecordsSync(
       } else {
         let bestDurationSet: any = null;
         for (const s of validDurationSets) {
-          if (!bestDurationSet || s.durationSeconds > bestDurationSet.durationSeconds) {
+          if (!bestDurationSet) {
             bestDurationSet = s;
+          } else if (s.distanceMeters != null && s.distanceMeters > 0) {
+            if (bestDurationSet.distanceMeters == null || bestDurationSet.distanceMeters <= 0) {
+              bestDurationSet = s;
+            } else if (s.distanceMeters === bestDurationSet.distanceMeters) {
+              if (s.durationSeconds < bestDurationSet.durationSeconds) {
+                bestDurationSet = s;
+              }
+            } else if (s.distanceMeters > bestDurationSet.distanceMeters) {
+              bestDurationSet = s;
+            }
+          } else if (bestDurationSet.distanceMeters != null && bestDurationSet.distanceMeters > 0) {
+            // Keep cardio distance set over non-distance set
+          } else {
+            if (s.durationSeconds > bestDurationSet.durationSeconds) {
+              bestDurationSet = s;
+            }
           }
         }
 
         if (bestDurationSet) {
           const durationSetDetails = JSON.stringify({
             durationSeconds: bestDurationSet.durationSeconds,
+            distanceMeters: bestDurationSet.distanceMeters ?? null,
             weightKg: bestDurationSet.weightKg ?? null,
             reps: bestDurationSet.reps ?? null,
             rir: bestDurationSet.rir ?? null,

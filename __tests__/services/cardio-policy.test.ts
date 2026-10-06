@@ -35,14 +35,13 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
 
   // ────────────────────────────────────────────────────────────────────
   // RED #1 — record cardio set -> canonical fields
-  // The model persists duration but has NO canonical distance field,
-  // so a 5k "distance" cannot round-trip through the `sets` table.
+  // The model persists duration alongside canonical distance_meters,
+  // so a 5000m distance round-trips through the `sets` table.
   // ────────────────────────────────────────────────────────────────────
   it('records a cardio set with canonical distance + duration fields', () => {
     db.insert(exercises).values({ id: 1, name: '5K Run', type: 'duration' }).run();
     db.insert(sessions).values({ id: 1, routineName: 'Cardio Day', startTime: since, endTime: since + 60000 }).run();
 
-    // Record the cardio set the way the current model allows: time only.
     const recorded = db
       .insert(sets)
       .values({
@@ -53,27 +52,24 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
         weightKg: 0, // canonical for pure cardio
         reps: 0, // canonical for pure cardio
         durationSeconds: 1200, // 20:00
+        distanceMeters: 5000,
         isWarmup: false,
         createdAt: since + 1000,
       })
       .returning()
       .get();
 
-    // durationSeconds persists today (passing — documented current behavior)
+    // durationSeconds persists
     expect(recorded.durationSeconds).toBe(1200);
 
     // CONTRACT: a cardio set must persist a canonical distance (meters)
-    // alongside duration. The model has no distance_meters column, so the
-    // 5000m distance cannot round-trip. RED: distanceMeters is undefined.
-    expect((recorded as unknown as { distanceMeters?: number }).distanceMeters).toBe(5000);
+    // alongside duration.
+    expect(recorded.distanceMeters).toBe(5000);
   });
 
   // ────────────────────────────────────────────────────────────────────
   // RED #2 — PR detection for a standard distance
   // For a fixed distance (5k), the PR should be the FASTEST time (min).
-  // The real `checkPersonalRecordsSync` only writes recordType='duration'
-  // with MAX-time semantics (plank-style), so a faster 5k does not upgrade
-  // the PR — it still holds the slower time.
   // ────────────────────────────────────────────────────────────────────
   it('detects a distance-based PR (fastest time for a standard 5k)', async () => {
     db.insert(exercises).values({ id: 1, name: '5K Run', type: 'duration' }).run();
@@ -84,18 +80,25 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
       .insert(sets)
       .values({
         sessionId: 1, exerciseId: 1, exerciseName: '5K Run', setNumber: 1,
-        weightKg: 0, reps: 0, durationSeconds: 1200, isWarmup: false, createdAt: since + 1000,
+        weightKg: 0, reps: 0, durationSeconds: 1200, distanceMeters: 5000, isWarmup: false, createdAt: since + 1000,
       })
       .returning()
       .get();
     await checkPersonalRecordsSync({ exerciseId: 1, sessionId: 1, savedSet: slow, isWarmup: false });
+
+    const pr1 = db
+      .select()
+      .from(personalRecords)
+      .where(and(eq(personalRecords.exerciseId, 1), eq(personalRecords.recordType, 'duration')))
+      .get();
+    expect(pr1?.value).toBe(1200);
 
     // 2nd 5k: 18:00 = 1080s — FASTER. For a fixed distance this should beat the PR.
     const fast = db
       .insert(sets)
       .values({
         sessionId: 1, exerciseId: 1, exerciseName: '5K Run', setNumber: 2,
-        weightKg: 0, reps: 0, durationSeconds: 1080, isWarmup: false, createdAt: since + 2000,
+        weightKg: 0, reps: 0, durationSeconds: 1080, distanceMeters: 5000, isWarmup: false, createdAt: since + 2000,
       })
       .returning()
       .get();
@@ -107,13 +110,8 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
       .where(and(eq(personalRecords.exerciseId, 1), eq(personalRecords.recordType, 'duration')))
       .get();
 
-    // Documented current behavior (PASSES): the 'duration' PR keeps the MAX
-    // time (1200s) because checkPersonalRecordsSync only ever promotes to a
-    // larger duration (plank/hang semantics) — it has no distance awareness.
-    expect(pr?.value).toBe(1200);
-
     // CONTRACT: for a standard distance the PR should be the FASTEST time.
-    // A faster 5k (1080s) must win. RED: it does not — 1080 !== 1200.
+    // A faster 5k (1080s) must win.
     expect(pr?.value).toBe(1080);
   });
 
@@ -139,7 +137,7 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
     // Cardio set: 5k in 10:00 (weightKg/reps = 0)
     db.insert(sets).values({
       sessionId: 1, exerciseId: 2, exerciseName: 'Run', setNumber: 1,
-      weightKg: 0, reps: 0, durationSeconds: 600, isWarmup: false, createdAt: since + 2000,
+      weightKg: 0, reps: 0, durationSeconds: 600, distanceMeters: 5000, isWarmup: false, createdAt: since + 2000,
     }).run();
 
     const trends = await AnalyticsService.calculateVolumeTrends(since);
@@ -149,8 +147,7 @@ describe('Contract IL82 — cardio as exercise type (RED)', () => {
     expect(trends[0].totalVolume).toBe(1000);
 
     // CONTRACT (desired): the weekly aggregate should carry a cardio distance
-    // line (5000m for the 5k). No such metric exists on VolumeTrend today.
-    // RED: cardioDistanceMeters is undefined.
-    expect((trends[0] as unknown as { cardioDistanceMeters?: number }).cardioDistanceMeters).toBe(5000);
+    // line (5000m for the 5k).
+    expect(trends[0].cardioDistanceMeters).toBe(5000);
   });
 });
