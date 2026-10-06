@@ -10,4 +10,4 @@ export { useSessionPersistence } from './use-session-persistence';
 export { checkPersonalRecords } from './use-personal-records';
 export { useExerciseSets } from './use-exercise-sets';
 export { useProgression } from './use-progression';
-
+export { useSharedRest } from './use-shared-rest';

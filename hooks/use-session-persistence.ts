@@ -45,6 +45,7 @@ interface SessionContext {
   isActiveSetRunning: boolean;
   activeSetStartedAt: number | null;
   operationId?: string | null;
+  supersetGroupId?: string | null;
 }
 
 interface SessionPersistenceOptions {
@@ -69,6 +70,7 @@ interface SessionPersistenceOptions {
   notes?: string;
   restSeconds?: number | null;
   operationId?: string | null;
+  supersetGroupId?: string | null;
 }
 
 function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
@@ -93,6 +95,7 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
     isActiveSetRunning: opts.isActiveSetRunning,
     activeSetStartedAt: opts.activeSetStartedAt,
     operationId: opts.operationId ?? null,
+    supersetGroupId: opts.supersetGroupId ?? null,
   };
 }
 

@@ -34,9 +34,11 @@ export const routineExercises = sqliteTable('routine_exercises', {
   target: text('target'), // Ex: "3x8-12" ou "60s"
   notes: text('notes'),   // Ex: "Banco altura 4, foco na negativa"
   restSeconds: integer('rest_seconds'), // Tempo de descanso em segundos
+  supersetGroupId: text('superset_group_id'),
 }, (t) => [
   index("re_routine_id_idx").on(t.routineId),
   index("re_exercise_id_idx").on(t.exerciseId),
+  index("re_routine_superset_idx").on(t.routineId, t.supersetGroupId),
 ]);
 
 // TABELA: Sessões de Treino
@@ -90,9 +92,11 @@ export const sessionExercises = sqliteTable('session_exercises', {
   position: integer('position').notNull(),
   status: text('status').notNull().default('pending'),
   removedAt: integer('removed_at'),
+  supersetGroupId: text('superset_group_id'),
 }, (t) => [
   uniqueIndex('se_session_routine_exercise_unique').on(t.sessionId, t.routineExerciseId),
   index('se_session_status_position_idx').on(t.sessionId, t.status, t.position),
+  index('se_session_superset_idx').on(t.sessionId, t.supersetGroupId),
 ]);
 
 // TABELA: Métricas Corporais e Fotos

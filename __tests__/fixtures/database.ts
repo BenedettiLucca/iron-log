@@ -148,6 +148,7 @@ CREATE TABLE routine_exercises (
 \ttarget text,
 \tnotes text,
 \trest_seconds integer,
+\tsuperset_group_id text,
 \tFOREIGN KEY (routine_id) REFERENCES routines(id) ON UPDATE no action ON DELETE no action,
 \tFOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE no action
 );
@@ -183,6 +184,7 @@ CREATE INDEX body_metrics_date_idx ON body_metrics (date);
 CREATE INDEX pr_exercise_type_idx ON personal_records (exercise_id, record_type);
 CREATE INDEX re_routine_id_idx ON routine_exercises (routine_id);
 CREATE INDEX re_exercise_id_idx ON routine_exercises (exercise_id);
+CREATE INDEX re_routine_superset_idx ON routine_exercises (routine_id, superset_group_id);
 CREATE INDEX sets_routine_exercise_id_idx ON sets (routine_exercise_id);
 CREATE UNIQUE INDEX sets_operation_id_unique ON sets (operation_id);
 CREATE INDEX sessions_routine_id_idx ON sessions (routine_id);
@@ -203,12 +205,14 @@ CREATE TABLE session_exercises (
 	position integer NOT NULL,
 	status text DEFAULT 'pending' NOT NULL,
 	removed_at integer,
+	superset_group_id text,
 	FOREIGN KEY (session_id) REFERENCES sessions(id) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (routine_exercise_id) REFERENCES routine_exercises(id) ON UPDATE no action ON DELETE set null,
 	FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON UPDATE no action ON DELETE cascade
 );
 CREATE UNIQUE INDEX se_session_routine_exercise_unique ON session_exercises (session_id, routine_exercise_id);
 CREATE INDEX se_session_status_position_idx ON session_exercises (session_id, status, position);
+CREATE INDEX se_session_superset_idx ON session_exercises (session_id, superset_group_id);
 `;
 
 sqlite.exec(schemaDdl);
