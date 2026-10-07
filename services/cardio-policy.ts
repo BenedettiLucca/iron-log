@@ -3,7 +3,8 @@
  *
  * Implements the contract defined in `docs/plans/il82-cardio-contract.md`:
  * 1. Canonical fields stored (distance_meters, duration_seconds); derived pace/speed display-only helpers.
- * 2. PR detection: fastest time per standard distance (tunable list), longest distance per duration;
+ * 2. PR detection: fastest time for exact distance_meters value (editable per session);
+ *    longest distance per fixed duration stays unchanged; cardio NEVER enters strength tonnage/e1RM.
  *    cardio NEVER enters strength tonnage or e1RM aggregates.
  * 3. History/reports treatment: excluded from strength volume, aggregated as cardio metrics lines.
  * 4. Adheres to #136 unit conventions: metric stored canonical, imperial display-only.
@@ -12,22 +13,6 @@
 // ---------------------------------------------------------------------------
 // Constants & Configuration
 // ---------------------------------------------------------------------------
-
-/**
- * Standard running/cardio distances in meters for benchmark PR evaluation.
- * Tunable default per contract §5.1:
- * 500m, 1k, 1.5k, 3k, 5k, 10k, half-marathon (21.0975k), marathon (42.195k).
- */
-export const STANDARD_CARDIO_DISTANCES_METERS: readonly number[] = Object.freeze([
-  500,
-  1000,
-  1500,
-  3000,
-  5000,
-  10000,
-  21097,
-  42195,
-]);
 
 export const METERS_PER_KILOMETER = 1000;
 export const METERS_PER_MILE = 1609.344;
@@ -138,34 +123,6 @@ export function shouldExcludeFromE1RM(
 // ---------------------------------------------------------------------------
 
 /**
- * Checks if a distance matches one of the standard benchmark distances.
- * @param distanceMeters Distance in meters
- * @param toleranceMeters Optional tolerance for GPS drift / slight course variance (default: 0)
- */
-export function isStandardDistance(distanceMeters: number, toleranceMeters = 0): boolean {
-  if (distanceMeters <= 0) return false;
-  return STANDARD_CARDIO_DISTANCES_METERS.some(
-    (std) => Math.abs(std - distanceMeters) <= toleranceMeters,
-  );
-}
-
-/**
- * Finds the closest standard distance within the allowed tolerance.
- */
-export function findMatchingStandardDistance(
-  distanceMeters: number,
-  toleranceMeters = 50,
-): number | null {
-  if (distanceMeters <= 0) return null;
-  for (const std of STANDARD_CARDIO_DISTANCES_METERS) {
-    if (Math.abs(std - distanceMeters) <= toleranceMeters) {
-      return std;
-    }
-  }
-  return null;
-}
-
-/**
  * Fastest time PR logic for a fixed distance:
  * LOWER duration_seconds is BETTER.
  */
@@ -195,8 +152,9 @@ export function isLongerCardioDistance(
  * Evaluates whether a cardio set qualifies as a Personal Record.
  *
  * Scenarios:
- * 1. Fixed / Standard Distance (e.g. 5k, 10k): Evaluates fastest time (lowest duration_seconds).
- * 2. Fixed Duration (e.g. 30min run): Evaluates longest distance (highest distance_meters).
+ * 1. Fastest time for a given distance (e.g. 5k, 10k): Evaluates fastest time (lowest duration_seconds).
+ *    Match is exact on distance_meters — no standard distance list.
+ * 2. Longest distance for a fixed duration (e.g. 30min run): Evaluates longest distance (highest distance_meters).
  */
 export function evaluateCardioPR(params: {
   distanceMeters?: number | null;

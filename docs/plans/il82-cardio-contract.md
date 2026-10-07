@@ -1,8 +1,8 @@
-# Contract IL82 — Cardio as exercise type (PROPOSAL ONLY — NO SCHEMA CHANGE)
+# Contract IL82 — Cardio as exercise type (DECIDED 2026-10-07)
 
-> Status: **CONTRACT / PROPOSAL** — no production edit, no `drizzle-kit generate`, no `app/` change.  
+> Status: **DECIDED** (owner decision 2026-10-06) — no production edit, no `drizzle-kit generate`, no `app/` change.  
 > Worktree: `epic/il-82-cardio` (cwd) · Base: `9c0b808` · Auth: LOCAL EDITS YES / COMMIT NO / PUSH NO.  
-> Owner questions embedded at §5; answers are ownership decisions, not agent decisions.
+> Owner decision: distance is an editable input per session — there is NO fixed list of standard distances. PR = fastest time for the EXACT distance_meters value recorded; longest-distance-per-duration stays unchanged. `STANDARD_CARDIO_DISTANCES_METERS` removed from policy and tests.
 
 ---
 
@@ -177,12 +177,14 @@ All three import real production functions/policies (not mocked formulas). All f
 
 ### 5.1 Which distances are "standard" for PRs?
 
-Options (ask owner):
-- `[500, 1000, 1500, 3000, 5000, 10000, 21097, 42195]` meters (500m / 1k / 1.5k / 3k / 5k / 10k / half / marathon — common running distances)
+**DECIDED:** There is NO fixed list of standard distances. Distance is an editable input per session (canonical meters). PR semantics: for a new cardio set (distance_meters, duration_seconds), find prior sets with the **same distance_meters value** and flag PR if strictly faster. Longest-distance-per-duration stays as is. The `STANDARD_CARDIO_DISTANCES_METERS` concept has been removed from the policy and its associated tests.
+
+Options that were considered:
+- `[500, 1000, 1500, 3000, 5000, 10000, 21097, 42195]` meters (500m / 1k / 1.5k / 3k / 5k / 10k / half / marathon)
 - Or only 5k (`5000`) and 10k (`10000`) for MVP?
 - Should PR table allow arbitrary distance (store `distanceMeters` per PR row) or only a fixed list?
 
-**Evidence reference:** `personalRecords` unique index is `(exerciseId, recordType)` — if we want "fastest 5k" and "fastest 10k" as separate PRs for same exercise, we need either (a) new `recordType` per distance (`time_5k`, `time_10k`) or (b) `recordType='time_per_distance'` + `setDetails` storing distance. Both need schema/index review.
+Evidence reference: `personalRecords` unique index is `(exerciseId, recordType)` — if we want "fastest 5k" and "fastest 10k" as separate PRs for same exercise, we need either (a) new `recordType` per distance or (b) `recordType='time_per_distance'` + `setDetails` storing distance. Both need schema/index review. Owner chose: exact-distance matching without a fixed standard list.
 
 ### 5.2 Pace format default?
 
