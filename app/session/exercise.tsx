@@ -1010,6 +1010,7 @@ export default function ExerciseScreen() {
           initialWeight={editingSet?.weightKg || 0}
           initialReps={editingSet?.reps}
           initialDuration={editingSet?.durationSeconds ?? undefined}
+          initialDistance={editingSet?.distanceMeters ?? undefined}
           initialRir={editingSet?.rir}
           isDuration={exerciseType === 'duration'}
           onSave={guardedHandleSaveEditedSet}

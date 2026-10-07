@@ -238,10 +238,6 @@ export const pt = {
     jsonImportDesc: 'Selecione um arquivo JSON exportado pelo Iron Log.',
     tabArchived: 'ARQUIVADAS',
     tabActive: 'ATIVAS',
-    units: 'Unidades',
-    unitsDescription: 'Escolha como peso e distância são exibidos. O armazenamento continua métrico.',
-    metric: 'MÉTRICO',
-    imperial: 'IMPERIAL',
     unarchived: "'{name}' restaurada",
     unarchiveError: 'Erro ao restaurar rotina',
     tabTemplates: 'TEMPLATES',
@@ -655,6 +651,10 @@ export const pt = {
 
   // Settings
   settings: {
+    units: 'Unidades',
+    unitsDescription: 'Escolha como peso e distância são exibidos. O armazenamento continua métrico.',
+    metric: 'Métrico',
+    imperial: 'Imperial',
     title: 'Configurações',
     checkinReminders: 'Lembretes de Check-in',
     checkinDesc: 'Receba lembretes mensais para registrar suas métricas corporais e acompanhar seu progresso.',
