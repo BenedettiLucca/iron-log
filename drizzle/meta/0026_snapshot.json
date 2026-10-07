@@ -804,6 +804,14 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "is_archived": {
+          "name": "is_archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {
@@ -812,7 +820,22 @@
           "columns": [
             "name"
           ],
-          "isUnique": true
+          "isUnique": true,
+          "where": "is_archived = 0"
+        },
+        "routines_folder_idx": {
+          "name": "routines_folder_idx",
+          "columns": [
+            "folder"
+          ],
+          "isUnique": false
+        },
+        "routines_is_archived_idx": {
+          "name": "routines_is_archived_idx",
+          "columns": [
+            "is_archived"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -1357,7 +1380,7 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'💊'"
+          "default": "'\ud83d\udc8a'"
         },
         "order_index": {
           "name": "order_index",

@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ddd11629-29c4-4642-a7a4-c81a64ffff39",
-  "prevId": "f564eb63-3faa-4fe3-a3f2-316f25f53681",
+  "id": "a381966a-7965-450c-8d4c-81fdd9d509bf",
+  "prevId": "ddd11629-29c4-4642-a7a4-c81a64ffff39",
   "tables": {
     "body_metrics": {
       "name": "body_metrics",
@@ -715,13 +715,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "superset_group_id": {
-          "name": "superset_group_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -736,14 +729,6 @@
           "name": "re_exercise_id_idx",
           "columns": [
             "exercise_id"
-          ],
-          "isUnique": false
-        },
-        "re_routine_superset_idx": {
-          "name": "re_routine_superset_idx",
-          "columns": [
-            "routine_id",
-            "superset_group_id"
           ],
           "isUnique": false
         }
@@ -819,6 +804,14 @@
           "notNull": true,
           "autoincrement": false,
           "default": false
+        },
+        "is_archived": {
+          "name": "is_archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         }
       },
       "indexes": {
@@ -827,7 +820,22 @@
           "columns": [
             "name"
           ],
-          "isUnique": true
+          "isUnique": true,
+          "where": "is_archived = 0"
+        },
+        "routines_folder_idx": {
+          "name": "routines_folder_idx",
+          "columns": [
+            "folder"
+          ],
+          "isUnique": false
+        },
+        "routines_is_archived_idx": {
+          "name": "routines_is_archived_idx",
+          "columns": [
+            "is_archived"
+          ],
+          "isUnique": false
         }
       },
       "foreignKeys": {},
@@ -887,13 +895,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "superset_group_id": {
-          "name": "superset_group_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -911,14 +912,6 @@
             "session_id",
             "status",
             "position"
-          ],
-          "isUnique": false
-        },
-        "se_session_superset_idx": {
-          "name": "se_session_superset_idx",
-          "columns": [
-            "session_id",
-            "superset_group_id"
           ],
           "isUnique": false
         }

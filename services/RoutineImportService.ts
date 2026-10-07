@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { db as defaultDb } from '@/src/db/client';
 import { exercises, routineExercises, routines } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { logger } from './logger';
 import { normalizeExerciseName } from '@/services/RoutineShareService';
 import { isRoutineNameUniqueConstraintError } from '@/src/utils/routine-name';
+import { getNextAvailableRoutineName } from './routine-archive';
 
 export type RoutineImportErrorCode =
   | 'EMPTY_PAYLOAD'
@@ -123,20 +124,42 @@ export async function importRoutine(
 
   try {
     db.transaction((tx: any) => {
-      // 1. Conflict policy check (C6): explicit conflict, no overwrite
-      const existingRoutine = tx
+      // 1. Conflict policy (C6):
+      //    - Active routine with same name -> DUPLICATE_ROUTINE_NAME (fail)
+      //    - Only archived routine(s) with same name -> generate suffixed name
+      const activeRoutine = tx
         .select({ id: routines.id, name: routines.name })
         .from(routines)
-        .where(eq(routines.name, trimmedRoutineName))
+        .where(and(eq(routines.name, trimmedRoutineName), eq(routines.isArchived, false)))
         .all();
-
-      if (existingRoutine.length > 0) {
+      if (activeRoutine.length > 0) {
         throw new RoutineImportError(
           'DUPLICATE_ROUTINE_NAME',
           trimmedRoutineName,
           undefined,
           trimmedRoutineName
         );
+      }
+
+      // Determine the effective name for this import.
+      // Check both active and archived rows for global uniqueness.
+      const archivedRoutine = tx
+        .select({ id: routines.id, name: routines.name })
+        .from(routines)
+        .where(and(eq(routines.name, trimmedRoutineName), eq(routines.isArchived, true)))
+        .all();
+
+      let effectiveRoutineName = trimmedRoutineName;
+      if (archivedRoutine.length > 0) {
+        // Only archived routines collide: compute globally unique suffixed name.
+        const allRoutineNames = tx
+          .select({ name: routines.name })
+          .from(routines)
+          .all();
+        const existingNames = new Set<string>(
+          allRoutineNames.map((r: { name: string }) => r.name.trim().toLowerCase())
+        );
+        effectiveRoutineName = getNextAvailableRoutineName(existingNames, trimmedRoutineName);
       }
 
       // 2. Batch lookup: fetch existing exercises once to avoid per-item queries
@@ -207,10 +230,11 @@ export async function importRoutine(
       const createdRoutine = tx
         .insert(routines)
         .values({
-          name: trimmedRoutineName,
+          name: effectiveRoutineName,
           description: validated.description || '',
           folder: validated.folder || 'Geral',
           isTemplate: false,
+          isArchived: false,
         })
         .returning({ id: routines.id, name: routines.name })
         .get();
@@ -253,7 +277,7 @@ export async function importRoutine(
       importResult = {
         success: true,
         routineId: createdRoutine.id,
-        routineName: createdRoutine.name,
+        routineName: effectiveRoutineName,
         exercisesCount: validated.exercises.length,
         customExercisesCreated,
       };

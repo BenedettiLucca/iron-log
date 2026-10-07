@@ -1,13 +1,19 @@
 import { sqliteTable, text, integer, real, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
 
 // TABELA: Templates de Treino (Ex: Treino A, Treino B)
 export const routines = sqliteTable('routines', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull().unique(),
+  name: text('name').notNull(),
   description: text('description'),
   folder: text('folder').default('Geral'),
   isTemplate: integer('is_template', { mode: 'boolean' }).notNull().default(false),
-});
+  isArchived: integer('is_archived', { mode: 'boolean' }).notNull().default(false),
+}, (t) => [
+  uniqueIndex('routines_name_unique').on(t.name).where(sql`is_archived = 0`),
+  index('routines_folder_idx').on(t.folder),
+  index('routines_is_archived_idx').on(t.isArchived),
+]);
 
 // TABELA: Pastas persistentes das rotinas (inclui pastas vazias)
 export const folders = sqliteTable('folders', {

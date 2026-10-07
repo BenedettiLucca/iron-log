@@ -58,9 +58,12 @@ CREATE TABLE routines (
 \tname text NOT NULL,
 \tdescription text,
 \tfolder text DEFAULT 'Geral',
-\tis_template integer DEFAULT 0 NOT NULL
+\tis_template integer DEFAULT 0 NOT NULL,
+\tis_archived integer DEFAULT 0 NOT NULL
 );
-CREATE UNIQUE INDEX routines_name_unique ON routines (name);
+CREATE UNIQUE INDEX routines_name_unique ON routines (name) WHERE is_archived = 0;
+CREATE INDEX routines_folder_idx ON routines (folder);
+CREATE INDEX routines_is_archived_idx ON routines (is_archived);
 CREATE TABLE programs (
 \tid integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 \tname text NOT NULL,
