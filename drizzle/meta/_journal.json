@@ -183,6 +183,13 @@
       "when": 1789423286407,
       "tag": "0025_sturdy_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1791373245010,
+      "tag": "0026_tiresome_greymalkin",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
-# IL-95: Scheduled Session Dates + Reschedule Semantics
+1:# IL-95: Scheduled Session Dates + Reschedule Semantics
 
-**Status:** PROPOSAL ONLY — no schema migration, no production change.
+**Status:** DECIDED — migration approved by owner 2026-10-06. Production schema + service + tests now live.
 **Base:** `9c0b808`
 **Related Issues:** #65 (schedule manifest), #67 (main-lane drift)
 **Worktree:** local cwd

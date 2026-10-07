@@ -49,6 +49,8 @@ export const sessions = sqliteTable('sessions', {
   bodyWeight: real('body_weight'),
   sRpe: integer('s_rpe'),
   notes: text('notes'),
+  scheduledFor: integer('scheduled_for'),           // NEW: planned date (epoch at midnight, device-local, nullable)
+  occurrenceId: text('occurrence_id'),              // NEW: deterministic occurrence key (nullable)
   durationMinutes: integer('duration_minutes'),
   deletedAt: integer('deleted_at'), // Epoch, null = active
 });
