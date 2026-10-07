@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, Text, FlatList, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { RoutineImportService, RoutineImportError } from '@/services/RoutineImportService';
+import { unarchiveRoutine, getArchivedRoutines } from '@/services/routine-archive';
+import type { Routine } from '@/src/types';
 import * as Clipboard from 'expo-clipboard';
 import { Toast } from '../../components/Toast';
 import { Dialog } from '../../components/Dialog';
@@ -46,6 +48,9 @@ export default function RoutinesListScreen() {
   } = useFolders();
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const [folderManagerVisible, setFolderManagerVisible] = useState(false);
+  const [isArchiveView, setIsArchiveView] = useState(false);
+  const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
+  const [archivedRoutines, setArchivedRoutines] = useState<Routine[]>([]);
 
   const folderChips = useMemo(() => getFolderChipNames(
     persistedFolders.length > 0
@@ -69,6 +74,15 @@ export default function RoutinesListScreen() {
   const [isImporting, setIsImporting] = useState(false);
   const isImportingRef = useRef(false);
 
+  const fetchArchivedRoutines = useCallback(async () => {
+    try {
+      const archived = await getArchivedRoutines();
+      setArchivedRoutines(archived);
+    } catch (e) {
+      logger.error('Failed to fetch archived routines', e);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       fetchRoutines();
@@ -84,9 +98,9 @@ export default function RoutinesListScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([fetchRoutines(), fetchFolders()]);
+    await Promise.all([fetchRoutines(), fetchFolders(), fetchArchivedRoutines()]);
     setRefreshing(false);
-  }, [fetchFolders, fetchRoutines]);
+  }, [fetchArchivedRoutines, fetchFolders, fetchRoutines]);
 
   const filteredRoutines = getFilteredRoutines(selectedFolder);
 
@@ -113,6 +127,22 @@ export default function RoutinesListScreen() {
         }
       }
     });
+  };
+
+  const handleUnarchive = async (id: number, name: string) => {
+    try {
+      const success = await unarchiveRoutine(id);
+      if (success) {
+        setToast({ visible: true, message: t('routines.unarchived', { name }), type: 'success' });
+        await fetchArchivedRoutines();
+        await fetchRoutines();
+      } else {
+        setToast({ visible: true, message: t('routines.unarchiveError'), type: 'error' });
+      }
+    } catch (e) {
+      logger.error('Failed to unarchive routine', e);
+      setToast({ visible: true, message: t('routines.unarchiveError'), type: 'error' });
+    }
   };
 
   const handleDuplicate = async (id: number, name: string) => {
@@ -202,6 +232,23 @@ export default function RoutinesListScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingRight: 16 }}
         >
+          {isArchiveView ? (
+            <TouchableOpacity
+              onPress={() => setIsArchiveView(false)}
+              activeOpacity={0.7}
+              className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0 mr-2"
+            >
+              <Text className="text-subtext text-sm font-semibold uppercase">{t('routines.tabActive')}</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => setIsArchiveView(true)}
+              activeOpacity={0.7}
+              className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0 mr-2"
+            >
+              <Text className="text-subtext text-sm font-semibold uppercase">{t('routines.tabArchived')}</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             onPress={() => router.push('/programs')}
             activeOpacity={0.7}
@@ -237,6 +284,18 @@ export default function RoutinesListScreen() {
             );
           })}
           <TouchableOpacity
+            onPress={() => setViewMode(viewMode === 'active' ? 'archived' : 'active')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            className={`rounded-full py-1.5 px-3.5 border min-h-[44px] items-center justify-center shrink-0 ${
+              viewMode === 'archived' ? 'bg-primary border-transparent' : 'bg-card border-border'
+            }`}
+          >
+            <Text className={`text-sm font-semibold uppercase ${viewMode === 'archived' ? 'text-onPrimary' : 'text-subtext'}`}>
+              {t('routines.tabArchived')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => {
               setFolderManagerVisible(true);
               fetchFolders();
@@ -251,7 +310,7 @@ export default function RoutinesListScreen() {
       </View>
 
       <FlatList
-        data={isLoading ? [] : filteredRoutines}
+        data={viewMode === 'archived' ? archivedRoutines : (isLoading ? [] : filteredRoutines)}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
         refreshControl={
@@ -287,11 +346,13 @@ export default function RoutinesListScreen() {
         renderItem={({ item }) => isLoading ? null : (
           <Card className="overflow-hidden">
             <TouchableOpacity 
-              onPress={() => setPreviewRoutine({ id: item.id, name: item.name })}
               className="p-4 -m-4"
               accessibilityRole="button"
-              accessibilityLabel={t('routines.previewRoutineLabel', { name: item.name })}
-              accessibilityHint={t('routines.previewRoutineHint')}
+              accessibilityLabel={viewMode === 'archived' ? t('routines.unarchiveRoutineLabel', { name: item.name }) : t('routines.previewRoutineLabel', { name: item.name })}
+              accessibilityHint={viewMode === 'archived' ? t('routines.previewRoutineHint') : t('routines.previewRoutineHint')}
+              onPress={viewMode === 'archived'
+                ? () => handleUnarchive(item.id, item.name)
+                : () => setPreviewRoutine({ id: item.id, name: item.name })}
             >
               <View className="flex-row justify-between items-start mb-3">
                 <View className="flex-1 mr-4">

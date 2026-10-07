@@ -20,6 +20,9 @@ import { calculateTokenExpiresAt, isTokenExpired } from '@/src/utils/google-toke
 import Svg, { Path, Polyline, Line, Circle } from 'react-native-svg';
 import { SectionHeader } from '@/components/SectionHeader';
 
+import { useUnits } from '@/hooks/use-units';
+
+
 WebBrowser.maybeCompleteAuthSession();
 
 const ChevronRight = ({ color }: { color: string }) => (
@@ -138,6 +141,7 @@ export default function SettingsScreen() {
   const [dialog, setDialog] = useState({ visible: false, title: '', message: '', type: 'default' as 'default' | 'destructive', onConfirm: () => {} });
   const { settings: notificationSettings, loading: notificationsLoading, toggleEnabled, sendTestNotification } = useNotifications();
   const { enabled: keepAwakeEnabled, setSetting: setKeepAwakeEnabled } = useKeepAwakeSetting();
+  const { unitSystem, setUnitSystem } = useUnits();
 
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const [request, response, promptAsync] = Google.useAuthRequest({
@@ -408,6 +412,37 @@ export default function SettingsScreen() {
       </View>
 
       <View className="border-b border-border/40" />
+
+      {/* Units Section */}
+      <View className="py-2">
+        <SectionHeader label={t('settings.units')} className="mb-1.5" />
+        <Text className="text-subtext text-sm mb-3 leading-5">{t('settings.unitsDescription')}</Text>
+        <View className="flex-row gap-2 flex-wrap">
+          {(['metric', 'imperial'] as const).map((unit) => (
+            <TouchableOpacity
+              key={unit}
+              onPress={() => setUnitSystem(unit)}
+              accessibilityRole="button"
+              accessibilityLabel={t(`settings.${unit}`)}
+              accessibilityState={{ selected: unitSystem === unit }}
+              className={`min-h-[44px] min-w-[44px] items-center justify-center px-3 rounded-full border ${
+                unitSystem === unit
+                  ? 'bg-primary border-transparent'
+                  : 'bg-card border-border'
+              }`}
+            >
+              <Text
+                className={`text-xs font-bold uppercase ${
+                  unitSystem === unit ? 'text-onPrimary' : 'text-subtext'
+                }`}
+              >
+                {t(`settings.${unit}`)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
 
       {/* Keep Awake Section */}
       <View className="py-2">

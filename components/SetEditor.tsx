@@ -12,10 +12,11 @@ interface SetEditorProps {
   initialWeight: number;
   initialReps?: number;
   initialDuration?: number;
+  initialDistance?: number;
   initialRir?: number | null;
   isDuration: boolean;
   /** Async contract: must resolve true on persistence success, false otherwise. */
-  onSave: (weight: number, reps?: number, duration?: number, rir?: number) => Promise<boolean>;
+  onSave: (weight: number, reps?: number, duration?: number, distance?: number, rir?: number) => Promise<boolean>;
   onCancel: () => void;
 }
 
@@ -25,6 +26,7 @@ export function SetEditor({
   initialWeight,
   initialReps,
   initialDuration,
+  initialDistance,
   initialRir,
   isDuration,
   onSave,
@@ -104,6 +106,7 @@ export function SetEditor({
         result.weightKg,
         result.reps,
         result.durationSeconds,
+        result.distanceMeters,
         result.rir,
       );
       if (success) {

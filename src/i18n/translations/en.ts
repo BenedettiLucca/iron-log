@@ -221,6 +221,9 @@ export const en = {
     createTemplate: 'Create template',
     jsonImportTitle: 'Import JSON',
     jsonImportDesc: 'Select a JSON file exported by Iron Log.',
+    tabArchived: 'ARCHIVED',
+    unarchived: "'{name}' restored",
+    unarchiveError: 'Failed to restore routine',
     tabTemplates: 'TEMPLATES',
     tabAll: 'ALL',
     tabGeneral: 'GENERAL',
@@ -298,6 +301,7 @@ export const en = {
     templateLoadedWithExercises: 'Template loaded with {count} exercises!',
 
     previewRoutineLabel: 'Workout routine: {name}',
+    unarchiveRoutineLabel: 'Restore routine: {name}',
     previewRoutineHint: 'Tap to view routine details, history and options.',
     quickStartLabel: 'Quick start {name}',
     quickStartHint: 'Starts a workout session immediately with this routine.',

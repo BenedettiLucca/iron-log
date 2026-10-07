@@ -221,6 +221,9 @@ export const zh = {
     createTemplate: '创建模板',
     jsonImportTitle: '导入 JSON',
     jsonImportDesc: '选择 Iron Log 导出的 JSON 文件。',
+    tabArchived: '已归档',
+    unarchived: "\u2018{name}\u2019 已恢复",
+    unarchiveError: '恢复例程失败',
     tabTemplates: '模板',
     tabAll: '全部',
     tabGeneral: '通用',
@@ -298,6 +301,7 @@ export const zh = {
     templateLoadedWithExercises: '模板已加载，包含 {count} 个动作！',
 
     previewRoutineLabel: '训练计划：{name}',
+    unarchiveRoutineLabel: '恢复例程: {name}',
     previewRoutineHint: '点击查看计划详情、历史记录和选项。',
     quickStartLabel: '快速开始 {name}',
     quickStartHint: '立即使用此计划开始训练。',
