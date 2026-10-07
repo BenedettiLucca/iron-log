@@ -37,6 +37,9 @@ export interface SummarySession {
   sRpe: number | null;
   notes: string | null;
   durationMinutes: number | null;
+  borrowedWeight?: number | null;
+  borrowedWeightDate?: number | null;
+  weightProvenance?: 'measured' | 'borrowed' | null;
 }
 
 interface ExerciseSummary {
@@ -127,7 +130,14 @@ export function buildSessionSummary({
   });
 
   let report = `💪 ${t('summary.workoutReport', { name: session.routineName || 'Iron Log' })} - [${dateStr}]\n\n`;
-  report += `⚖️ ${t('summary.reportWeight')}: ${session.bodyWeight || 'N/A'} kg | ⏱️ ${t('summary.reportDuration')}: ${session.durationMinutes} min | 🔥 ${t('summary.reportSrpe')}: ${session.sRpe}\n\n`;
+  const displayWeight = session.bodyWeight ?? session.borrowedWeight;
+  const weightStr = displayWeight != null ? `${displayWeight} kg` : 'N/A kg';
+  const provenanceMarker = session.weightProvenance === 'borrowed'
+    ? ' (borrowed)'
+    : session.weightProvenance === 'measured'
+      ? ' (measured)'
+      : '';
+  report += `⚖️ ${t('summary.reportWeight')}: ${weightStr}${provenanceMarker} | ⏱️ ${t('summary.reportDuration')}: ${session.durationMinutes} min | 🔥 ${t('summary.reportSrpe')}: ${session.sRpe}\n\n`;
 
   exercisesMap.forEach((data) => {
     const { sets: setsList, target } = data;

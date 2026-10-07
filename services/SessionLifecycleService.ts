@@ -14,6 +14,8 @@ export interface FinishSessionParams {
   weight?: string | number | null;
   sRpe?: number | null;
   notes?: string | null;
+  weightProvenance?: 'measured' | 'borrowed';
+  isWeightMeasured?: boolean;
 }
 
 export interface FinishSessionResult {
@@ -233,6 +235,14 @@ export async function finishSession(
     const parsedWeight =
       weightResult.status === 'valid' ? weightResult.value : null;
 
+    // ISSUE #147 Contract: only store body weight when explicitly measured
+    // in this session. Borrowed weight (carried from a prior bodyMetrics
+    // reading) must never be persisted into sessions.bodyWeight nor
+    // fabricated as a synthetic body_metrics row.
+    // When no provenance flag is provided, default to measured (backward compat).
+    const isMeasured = params.isWeightMeasured ?? (params.weightProvenance !== 'borrowed');
+    const sessionWeight = isMeasured ? parsedWeight : null;
+
     const sRpeParsed = rpeSchema.safeParse(params.sRpe);
     const validSRpe = sRpeParsed.success ? sRpeParsed.data : (params.sRpe ?? 7);
 
@@ -240,19 +250,19 @@ export async function finishSession(
       .set({
         endTime: endTimestamp,
         durationMinutes,
-        bodyWeight: parsedWeight,
+        bodyWeight: sessionWeight,
         sRpe: validSRpe,
         notes: params.notes ?? session.notes ?? null,
       })
       .where(eq(sessions.id, params.sessionId))
       .run();
 
-    if (parsedWeight !== null) {
+    if (sessionWeight !== null) {
       tx.insert(bodyMetrics)
         .values({
           date: endTimestamp,
           type: 'daily',
-          weight: parsedWeight,
+          weight: sessionWeight,
         })
         .run();
     }
