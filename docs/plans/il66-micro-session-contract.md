@@ -55,7 +55,7 @@ Micro-session = fast logged session for accessory/home protocols. Few taps to co
 
 ## PROPOSAL: Side Support Resolution
 
-**Status:** Side support is **deferred from v1** — listed as an explicit owner question below.
+**Status:** **DECIDED (owner, 2026-10-06): side support is deferred indefinitely.** v1 ships micro-session WITHOUT side; no `side` column on `sets`; no toggle. If it ever returns, it arrives as a new issue proposing the nullable `side` column + UI as a separate owner-approved migration gate.
 
 **Contradiction resolved:** The draft flow originally claimed "L/R side support with NO schema change" but `sets` table (`src/db/schema.ts:57-82`) has no `side` column. Minimal side support requires either:
 1. **Schema delta:** Add nullable `side` column on `sets` (e.g., `text('side')` with values `'L' | 'R' | NULL`). Requires owner-approved migration window and backfill strategy for existing data.
@@ -132,12 +132,10 @@ microSession: {
 
 ## Owner Questions (Explicit)
 
-1. **Side Support v1? (DEFERRED — owner question)**
+1. **Side Support v1? (DECIDED — owner, 2026-10-06)**
    - Question: Should micro mode support L/R side selection from day one?
-   - Status: **DEFERRED from v1 (default)**. No schema change (no `side` column on `sets`; verified `src/db/schema.ts:57-82`). Two paths if YES:
-     - **(a)** Schema delta: nullable `side` column on `sets` + migration (owner-approved window required) + backfill.
-     - **(b)** Defer fully: ship v1 without side; add in v1.1 with schema delta.
-   - Current Proposal: **Defer** (default). If owner approves (a), the delta is a separate pre-merge gate. i18n keys reserved but unimplemented.
+   - **Decision: DEFERRED indefinitely.** No schema change (no `side` column on `sets`; verified `src/db/schema.ts:57-82`), no toggle, i18n keys stay reserved but unimplemented.
+   - If side support is ever needed, it must arrive as a NEW issue proposing the nullable `side` column on `sets` + migration + UI as a separate owner-approved pre-merge gate.
    - **Contradiction resolved:** Earlier claim of "L/R with NO schema change" was false (verified against `sets`). Documented honestly here.
 
 2. **Default Rest Timer OFF Confim?**  
