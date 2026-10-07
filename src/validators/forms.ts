@@ -78,6 +78,7 @@ export interface EditedSetRawInput {
   weight: string;
   reps?: string;
   duration?: string;
+  distance?: string;
   rir?: string;
   isDuration: boolean;
 }
@@ -87,6 +88,7 @@ export interface EditedSetFieldErrors {
   weight?: string;
   reps?: string;
   duration?: string;
+  distance?: string;
   rir?: string;
 }
 
@@ -96,6 +98,7 @@ export interface EditedSetParsedOk {
   weightKg: number;
   reps?: number;
   durationSeconds?: number;
+  distanceMeters?: number;
   rir?: number;
 }
 
@@ -129,19 +132,25 @@ export function parseEditedSetInput(input: EditedSetRawInput): ParseEditedSetRes
       errors.duration = 'invalid';
     }
 
+    // Parse distance for cardio
+    const distanceMeters = Number(input.distance ?? '');
+    if (input.distance !== undefined && input.distance !== '' && (!Number.isFinite(distanceMeters) || distanceMeters < 0)) {
+      errors.distance = 'invalid';
+    }
+
     if (Object.keys(errors).length > 0) {
       return { ok: false, errors, firstErrorField: (Object.keys(errors)[0] as keyof EditedSetFieldErrors) };
     }
 
     // Cross-validate with schema
-    const schema = setInputSchema.safeParse({ weightKg, reps: 0, durationSeconds });
+    const schema = setInputSchema.safeParse({ weightKg, reps: 0, durationSeconds, distanceMeters: distanceMeters || undefined });
     if (!schema.success) {
       const issue = schema.error.issues[0];
-      const field: keyof EditedSetFieldErrors = issue?.path[0] === 'durationSeconds' ? 'duration' : 'weight';
+      const field: keyof EditedSetFieldErrors = issue?.path[0] === 'durationSeconds' ? 'duration' : issue?.path[0] === 'distanceMeters' ? 'distance' : 'weight';
       return { ok: false, errors: { [field]: 'invalid' }, firstErrorField: field };
     }
 
-    return { ok: true, weightKg, durationSeconds };
+    return { ok: true, weightKg, durationSeconds, distanceMeters: distanceMeters || undefined };
   } else {
     const reps = Number(input.reps ?? '');
     if (!Number.isInteger(reps) || reps <= 0) {
