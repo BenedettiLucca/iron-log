@@ -84,13 +84,16 @@ export async function unarchiveRoutine(
       return { success: true };
     });
   } catch (error) {
-    if (error instanceof Error && (error.message.includes('UNIQUE constraint failed') || error.message.includes('routines_name_unique'))) {
+    // Duck-typing (never instanceof Error): driver errors can cross jest vm/module
+    // realms, where instanceof against this file's Error constructor is false.
+    const msg = (error as any)?.message;
+    if (typeof msg === 'string' && (msg.includes('UNIQUE constraint failed') || msg.includes('routines_name_unique'))) {
       return { success: false, errorCode: 'ROUTINE_NAME_CONFLICT' };
     }
     logger.error('Failed to unarchive routine', error);
     return { success: false, errorCode: 'DATABASE_ERROR' };
-}
   }
+}
 
 /**
  * Returns only archived routines, ordered by id.

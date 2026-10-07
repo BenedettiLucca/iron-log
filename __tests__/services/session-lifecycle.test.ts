@@ -12,6 +12,18 @@ import {
 
 jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
 
+// Hermeticity: pending -Once queue entries from PREVIOUS suites on the same worker
+// (jest.clearAllMocks does not flush once-queues) leak into here and flip fault-injection
+// tests nondeterministically depending on worker packing. Flush once-queues explicitly.
+beforeEach(() => {
+  (AsyncStorage.removeItem as jest.Mock).mockReset();
+  (AsyncStorage.getItem as jest.Mock).mockReset();
+  (AsyncStorage.setItem as jest.Mock).mockReset();
+  (AsyncStorage.removeItem as jest.Mock).mockResolvedValue(undefined);
+  (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
+  (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
+});
+
 describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
