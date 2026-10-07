@@ -204,6 +204,13 @@
       "when": 1791317672541,
       "tag": "0028_dear_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1791400000000,
+      "tag": "0029_cultured_hulk",
+      "breakpoints": true
     }
   ]
 }

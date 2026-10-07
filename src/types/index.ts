@@ -23,8 +23,9 @@ export type SupplementFrequency = 'daily' | 'training_days' | 'rest_days';
 // ---------------------------------------------------------------------------
 
 export type Session = typeof sessions.$inferSelect;
-export type Set = Omit<typeof sets.$inferSelect, 'operationId'> & {
+export type Set = Omit<typeof sets.$inferSelect, 'operationId' | 'distanceMeters'> & {
   operationId?: string | null;
+  distanceMeters?: number | null;
 };
 export type Exercise = typeof exercises.$inferSelect;
 export type Routine = typeof routines.$inferSelect;
@@ -143,6 +144,7 @@ export interface SaveSetInput {
   weightKg: number;
   reps: number;
   durationSeconds?: number | null;
+  distanceMeters?: number | null;
   rir?: number | null;
   isWarmup?: boolean;
   operationId?: string | null;

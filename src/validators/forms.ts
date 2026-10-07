@@ -66,6 +66,7 @@ export const setInputSchema = z.object({
     .min(0)
     .max(999),
   durationSeconds: z.coerce.number().min(0).optional().nullable(),
+  distanceMeters: z.coerce.number().min(0).optional().nullable(),
   rir: z.coerce.number().int().min(-1).max(10).optional().nullable(),
   isWarmup: z.boolean().optional().default(false),
 });
