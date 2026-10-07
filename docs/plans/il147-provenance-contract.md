@@ -74,13 +74,12 @@ stored borrowed value in the session row to label, so no per-session exporter ma
   - **Notion Exporter (`services/NotionExportService.ts`)**: `exportSessionMarkdown` frontmatter
     outputs `body_weight: -` when the session's `body_weight` is NULL. No `body_weight_provenance`
     synthetic key.
-- **OPEN OWNER QUESTION (do NOT invent a design here):** If a *per-session* `(borrowed)` export
-  label is a hard product requirement (i.e., the export row itself must show the carried value with
-  a marker), that is not satisfiable under Option 1's zero-migration design without either a
-  cross-table `body_metrics` lookup at export time or **Option 2's** explicit `body_weight_provenance`
-  column. This slice keeps the tests consistent with Option 1 (no per-session synthetic labels). The
-  decision of whether per-session export labels are required — and, if so, whether via lookup or
-  Option 2 — is left to the owner.
+- **DECIDED (owner, 2026-10-06): per-session `(borrowed)` export labels are declined.** Option 1
+  (zero-migration, strict invariant) is confirmed as the permanent design for weight provenance:
+  provenance lives exclusively in reports built from `body_metrics` history; per-session export rows
+  carry no borrowed label of any kind. Any future requirement for per-session labels must arrive as a
+  new issue proposing its own design (e.g. an Option 2 schema with `body_weight_provenance`), with
+  its own owner approval and migration gate.
 
 ### Invariant (e): Restore & import compatibility rule
 - **Database Restores (`services/DatabaseBackupService.ts`)**:
