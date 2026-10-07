@@ -125,10 +125,33 @@ export async function getActiveRoutines(
   return rows;
 }
 
+/**
+ * Returns the next available routine name given the set of already-used names.
+ * If the base name is free, returns it as-is. Otherwise returns "Base (2)", "Base (3)", etc.
+ * Collision matching is case-insensitive and whitespace-trimmed.
+ *
+ * Pure function: does not touch the database. The caller must collect all routine names
+ * (active AND archived) and pass them as a `Set<string>`.
+ */
+export function getNextAvailableRoutineName(existingNames: Set<string>, baseName: string): string {
+  const trimmed = baseName.trim();
+
+  if (!existingNames.has(trimmed.toLowerCase())) {
+    return trimmed;
+  }
+
+  let counter = 2;
+  while (existingNames.has(`${trimmed} (${counter})`.toLowerCase())) {
+    counter++;
+  }
+  return `${trimmed} (${counter})`;
+}
+
 export const RoutineArchiveService = {
   archiveRoutine,
   unarchiveRoutine,
   getArchivedRoutines,
   getAllRoutinesIncludingArchived,
   getActiveRoutines,
+  getNextAvailableRoutineName,
 };

@@ -69,7 +69,7 @@ When a routine is archived:
 - **Import**: 
   - Imported routines default to `is_archived = false`
   - Import fails with `DUPLICATE_ROUTINE_NAME` if a non-archived routine with same name exists
-  - Import succeeds (with name suffixing) if only archived routine with same name exists
+  - Import succeeds (with name suffixing) if only archived routine with same name exists — owner decision (2026-10-06): generate first free suffixed name (`Name (2)`, `Name (3)`, ...) by checking BOTH active and archived rows for global uniqueness; surface the final name in `RoutineImportResult.routineName` so the UI can inform the user.
 - **Share/Export**:
   - Exported routine JSON does NOT include `is_archived` flag (it's a UI state, not part of routine definition)
   - Import treats archived status as local UI concern only

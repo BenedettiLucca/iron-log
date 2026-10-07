@@ -7,7 +7,22 @@ import {
   getArchivedRoutines,
   getAllRoutinesIncludingArchived,
   getActiveRoutines,
+  getNextAvailableRoutineName,
 } from '@/services/routine-archive';
+
+/**
+ * Collects all routine names (active and archived) into a case-insensitive Set
+ * for use with getNextAvailableRoutineName.
+ */
+function collectAllRoutineNames(
+  database: { select: (source?: any) => { from: (table: any) => { all: () => Array<Record<string, any>> } } }
+): Set<string> {
+  const allRoutines = database
+    .select({ name: routines.name })
+    .from(routines)
+    .all() as Array<{ name: string }>;
+  return new Set<string>(allRoutines.map((r) => r.name.trim().toLowerCase()));
+}
 
 jest.mock('@/src/db/client', () => jest.requireActual('../fixtures/database'));
 
@@ -379,6 +394,64 @@ describe('RoutineArchiveService (RED - functions not yet implemented)', () => {
       expect(result.success).toBe(true);
       const restored = db.select().from(routines).where(eq(routines.id, archivedA.id)).get();
       expect(restored?.isArchived).toBe(false);
+    });
+  });
+
+  describe('getNextAvailableRoutineName (IL-64 suffixing on import)', () => {
+    it('returns base name when free across active and archived rows', async () => {
+      db.insert(routines).values({ name: 'Active A', folder: 'Geral' }).returning().get();
+      const archived = db.insert(routines).values({ name: 'Archived X', folder: 'Geral' }).returning().get();
+      await archiveRoutine(archived.id);
+
+      const existing = collectAllRoutineNames(db);
+      const name = getNextAvailableRoutineName(existing, 'Fresh Name');
+      expect(name).toBe('Fresh Name');
+    });
+
+    it('suffices when only an archived routine collides', async () => {
+      const archived = db.insert(routines).values({ name: 'Legacy', folder: 'Geral' }).returning().get();
+      await archiveRoutine(archived.id);
+
+      const existing = collectAllRoutineNames(db);
+      const name = getNextAvailableRoutineName(existing, 'Legacy');
+      expect(name).toBe('Legacy (2)');
+    });
+
+    it('skips an existing suffixed archived row and returns the next counter', async () => {
+      const archived = db.insert(routines).values({ name: 'Legacy', folder: 'Geral' }).returning().get();
+      const archivedSuffix = db.insert(routines).values({ name: 'Legacy (2)', folder: 'Geral' }).returning().get();
+      await archiveRoutine(archived.id);
+      await archiveRoutine(archivedSuffix.id);
+
+      const existing = collectAllRoutineNames(db);
+      const name = getNextAvailableRoutineName(existing, 'Legacy');
+      expect(name).toBe('Legacy (3)');
+    });
+
+    it('checks BOTH active and archived rows for global uniqueness', async () => {
+      const active = db.insert(routines).values({ name: 'Legacy', folder: 'Geral' }).returning().get();
+      const archived = db.insert(routines).values({ name: 'Legacy (2)', folder: 'Geral' }).returning().get();
+      await archiveRoutine(archived.id);
+
+      const existing = collectAllRoutineNames(db);
+      const name = getNextAvailableRoutineName(existing, 'Legacy');
+      expect(name).toBe('Legacy (3)');
+    });
+
+    it('is case-insensitive when resolving collisions', async () => {
+      const archived = db.insert(routines).values({ name: 'legacy', folder: 'Geral' }).returning().get();
+      await archiveRoutine(archived.id);
+
+      const existing = collectAllRoutineNames(db);
+      const name = getNextAvailableRoutineName(existing, 'Legacy');
+      expect(name).toBe('Legacy (2)');
+    });
+
+    it('preserves the original trimmable whitespace in returned name', async () => {
+      db.insert(routines).values({ name: 'Trimmed', folder: 'Geral' }).returning().get();
+      const existing = collectAllRoutineNames(db);
+      const result = getNextAvailableRoutineName(existing, '  Trimmed  ');
+      expect(result).toBe('Trimmed (2)');
     });
   });
 });
