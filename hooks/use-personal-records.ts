@@ -1,5 +1,5 @@
-import { db } from '../src/db/client';
-import { personalRecords, sets, sessions } from '../src/db/schema';
+import { db } from '@/src/db/client';
+import { personalRecords, sets, sessions } from '@/src/db/schema';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { logger } from '../services/logger';
 import { isFasterCardioTime } from '../services/cardio-policy';

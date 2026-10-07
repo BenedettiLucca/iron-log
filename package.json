@@ -14,7 +14,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns '__tests__/services/session-lifecycle.test.ts' && jest __tests__/services/session-lifecycle.test.ts --runInBand",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "audit:high": "node scripts/audit-high.js",

@@ -58,7 +58,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         weight: '78.5',
         sRpe: 8,
         notes: 'Treino excelente',
-      });
+      }, db);
 
       expect(result.success).toBe(true);
       expect(result.alreadyFinished).toBe(false);
@@ -96,7 +96,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         endTime: 2000000 + 3600000,
         weight: '72,5',
         sRpe: 7,
-      });
+      }, db);
 
       const session = db.select().from(sessions).where(eq(sessions.id, 101)).get();
       expect(session?.bodyWeight).toBe(72.5);
@@ -119,7 +119,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         endTime: 3000000 + 3600000,
         weight: '',
         sRpe: 7,
-      });
+      }, db);
 
       const session = db.select().from(sessions).where(eq(sessions.id, 102)).get();
       expect(session?.bodyWeight).toBeNull();
@@ -151,7 +151,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
           endTime: 4000000 + 3600000,
           weight: '80.0',
           sRpe: 7,
-        })
+        }, db)
       ).rejects.toThrow(/Simulated SQLite body_metrics failure/);
 
       // Clean up trigger
@@ -186,7 +186,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
           endTime: 5000000 + 3600000,
           weight: '75.0',
           sRpe: 6,
-        })
+        }, db)
       ).rejects.toThrow('AsyncStorage disk write error');
 
       // Database write WAS committed
@@ -214,7 +214,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
           endTime: finishTime,
           weight: '77.0',
           sRpe: 7,
-        })
+        }, db)
       ).rejects.toThrow('AsyncStorage failure');
 
       expect(db.select().from(bodyMetrics).all()).toHaveLength(1);
@@ -226,7 +226,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         endTime: finishTime,
         weight: '77.0',
         sRpe: 7,
-      });
+      }, db);
 
       expect(retryResult.success).toBe(true);
       expect(retryResult.alreadyFinished).toBe(true);
@@ -272,7 +272,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
 
       expect(db.select().from(personalRecords).all()).toHaveLength(1);
 
-      await discardSession({ sessionId: 200 });
+      await discardSession({ sessionId: 200 }, db);
 
       // Verify session soft-deleted
       const session = db.select().from(sessions).where(eq(sessions.id, 200)).get();
@@ -315,7 +315,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         END;
       `);
 
-      await expect(discardSession({ sessionId: 201 })).rejects.toThrow(
+      await expect(discardSession({ sessionId: 201 }, db)).rejects.toThrow(
         /Simulated discard failure on sessions/
       );
 
@@ -403,7 +403,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
       expect(db.select().from(personalRecords).where(eq(personalRecords.recordType, 'weight')).get()?.value).toBe(100);
 
       // --- ACTION: deleteSession ---
-      await deleteSession({ sessionId: 300 });
+      await deleteSession({ sessionId: 300 }, db);
 
       // Session 300 is soft-deleted
       const sessionAfterDelete = db.select().from(sessions).where(eq(sessions.id, 300)).get();
@@ -421,7 +421,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
       expect(weightPRAfterDelete?.sessionId).toBe(301);
 
       // --- ACTION: restoreSession (Undo) ---
-      await restoreSession({ sessionId: 300 });
+      await restoreSession({ sessionId: 300 }, db);
 
       // Session 300 restored
       const sessionAfterRestore = db.select().from(sessions).where(eq(sessions.id, 300)).get();
@@ -479,7 +479,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         END;
       `);
 
-      await expect(deleteSession({ sessionId: 302 })).rejects.toThrow(/Simulated PR delete failure/);
+      await expect(deleteSession({ sessionId: 302 }, db)).rejects.toThrow(/Simulated PR delete failure/);
 
       sqlite.exec('DROP TRIGGER test_fail_delete_pr;');
 
@@ -684,7 +684,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
       ).toBe(100);
 
       // --- STEP 1: Delete Session ---
-      await deleteSession({ sessionId: 600 });
+      await deleteSession({ sessionId: 600 }, db);
 
       // Oracle AFTER delete: 0 live sets, PR removed
       const oracleAfterDelete = getLiveSetsOracle(1);
@@ -714,7 +714,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
       expect(getLiveSetsOracle(1)).toHaveLength(0);
 
       // --- STEP 2: Restore Session (Undo) ---
-      await restoreSession({ sessionId: 600 });
+      await restoreSession({ sessionId: 600 }, db);
 
       // Oracle AFTER restore: sets A and C are live; set B remains deleted!
       const oracleAfterRestore = getLiveSetsOracle(1);
@@ -750,7 +750,7 @@ describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => 
         END;
       `);
 
-      await expect(restoreSession({ sessionId: 700 })).rejects.toThrow(
+      await expect(restoreSession({ sessionId: 700 }, db)).rejects.toThrow(
         /Simulated restore persistence failure/
       );
 
