@@ -212,9 +212,10 @@ export default function ExerciseScreen() {
     editedWeight: number,
     editedReps?: number,
     editedDuration?: number,
+    editedDistanceMeters?: number,
     editedRir?: number,
   ): Promise<boolean> => runSessionMutation(
-    () => handleSaveEditedSet(editedWeight, editedReps, editedDuration, editedRir),
+    () => handleSaveEditedSet(editedWeight, editedReps, editedDuration, editedDistanceMeters, editedRir),
     false,
   ), [handleSaveEditedSet, runSessionMutation]);
 

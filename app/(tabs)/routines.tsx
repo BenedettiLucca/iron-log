@@ -49,7 +49,6 @@ export default function RoutinesListScreen() {
   const [selectedFolder, setSelectedFolder] = useState<string>('Todos');
   const [folderManagerVisible, setFolderManagerVisible] = useState(false);
   const [isArchiveView, setIsArchiveView] = useState(false);
-  const [viewMode, setViewMode] = useState<'active' | 'archived'>('active');
   const [archivedRoutines, setArchivedRoutines] = useState<Routine[]>([]);
 
   const folderChips = useMemo(() => getFolderChipNames(
@@ -242,7 +241,7 @@ export default function RoutinesListScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              onPress={() => setIsArchiveView(true)}
+              onPress={() => { setIsArchiveView(true); fetchArchivedRoutines(); }}
               activeOpacity={0.7}
               className="bg-card border border-border rounded-full py-1.5 px-3.5 min-h-[44px] items-center justify-center shrink-0 mr-2"
             >
@@ -284,18 +283,6 @@ export default function RoutinesListScreen() {
             );
           })}
           <TouchableOpacity
-            onPress={() => setViewMode(viewMode === 'active' ? 'archived' : 'active')}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            className={`rounded-full py-1.5 px-3.5 border min-h-[44px] items-center justify-center shrink-0 ${
-              viewMode === 'archived' ? 'bg-primary border-transparent' : 'bg-card border-border'
-            }`}
-          >
-            <Text className={`text-sm font-semibold uppercase ${viewMode === 'archived' ? 'text-onPrimary' : 'text-subtext'}`}>
-              {t('routines.tabArchived')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             onPress={() => {
               setFolderManagerVisible(true);
               fetchFolders();
@@ -310,7 +297,7 @@ export default function RoutinesListScreen() {
       </View>
 
       <FlatList
-        data={viewMode === 'archived' ? archivedRoutines : (isLoading ? [] : filteredRoutines)}
+        data={isArchiveView ? archivedRoutines : (isLoading ? [] : filteredRoutines)}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16, paddingTop: 0, gap: 12 }}
         refreshControl={
@@ -348,9 +335,9 @@ export default function RoutinesListScreen() {
             <TouchableOpacity 
               className="p-4 -m-4"
               accessibilityRole="button"
-              accessibilityLabel={viewMode === 'archived' ? t('routines.unarchiveRoutineLabel', { name: item.name }) : t('routines.previewRoutineLabel', { name: item.name })}
-              accessibilityHint={viewMode === 'archived' ? t('routines.previewRoutineHint') : t('routines.previewRoutineHint')}
-              onPress={viewMode === 'archived'
+              accessibilityLabel={isArchiveView ? t('routines.unarchiveRoutineLabel', { name: item.name }) : t('routines.previewRoutineLabel', { name: item.name })}
+              accessibilityHint={t('routines.previewRoutineHint')}
+              onPress={isArchiveView
                 ? () => handleUnarchive(item.id, item.name)
                 : () => setPreviewRoutine({ id: item.id, name: item.name })}
             >

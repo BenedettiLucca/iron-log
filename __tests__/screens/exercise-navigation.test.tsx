@@ -182,7 +182,7 @@ jest.mock('@/components/SetEditor', () => ({
   SetEditor: (props: Record<string, unknown>) => props.visible
     ? React.createElement('MockButton', {
       title: 'test.saveEditedSet',
-      onPress: () => (props.onSave as (...args: number[]) => unknown)(100, 8, 0, 2),
+      onPress: () => (props.onSave as (...args: (number | undefined)[]) => unknown)(100, 8, 0, undefined, 2),
     })
     : null,
 }));
@@ -456,7 +456,7 @@ describe('ExerciseScreen persistence-gated navigation', () => {
     expect(mockHandleRestoreDeletedSet).toHaveBeenCalledTimes(1);
     expect(mockHandleEditSet).toHaveBeenCalledWith(1);
     expect(mockHandleDeleteSet).toHaveBeenCalledWith(1);
-    expect(mockHandleSaveEditedSet).toHaveBeenCalledWith(100, 8, 0, 2);
+    expect(mockHandleSaveEditedSet).toHaveBeenCalledWith(100, 8, 0, undefined, 2);
   });
 
   it('blocks Back and Next while an existing-set mutation owns the operation', async () => {
