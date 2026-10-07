@@ -15,7 +15,7 @@ type ToastSetter = (toast: {
 
 type SessionSetState = {
   exerciseId: number;
-  routineExerciseId: number;
+  routineExerciseId: number | null;
   routineId: number | null;
   sessionId: number;
   setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
@@ -65,18 +65,20 @@ export function useSessionUndo(): UseSessionUndoReturn {
       .from(sets)
       .where(and(
         eq(sets.sessionId, opts.sessionId),
-        eq(sets.routineExerciseId, opts.routineExerciseId),
+        opts.routineExerciseId != null
+          ? eq(sets.routineExerciseId, opts.routineExerciseId)
+          : eq(sets.exerciseId, opts.exerciseId),
         isNull(sets.deletedAt),
       ))
       .orderBy(sets.setNumber);
 
     if (data.length === 0) {
       const cache = isSingleOccurrenceCacheRef.current;
-      const cacheKey = `${opts.sessionId}:${opts.routineExerciseId}`;
+      const cacheKey = `${opts.sessionId}:${opts.routineExerciseId ?? opts.exerciseId}`;
       let isSingle = cache.get(cacheKey);
 
       if (isSingle === undefined) {
-        if (!opts.routineId) {
+        if (!opts.routineId || opts.routineExerciseId == null) {
           isSingle = true;
         } else {
           const routineOccurrences = await db.select({ id: routineExercises.id })

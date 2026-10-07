@@ -84,6 +84,17 @@ export default function HomeScreen() {
     });
   }, [todayWorkout, router]);
 
+  const handleStartFreestyleWorkout = useCallback(() => {
+    router.push({
+      pathname: '/session/[routineId]',
+      params: {
+        routineId: 'freestyle',
+        routineName: t('session.freestyle'),
+        _ts: Date.now().toString(),
+      },
+    });
+  }, [router, t]);
+
   useEffect(() => {
     if (activeProgram) {
       fetchDashboardData().catch(e => {
@@ -165,24 +176,25 @@ export default function HomeScreen() {
   const handleResumeSession = () => {
     if (!incompleteSession) return;
 
-    if (incompleteSession.routineId) {
-      router.push({
-        pathname: '/session/[routineId]',
-        params: {
-          routineId: incompleteSession.routineId.toString(),
-          routineName: incompleteSession.routineName || '',
-          sessionId: (incompleteSession.sessionId ?? incompleteSession.id).toString(),
-          startTime: (incompleteSession.startTime ?? Date.now()).toString(),
-        },
-      });
-    }
+    const routineIdStr = incompleteSession.routineId ? incompleteSession.routineId.toString() : 'freestyle';
+    const routineNameStr = incompleteSession.routineName || t('session.freestyle');
+
+    router.push({
+      pathname: '/session/[routineId]',
+      params: {
+        routineId: routineIdStr,
+        routineName: routineNameStr,
+        sessionId: (incompleteSession.sessionId ?? incompleteSession.id).toString(),
+        startTime: (incompleteSession.startTime ?? Date.now()).toString(),
+      },
+    });
 
     if (incompleteSession.exerciseId) {
       router.push({
         pathname: '/session/exercise',
         params: {
           sessionId: incompleteSession.sessionId ?? incompleteSession.id,
-          routineId: incompleteSession.routineId?.toString(),
+          routineId: incompleteSession.routineId?.toString() ?? 'freestyle',
           exerciseId: incompleteSession.exerciseId,
           exerciseName: incompleteSession.exerciseName,
           target: incompleteSession.target,
@@ -218,7 +230,7 @@ export default function HomeScreen() {
               pressable
               onPress={handleResumeSession}
               className="bg-primary/10 border border-primary/20"
-              accessibilityLabel={`${t("home.continue")}: ${incompleteSession.routineName}. ${incompleteSession.exerciseName}`}
+              accessibilityLabel={`${t("home.continue")}: ${incompleteSession.routineName || t('session.freestyle')}. ${incompleteSession.exerciseName || ''}`}
             >
               <View className="flex-row justify-between items-center">
                 <View className="flex-1 flex-row items-center gap-3">
@@ -232,7 +244,7 @@ export default function HomeScreen() {
                     </Svg>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-text text-lg font-bold" numberOfLines={2}>{incompleteSession.routineName}</Text>
+                    <Text className="text-text text-lg font-bold" numberOfLines={2}>{incompleteSession.routineName || t('session.freestyle')}</Text>
                     <Text className="text-subtext text-xs mt-0.5">
                       {incompleteSession.exerciseName} • {t("home.tapToContinue")}
                     </Text>
@@ -281,6 +293,37 @@ export default function HomeScreen() {
             </Card>
           </View>
         )}
+
+        {/* Freestyle Workout Card */}
+        <View className="mt-4">
+          <SectionHeader label={t('home.freestyleWorkout')} className="mb-2" />
+          <Card
+            pressable
+            onPress={handleStartFreestyleWorkout}
+            className="bg-card border border-border"
+            accessibilityLabel={`${t('home.freestyleWorkout')}: ${t('home.freestyleSubtitle')}`}
+          >
+            <View className="flex-row justify-between items-center">
+              <View className="flex-1 flex-row items-center gap-3">
+                <View className="w-11 h-11 rounded-xl bg-secondary/15 justify-center items-center">
+                  <Svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={theme.secondaryText} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" accessible={false}>
+                    <Path d="M12 5v14" />
+                    <Path d="M5 12h14" />
+                  </Svg>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-text text-lg font-bold" numberOfLines={1}>{t('home.freestyleWorkout')}</Text>
+                  <Text className="text-subtext text-xs mt-0.5">
+                    {t('home.freestyleSubtitle')}
+                  </Text>
+                </View>
+              </View>
+              <View className="bg-secondarySurface px-3 py-2 rounded-lg border border-secondary/20">
+                <Text className="text-secondaryText font-bold text-sm">{t('home.start')}</Text>
+              </View>
+            </View>
+          </Card>
+        </View>
 
         {/* Active Program / Dashboard */}
         {activeProgram && (() => {

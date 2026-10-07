@@ -124,6 +124,8 @@ export default function ExerciseScreen() {
     showSetEditor,
     setShowSetEditor,
     completedExercisesCount,
+    isSuperset,
+    isLastInGroup,
     handleSaveSet,
     handleDeleteSet,
     handleEditSet,
@@ -680,6 +682,8 @@ export default function ExerciseScreen() {
           routineRest={routineRest}
           target={target}
           notes={notes}
+          isSuperset={isSuperset}
+          isLastInGroup={isLastInGroup}
         />
 
         {/* Undo Button (visible for 10s after save) */}

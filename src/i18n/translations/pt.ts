@@ -35,6 +35,7 @@ export const pt = {
     save: 'Salvar',
     cancel: 'Cancelar',
     delete: 'Excluir',
+    remove: 'Remover',
     edit: 'Editar',
     confirm: 'Confirmar',
     back: 'Voltar',
@@ -107,6 +108,9 @@ export const pt = {
     todayWorkout: "Treino de Hoje",
     weekLabel: 'Semana {week}',
     start: 'Iniciar',
+    freestyleWorkout: 'Treino livre',
+    startFreestyle: 'Iniciar treino livre',
+    freestyleSubtitle: 'Treinar sem rotina pré-definida',
 
   },
 
@@ -390,11 +394,28 @@ export const pt = {
     bodyWeightSave: 'Salvar',
     bodyWeightInvalid: 'Digite um peso válido',
     bodyWeightSaved: 'Peso salvo!',
+    freestyle: 'Treino livre',
+    addExercise: 'Adicionar exercício',
+    removeExercise: 'Remover exercício',
+    removeExerciseConfirm: 'Remover este exercício do treino ativo?',
+    exerciseRemoved: 'Exercício removido',
+    exerciseRestored: 'Exercício restaurado',
+    exerciseAdded: 'Exercício adicionado',
+    superset: 'Superset',
+    pairSuperset: 'Parear em superset',
+    pairWith: 'Parear com',
+    removeFromSuperset: 'Remover do superset',
+    searchExercise: 'Buscar exercício...',
+    noExercisesInSession: 'Nenhum exercício na sessão',
+    addExercisesToStart: 'Adicione exercícios para começar seu treino',
+    allExercisesDone: 'Todos os exercícios concluídos',
 
   },
 
   // Exercise screen
   exercise: {
+    supersetNotice: 'Descanso único após a rodada',
+    removeExerciseTitle: 'Remover Exercício',
     timer: 'Tempo',
     history: 'Histórico',
     set: 'Série',
