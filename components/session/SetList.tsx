@@ -1,13 +1,10 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { SectionHeader } from '@/components/SectionHeader';
 import SetCard from '../SetCard';
 import type { Set } from '../../src/types';
 import { useReactiveReducedMotion } from '@/hooks/use-reactive-reduced-motion';
-import {
-  buildSetAnimationSignatures,
-  getAnimatedSetIds,
-} from '../../src/utils/set-card-animation';
+import { buildSetAnimationSignatures } from '../../src/utils/set-card-animation';
 
 type TranslationFn = (key: string, options?: Record<string, string | number>) => string;
 
@@ -27,7 +24,6 @@ export function SetList({
   handleDeleteSet,
 }: SetListProps) {
   const reducedMotion = useReactiveReducedMotion();
-
   const currentSignatures = useMemo(
     () => buildSetAnimationSignatures(sessionSets),
     [sessionSets]
@@ -36,21 +32,24 @@ export function SetList({
   const previousSignaturesRef = useRef<ReadonlyMap<number, string>>(new Map());
   const wasLoadedRef = useRef<boolean>(false);
 
-  const animatedSetIds = useMemo(() => {
-    if (!wasLoadedRef.current || !hasLoadedSessionSets) {
-      return new Set<number>();
-    }
-    return getAnimatedSetIds(previousSignaturesRef.current, currentSignatures);
-  }, [currentSignatures, hasLoadedSessionSets]);
-
   useEffect(() => {
     previousSignaturesRef.current = currentSignatures;
     wasLoadedRef.current = hasLoadedSessionSets;
   }, [currentSignatures, hasLoadedSessionSets]);
 
+  const shouldAnimateSet = useCallback(
+    (setId: number, signature: string | undefined) => {
+      if (!wasLoadedRef.current || !hasLoadedSessionSets || reducedMotion) {
+        return false;
+      }
+      return previousSignaturesRef.current.get(setId) !== signature;
+    },
+    [hasLoadedSessionSets, reducedMotion]
+  );
+
   const extraData = useMemo(
-    () => ({ currentSignatures, reducedMotion, animatedSetIds }),
-    [currentSignatures, reducedMotion, animatedSetIds]
+    () => ({ currentSignatures, reducedMotion }),
+    [currentSignatures, reducedMotion]
   );
 
   return (
@@ -65,7 +64,7 @@ export function SetList({
         extraData={extraData}
         renderItem={({ item }) => {
           const signature = currentSignatures.get(item.id);
-          const signatureAlreadyCommitted = previousSignaturesRef.current.get(item.id) === signature;
+          const animateEntry = shouldAnimateSet(item.id, signature);
           return (
             <SetCard
               setNumber={item.setNumber}
@@ -75,7 +74,7 @@ export function SetList({
               rir={item.rir}
               isWarmup={item.isWarmup || false}
               isEdited={item.isEdited || false}
-              animateEntry={animatedSetIds.has(item.id) && !signatureAlreadyCommitted && !reducedMotion}
+              animateEntry={animateEntry}
               onEdit={() => handleEditSet(item.id)}
               onDelete={() => handleDeleteSet(item.id)}
             />
