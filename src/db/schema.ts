@@ -7,6 +7,7 @@ export const routines = sqliteTable('routines', {
   description: text('description'),
   folder: text('folder').default('Geral'),
   isTemplate: integer('is_template', { mode: 'boolean' }).notNull().default(false),
+  isMainLane: integer('is_main_lane', { mode: 'boolean' }).notNull().default(false),
 });
 
 // TABELA: Pastas persistentes das rotinas (inclui pastas vazias)

@@ -58,7 +58,8 @@ CREATE TABLE routines (
 \tname text NOT NULL,
 \tdescription text,
 \tfolder text DEFAULT 'Geral',
-\tis_template integer DEFAULT 0 NOT NULL
+\tis_template integer DEFAULT 0 NOT NULL,
+\tis_main_lane integer DEFAULT 0 NOT NULL
 );
 CREATE UNIQUE INDEX routines_name_unique ON routines (name);
 CREATE TABLE programs (

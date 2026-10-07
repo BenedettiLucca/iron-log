@@ -1,0 +1,1 @@
+ALTER TABLE `routines` ADD `is_main_lane` integer DEFAULT false NOT NULL;

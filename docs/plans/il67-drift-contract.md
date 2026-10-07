@@ -73,8 +73,7 @@ The classifier function `classifyLane(input)` resolves:
 4. **Ad-hoc / Unlinked:** Standalone sessions not linked to a routine or program default to `'accessory'` unless explicitly tagged.
 
 ### 2.4 Owner Decision Flags (Flagged for Review)
-- **[FLAG-1: Storage location]** Should lane classification be stored as an explicit column on `routines` (`routines.lane: 'main' | 'accessory'`), a general tags array (`routines.tags: text JSON`), or a column on `sessions` (`sessions.lane`)?
-  *Recommendation:* Add `lane` column to `routines` (defaulting to `'main'`), and allow `sessions.lane` to override if needed in a future migration.
+- **[FLAG-1: Storage location]** **DECIDED (2026-10-06):** Lane classification is stored as a flag on the routine (`isMainLane`, boolean, default `false`). Sessions inherit lane classification from their routine. No per-session choice, no folder/tag heuristics. If a session has no routine (freestyle), it is NOT main-lane (classified as `accessory`).
 - **[FLAG-2: Accessory decay attenuation]** Does logging high-volume accessory work provide *any* attenuation to the drift counter, or is it strictly 0% attenuation?
   *Default:* Strictly zero attenuation. A 10-day squat hiatus is a 10-day squat hiatus regardless of bicep curls.
 
