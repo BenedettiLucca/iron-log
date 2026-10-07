@@ -54,6 +54,8 @@ import m0026 from './0026_tiresome_greymalkin.sql';
       m0019,
       m0020,
       m0021,
+      m0022,
+      m0023,
       m0024,
       m0025,
       m0026

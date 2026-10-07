@@ -78,13 +78,44 @@ describe('IL-95: Scheduled Session Dates + Reschedule Semantics', () => {
     });
   });
 
-  // (d) device-local day boundary case
+  // (d) device-local day boundary case — seeded, not vacuous:
+  // a session scheduled "today" (local midnight) must NOT be overdue even though
+  // its scheduledFor is below UTC-midnight on positive-offset days.
   it('overdue query uses device-local midnight comparison, not UTC (day-boundary case)', () => {
-    const result: OverdueQueryResult[] = queryOverdueSessions();
-    expect(result).toBeDefined();
-    const todayMidnight = new Date().setHours(0, 0, 0, 0);
-    const todaySessions = result.filter((s) => s.scheduledFor === todayMidnight);
-    expect(todaySessions.length).toBe(0);
+    const now = new Date();
+    const todayLocalMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const yesterdayLocalMidnight = todayLocalMidnight - 86400000;
+    const seeded = scheduleSession({
+      routineId: 1,
+      scheduledFor: todayLocalMidnight,
+      occurrenceId: 'program:12:week:3:day:2',
+    });
+    expect(queryOverdueSessions().map((s) => s.sessionId)).not.toContain(seeded.sessionId);
+
+    const seededYesterday = scheduleSession({
+      routineId: 1,
+      scheduledFor: yesterdayLocalMidnight,
+      occurrenceId: 'program:12:week:3:day:1',
+    });
+    expect(queryOverdueSessions().map((s) => s.sessionId)).toContain(seededYesterday.sessionId);
+  });
+
+  it('soft-deleted sessions are omitted from overdue query', () => {
+    const now = new Date();
+    const todayMidnightMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const oldMidnight = todayMidnightMs - 86400000;
+    const seeded = scheduleSession({
+      routineId: 1,
+      scheduledFor: oldMidnight,
+      occurrenceId: 'program:12:week:3:day:1',
+    });
+    expect(queryOverdueSessions().map((s) => s.sessionId)).toContain(seeded.sessionId);
+
+    db.update(sessions)
+      .set({ deletedAt: Date.now() })
+      .where(eq(sessions.id, seeded.sessionId))
+      .run();
+    expect(queryOverdueSessions().map((s) => s.sessionId)).not.toContain(seeded.sessionId);
   });
 
   it('completed session (startTime set) is not returned by overdue query', () => {
@@ -117,7 +148,7 @@ describe('IL-95: Scheduled Session Dates + Reschedule Semantics', () => {
 
     expect(queryOverdueSessions().map((s) => s.sessionId)).toContain(seeded.sessionId);
 
-    const futureMidnight = Math.floor(Date.now() / 86400000) * 86400000 + 86400000;
+    const futureMidnight = new Date().setHours(0, 0, 0, 0) + 86400000;
     rescheduleSession({ sessionId: seeded.sessionId, newScheduledFor: futureMidnight });
 
     expect(queryOverdueSessions().map((s) => s.sessionId)).not.toContain(seeded.sessionId);
