@@ -42,6 +42,19 @@ export function useSessionUndo(): UseSessionUndoReturn {
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const restoreTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Caches the routine_exercises occurrence-count lookup that decides the null-
+  // `routineExerciseId` fallback in refreshSessionSets: when a scope has no live sets, a
+  // single routine occurrence means the legacy per-exercise sets (routineExerciseId IS NULL)
+  // belong to this scope, and no routine occurrence means they do not. Re-reading
+  // `routine_exercises` on every undo of the same occurrence is the regression this cache
+  // avoids (mirrors the isSingleOccurrenceRef cache in hooks/use-exercise-sets.ts
+  // loadStructure/refreshSessionSets).
+  // Scoped by (sessionId, routineExerciseId) — the only values that change on the
+  // session/history screens — so a new session cannot serve a stale occurrence count from a
+  // previous one. The hook instance lives for one exercise occurrence (single consumer,
+  // hooks/use-exercise-sets.ts), which bounds entry count for the session lifetime.
+  const isSingleOccurrenceCacheRef = useRef<Map<string, boolean>>(new Map());
+
   useEffect(() => () => {
     if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
     if (restoreTimeoutRef.current) clearTimeout(restoreTimeoutRef.current);
@@ -58,16 +71,26 @@ export function useSessionUndo(): UseSessionUndoReturn {
       .orderBy(sets.setNumber);
 
     if (data.length === 0) {
-      const routineOccurrences = opts.routineId
-        ? await db.select({ id: routineExercises.id })
-          .from(routineExercises)
-          .where(and(
-            eq(routineExercises.routineId, opts.routineId),
-            eq(routineExercises.exerciseId, opts.exerciseId),
-          ))
-        : [{ id: opts.routineExerciseId }];
+      const cache = isSingleOccurrenceCacheRef.current;
+      const cacheKey = `${opts.sessionId}:${opts.routineExerciseId}`;
+      let isSingle = cache.get(cacheKey);
 
-      if (routineOccurrences.length === 1) {
+      if (isSingle === undefined) {
+        if (!opts.routineId) {
+          isSingle = true;
+        } else {
+          const routineOccurrences = await db.select({ id: routineExercises.id })
+            .from(routineExercises)
+            .where(and(
+              eq(routineExercises.routineId, opts.routineId),
+              eq(routineExercises.exerciseId, opts.exerciseId),
+            ));
+          isSingle = routineOccurrences.length === 1;
+        }
+        cache.set(cacheKey, isSingle);
+      }
+
+      if (isSingle) {
         data = await db.select()
           .from(sets)
           .where(and(
