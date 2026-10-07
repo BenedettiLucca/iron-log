@@ -9,22 +9,40 @@ import {
 } from '@/src/db/schema';
 
 export interface QueueItem {
-  routineExerciseId: number;
+  id?: number;
+  sessionExerciseId?: number;
+  routineExerciseId: number | null;
   exerciseId: number;
   position: number;
   supersetGroupId?: string | null;
 }
 
 export interface RemoveResult {
-  routineExerciseId: number;
+  sessionExerciseId?: number;
+  routineExerciseId: number | null;
   exerciseId: number;
   position: number;
   keptSetCount: number;
 }
 
+export interface RemoveExerciseParams {
+  sessionId: number;
+  routineExerciseId?: number | null;
+  sessionExerciseId?: number | null;
+  exerciseId?: number | null;
+}
+
+export interface RestoreExerciseParams {
+  sessionId: number;
+  routineExerciseId?: number | null;
+  sessionExerciseId?: number | null;
+  exerciseId?: number | null;
+}
+
 export type RecoveryAction = 'resume' | 'advance' | 'finish';
 
 export interface RecoveryContextShape {
+  sessionExerciseId?: number | null;
   routineExerciseId: number | null;
   exerciseId: number | null;
   weight: string;
@@ -189,6 +207,7 @@ export async function getPendingQueue(
 
   const existingSessionExercises = dbInstance
     .select({
+      id: sessionExercises.id,
       routineExerciseId: sessionExercises.routineExerciseId,
       exerciseId: sessionExercises.exerciseId,
       position: sessionExercises.position,
@@ -202,7 +221,7 @@ export async function getPendingQueue(
 
   if (existingSessionExercises.length > 0) {
     const pendingRows = existingSessionExercises.filter(
-      (row) => row.status === 'pending' && row.routineExerciseId !== null
+      (row) => row.status === 'pending'
     );
 
     // Count pending occurrences per superset group
@@ -214,7 +233,9 @@ export async function getPendingQueue(
     }
 
     return pendingRows.map((row) => ({
-      routineExerciseId: row.routineExerciseId as number,
+      id: row.id,
+      sessionExerciseId: row.id,
+      routineExerciseId: row.routineExerciseId,
       exerciseId: row.exerciseId,
       position: row.position,
       // A group of one dissolves automatically:
@@ -279,7 +300,7 @@ export async function getPendingQueue(
  * - Idempotent: removing already-removed occurrence does not throw.
  */
 export async function removeSessionExercise(
-  params: { sessionId: number; routineExerciseId: number },
+  params: RemoveExerciseParams,
   customDb?: unknown
 ): Promise<RemoveResult> {
   const dbInstance = resolveDb(customDb);
@@ -325,7 +346,7 @@ export async function removeSessionExercise(
     if (existingSessionExercises.length === 0) {
       // Lazy materialization
       if (session.routineId === null) {
-        throw new Error(`Occurrence ${params.routineExerciseId} does not belong to session routine`);
+        throw new Error(`Occurrence ${params.routineExerciseId ?? params.sessionExerciseId ?? params.exerciseId} does not belong to session routine`);
       }
 
       const templateRows = tx
@@ -368,14 +389,17 @@ export async function removeSessionExercise(
         .where(
           and(
             eq(sets.sessionId, params.sessionId),
-            eq(sets.routineExerciseId, params.routineExerciseId),
+            params.routineExerciseId != null
+              ? eq(sets.routineExerciseId, params.routineExerciseId)
+              : isNull(sets.routineExerciseId),
             isNull(sets.deletedAt)
           )
         )
         .get();
 
       result = {
-        routineExerciseId: params.routineExerciseId,
+        sessionExerciseId: undefined,
+        routineExerciseId: params.routineExerciseId ?? null,
         exerciseId: target.exerciseId,
         position: target.orderIndex ?? 0,
         keptSetCount: Number(liveSets?.count ?? 0),
@@ -383,13 +407,22 @@ export async function removeSessionExercise(
       return;
     }
 
-    // Already materialized
-    const target = existingSessionExercises.find(
-      (se) => se.routineExerciseId === params.routineExerciseId
-    );
+    // Already materialized or freestyle session exercises
+    const target = existingSessionExercises.find((se) => {
+      if (params.sessionExerciseId != null) {
+        return se.id === params.sessionExerciseId;
+      }
+      if (params.routineExerciseId != null) {
+        return se.routineExerciseId === params.routineExerciseId;
+      }
+      if (params.exerciseId != null) {
+        return se.exerciseId === params.exerciseId;
+      }
+      return false;
+    });
 
     if (!target) {
-      throw new Error(`Occurrence ${params.routineExerciseId} not found in session exercises`);
+      throw new Error(`Occurrence ${params.routineExerciseId ?? params.sessionExerciseId ?? params.exerciseId} not found in session exercises`);
     }
 
     if (target.status !== 'removed') {
@@ -401,7 +434,7 @@ export async function removeSessionExercise(
         .where(
           and(
             eq(sessionExercises.sessionId, params.sessionId),
-            eq(sessionExercises.routineExerciseId, params.routineExerciseId)
+            eq(sessionExercises.id, target.id)
           )
         )
         .run();
@@ -413,14 +446,17 @@ export async function removeSessionExercise(
       .where(
         and(
           eq(sets.sessionId, params.sessionId),
-          eq(sets.routineExerciseId, params.routineExerciseId),
+          target.routineExerciseId !== null
+            ? eq(sets.routineExerciseId, target.routineExerciseId)
+            : eq(sets.exerciseId, target.exerciseId),
           isNull(sets.deletedAt)
         )
       )
       .get();
 
     result = {
-      routineExerciseId: target.routineExerciseId as number,
+      sessionExerciseId: target.id,
+      routineExerciseId: target.routineExerciseId,
       exerciseId: target.exerciseId,
       position: target.position,
       keptSetCount: Number(liveSets?.count ?? 0),
@@ -441,7 +477,7 @@ export async function removeSessionExercise(
  * Preserves original position and restores group membership if previously grouped.
  */
 export async function restoreSessionExercise(
-  params: { sessionId: number; routineExerciseId: number },
+  params: RestoreExerciseParams,
   customDb?: unknown
 ): Promise<void> {
   const dbInstance = resolveDb(customDb);
@@ -474,6 +510,7 @@ export async function restoreSessionExercise(
       .select({
         id: sessionExercises.id,
         routineExerciseId: sessionExercises.routineExerciseId,
+        exerciseId: sessionExercises.exerciseId,
         status: sessionExercises.status,
         supersetGroupId: sessionExercises.supersetGroupId,
       })
@@ -483,7 +520,7 @@ export async function restoreSessionExercise(
 
     if (existingSessionExercises.length === 0) {
       if (session.routineId === null) {
-        throw new Error(`Occurrence ${params.routineExerciseId} does not belong to session routine`);
+        throw new Error(`Occurrence ${params.routineExerciseId ?? params.sessionExerciseId ?? params.exerciseId} does not belong to session routine`);
       }
       const match = tx
         .select({ id: routineExercises.id })
@@ -491,7 +528,7 @@ export async function restoreSessionExercise(
         .where(
           and(
             eq(routineExercises.routineId, session.routineId),
-            eq(routineExercises.id, params.routineExerciseId)
+            params.routineExerciseId != null ? eq(routineExercises.id, params.routineExerciseId) : undefined
           )
         )
         .get();
@@ -501,12 +538,21 @@ export async function restoreSessionExercise(
       return;
     }
 
-    const target = existingSessionExercises.find(
-      (se) => se.routineExerciseId === params.routineExerciseId
-    );
+    const target = existingSessionExercises.find((se) => {
+      if (params.sessionExerciseId != null) {
+        return se.id === params.sessionExerciseId;
+      }
+      if (params.routineExerciseId != null) {
+        return se.routineExerciseId === params.routineExerciseId;
+      }
+      if (params.exerciseId != null) {
+        return se.exerciseId === params.exerciseId;
+      }
+      return false;
+    });
 
     if (!target) {
-      throw new Error(`Occurrence ${params.routineExerciseId} not found in session exercises`);
+      throw new Error(`Occurrence ${params.routineExerciseId ?? params.sessionExerciseId ?? params.exerciseId} not found in session exercises`);
     }
 
     if (target.status === 'removed') {
@@ -518,7 +564,7 @@ export async function restoreSessionExercise(
         .where(
           and(
             eq(sessionExercises.sessionId, params.sessionId),
-            eq(sessionExercises.routineExerciseId, params.routineExerciseId)
+            eq(sessionExercises.id, target.id)
           )
         )
         .run();
@@ -1245,21 +1291,44 @@ export async function resolveRecoveryContext(
 
   const pendingQueue = await getPendingQueue(sessionId, dbInstance);
 
+  const currentSessionExerciseId =
+    context.sessionExerciseId !== null && context.sessionExerciseId !== undefined
+      ? Number(context.sessionExerciseId)
+      : null;
+
   const currentRoutineExerciseId =
     context.routineExerciseId !== null && context.routineExerciseId !== undefined
       ? Number(context.routineExerciseId)
       : null;
 
+  const currentExerciseId =
+    context.exerciseId !== null && context.exerciseId !== undefined
+      ? Number(context.exerciseId)
+      : null;
+
+  const isCurrentPending =
+    pendingQueue.some((item) => {
+      if (currentSessionExerciseId !== null && item.sessionExerciseId !== undefined) {
+        return item.sessionExerciseId === currentSessionExerciseId;
+      }
+      if (currentRoutineExerciseId !== null && item.routineExerciseId !== null) {
+        return item.routineExerciseId === currentRoutineExerciseId;
+      }
+      if (currentExerciseId !== null) {
+        return item.exerciseId === currentExerciseId;
+      }
+      return false;
+    });
   const currentItem = pendingQueue.find(
     (item) => item.routineExerciseId === currentRoutineExerciseId
   );
-  const isCurrentPending = currentRoutineExerciseId !== null && Boolean(currentItem);
 
   if (isCurrentPending) {
     const resumedContext: RecoveryContextShape = {
       ...context,
+      sessionExerciseId: currentSessionExerciseId,
       routineExerciseId: currentRoutineExerciseId,
-      exerciseId: context.exerciseId !== undefined && context.exerciseId !== null ? Number(context.exerciseId) : null,
+      exerciseId: currentExerciseId,
       weight: typeof context.weight === 'string' ? context.weight : '',
       reps: typeof context.reps === 'string' ? context.reps : '',
       isDirty: Boolean(context.isDirty),
@@ -1281,7 +1350,21 @@ export async function resolveRecoveryContext(
 
   // Find position of the removed occurrence
   let currentPosition = -1;
-  if (currentRoutineExerciseId !== null) {
+  if (currentSessionExerciseId !== null) {
+    const row = dbInstance
+      .select({ position: sessionExercises.position })
+      .from(sessionExercises)
+      .where(
+        and(
+          eq(sessionExercises.sessionId, sessionId),
+          eq(sessionExercises.id, currentSessionExerciseId)
+        )
+      )
+      .get();
+    if (row && typeof row.position === 'number') {
+      currentPosition = row.position;
+    }
+  } else if (currentRoutineExerciseId !== null) {
     const row = dbInstance
       .select({ position: sessionExercises.position })
       .from(sessionExercises)
@@ -1304,6 +1387,20 @@ export async function resolveRecoveryContext(
       if (templateRow?.orderIndex !== null && templateRow?.orderIndex !== undefined) {
         currentPosition = templateRow.orderIndex;
       }
+    }
+  } else if (currentExerciseId !== null) {
+    const row = dbInstance
+      .select({ position: sessionExercises.position })
+      .from(sessionExercises)
+      .where(
+        and(
+          eq(sessionExercises.sessionId, sessionId),
+          eq(sessionExercises.exerciseId, currentExerciseId)
+        )
+      )
+      .get();
+    if (row && typeof row.position === 'number') {
+      currentPosition = row.position;
     }
   }
 
@@ -1337,7 +1434,8 @@ export async function resolveRecoveryContext(
 
   const advancedContext = {
     ...context,
-    routineExerciseId: nextItem.routineExerciseId,
+    routineExerciseId: nextItem.routineExerciseId ?? null,
+    sessionExerciseId: nextItem.sessionExerciseId ?? nextItem.id,
     exerciseId: nextItem.exerciseId,
     exerciseName: exerciseRow?.name ?? (context.exerciseName as string | undefined) ?? '',
     exerciseType: exerciseRow?.type ?? (context.exerciseType as string | undefined) ?? 'strength',
