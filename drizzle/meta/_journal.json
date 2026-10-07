@@ -211,6 +211,13 @@
       "when": 1791400000000,
       "tag": "0029_cultured_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "6",
+      "when": 1791400100000,
+      "tag": "0030_tiresome_greymalkin",
+      "breakpoints": true
     }
   ]
 }

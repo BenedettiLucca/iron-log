@@ -87,6 +87,8 @@ CREATE TABLE sessions (
 \tnotes text,
 \tduration_minutes integer,
 \tdeleted_at integer,
+\tscheduled_for integer,
+\toccurrence_id text,
 \tFOREIGN KEY (routine_id) REFERENCES routines(id) ON UPDATE no action ON DELETE no action
 );
 CREATE TABLE sets (

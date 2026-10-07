@@ -31,6 +31,7 @@ import m0026 from './0026_stiff_midnight.sql';
 import m0027 from './0027_jazzy_thunderbolt.sql';
 import m0028 from './0028_dear_next_avengers.sql';
 import m0029 from './0029_cultured_hulk.sql';
+import m0030 from './0030_tiresome_greymalkin.sql';
 
   export default {
     journal,
@@ -67,4 +68,3 @@ m0028,
 m0029
     }
   }
-  
