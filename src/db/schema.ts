@@ -81,6 +81,20 @@ export const sets = sqliteTable('sets', {
   index("sets_session_exercise_deleted_setnum_idx").on(t.sessionId, t.exerciseId, t.deletedAt, t.setNumber),
 ]);
 
+// TABELA: Exercícios da Sessão (Ocorrências mid-session)
+export const sessionExercises = sqliteTable('session_exercises', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  sessionId: integer('session_id').notNull().references(() => sessions.id, { onDelete: 'cascade' }),
+  routineExerciseId: integer('routine_exercise_id').references(() => routineExercises.id, { onDelete: 'set null' }),
+  exerciseId: integer('exercise_id').notNull().references(() => exercises.id, { onDelete: 'cascade' }),
+  position: integer('position').notNull(),
+  status: text('status').notNull().default('pending'),
+  removedAt: integer('removed_at'),
+}, (t) => [
+  uniqueIndex('se_session_routine_exercise_unique').on(t.sessionId, t.routineExerciseId),
+  index('se_session_status_position_idx').on(t.sessionId, t.status, t.position),
+]);
+
 // TABELA: Métricas Corporais e Fotos
 export const bodyMetrics = sqliteTable('body_metrics', {
   id: integer('id').primaryKey({ autoIncrement: true }),
