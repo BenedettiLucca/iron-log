@@ -7,11 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "ironlog",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#E07A5F"
-    },
     "ios": {
       "supportsTablet": false
     },
@@ -42,7 +37,13 @@
         }
       ],
       "expo-font",
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "@react-native-community/datetimepicker",
+      "expo-image",
+      "expo-sharing",
+      "expo-sqlite",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
