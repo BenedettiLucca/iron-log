@@ -9,6 +9,7 @@ export const routines = sqliteTable('routines', {
   folder: text('folder').default('Geral'),
   isTemplate: integer('is_template', { mode: 'boolean' }).notNull().default(false),
   isArchived: integer('is_archived', { mode: 'boolean' }).notNull().default(false),
+  isMainLane: integer('is_main_lane', { mode: 'boolean' }).notNull().default(false),
 }, (t) => [
   uniqueIndex('routines_name_unique').on(t.name).where(sql`is_archived = 0`),
   index('routines_folder_idx').on(t.folder),

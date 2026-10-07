@@ -59,7 +59,8 @@ CREATE TABLE routines (
 \tdescription text,
 \tfolder text DEFAULT 'Geral',
 \tis_template integer DEFAULT 0 NOT NULL,
-\tis_archived integer DEFAULT 0 NOT NULL
+	is_archived integer DEFAULT 0 NOT NULL,
+	is_main_lane integer DEFAULT 0 NOT NULL
 );
 CREATE UNIQUE INDEX routines_name_unique ON routines (name) WHERE is_archived = 0;
 CREATE INDEX routines_folder_idx ON routines (folder);
