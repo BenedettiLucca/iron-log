@@ -12,6 +12,7 @@ import { db } from '../../src/db/client';
 import { sessions, bodyMetrics, sets, personalRecords, routineExercises } from '../../src/db/schema';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { SessionLifecycleService } from '@/services/SessionLifecycleService';
+import { deviceLocalMidnightToday } from '@/services/session-schedule';
 import { parseLocalizedDecimal } from '@/src/utils/localized-decimal';
 import Slider from '@react-native-community/slider';
 import { Button } from '../../components/Button';
@@ -227,6 +228,31 @@ export default function FinishSessionScreen() {
     setShowConfirmDialog(false);
 
     try {
+      const sessionRow = await db
+        .select({
+          scheduledFor: sessions.scheduledFor,
+          occurrenceId: sessions.occurrenceId,
+        })
+        .from(sessions)
+        .where(eq(sessions.id, Number(sessionId)))
+        .get();
+
+      const rawScheduledFor = Array.isArray(rawParams.scheduledFor)
+        ? rawParams.scheduledFor[0]
+        : rawParams.scheduledFor;
+
+      if (rawScheduledFor && !sessionRow?.scheduledFor) {
+        await db
+          .update(sessions)
+          .set({ scheduledFor: Number(rawScheduledFor) })
+          .where(eq(sessions.id, Number(sessionId)));
+      } else if (sessionRow?.occurrenceId && !sessionRow?.scheduledFor) {
+        await db
+          .update(sessions)
+          .set({ scheduledFor: deviceLocalMidnightToday() })
+          .where(eq(sessions.id, Number(sessionId)));
+      }
+
       await SessionLifecycleService.finishSession({
         sessionId: Number(sessionId),
         startTime: Number(startTime),
