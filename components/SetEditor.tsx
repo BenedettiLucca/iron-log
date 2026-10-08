@@ -37,6 +37,7 @@ export function SetEditor({
   const [weight, setWeight] = useState(initialWeight.toString());
   const [reps, setReps] = useState(initialReps?.toString() ?? '');
   const [duration, setDuration] = useState(initialDuration?.toString() ?? '');
+  const [distance, setDistance] = useState(initialDistance?.toString() ?? '');
   const [rir, setRir] = useState(initialRir?.toString() ?? '2');
   const [isSaving, setIsSaving] = useState(false);
   const isSavingRef = useRef(false);
@@ -45,12 +46,14 @@ export function SetEditor({
   const [weightError, setWeightError] = useState<string | undefined>();
   const [repsError, setRepsError] = useState<string | undefined>();
   const [durationError, setDurationError] = useState<string | undefined>();
+  const [distanceError, setDistanceError] = useState<string | undefined>();
   const [rirError, setRirError] = useState<string | undefined>();
 
   // Refs for focus management
   const weightRef = useRef<TextInput>(null);
   const repsRef = useRef<TextInput>(null);
   const durationRef = useRef<TextInput>(null);
+  const distanceRef = useRef<TextInput>(null);
   const rirRef = useRef<TextInput>(null);
 
   useEffect(() => {
@@ -58,15 +61,17 @@ export function SetEditor({
       setWeight(initialWeight.toString());
       setReps(initialReps?.toString() ?? '');
       setDuration(initialDuration?.toString() ?? '');
+      setDistance(initialDistance?.toString() ?? '');
       setRir(initialRir?.toString() ?? '2');
       setIsSaving(false);
       isSavingRef.current = false;
       setWeightError(undefined);
       setRepsError(undefined);
       setDurationError(undefined);
+      setDistanceError(undefined);
       setRirError(undefined);
     }
-  }, [visible, initialWeight, initialReps, initialDuration, initialRir]);
+  }, [visible, initialWeight, initialReps, initialDuration, initialDistance, initialRir]);
 
   const clearErrors = () => {
     setWeightError(undefined);
@@ -80,13 +85,14 @@ export function SetEditor({
 
     clearErrors();
 
-    const result = parseEditedSetInput({ weight, reps, duration, rir, isDuration });
+    const result = parseEditedSetInput({ weight, reps, duration, distance, rir, isDuration });
 
     if (!result.ok) {
       // Show field-level errors
       if (result.errors.weight) setWeightError(t('exercise.enterWeight'));
       if (result.errors.reps) setRepsError(t('exercise.enterReps'));
       if (result.errors.duration) setDurationError(t('exercise.enterDuration'));
+      if (result.errors.distance) setDistanceError(t('setEditor.invalidDistance'));
       if (result.errors.rir) setRirError(t('setEditor.invalidRir'));
 
       // Focus first invalid field
@@ -94,6 +100,7 @@ export function SetEditor({
         case 'weight': weightRef.current?.focus(); break;
         case 'reps': repsRef.current?.focus(); break;
         case 'duration': durationRef.current?.focus(); break;
+        case 'distance': distanceRef.current?.focus(); break;
         case 'rir': rirRef.current?.focus(); break;
       }
       return; // Keep modal open
@@ -221,6 +228,22 @@ export function SetEditor({
                   />
                   {durationError && (
                     <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{durationError}</Text>
+                  )}
+                </View>
+
+                <View>
+                  <Text className="text-subtext text-xs font-bold uppercase mb-2">{t('setEditor.distance')}</Text>
+                  <TextInput
+                    ref={distanceRef}
+                    className="bg-background text-text text-2xl font-bold p-4 rounded-xl border border-border text-center"
+                    keyboardType="decimal-pad"
+                    value={distance}
+                    onChangeText={(v) => { setDistance(v); setDistanceError(undefined); }}
+                    placeholder="0"
+                    accessibilityLabel={t('session.distance')}
+                  />
+                  {distanceError && (
+                    <Text className="text-dangerText text-xs mt-1" accessibilityLiveRegion="polite">{distanceError}</Text>
                   )}
                 </View>
               </>

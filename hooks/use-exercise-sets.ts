@@ -755,7 +755,7 @@ export function useExerciseSets({
     }
   }, [t]);
 
-  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, rir?: number): Promise<boolean> => {
+  const handleSaveEditedSet = useCallback(async (weight: number, reps?: number, duration?: number, distanceMeters?: number, rir?: number): Promise<boolean> => {
     if (!editingSet) return false;
     
     try {
@@ -766,6 +766,7 @@ export function useExerciseSets({
             // Use ?? (not ||) so valid zero values (e.g. RIR=0) are not replaced by the old value
             reps: reps ?? editingSet.reps,
             durationSeconds: duration ?? editingSet.durationSeconds,
+            distanceMeters: distanceMeters ?? editingSet.distanceMeters,
             rir: rir ?? editingSet.rir,
             isEdited: true,
           })
