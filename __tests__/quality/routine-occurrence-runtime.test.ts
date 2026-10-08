@@ -10,7 +10,7 @@ describe('routine occurrence runtime contract', () => {
 
     expect(session).toMatch(/routineExerciseId:\s*routineExercises\.id/);
     expect(session).toMatch(/exerciseId:\s*exercises\.id/);
-    expect(session).toContain('keyExtractor={(item) => item.routineExerciseId.toString()}');
+    expect(session).toContain('keyExtractor={(item) => String(item.routineExerciseId)}');
     expect(session).toContain('routineExerciseId: item.routineExerciseId');
     expect(session).toContain('isSingleOccurrence');
     expect(session).toContain('isNull(sets.routineExerciseId)');
