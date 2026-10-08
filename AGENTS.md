@@ -100,3 +100,18 @@ Protocolo para coding agents (agy/oc/Hermes):
    mais lento.
 
 Detalhes de arquitetura e troubleshooting: `docs/agentic-android-qa.md`.
+
+## ⚠️ expo prebuild trunca drizzle/migrations.js
+Rodar `npx expo prebuild` regenera `drizzle/migrations.js` a partir do journal, mas **descarta as últimas N entradas do map** (ex.: journal vai até 0031, map para em m0029). Sintoma em runtime: `Missing migration: 0030_tiresome_greymalkin` em instalação limpa.
+**Guard pós-prebuild** (obrigatório antes de qualquer build nativo):
+```bash
+node -e "
+const {migrations} = require('./drizzle/migrations.js');
+const j = require('./drizzle/meta/_journal.json');
+const tags = j.entries.map(e=>e.tag.split('_')[0]);
+const missing = tags.filter(t=>!migrations.migrations.hasOwnProperty('m'+t));
+if (missing.length) { console.error('MAP TRUNCADO, faltam:', missing); process.exit(1); }
+console.log('migrations map OK', tags.length);
+"
+```
+Fix aplicado em master (e9b2802) e w3-wire-sessions (1400596).
