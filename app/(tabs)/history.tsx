@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import type { DateData } from 'react-native-calendars';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Dialog } from '@/components/Dialog';
 import { Toast } from '@/components/Toast';
+import { Card } from '@/components/Card';
+import { Button } from '@/components/Button';
 import { SkeletonList } from '@/components/Skeleton';
 import { ErrorState } from '@/components/ScreenState';
 import { logger } from '@/services/logger';
@@ -31,6 +34,15 @@ import { getLocaleForLanguage, useI18n } from '@/src/i18n/index';
 import { SectionHeader } from '@/components/SectionHeader';
 import { DatePicker } from '@/components/DatePicker';
 import { toLocalDateKey } from '@/src/utils/date-key';
+import {
+  getOverdueWorkouts,
+  getPlateauAdvisories,
+  getCutVelocityAdvisory,
+  rescheduleSession,
+  type OverdueWorkoutItem,
+  type PlateauAlertItem,
+  type CutAdvisoryState,
+} from '@/src/utils/training-advisories';
 
 // Multi-language calendar locale configuration
 const localeConfigs = {
@@ -73,6 +85,7 @@ export default function HistoryScreen() {
   const { t, language } = useI18n();
   const theme = useThemeColors();
   const router = useRouter();
+  const { toast, setToast } = useToast();
   const rawParams = useLocalSearchParams<{ date?: string }>();
 
   useEffect(() => {
@@ -96,6 +109,34 @@ export default function HistoryScreen() {
   const [pageError, setPageError] = useState<string | null>(null);
   const [dayError, setDayError] = useState<string | null>(null);
   const [deleteDialog, setDeleteDialog] = useState({ visible: false, sessionId: 0, sessionName: '' });
+
+  // Overdue and advisories state
+  const [overdueWorkouts, setOverdueWorkouts] = useState<OverdueWorkoutItem[]>([]);
+  const [plateauAlerts, setPlateauAlerts] = useState<PlateauAlertItem[]>([]);
+  const [cutAlert, setCutAlert] = useState<CutAdvisoryState | null>(null);
+  const [reschedulingSession, setReschedulingSession] = useState<OverdueWorkoutItem | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<Date>(new Date());
+
+  const loadAdvisoriesAndOverdue = useCallback(async () => {
+    try {
+      const [overdue, plateaus, cut] = await Promise.all([
+        getOverdueWorkouts(),
+        getPlateauAdvisories(),
+        getCutVelocityAdvisory(),
+      ]);
+      setOverdueWorkouts(overdue);
+      setPlateauAlerts(plateaus);
+      setCutAlert(cut);
+    } catch (e) {
+      logger.error('Failed to load advisories or overdue workouts in history', e);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadAdvisoriesAndOverdue();
+    }, [loadAdvisoriesAndOverdue])
+  );
 
   // Search and discovery filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -293,8 +334,24 @@ export default function HistoryScreen() {
     }
   }, [hasMoreSearchResults, isLoadingMore, searchCursor, searchQuery, startDate, endDate]);
 
+  const handleConfirmReschedule = useCallback(async (newDate: Date) => {
+    if (!reschedulingSession) return;
+    const newScheduledFor = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()).getTime();
+    try {
+      rescheduleSession({ sessionId: reschedulingSession.sessionId, newScheduledFor });
+      setToast({ visible: true, message: t('home.rescheduleSuccess'), type: 'success' });
+      setReschedulingSession(null);
+      const updated = await getOverdueWorkouts();
+      setOverdueWorkouts(updated);
+    } catch (e) {
+      logger.error('Failed to reschedule session', e);
+      setToast({ visible: true, message: t('states.errorBody'), type: 'error' });
+    }
+  }, [reschedulingSession, t, setToast]);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    await loadAdvisoriesAndOverdue();
     if (isSearchMode) {
       await executeSearch({ query: searchQuery, startDate, endDate });
     } else {
@@ -304,7 +361,7 @@ export default function HistoryScreen() {
       }
     }
     setRefreshing(false);
-  }, [isSearchMode, executeSearch, searchQuery, startDate, endDate, loadMonthMarks, visibleMonth.year, visibleMonth.month, selectedDate, loadDaySessions]);
+  }, [loadAdvisoriesAndOverdue, isSearchMode, executeSearch, searchQuery, startDate, endDate, loadMonthMarks, visibleMonth.year, visibleMonth.month, selectedDate, loadDaySessions]);
 
   const [undoSnackbar, setUndoSnackbar] = useState<{
     visible: boolean;
@@ -318,7 +375,6 @@ export default function HistoryScreen() {
     dateString: '',
   });
   const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { toast, setToast } = useToast();
 
   useEffect(() => {
     return () => {
@@ -446,6 +502,90 @@ export default function HistoryScreen() {
 
   const renderHeader = () => (
     <View>
+      {/* Overdue Workouts */}
+      {overdueWorkouts.length > 0 && (
+        <View className="pt-3 pb-1">
+          <SectionHeader label={t('home.overdueWorkouts')} className="mb-2" />
+          {overdueWorkouts.map((item) => (
+            <Card key={item.sessionId} className="mb-2 border-warningText/30 bg-warningSurface/20">
+              <View className="flex-row justify-between items-start">
+                <View className="flex-1 mr-2">
+                  <View className="flex-row items-center gap-2 mb-1 flex-wrap">
+                    <Text className="text-text font-bold text-base" numberOfLines={2}>{item.routineName}</Text>
+                    <View className="bg-dangerSurface px-2 py-0.5 rounded-md border border-dangerText/30">
+                      <Text className="text-dangerText font-bold text-2xs uppercase">{t('home.overdueBadge')}</Text>
+                    </View>
+                  </View>
+                  <Text className="text-subtext text-xs">
+                    {t('home.scheduledFor', {
+                      date: new Date(item.scheduledFor).toLocaleDateString(getLocaleForLanguage(language)),
+                    })}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setRescheduleDate(new Date(item.scheduledFor));
+                    setReschedulingSession(item);
+                  }}
+                  className="bg-card border border-border px-3 py-1.5 rounded-lg min-h-[44px] items-center justify-center"
+                  accessibilityRole="button"
+                  accessibilityLabel={`${t('home.reschedule')} ${item.routineName}`}
+                >
+                  <Text className="text-subtext font-bold text-xs">{t('home.reschedule')}</Text>
+                </TouchableOpacity>
+              </View>
+            </Card>
+          ))}
+        </View>
+      )}
+
+      {/* Plateau Advisories */}
+      {plateauAlerts.length > 0 && (
+        <View className="pt-2 pb-1">
+          <Card className="bg-warningSurface/15 border border-warningText/30">
+            <View className="flex-row items-start gap-2.5">
+              <Text className="text-lg" accessible={false}>⚠️</Text>
+              <View className="flex-1">
+                <Text className="text-text font-bold text-sm mb-0.5">
+                  {t('home.plateauAlert')}
+                </Text>
+                <Text className="text-subtext text-xs mb-2">
+                  {t('home.plateauAlertHint')}
+                </Text>
+                <View className="flex-row flex-wrap gap-1.5">
+                  {plateauAlerts.map((p) => (
+                    <View key={p.exerciseId} className="bg-card px-2 py-0.5 rounded border border-border">
+                      <Text className="text-2xs text-text font-medium">
+                        {p.exerciseName} ({p.topWeightKg}kg × {p.topReps})
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </Card>
+        </View>
+      )}
+
+      {/* Cut Velocity Advisory */}
+      {cutAlert?.isAdvisoryActive && (
+        <View className="pt-2 pb-1">
+          <Card className="bg-primarySurface/30 border border-primary/30">
+            <View className="flex-row items-start gap-2.5">
+              <Text className="text-lg" accessible={false}>ℹ️</Text>
+              <View className="flex-1">
+                <Text className="text-text font-bold text-sm mb-0.5">
+                  {t('home.cutAlert')}
+                </Text>
+                <Text className="text-subtext text-xs">
+                  {t('home.cutAlertHint')}
+                </Text>
+              </View>
+            </View>
+          </Card>
+        </View>
+      )}
+
       {/* Search Bar & Date Filter Affordance */}
       <View className="pt-3 pb-2">
         <View className="flex-row items-center gap-2">
@@ -843,6 +983,43 @@ export default function HistoryScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {reschedulingSession ? (
+        <Modal
+          visible
+          transparent
+          animationType="fade"
+          onRequestClose={() => setReschedulingSession(null)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/60 p-4">
+            <View className="bg-card rounded-2xl p-4 w-full max-w-sm border border-border">
+              <Text className="text-lg font-bold text-text mb-1">{t('home.reschedule')}</Text>
+              <Text className="text-xs text-subtext mb-4">{reschedulingSession.routineName}</Text>
+              <DatePicker
+                label={t('home.pickNewDate')}
+                value={rescheduleDate}
+                onChange={(d) => setRescheduleDate(d)}
+              />
+              <View className="flex-row gap-2 mt-4">
+                <Button
+                  title={t('common.cancel')}
+                  onPress={() => setReschedulingSession(null)}
+                  variant="ghost"
+                  size="md"
+                  style={{ flex: 1 }}
+                />
+                <Button
+                  title={t('common.save')}
+                  onPress={() => handleConfirmReschedule(rescheduleDate)}
+                  variant="primary"
+                  size="md"
+                  style={{ flex: 1 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      ) : null}
 
       <Toast
         visible={toast.visible}

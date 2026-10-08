@@ -1,13 +1,14 @@
 import { TodayWorkoutService } from '../../services/TodayWorkoutService';
 import { safeParseParams, sessionParamsSchema } from '@/src/validators/routes';
 import { useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, RefreshControl, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { db } from '../../src/db/client';
-import { exercises, routineExercises } from '../../src/db/schema';
+import { exercises, routineExercises, sessions } from '../../src/db/schema';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Toast } from '../../components/Toast';
 import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
 import { ProgressBar } from '../../components/ProgressBar';
 import { EmptyState, InlineEmptyState } from '../../components/EmptyState';
 import { LoadingState, ErrorState } from '../../components/ScreenState';
@@ -21,7 +22,18 @@ import { getLocaleForLanguage, useI18n } from '../../src/i18n/index';
 import { resolveScreenState } from '../../src/utils/screen-state';
 import { useToast } from '../../hooks/use-toast';
 import { SectionHeader } from '@/components/SectionHeader';
+import { resumeMicroSession } from '@/services/MicroSessionService';
+import { MicroSessionModal } from '@/components/MicroSessionModal';
+import {
+  getOverdueWorkouts,
+  getMainLaneDrift,
+  rescheduleSession,
+  type OverdueWorkoutItem,
+  type MainLaneDriftInfo,
+} from '@/src/utils/training-advisories';
+import { DatePicker } from '@/components/DatePicker';
 import Svg, { Path, Polyline } from 'react-native-svg';
+
 export default function HomeScreen() {
   const { t, language } = useI18n();
   const theme = useThemeColors();
@@ -48,11 +60,26 @@ export default function HomeScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [todayWorkout, setTodayWorkout] = useState<import('../../services/TodayWorkoutService').TodayWorkout | null>(null);
 
+  // Micro session & scheduled/drift state
+  const [microModalVisible, setMicroModalVisible] = useState(false);
+  const [activeMicroSession, setActiveMicroSession] = useState<typeof sessions.$inferSelect | null>(null);
+  const [overdueWorkouts, setOverdueWorkouts] = useState<OverdueWorkoutItem[]>([]);
+  const [driftInfo, setDriftInfo] = useState<MainLaneDriftInfo | null>(null);
+  const [reschedulingSession, setReschedulingSession] = useState<OverdueWorkoutItem | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState<Date>(new Date());
+
   const isLoading = routinesLoading || sessionsLoading || programsLoading;
 
   const fetchData = useCallback(async () => {
     try {
       setHasError(false);
+      const [overdue, drift] = await Promise.all([
+        getOverdueWorkouts(),
+        getMainLaneDrift(),
+      ]);
+      setOverdueWorkouts(overdue);
+      setDriftInfo(drift);
+      setActiveMicroSession(resumeMicroSession());
       await Promise.all([fetchRoutines(), fetchHomeData(), fetchActiveProgram()]);
     } catch (e) {
       logger.error('Failed to fetch home data', e);
@@ -83,6 +110,36 @@ export default function HomeScreen() {
       },
     });
   }, [todayWorkout, router]);
+
+  const handleStartOverdueWorkout = useCallback((item: OverdueWorkoutItem) => {
+    if (!item.routineId) return;
+    router.push({
+      pathname: '/session/[routineId]',
+      params: {
+        routineId: String(item.routineId),
+        routineName: item.routineName,
+        sessionId: String(item.sessionId),
+        _ts: Date.now().toString(),
+      },
+    });
+  }, [router]);
+
+  const handleConfirmReschedule = useCallback(async (newDate: Date) => {
+    if (!reschedulingSession) return;
+    const newScheduledFor = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()).getTime();
+    try {
+      rescheduleSession({ sessionId: reschedulingSession.sessionId, newScheduledFor });
+      setToast({ visible: true, message: t('home.rescheduleSuccess'), type: 'success' });
+      setReschedulingSession(null);
+      const updated = await getOverdueWorkouts();
+      setOverdueWorkouts(updated);
+      const updatedDrift = await getMainLaneDrift();
+      setDriftInfo(updatedDrift);
+    } catch (e) {
+      logger.error('Failed to reschedule session', e);
+      setToast({ visible: true, message: t('states.errorBody'), type: 'error' });
+    }
+  }, [reschedulingSession, t, setToast]);
 
   useEffect(() => {
     if (activeProgram) {
@@ -278,6 +335,156 @@ export default function HomeScreen() {
                   <Text className="text-onPrimary font-bold text-sm">{t("home.start")}</Text>
                 </View>
               </View>
+            </Card>
+          </View>
+        )}
+
+        {/* Overdue Workouts */}
+        {overdueWorkouts.length > 0 && (
+          <View className="mt-4">
+            <SectionHeader label={t('home.overdueWorkouts')} className="mb-2" />
+            {overdueWorkouts.map((item) => (
+              <Card key={item.sessionId} className="mb-2 border-warningText/30 bg-warningSurface/20">
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 mr-2">
+                    <View className="flex-row items-center gap-2 mb-1 flex-wrap">
+                      <Text className="text-text font-bold text-base" numberOfLines={2}>{item.routineName}</Text>
+                      <View className="bg-dangerSurface px-2 py-0.5 rounded-md border border-dangerText/30">
+                        <Text className="text-dangerText font-bold text-2xs uppercase">{t('home.overdueBadge')}</Text>
+                      </View>
+                    </View>
+                    <Text className="text-subtext text-xs">
+                      {t('home.scheduledFor', {
+                        date: new Date(item.scheduledFor).toLocaleDateString(getLocaleForLanguage(language)),
+                      })}
+                    </Text>
+                  </View>
+                  <View className="flex-row gap-2">
+                    <TouchableOpacity
+                      onPress={() => {
+                        setRescheduleDate(new Date(item.scheduledFor));
+                        setReschedulingSession(item);
+                      }}
+                      className="bg-card border border-border px-3 py-1.5 rounded-lg min-h-[44px] items-center justify-center"
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t('home.reschedule')} ${item.routineName}`}
+                    >
+                      <Text className="text-subtext font-bold text-xs">{t('home.reschedule')}</Text>
+                    </TouchableOpacity>
+                    {item.routineId ? (
+                      <TouchableOpacity
+                        onPress={() => handleStartOverdueWorkout(item)}
+                        className="bg-primary px-3 py-1.5 rounded-lg min-h-[44px] items-center justify-center"
+                        accessibilityRole="button"
+                        accessibilityLabel={`${t('home.start')} ${item.routineName}`}
+                      >
+                        <Text className="text-onPrimary font-bold text-xs">{t('home.start')}</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                </View>
+              </Card>
+            ))}
+          </View>
+        )}
+
+        {/* Micro-workout Banner / Entry */}
+        {activeMicroSession ? (
+          <View className="mt-4">
+            <SectionHeader label={t('microSession.activeSession')} className="mb-2" />
+            <Card
+              pressable
+              onPress={() => setMicroModalVisible(true)}
+              className="bg-primary/10 border border-primary/20"
+              accessibilityLabel={`${t('microSession.activeSession')}: ${t('microSession.tapToContinue')}`}
+            >
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center gap-3">
+                  <View className="w-11 h-11 rounded-xl bg-primary/15 justify-center items-center">
+                    <Text className="text-xl" accessible={false}>⚡</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text text-base font-bold">{t('microSession.title')}</Text>
+                    <Text className="text-subtext text-xs mt-0.5">{t('microSession.tapToContinue')}</Text>
+                  </View>
+                </View>
+                <View className="bg-primary px-3 py-2 rounded-lg">
+                  <Text className="text-onPrimary font-bold text-sm">{t('home.continue')}</Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        ) : (
+          <View className="mt-4">
+            <Card
+              pressable
+              onPress={() => setMicroModalVisible(true)}
+              className="bg-card border border-border"
+              accessibilityLabel={t('home.micro')}
+            >
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center gap-3">
+                  <View className="w-11 h-11 rounded-xl bg-primarySurface justify-center items-center">
+                    <Text className="text-xl" accessible={false}>⚡</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-text text-base font-bold">{t('home.micro')}</Text>
+                    <Text className="text-subtext text-xs mt-0.5">{t('microSession.singleSetLimit')}</Text>
+                  </View>
+                </View>
+                <View className="bg-primarySurface px-3 py-2 rounded-lg border border-primary/20">
+                  <Text className="text-primaryText font-bold text-sm">{t('home.start')}</Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        )}
+
+        {/* Main-Lane Drift Status Card */}
+        {driftInfo && (
+          <View className="mt-4">
+            <SectionHeader label={t('home.driftCard')} className="mb-2" />
+            <Card className="bg-card border border-border">
+              <View className="flex-row justify-between items-center mb-2">
+                <Text className="text-text font-bold text-base">{t('home.driftCard')}</Text>
+                <View
+                  className={`px-2.5 py-1 rounded-full border ${
+                    driftInfo.driftStatus.status === 'on_track'
+                      ? 'bg-successSurface border-successText/40'
+                      : driftInfo.driftStatus.status === 'drifting'
+                      ? 'bg-warningSurface border-warningText/40'
+                      : 'bg-card border-border'
+                  }`}
+                >
+                  <Text
+                    className={`text-xs font-bold ${
+                      driftInfo.driftStatus.status === 'on_track'
+                        ? 'text-successText'
+                        : driftInfo.driftStatus.status === 'drifting'
+                        ? 'text-warningText'
+                        : 'text-subtext'
+                    }`}
+                  >
+                    {driftInfo.driftStatus.status === 'on_track'
+                      ? t('home.driftOnTrack')
+                      : driftInfo.driftStatus.status === 'drifting'
+                      ? t('home.driftDrifting')
+                      : driftInfo.driftStatus.status === 'lapsed'
+                      ? t('home.driftLapsed')
+                      : t('home.driftOnTrack')}
+                  </Text>
+                </View>
+              </View>
+              <Text className="text-subtext text-xs">
+                {driftInfo.driftStatus.daysSinceLastMain !== null && driftInfo.driftStatus.daysSinceLastMain !== undefined
+                  ? t('home.daysSinceLastMain', { days: driftInfo.driftStatus.daysSinceLastMain })
+                  : t('home.noMainHistory')}
+              </Text>
+              {driftInfo.guidance?.summary && driftInfo.driftStatus.status !== 'on_track' && driftInfo.driftStatus.status !== 'insufficient-data' && driftInfo.driftStatus.status !== 'insufficient_data' ? (
+                <Text className="text-subtext text-xs leading-4 mt-2 bg-background/80 p-2.5 rounded-xl border border-border">
+                  {driftInfo.guidance.summary}
+                </Text>
+              ) : null}
             </Card>
           </View>
         )}
@@ -478,6 +685,57 @@ export default function HomeScreen() {
           )}
         </View>
       </ScrollView>
+
+      <MicroSessionModal
+        visible={microModalVisible}
+        onClose={() => {
+          setMicroModalVisible(false);
+          setActiveMicroSession(resumeMicroSession());
+        }}
+        onFinished={() => {
+          setMicroModalVisible(false);
+          setActiveMicroSession(null);
+          setToast({ visible: true, message: t('microSession.successFinished'), type: 'success' });
+          fetchData();
+        }}
+      />
+
+      {reschedulingSession ? (
+        <Modal
+          visible
+          transparent
+          animationType="fade"
+          onRequestClose={() => setReschedulingSession(null)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/60 p-4">
+            <View className="bg-card rounded-2xl p-4 w-full max-w-sm border border-border">
+              <Text className="text-lg font-bold text-text mb-1">{t('home.reschedule')}</Text>
+              <Text className="text-xs text-subtext mb-4">{reschedulingSession.routineName}</Text>
+              <DatePicker
+                label={t('home.pickNewDate')}
+                value={rescheduleDate}
+                onChange={(d) => setRescheduleDate(d)}
+              />
+              <View className="flex-row gap-2 mt-4">
+                <Button
+                  title={t('common.cancel')}
+                  onPress={() => setReschedulingSession(null)}
+                  variant="ghost"
+                  size="md"
+                  style={{ flex: 1 }}
+                />
+                <Button
+                  title={t('common.save')}
+                  onPress={() => handleConfirmReschedule(rescheduleDate)}
+                  variant="primary"
+                  size="md"
+                  style={{ flex: 1 }}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      ) : null}
 
       <Toast
         visible={toast.visible}

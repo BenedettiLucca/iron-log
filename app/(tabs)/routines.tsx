@@ -25,6 +25,7 @@ import { useConfirmDialog } from '../../hooks/use-confirm-dialog';
 import { SectionHeader } from '@/components/SectionHeader';
 import { consumePendingToast } from '@/src/utils/flash-toast';
 import { FolderManagerModal } from '@/components/FolderManagerModal';
+import { setRoutineMainLane } from '@/services/lane-drift';
 import Svg, { Path } from 'react-native-svg';
 export default function RoutinesListScreen() {
   const router = useRouter();
@@ -128,6 +129,21 @@ export default function RoutinesListScreen() {
   const handleQuickStart = (routineId: number, routineName: string) => {
     router.push(buildSessionStartRoute({ id: routineId, name: routineName }));
   };
+
+  const handleToggleMainLane = useCallback(async (routineId: number, currentFlag: boolean) => {
+    try {
+      await setRoutineMainLane(routineId, !currentFlag);
+      await fetchRoutines();
+      setToast({
+        visible: true,
+        message: !currentFlag ? t('routines.mainLaneSet') : t('routines.mainLaneUnset'),
+        type: 'success',
+      });
+    } catch (e) {
+      logger.error('Failed to set routine main lane', e);
+      setToast({ visible: true, message: t('states.errorBody'), type: 'error' });
+    }
+  }, [fetchRoutines, setToast, t]);
 
   // #144 — navigate only after React committed the modal unmount (previewRoutine is null).
   useEffect(() => {
@@ -297,6 +313,11 @@ export default function RoutinesListScreen() {
                 <View className="flex-1 mr-4">
                   <View className="flex-row items-center gap-2 mb-1 flex-wrap">
                     <Text className="text-text text-lg font-bold">{item.name}</Text>
+                    {item.isMainLane ? (
+                      <View className="bg-primarySurface px-2.5 py-0.5 rounded-full border border-primary/20">
+                        <Text className="text-2xs text-primaryText font-bold">{t('routines.mainLaneBadge')}</Text>
+                      </View>
+                    ) : null}
                     {item.folder && !isSameFolderName(item.folder, DEFAULT_FOLDER_NAME) && (
                       <View className="bg-background px-2.5 py-0.5 rounded-full border border-border">
                         <Text className="text-2xs text-subtext font-semibold">{item.folder}</Text>
@@ -323,8 +344,15 @@ export default function RoutinesListScreen() {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-            <View className="flex-row gap-2 border-t border-border/50 pt-3 mt-2">
-              <Button 
+            <View className="flex-row gap-2 border-t border-border/50 pt-3 mt-2 flex-wrap">
+              <Button
+                title={item.isMainLane ? `★ ${t('routines.mainLaneBadge')}` : `☆ ${t('home.mainLaneToggle')}`}
+                onPress={() => handleToggleMainLane(item.id, Boolean(item.isMainLane))}
+                variant={item.isMainLane ? 'secondary' : 'ghost'}
+                size="sm"
+                style={{ flex: 1, minWidth: 90 }}
+              />
+              <Button
                 title={t("routines.duplicate")}
                 onPress={() => handleDuplicate(item.id, item.name)}
                 variant="ghost"

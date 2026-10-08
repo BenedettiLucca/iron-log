@@ -30,6 +30,12 @@ import {
 import type { ChartPeriod } from '../../src/utils/chart-periods';
 import { formatCompactKilograms } from '../../src/utils/formatters';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import {
+  getPlateauAdvisories,
+  getCutVelocityAdvisory,
+  type PlateauAlertItem,
+  type CutAdvisoryState,
+} from '@/src/utils/training-advisories';
 
 const CANONICAL_MUSCLE_GROUP_LABELS: Record<string, string> = {
   peito: 'chest',
@@ -83,6 +89,8 @@ export default function AnalyticsScreen() {
 
   const [weightData, setWeightData] = useState<{ timestamp: number; value: number }[]>([]);
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('month');
+  const [plateauAlerts, setPlateauAlerts] = useState<PlateauAlertItem[]>([]);
+  const [cutAlert, setCutAlert] = useState<CutAdvisoryState | null>(null);
 
   const getMuscleGroupLabel = (group: string) => {
     const directKey = `muscleGroup.${group}`;
@@ -101,9 +109,11 @@ export default function AnalyticsScreen() {
   const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
-      const [analytics, chartWeights] = await Promise.all([
+      const [analytics, chartWeights, plateaus, cut] = await Promise.all([
         AnalyticsService.getFullAnalytics(),
         AnalyticsService.getBodyWeightHistory(),
+        getPlateauAdvisories(),
+        getCutVelocityAdvisory(),
       ]);
 
       // Query contracts preserved for backward compatibility documentation:
@@ -115,6 +125,8 @@ export default function AnalyticsScreen() {
       setKeyStats(analytics.keyStats);
       setVolDist(analytics.volumeDistribution ?? { other: 0 });
       setWeightData(chartWeights);
+      setPlateauAlerts(plateaus);
+      setCutAlert(cut);
       setData(analytics);
       setHasError(false);
     } catch (e) {
@@ -317,6 +329,49 @@ export default function AnalyticsScreen() {
         >
           <Text className="text-dangerText text-sm">{t('states.errorBody')}</Text>
         </View>
+      )}
+
+      {/* Plateau Alerts */}
+      {plateauAlerts.length > 0 && (
+        <Card className="bg-warningSurface/15 border border-warningText/30">
+          <View className="flex-row items-start gap-2.5">
+            <Text className="text-lg" accessible={false}>⚠️</Text>
+            <View className="flex-1">
+              <Text className="text-text font-bold text-sm mb-0.5">
+                {t('home.plateauAlert')}
+              </Text>
+              <Text className="text-subtext text-xs mb-2">
+                {t('home.plateauAlertHint')}
+              </Text>
+              <View className="flex-row flex-wrap gap-1.5">
+                {plateauAlerts.map((p) => (
+                  <View key={p.exerciseId} className="bg-card px-2 py-0.5 rounded border border-border">
+                    <Text className="text-2xs text-text font-medium">
+                      {p.exerciseName} ({p.topWeightKg}kg × {p.topReps})
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        </Card>
+      )}
+
+      {/* Cut Velocity Advisory */}
+      {cutAlert?.isAdvisoryActive && (
+        <Card className="bg-primarySurface/30 border border-primary/30">
+          <View className="flex-row items-start gap-2.5">
+            <Text className="text-lg" accessible={false}>ℹ️</Text>
+            <View className="flex-1">
+              <Text className="text-text font-bold text-sm mb-0.5">
+                {t('home.cutAlert')}
+              </Text>
+              <Text className="text-subtext text-xs">
+                {t('home.cutAlertHint')}
+              </Text>
+            </View>
+          </View>
+        </Card>
       )}
 
       {/* Sessions Count Card */}
