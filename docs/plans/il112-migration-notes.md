@@ -105,3 +105,17 @@ All 4 typing shifts were addressed in `index.d.ts` via module augmentations with
 - Native local build (beyond contract scope, run by conductor):
   - Environment fixes (user-level, nothing committed): SDK mirror at ~/Android/Sdk (symlinks to /opt + local ndk/build-tools/platforms) with android/local.properties pointing to it (gitignored); NDK 27.1.12297006 (r27b) + build-tools 36.0.0 + platforms;android-36 installed; JDK pinned to 17 via ~/.gradle/gradle.properties org.gradle.java.home (system JDK 27 breaks AGP JdkImageTransform).
   - `./gradlew help` PASS; `assembleDebug --dry-run` PASS; `./gradlew assembleDebug` PASS -> app-debug.apk 270MB, com.lucca.ironlog 3.15.0 (versionCode 10 preserved), minSdk 24, compileSdk 36, sha256 f92b492b35e80d7322f97ef325266284...
+
+## Release v3.16.0 — pending signature (2026-10-08)
+
+- Version bump + docs committed (b449451); tag v3.16.0 pushed
+- assembleRelease builds OK (133MB) but UNSIGNED (debug cert): expo prebuild
+  regenerated android/ and dropped signingConfigs.release + IRONLOG_* props
+- Keystore backup intact: ~/Projects/iron-log-release.keystore.backup
+  (cert CN=Lucca Benedetti, SHA-256 9a39e411...)
+- Needed from owner: IRONLOG_RELEASE_STORE_PASSWORD (hex 32, generated 15/09)
+- Restore steps: cp backup -> android/app/release.keystore; recreate
+  IRONLOG_RELEASE_STORE_FILE/STORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD in
+  android/gradle.properties; SENTRY_DISABLE_AUTO_UPLOAD=true ./gradlew assembleRelease
+- Repatch signingConfigs.release into android/app/build.gradle BEFORE release
+  builds (prebuild wipes it every time; see release-3.16 block in this file)
