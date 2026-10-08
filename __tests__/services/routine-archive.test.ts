@@ -33,9 +33,6 @@ beforeEach(() => {
   );
 });
 
-afterAll(() => {
-  sqlite.close();
-});
 
 
 describe('RoutineArchiveService (RED - functions not yet implemented)', () => {

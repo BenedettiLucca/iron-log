@@ -4,7 +4,7 @@
 
 **Iron Log** 是一款完整的本地优先健身监控平台。为认真对待训练的人设计 — 快速记录负重、身体追踪、表现分析和数据导出。
 
-**版本：** 3.14.0 · **Expo SDK：** 54 · **测试：** 894 项通过
+**版本：** 3.16.0 · **Expo SDK：** 57 · **测试：** 1646 项通过
 
 ---
 
@@ -84,7 +84,7 @@
 
 | 层级 | 技术 |
 |------|------|
-| **核心** | React Native (Expo SDK 54) + TypeScript |
+| **核心** | React Native (Expo SDK 57) + TypeScript |
 | **ORM** | Drizzle ORM + SQLite (expo-sqlite) |
 | **UI** | NativeWind v4 (Tailwind), Reanimated |
 | **图表** | React Native Gifted Charts |
@@ -168,7 +168,7 @@ iron-log/
 │   ├── utils/              # 纯函数
 │   ├── validators/         # Zod schemas
 │   └── i18n/               # 翻译系统 (pt/en/es/zh)
-├── __tests__/              # 29 套测试，894 项通过
+├── __tests__/              # 29 套测试，1646 项通过
 ├── constants/              # 颜色和字体
 └── drizzle/                # SQL 迁移
 ```

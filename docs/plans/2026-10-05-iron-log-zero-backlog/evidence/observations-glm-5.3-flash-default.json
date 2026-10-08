@@ -1,0 +1,1376 @@
+{
+  "schema_version": 1,
+  "total": 25,
+  "offset": 0,
+  "limit": 500,
+  "observations": [
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.6036862782167782,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1454.58,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.154285714285714,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.3321396598030439,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.154,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1669.27,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.912121212121212,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.398517145505097,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.8,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.511111111111111,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 7.46666666666667,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.516203703703704,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.472164948453608,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.842696629213483,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.328282828282828,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond-cost::snapshot-2026-09-15",
+      "value": 0.009000570707070707,
+      "unit": "USD",
+      "sample_size": 594,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 594 tasks; last run 2026-09-12T08:54:53.230Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":594,\"accuracy_stddev\":0.01772806243094703,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:54:53.230Z\",\"avg_cost_per_task_usd\":0.009000570707070707,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline-cost::snapshot-2026-09-15",
+      "value": 0.0057111,
+      "unit": "USD",
+      "sample_size": 100,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 100 tasks; last run 2026-09-12T08:11:04.852Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":100,\"accuracy_stddev\":0.020000000000000018,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:11:04.852Z\",\"avg_cost_per_task_usd\":0.0057111,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter:z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond::snapshot-2026-09-15",
+      "value": 0.8580246666666667,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 594 tasks, published standard deviation 0.01772806243094703; last run 2026-09-12T08:54:53.230Z. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":594,\"accuracy_stddev\":0.01772806243094703,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:54:53.230Z\",\"avg_cost_per_task_usd\":0.009000570707070707,\"avg_latency_per_task_ms\":null}",
+      "published_stddev": 0.01772806243094703,
+      "sample_size": 594
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter:z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline::snapshot-2026-09-15",
+      "value": 0.753333,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 100 tasks, published standard deviation 0.020000000000000018; last run 2026-09-12T08:11:04.852Z. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":100,\"accuracy_stddev\":0.020000000000000018,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:11:04.852Z\",\"avg_cost_per_task_usd\":0.0057111,\"avg_latency_per_task_ms\":null}",
+      "published_stddev": 0.020000000000000018,
+      "sample_size": 100
+    },
+    {
+      "id": "public:f251cc0a774715fe94662d2b",
+      "benchmark_id": "livebench::2026-06-25",
+      "subject": {
+        "source_id": "glm-5.3-flash",
+        "name": "glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 71.59,
+      "unit": "points",
+      "basis": "derived",
+      "source": {
+        "url": "https://livebench.ai/table_2026_06_25.csv",
+        "retrieved_at": "2026-09-10T22:23:14Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-e70f40005b36.gz",
+        "sha256": "186ca65e7bb3a07aa26875eb3c45bfbe4e22d1ef36165cdaa11ad1a58087817c",
+        "locator": "livebench; source row 48; glm-5.3-flash; field value"
+      },
+      "protocol": "Release 2026-06-25; seven category means with equal category weights, published 2-decimal overall and explicit Grok-3 exceptions. Complete task scores required.",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Mean of seven category means, rounded to the published 2 decimals; source Grok-3 Thinking=72 and Grok-3=58 overrides retained.",
+        "inputs": [
+          73.077,
+          79.5,
+          96,
+          62,
+          77.465,
+          80.435,
+          63.636,
+          46.667,
+          60,
+          97,
+          45,
+          93.137,
+          89.841,
+          84.298,
+          48.827,
+          96.078,
+          93.667,
+          60.255,
+          78,
+          47.983,
+          46.95,
+          59.883,
+          56.467
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://livebench.ai/categories_2026_06_25.json",
+          "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-8fb1bd6bc30b.gz",
+          "sha256": "dad300ad18655b69db720e1b88fc5a5eac06c5b2f0e52c2bf50f10ff057674f3",
+          "retrieved_at": "2026-09-10T22:23:16Z",
+          "published_at": null,
+          "locator": "categories_source"
+        },
+        {
+          "url": "https://livebench.ai/static/js/main.04358d6f.js",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-livebench/b29cff6f2cd542927e75.gz",
+          "sha256": "b29cff6f2cd542927e75c9a582f65c4e8d290fb8dd244387d2f85969bdd003aa",
+          "retrieved_at": "2026-09-21T02:05:35.724575+00:00",
+          "published_at": null,
+          "locator": "frontend_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-20: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:543c397fa66717ded8e861cc",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "zai/glm-5.3-flash",
+        "name": "zai/glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 20.185,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 39; zai/glm-5.3-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":20.185,\"stderr\":4.375,\"cost_per_test\":3.119218,\"latency\":12284.669,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":131072,\"provider\":\"Fireworks AI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:ed92b9205a0273d4832cd383",
+      "benchmark_id": "kernelbench-cuda-deepseek-nsa::rtx-pro-6000",
+      "subject": {
+        "source_id": "or-fable/stealth/ox-alpha",
+        "name": "or-fable/stealth/ox-alpha",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 4.45,
+      "unit": "percent of roofline",
+      "basis": "derived",
+      "source": {
+        "url": "https://raw.githubusercontent.com/Infatoshi/kernelbench.com/master/benchmarks/cuda/results/leaderboard.json",
+        "retrieved_at": "2026-09-18T20:46:23.832372+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/8f09f0e63ca3685e9713.gz",
+        "sha256": "8f09f0e63ca3685e97134c637bd0a02939ccf4ed1f89cc53bb6a88cde7616724",
+        "locator": "kernelbench_cuda_board; source row 15; or-fable/stealth/ox-alpha; field peak_fraction"
+      },
+      "protocol": "KernelBench-CUDA 02_deepseek_nsa (RTX PRO 6000 Blackwell, environment v2_containerized): DeepSeek Native Sparse Attention block (block top-n + sparse attention); value = peak_fraction (geomean over the frozen shape sweep) × 100, percent of roofline, higher is better and unbounded above 100. Measured by kernelbench.com from audited agent sessions on RTX PRO 6000 Blackwell. Only correct audited (clean/interesting) cells are scored per the site’s own validity rule; the run_id, elapsed_seconds, harness and stated effort stay in the source row. not a Composite input.; source row: {\"label\":\"or-fable/stealth/ox-alpha\",\"harness\":\"or-fable\",\"stated_effort\":\"not stated\",\"stated_model\":\"stealth/ox-alpha\",\"annotation_verdict\":\"clean\",\"run_id\":\"20260822_102122_or-fable_stealth_ox-alpha_02_deepseek_nsa\",\"elapsed_seconds\":12685,\"problem\":\"02_deepseek_nsa\",\"hardware\":\"RTX PRO 6000 Blackwell Workstation\",\"peak_fraction\":0.0445,\"percent_of_roofline\":4.45}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.0445
+        ]
+      },
+      "join_note": "Reviewed identity map 2026-09-18: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:50dabd4f0dae852718311400",
+      "benchmark_id": "kernelbench-cuda-megaqwen-decode::rtx-pro-6000",
+      "subject": {
+        "source_id": "or-fable/stealth/ox-alpha",
+        "name": "or-fable/stealth/ox-alpha",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 3.92,
+      "unit": "percent of roofline",
+      "basis": "derived",
+      "source": {
+        "url": "https://raw.githubusercontent.com/Infatoshi/kernelbench.com/master/benchmarks/cuda/results/leaderboard.json",
+        "retrieved_at": "2026-09-18T20:46:23.832372+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/8f09f0e63ca3685e9713.gz",
+        "sha256": "8f09f0e63ca3685e97134c637bd0a02939ccf4ed1f89cc53bb6a88cde7616724",
+        "locator": "kernelbench_cuda_board; source row 15; or-fable/stealth/ox-alpha; field peak_fraction"
+      },
+      "protocol": "KernelBench-CUDA 03_megaqwen_decode (RTX PRO 6000 Blackwell, environment v2_containerized): MegaQwen CUDA megakernel geometry, decode-only tok/s at ctx 2k–128k; value = peak_fraction (geomean over the frozen shape sweep) × 100, percent of roofline, higher is better and unbounded above 100. Measured by kernelbench.com from audited agent sessions on RTX PRO 6000 Blackwell. Only correct audited (clean/interesting) cells are scored per the site’s own validity rule; the run_id, elapsed_seconds, harness and stated effort stay in the source row. not a Composite input.; source row: {\"label\":\"or-fable/stealth/ox-alpha\",\"harness\":\"or-fable\",\"stated_effort\":\"not stated\",\"stated_model\":\"stealth/ox-alpha\",\"annotation_verdict\":\"clean\",\"run_id\":\"20260822_105443_or-fable_stealth_ox-alpha_03_megaqwen_decode\",\"elapsed_seconds\":8145,\"problem\":\"03_megaqwen_decode\",\"hardware\":\"RTX PRO 6000 Blackwell Workstation\",\"peak_fraction\":0.0392,\"percent_of_roofline\":3.92}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.0392
+        ]
+      },
+      "join_note": "Reviewed identity map 2026-09-18: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:c41ac68a3e8dd25d9aa40e2e",
+      "benchmark_id": "lmarena-webdev::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "glm-5.3-flash-webdev",
+        "name": "glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1613.2480225019624,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/code/webdev",
+        "retrieved_at": "2026-09-26T04:28:07.189169+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/45baeb8a8c5ca92c79e6.gz",
+        "sha256": "45baeb8a8c5ca92c79e6576cc31b9c54df75714d4226a9ed7fc422bfb9a72ff9",
+        "locator": "lmarena_leaderboard; source row 20; glm-5.3-flash-webdev; field value"
+      },
+      "protocol": "LMArena Code Arena WebDev, Overall category, snapshot with vote cutoff 2026-09-25T16:00:00Z; Bradley-Terry rating with 95% interval; harness from LMArena’s model key; source row: {\"rank\":21,\"rankUpper\":12,\"rankLower\":23,\"ratingLower\":1604.6401504000805,\"ratingUpper\":1621.8558946038443,\"votes\":6665,\"modelOrganization\":\"Z.ai\",\"releaseType\":null,\"voteCutoffISOString\":\"2026-09-25T16:00:00.000Z\",\"totalVotes\":795514}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:fb0500e1ee983041882b8765",
+      "benchmark_id": "lmarena-agent::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "contenders/glm-5.3-flash-agent",
+        "name": "GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.0017144806532293994,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/agent",
+        "retrieved_at": "2026-09-26T04:28:11.833769+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/835e9208454fb8afb711.gz",
+        "sha256": "835e9208454fb8afb711052b78e121a34a2fc1d88f9ce71ea31c23db71d7ed30",
+        "locator": "lmarena_agent; source row 25; contenders/glm-5.3-flash-agent; field value"
+      },
+      "protocol": "LMArena Agent Arena, Overall, snapshot lastUpdated 2026-09-25T11:00:00Z; net improvement = equally weighted mean over five behavioural signals of the treatment effect versus the average model (fraction), 95% interval; source row: {\"rank\":26,\"rankSpread\":{\"min\":22,\"max\":29},\"ci95\":0.005155858003033979,\"pipelines\":5,\"sessions\":71574,\"modelOrganization\":\"Z.ai\",\"lastUpdated\":\"2026-09-25T11:00:00.000Z\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    }
+  ],
+  "divergences": [],
+  "cell": null,
+  "coverage": {
+    "model": {
+      "total_benchmarks": 317,
+      "total_capability_benchmarks": 298,
+      "available": 25,
+      "capability_available": 23,
+      "unknown": 291,
+      "not_tested": 0,
+      "not_published": 0,
+      "source_unreachable": 0,
+      "contested": 1,
+      "measured": 25,
+      "self_reported": 0
+    },
+    "benchmark": null
+  },
+  "collection": null,
+  "coverage_note": "Denominators are catalog model configurations × versioned registry entries; capability_available excludes Efficiency (cost) boards. Basis counts count covered cells, not runs; measured and self_reported may overlap. Unmatched source identities remain in observations and never inflate catalog coverage.",
+  "all_observations": [
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.6036862782167782,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1454.58,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.154285714285714,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.3321396598030439,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.154,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1669.27,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.912121212121212,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.398517145505097,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.8,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.511111111111111,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 7.46666666666667,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.516203703703704,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.472164948453608,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.842696629213483,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:19496b81-9f41-4214-a77a-1df803b3c5ae:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "19496b81-9f41-4214-a77a-1df803b3c5ae",
+        "name": "GLM-5.3-Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.328282828282828,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 19496b81-9f41-4214-a77a-1df803b3c5ae; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond-cost::snapshot-2026-09-15",
+      "value": 0.009000570707070707,
+      "unit": "USD",
+      "sample_size": 594,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 594 tasks; last run 2026-09-12T08:54:53.230Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":594,\"accuracy_stddev\":0.01772806243094703,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:54:53.230Z\",\"avg_cost_per_task_usd\":0.009000570707070707,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline-cost::snapshot-2026-09-15",
+      "value": 0.0057111,
+      "unit": "USD",
+      "sample_size": 100,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 100 tasks; last run 2026-09-12T08:11:04.852Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":100,\"accuracy_stddev\":0.020000000000000018,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:11:04.852Z\",\"avg_cost_per_task_usd\":0.0057111,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter:z-ai/glm-5.3-flash-20260826|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond::snapshot-2026-09-15",
+      "value": 0.8580246666666667,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 594 tasks, published standard deviation 0.01772806243094703; last run 2026-09-12T08:54:53.230Z. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":594,\"accuracy_stddev\":0.01772806243094703,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:54:53.230Z\",\"avg_cost_per_task_usd\":0.009000570707070707,\"avg_latency_per_task_ms\":null}",
+      "published_stddev": 0.01772806243094703,
+      "sample_size": 594
+    },
+    {
+      "subject": {
+        "source_id": "z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+        "name": "Z.ai: GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": "default",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=z-ai/glm-5.3-flash-20260826, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter:z-ai/glm-5.3-flash-20260826|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline::snapshot-2026-09-15",
+      "value": 0.753333,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 100 tasks, published standard deviation 0.020000000000000018; last run 2026-09-12T08:11:04.852Z. OpenRouter publishes this run at model scope (permaslug z-ai/glm-5.3-flash-20260826) without a reasoning effort. It is attached once to glm-5.3-flash::default, the deterministic family representative used by collapsed comparisons; this does not assert that OpenRouter tested this exact effort setting.; source row: {\"configuration\":\"\",\"permaslug\":\"z-ai/glm-5.3-flash-20260826\",\"total_tasks\":100,\"accuracy_stddev\":0.020000000000000018,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-12T08:11:04.852Z\",\"avg_cost_per_task_usd\":0.0057111,\"avg_latency_per_task_ms\":null}",
+      "published_stddev": 0.020000000000000018,
+      "sample_size": 100
+    },
+    {
+      "id": "public:f251cc0a774715fe94662d2b",
+      "benchmark_id": "livebench::2026-06-25",
+      "subject": {
+        "source_id": "glm-5.3-flash",
+        "name": "glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 71.59,
+      "unit": "points",
+      "basis": "derived",
+      "source": {
+        "url": "https://livebench.ai/table_2026_06_25.csv",
+        "retrieved_at": "2026-09-10T22:23:14Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-e70f40005b36.gz",
+        "sha256": "186ca65e7bb3a07aa26875eb3c45bfbe4e22d1ef36165cdaa11ad1a58087817c",
+        "locator": "livebench; source row 48; glm-5.3-flash; field value"
+      },
+      "protocol": "Release 2026-06-25; seven category means with equal category weights, published 2-decimal overall and explicit Grok-3 exceptions. Complete task scores required.",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Mean of seven category means, rounded to the published 2 decimals; source Grok-3 Thinking=72 and Grok-3=58 overrides retained.",
+        "inputs": [
+          73.077,
+          79.5,
+          96,
+          62,
+          77.465,
+          80.435,
+          63.636,
+          46.667,
+          60,
+          97,
+          45,
+          93.137,
+          89.841,
+          84.298,
+          48.827,
+          96.078,
+          93.667,
+          60.255,
+          78,
+          47.983,
+          46.95,
+          59.883,
+          56.467
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://livebench.ai/categories_2026_06_25.json",
+          "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-8fb1bd6bc30b.gz",
+          "sha256": "dad300ad18655b69db720e1b88fc5a5eac06c5b2f0e52c2bf50f10ff057674f3",
+          "retrieved_at": "2026-09-10T22:23:16Z",
+          "published_at": null,
+          "locator": "categories_source"
+        },
+        {
+          "url": "https://livebench.ai/static/js/main.04358d6f.js",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-livebench/b29cff6f2cd542927e75.gz",
+          "sha256": "b29cff6f2cd542927e75c9a582f65c4e8d290fb8dd244387d2f85969bdd003aa",
+          "retrieved_at": "2026-09-21T02:05:35.724575+00:00",
+          "published_at": null,
+          "locator": "frontend_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-20: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:543c397fa66717ded8e861cc",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "zai/glm-5.3-flash",
+        "name": "zai/glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 20.185,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 39; zai/glm-5.3-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":20.185,\"stderr\":4.375,\"cost_per_test\":3.119218,\"latency\":12284.669,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":131072,\"provider\":\"Fireworks AI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:ed92b9205a0273d4832cd383",
+      "benchmark_id": "kernelbench-cuda-deepseek-nsa::rtx-pro-6000",
+      "subject": {
+        "source_id": "or-fable/stealth/ox-alpha",
+        "name": "or-fable/stealth/ox-alpha",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 4.45,
+      "unit": "percent of roofline",
+      "basis": "derived",
+      "source": {
+        "url": "https://raw.githubusercontent.com/Infatoshi/kernelbench.com/master/benchmarks/cuda/results/leaderboard.json",
+        "retrieved_at": "2026-09-18T20:46:23.832372+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/8f09f0e63ca3685e9713.gz",
+        "sha256": "8f09f0e63ca3685e97134c637bd0a02939ccf4ed1f89cc53bb6a88cde7616724",
+        "locator": "kernelbench_cuda_board; source row 15; or-fable/stealth/ox-alpha; field peak_fraction"
+      },
+      "protocol": "KernelBench-CUDA 02_deepseek_nsa (RTX PRO 6000 Blackwell, environment v2_containerized): DeepSeek Native Sparse Attention block (block top-n + sparse attention); value = peak_fraction (geomean over the frozen shape sweep) × 100, percent of roofline, higher is better and unbounded above 100. Measured by kernelbench.com from audited agent sessions on RTX PRO 6000 Blackwell. Only correct audited (clean/interesting) cells are scored per the site’s own validity rule; the run_id, elapsed_seconds, harness and stated effort stay in the source row. not a Composite input.; source row: {\"label\":\"or-fable/stealth/ox-alpha\",\"harness\":\"or-fable\",\"stated_effort\":\"not stated\",\"stated_model\":\"stealth/ox-alpha\",\"annotation_verdict\":\"clean\",\"run_id\":\"20260822_102122_or-fable_stealth_ox-alpha_02_deepseek_nsa\",\"elapsed_seconds\":12685,\"problem\":\"02_deepseek_nsa\",\"hardware\":\"RTX PRO 6000 Blackwell Workstation\",\"peak_fraction\":0.0445,\"percent_of_roofline\":4.45}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.0445
+        ]
+      },
+      "join_note": "Reviewed identity map 2026-09-18: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:50dabd4f0dae852718311400",
+      "benchmark_id": "kernelbench-cuda-megaqwen-decode::rtx-pro-6000",
+      "subject": {
+        "source_id": "or-fable/stealth/ox-alpha",
+        "name": "or-fable/stealth/ox-alpha",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 3.92,
+      "unit": "percent of roofline",
+      "basis": "derived",
+      "source": {
+        "url": "https://raw.githubusercontent.com/Infatoshi/kernelbench.com/master/benchmarks/cuda/results/leaderboard.json",
+        "retrieved_at": "2026-09-18T20:46:23.832372+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/8f09f0e63ca3685e9713.gz",
+        "sha256": "8f09f0e63ca3685e97134c637bd0a02939ccf4ed1f89cc53bb6a88cde7616724",
+        "locator": "kernelbench_cuda_board; source row 15; or-fable/stealth/ox-alpha; field peak_fraction"
+      },
+      "protocol": "KernelBench-CUDA 03_megaqwen_decode (RTX PRO 6000 Blackwell, environment v2_containerized): MegaQwen CUDA megakernel geometry, decode-only tok/s at ctx 2k–128k; value = peak_fraction (geomean over the frozen shape sweep) × 100, percent of roofline, higher is better and unbounded above 100. Measured by kernelbench.com from audited agent sessions on RTX PRO 6000 Blackwell. Only correct audited (clean/interesting) cells are scored per the site’s own validity rule; the run_id, elapsed_seconds, harness and stated effort stay in the source row. not a Composite input.; source row: {\"label\":\"or-fable/stealth/ox-alpha\",\"harness\":\"or-fable\",\"stated_effort\":\"not stated\",\"stated_model\":\"stealth/ox-alpha\",\"annotation_verdict\":\"clean\",\"run_id\":\"20260822_105443_or-fable_stealth_ox-alpha_03_megaqwen_decode\",\"elapsed_seconds\":8145,\"problem\":\"03_megaqwen_decode\",\"hardware\":\"RTX PRO 6000 Blackwell Workstation\",\"peak_fraction\":0.0392,\"percent_of_roofline\":3.92}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.0392
+        ]
+      },
+      "join_note": "Reviewed identity map 2026-09-18: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:c41ac68a3e8dd25d9aa40e2e",
+      "benchmark_id": "lmarena-webdev::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "glm-5.3-flash-webdev",
+        "name": "glm-5.3-flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1613.2480225019624,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/code/webdev",
+        "retrieved_at": "2026-09-26T04:28:07.189169+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/45baeb8a8c5ca92c79e6.gz",
+        "sha256": "45baeb8a8c5ca92c79e6576cc31b9c54df75714d4226a9ed7fc422bfb9a72ff9",
+        "locator": "lmarena_leaderboard; source row 20; glm-5.3-flash-webdev; field value"
+      },
+      "protocol": "LMArena Code Arena WebDev, Overall category, snapshot with vote cutoff 2026-09-25T16:00:00Z; Bradley-Terry rating with 95% interval; harness from LMArena’s model key; source row: {\"rank\":21,\"rankUpper\":12,\"rankLower\":23,\"ratingLower\":1604.6401504000805,\"ratingUpper\":1621.8558946038443,\"votes\":6665,\"modelOrganization\":\"Z.ai\",\"releaseType\":null,\"voteCutoffISOString\":\"2026-09-25T16:00:00.000Z\",\"totalVotes\":795514}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    },
+    {
+      "id": "public:fb0500e1ee983041882b8765",
+      "benchmark_id": "lmarena-agent::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "contenders/glm-5.3-flash-agent",
+        "name": "GLM 5.3 Flash",
+        "model_id": "glm-5.3-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.0017144806532293994,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/agent",
+        "retrieved_at": "2026-09-26T04:28:11.833769+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/835e9208454fb8afb711.gz",
+        "sha256": "835e9208454fb8afb711052b78e121a34a2fc1d88f9ce71ea31c23db71d7ed30",
+        "locator": "lmarena_agent; source row 25; contenders/glm-5.3-flash-agent; field value"
+      },
+      "protocol": "LMArena Agent Arena, Overall, snapshot lastUpdated 2026-09-25T11:00:00Z; net improvement = equally weighted mean over five behavioural signals of the treatment effect versus the average model (fraction), 95% interval; source row: {\"rank\":26,\"rankSpread\":{\"min\":22,\"max\":29},\"ci95\":0.005155858003033979,\"pipelines\":5,\"sessions\":71574,\"modelOrganization\":\"Z.ai\",\"lastUpdated\":\"2026-09-25T11:00:00.000Z\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names glm-5.3-flash without a setting; the catalog has exactly one configuration, the default (glm-5.3-flash::default)"
+    }
+  ]
+}

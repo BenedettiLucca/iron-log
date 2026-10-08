@@ -4,7 +4,7 @@
 
 O **Iron Log** é uma plataforma completa de monitoramento fitness local-first. Projetado para quem leva o treino a sério — registro rápido de cargas, acompanhamento corporal, analytics de performance e exportação de dados.
 
-**Versão:** 3.14.0 · **Expo SDK:** 54 · **Testes:** 894 passando
+**Versão:** 3.16.0 · **Expo SDK:** 57 · **Testes:** 1646 passando
 
 ---
 
@@ -20,6 +20,15 @@ O idioma pode ser alterado a qualquer momento em **Configurações**.
 ---
 
 ## 📱 Funcionalidades
+
+### 🆕 Novo na v3.16.0
+- **Superset & Treino Livre** — agrupe exercícios com descanso único ou treine sem rotina, com prefill da última execução
+- **Micro-sessão** — protocolo curto de acessório/casa direto da home
+- **Cardio com distância** — log tempo + distância editável; PR por distância exata
+- **Datas agendadas & Drift** — agende treinos para outro dia e acompanhe o status da lane principal (on-track/lapsed/drifting)
+- **Plateau & Cut-Risk Alerts** — alertas de carga estagnada e de risco em cortes agressivos
+- **Rotinas arquivadas** — soft-archive com tab dedicada
+- **Unidades imperiais** — exibição em lb/mi com storage canônico métrico
 
 ### 💪 Treino & Performance
 - **Gestão de Sessão** — Cronômetro persistente, controle de duração real, fluxo contínuo entre exercícios
@@ -84,7 +93,7 @@ O idioma pode ser alterado a qualquer momento em **Configurações**.
 
 | Camada | Tecnologia |
 |--------|-----------|
-| **Core** | React Native (Expo SDK 54) + TypeScript |
+| **Core** | React Native (Expo SDK 57) + TypeScript |
 | **ORM** | Drizzle ORM + SQLite (expo-sqlite) |
 | **UI** | NativeWind v4 (Tailwind), Reanimated |
 | **Charts** | React Native Gifted Charts |

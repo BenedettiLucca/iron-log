@@ -1,0 +1,383 @@
+diff --git a/__tests__/utils/session-verdicts.test.ts b/__tests__/utils/session-verdicts.test.ts
+index 64c4aa5..58d42c7 100644
+--- a/__tests__/utils/session-verdicts.test.ts
++++ b/__tests__/utils/session-verdicts.test.ts
+@@ -1,4 +1,4 @@
+-import { generateExerciseVerdict } from '@/src/utils/session-verdicts';
++import { generateExerciseVerdict, generateSessionVerdicts } from '@/src/utils/session-verdicts';
+ import { SummarySet } from '@/src/utils/session-summary';
+ 
+ const t = (key: string, vars?: Record<string, string | number>) => {
+@@ -123,4 +123,119 @@ describe('generateExerciseVerdict', () => {
+     expect(result.verdict).toBe('hold');
+     expect(result.confidence).toBe('high');
+   });
++
++  it('preserves durationSeconds on workingSets and routineExerciseId on verdict', () => {
++    const sets: SummarySet[] = [
++      {
++        exerciseId: 5,
++        exerciseName: 'Plank',
++        routineExerciseId: 42,
++        setNumber: 1,
++        reps: 0,
++        weightKg: 0,
++        durationSeconds: 44,
++        rir: null,
++        isWarmup: false,
++        deletedAt: null,
++      },
++      {
++        exerciseId: 5,
++        exerciseName: 'Plank',
++        routineExerciseId: 42,
++        setNumber: 2,
++        reps: 0,
++        weightKg: 0,
++        durationSeconds: 32,
++        rir: null,
++        isWarmup: false,
++        deletedAt: null,
++      },
++    ];
++
++    const result = generateExerciseVerdict(5, 'Plank', null, sets, t);
++    expect(result.routineExerciseId).toBe(42);
++    expect(result.workingSets).toEqual([
++      {
++        setNumber: 1,
++        weightKg: 0,
++        reps: 0,
++        durationSeconds: 44,
++        rir: null,
++      },
++      {
++        setNumber: 2,
++        weightKg: 0,
++        reps: 0,
++        durationSeconds: 32,
++        rir: null,
++      },
++    ]);
++  });
++});
++
++describe('generateSessionVerdicts', () => {
++  it('remains occurrence-aware for repeated exercises with distinct routineExerciseIds (A/B/A)', () => {
++    const sets: SummarySet[] = [
++      {
++        exerciseId: 1,
++        exerciseName: 'Bench Press',
++        routineExerciseId: 101,
++        setNumber: 1,
++        reps: 8,
++        weightKg: 80,
++        durationSeconds: null,
++        rir: null,
++        isWarmup: false,
++        deletedAt: null,
++      },
++      {
++        exerciseId: 2,
++        exerciseName: 'Pull-up',
++        routineExerciseId: 102,
++        setNumber: 1,
++        reps: 10,
++        weightKg: 0,
++        durationSeconds: null,
++        rir: null,
++        isWarmup: false,
++        deletedAt: null,
++      },
++      {
++        exerciseId: 1,
++        exerciseName: 'Bench Press (Burnout)',
++        routineExerciseId: 103,
++        setNumber: 1,
++        reps: 15,
++        weightKg: 50,
++        durationSeconds: null,
++        rir: null,
++        isWarmup: false,
++        deletedAt: null,
++      },
++    ];
++
++    const targetsMap = new Map<string | number, string>([
++      ['routine:101', '1x8-10'],
++      ['routine:102', '1x8-12'],
++      ['routine:103', '1x12-15'],
++    ]);
++
++    const verdicts = generateSessionVerdicts(sets, targetsMap, t);
++    expect(verdicts).toHaveLength(3);
++
++    expect(verdicts[0].exerciseId).toBe(1);
++    expect(verdicts[0].routineExerciseId).toBe(101);
++    expect(verdicts[0].exerciseName).toBe('Bench Press');
++    expect(verdicts[0].result).toBe('within');
++
++    expect(verdicts[1].exerciseId).toBe(2);
++    expect(verdicts[1].routineExerciseId).toBe(102);
++    expect(verdicts[1].exerciseName).toBe('Pull-up');
++    expect(verdicts[1].result).toBe('within');
++
++    expect(verdicts[2].exerciseId).toBe(1);
++    expect(verdicts[2].routineExerciseId).toBe(103);
++    expect(verdicts[2].exerciseName).toBe('Bench Press (Burnout)');
++    expect(verdicts[2].result).toBe('top');
++  });
+ });
+diff --git a/app/session/finish.tsx b/app/session/finish.tsx
+index dea8f5c..323a024 100644
+--- a/app/session/finish.tsx
++++ b/app/session/finish.tsx
+@@ -29,6 +29,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
+ import { buildSessionSummary } from '@/src/utils/session-summary';
+ import { useToast } from '../../hooks/use-toast';
+ import { canActOnFinishStats } from '@/src/utils/session-trust';
++import { evaluateFinishIntent } from '@/src/utils/session-contract';
+ 
+ interface NoteTemplate {
+   label: string;
+@@ -84,6 +85,11 @@ export default function FinishSessionScreen() {
+   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+ 
++  const intent = evaluateFinishIntent({
++    workingSetCount: sessionStats.totalSets,
++    isSaving: isFinishing,
++  });
++
+   // Pré-carregar peso da Bio e calcular estatísticas
+   useEffect(() => {
+     const loadData = async () => {
+@@ -193,11 +199,7 @@ export default function FinishSessionScreen() {
+   }, []);
+ 
+   const handleFinish = () => {
+-    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
+-    if (sessionStats.totalSets === 0) {
+-      setShowDiscardDialog(true);
+-      return;
+-    }
++    if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError) || intent.kind === 'empty') return;
+     setShowConfirmDialog(true);
+   };
+ 
+@@ -223,6 +225,7 @@ export default function FinishSessionScreen() {
+   };
+ 
+   const confirmFinish = async () => {
++    if (!intent.persist) return;
+     if (isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)) return;
+     setIsFinishing(true);
+     setShowConfirmDialog(false);
+@@ -340,6 +343,13 @@ export default function FinishSessionScreen() {
+           </View>
+         </Card>
+ 
++        {intent.kind === 'empty' ? (
++          <Card className="mb-6">
++            <Text className="text-text font-bold text-base mb-1">{t('finish.emptyTitle')}</Text>
++            <Text className="text-subtext text-sm">{t('finish.emptyBody')}</Text>
++          </Card>
++        ) : (
++          <>
+         {/* Peso Corporal */}
+         <Card className="mb-6">
+           <View className="flex-row justify-between items-center mb-2">
+@@ -476,29 +486,58 @@ export default function FinishSessionScreen() {
+             accessibilityLabel={t('finish.observations')}
+           />
+         </Card>
++          </>
++        )}
+ 
+         <View className="gap-3 mt-4">
+-          <Button
+-            title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
+-            onPress={handleFinish}
+-            variant="primary"
+-            size="lg"
+-            fullWidth
+-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+-            loading={isFinishing}
+-          />
+-          <Button
+-            title={t('finish.discardButton')}
+-            onPress={() => {
+-              if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
+-                setShowDiscardDialog(true);
+-              }
+-            }}
+-            variant="danger"
+-            size="md"
+-            fullWidth
+-            disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
+-          />
++          {intent.kind === 'empty' ? (
++            <>
++              <Button
++                title={t('finish.logSetButton')}
++                onPress={() => router.back()}
++                variant="primary"
++                size="lg"
++                fullWidth
++                disabled={!canActOnFinishStats(isStatsLoading, statsLoadError)}
++              />
++              <Button
++                title={t('finish.discardButton')}
++                onPress={() => {
++                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
++                    setShowDiscardDialog(true);
++                  }
++                }}
++                variant="ghost"
++                size="md"
++                fullWidth
++                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
++              />
++            </>
++          ) : (
++            <>
++              <Button
++                title={isFinishing ? t('finish.finishing') : t('finish.finishButton')}
++                onPress={handleFinish}
++                variant="primary"
++                size="lg"
++                fullWidth
++                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
++                loading={isFinishing}
++              />
++              <Button
++                title={t('finish.discardButton')}
++                onPress={() => {
++                  if (canActOnFinishStats(isStatsLoading, statsLoadError)) {
++                    setShowDiscardDialog(true);
++                  }
++                }}
++                variant="ghost"
++                size="md"
++                fullWidth
++                disabled={isFinishing || !canActOnFinishStats(isStatsLoading, statsLoadError)}
++              />
++            </>
++          )}
+         </View>
+ 
+       </ScrollView>
+diff --git a/app/session/summary.tsx b/app/session/summary.tsx
+index 26125ce..c6013c5 100644
+--- a/app/session/summary.tsx
++++ b/app/session/summary.tsx
+@@ -24,6 +24,7 @@ import { useI18n, getLocaleForLanguage } from '../../src/i18n/index';
+ import { buildSessionSummary, type SessionStats } from '@/src/utils/session-summary';
+ import { resolveScreenState } from '@/src/utils/screen-state';
+ import { generateSessionVerdicts, type ExerciseVerdict } from '@/src/utils/session-verdicts';
++import { formatLoggedSet } from '@/src/utils/session-contract';
+ 
+ export default function SummaryScreen() {
+   const { t, language } = useI18n();
+@@ -259,7 +260,7 @@ export default function SummaryScreen() {
+               const targetStr = v.targetRange
+                 ? `${v.targetRange.sets}x${v.targetRange.minReps === v.targetRange.maxReps ? v.targetRange.minReps : `${v.targetRange.minReps}-${v.targetRange.maxReps}`}`
+                 : '-';
+-              const actualStr = v.workingSets.map(s => `${s.weightKg}kg x ${s.reps}`).join(', ');
++              const actualStr = v.workingSets.map(s => formatLoggedSet(s)).join(', ');
+ 
+               const getBadgeStyles = (verdict: typeof v) => {
+                 if (verdict.verdict === 'increase') {
+diff --git a/src/i18n/translations/en.ts b/src/i18n/translations/en.ts
+index fef1ca5..8e6fc50 100644
+--- a/src/i18n/translations/en.ts
++++ b/src/i18n/translations/en.ts
+@@ -468,6 +468,9 @@ export const en = {
+   },
+ 
+   finish: {
++    emptyTitle: 'No sets logged',
++    emptyBody: 'This session has no evidence yet. Log a set or discard it.',
++    logSetButton: 'Log a set',
+     title: 'Finish Workout',
+     review: 'Review your data before saving',
+     stats: 'Session Statistics',
+diff --git a/src/i18n/translations/es.ts b/src/i18n/translations/es.ts
+index d64a185..3cb25e0 100644
+--- a/src/i18n/translations/es.ts
++++ b/src/i18n/translations/es.ts
+@@ -468,6 +468,9 @@ export const es = {
+   },
+ 
+   finish: {
++    emptyTitle: 'Ninguna serie registrada',
++    emptyBody: 'Esta sesión aún no tiene evidencia. Registra una serie o descártala.',
++    logSetButton: 'Registrar serie',
+     title: 'Finalizar Entreno',
+     review: 'Revisa tus datos antes de guardar',
+     stats: 'Estadísticas de la Sesión',
+diff --git a/src/i18n/translations/pt.ts b/src/i18n/translations/pt.ts
+index c587956..a466778 100644
+--- a/src/i18n/translations/pt.ts
++++ b/src/i18n/translations/pt.ts
+@@ -491,6 +491,9 @@ export const pt = {
+ 
+   // Finish
+   finish: {
++    emptyTitle: 'Nenhuma série registrada',
++    emptyBody: 'Esta sessão ainda não tem evidência. Registre uma série ou descarte.',
++    logSetButton: 'Registrar série',
+     title: 'Finalizar Treino',
+     review: 'Revise seus dados antes de salvar',
+     stats: 'Estatísticas da Sessão',
+diff --git a/src/i18n/translations/zh.ts b/src/i18n/translations/zh.ts
+index 2879b92..7f94439 100644
+--- a/src/i18n/translations/zh.ts
++++ b/src/i18n/translations/zh.ts
+@@ -468,6 +468,9 @@ export const zh = {
+   },
+ 
+   finish: {
++    emptyTitle: '尚未记录组数',
++    emptyBody: '本次训练还没有证据。请记录一组或放弃。',
++    logSetButton: '记录一组',
+     title: '结束训练',
+     review: '保存前请检查你的数据',
+     stats: '训练统计',
+diff --git a/src/utils/session-verdicts.ts b/src/utils/session-verdicts.ts
+index 7fc0a46..c47ef6f 100644
+--- a/src/utils/session-verdicts.ts
++++ b/src/utils/session-verdicts.ts
+@@ -18,6 +18,7 @@ export interface ExerciseVerdict {
+     setNumber: number;
+     weightKg: number;
+     reps: number;
++    durationSeconds: number | null;
+     rir: number | null;
+   }[];
+   result: 'below' | 'within' | 'top' | 'no_target';
+@@ -168,7 +169,7 @@ export function generateExerciseVerdict(
+     if (verdict === 'increase') {
+       const weights = workingSets.map(s => s.weightKg);
+       const uniqueWeights = Array.from(new Set(weights));
+-      const hasSingleWorkingWeight = uniqueWeights.length === 1 && uniqueWeights[0] > 0;
++      const hasSingleWorkingWeight = uniqueWeights.length === 1 && Number.isFinite(uniqueWeights[0]) && uniqueWeights[0] > 0;
+       
+       if (hasSingleWorkingWeight) {
+         const nextWeight = uniqueWeights[0] + 2.5;
+@@ -187,13 +188,14 @@ export function generateExerciseVerdict(
+ 
+   return {
+     exerciseId,
+-    routineExerciseId: workingSets[0]?.routineExerciseId ?? null,
++    routineExerciseId: workingSets[0]?.routineExerciseId ?? sets[0]?.routineExerciseId ?? null,
+     exerciseName,
+     targetRange: target,
+     workingSets: workingSets.map(s => ({
+       setNumber: s.setNumber,
+       weightKg: s.weightKg,
+       reps: s.reps,
++      durationSeconds: s.durationSeconds ?? null,
+       rir: s.rir,
+     })),
+     result,

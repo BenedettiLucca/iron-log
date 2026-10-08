@@ -17,9 +17,6 @@ beforeEach(() => {
   );
 });
 
-afterAll(() => {
-  sqlite.close();
-});
 
 describe('RoutineShareService', () => {
   describe('exportRoutine', () => {

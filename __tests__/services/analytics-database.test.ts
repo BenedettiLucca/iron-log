@@ -19,7 +19,6 @@ const week = 7 * 86400000;
 beforeEach(() => {
   sqlite.exec('DELETE FROM program_exercise_targets; DELETE FROM programs; DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
 });
-afterAll(() => sqlite.close());
 
 function seed(sessionCount: number, setsPerSession: number) {
   let exercise = db.select().from(exercises).where(eq(exercises.id, 1)).get();

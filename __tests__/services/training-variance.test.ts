@@ -18,9 +18,6 @@ beforeEach(() => {
   );
 });
 
-afterAll(() => {
-  sqlite.close();
-});
 
 describe('TrainingVarianceService', () => {
   describe('Integration with synthetic DB (Trust II rules & deltas)', () => {

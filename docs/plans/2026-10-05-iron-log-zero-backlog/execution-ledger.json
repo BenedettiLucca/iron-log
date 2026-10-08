@@ -1,0 +1,4528 @@
+{
+  "schema_version": 1,
+  "status": "PLAN_ONLY",
+  "generated_at": "2026-10-06T14:30:53.921529+00:00",
+  "repo": "BenedettiLucca/iron-log",
+  "base_branch": "master",
+  "base_sha": "9c0b808d1c1e24ea9f3fbba611031cc5cfd5794b",
+  "orchestrator": {
+    "requested_model": "GLM 5.3 Flash",
+    "runtime_selector": null,
+    "verified": false,
+    "zcode_required": false
+  },
+  "authorizations": {
+    "inference": false,
+    "implementation": false,
+    "commit": false,
+    "push": false,
+    "pr": false,
+    "merge": false,
+    "close_issues": false,
+    "deploy": false
+  },
+  "source_issue_count": 20,
+  "source_comment_count": 14,
+  "cap_policy": {
+    "actual_model_sessions": 2,
+    "route_sessions": 2,
+    "primary_nominal_total": 12,
+    "count_review_and_probes": true,
+    "reserve_all_known_candidates": true,
+    "unknown_candidate_set_admissible": false,
+    "fallback_only_last": "CODEX"
+  },
+  "routes": {
+    "AGY-G": {
+      "harness": "agy",
+      "requested_model": "Gemini 3.8 Flash",
+      "selector": "gemini-3.8-flash-high",
+      "cap": 2,
+      "availability": "catalog_verified_inference_unchecked"
+    },
+    "AGY-S": {
+      "harness": "agy",
+      "requested_model": "Claude Sonnet 5.5",
+      "selector": "claude-sonnet-5-5-high",
+      "cap": 2,
+      "availability": "parent_catalog_verified_high_not_max_inference_unchecked"
+    },
+    "OMP": {
+      "harness": "omp",
+      "requested_model": "oc-executor-free (Agnes 3.0 Flash / Grok 4.6)",
+      "selector": "omniroute/oc-executor-free",
+      "cap": 2,
+      "availability": "combo_requires_roster_restriction_and_identity_cap_guard"
+    },
+    "OC-M": {
+      "harness": "opencode",
+      "requested_model": "MiMo V2.6 Flash",
+      "selector": null,
+      "cap": 2,
+      "availability": "identity_unresolved_empty_catalog"
+    },
+    "CLINE": {
+      "harness": "cline",
+      "requested_model": "DeepSeek V4.1 Flash",
+      "selector": "cline-free/deepseek-v4.1-flash",
+      "cap": 2,
+      "availability": "config_verified_xhigh_inference_unchecked"
+    },
+    "CURSOR": {
+      "harness": "cursor-agent",
+      "requested_model": "auto",
+      "selector": "auto",
+      "cap": 2,
+      "availability": "actual_model_unresolved"
+    },
+    "CODEX": {
+      "harness": "codex",
+      "requested_model": "GPT 5.6 Luna max",
+      "selector": "gpt-5.6-luna",
+      "effort": "max",
+      "cap": 2,
+      "availability": "fallback_only_config_verified_inference_unchecked"
+    }
+  },
+  "route_preferences": {
+    "C": [
+      "AGY-G",
+      "AGY-S",
+      "OMP",
+      "CLINE",
+      "OC-M",
+      "CURSOR",
+      "CODEX"
+    ],
+    "R": [
+      "AGY-S",
+      "AGY-G",
+      "CLINE",
+      "OMP",
+      "OC-M",
+      "CURSOR",
+      "CODEX"
+    ],
+    "T": [
+      "OMP",
+      "OC-M",
+      "CLINE",
+      "AGY-G",
+      "AGY-S",
+      "CURSOR",
+      "CODEX"
+    ],
+    "U": [
+      "AGY-G",
+      "CLINE",
+      "OC-M",
+      "OMP",
+      "AGY-S",
+      "CURSOR",
+      "CODEX"
+    ],
+    "N": [
+      "AGY-G",
+      "CLINE",
+      "AGY-S",
+      "OMP",
+      "CURSOR",
+      "OC-M",
+      "CODEX"
+    ]
+  },
+  "issues": [
+    {
+      "number": 64,
+      "title": "Feature: Archive routines — soft-archive to declutter the home screen",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/64",
+      "source_state": "open",
+      "updated_at": "2026-09-26T14:08:05Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 2,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "archive_selection"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": ".maestro/routine-archive.yaml",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "__tests__/fixtures/database.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/hooks/use-routines.test.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/quality/routine-archive-migration.test.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "__tests__/screens/routine-preview-routes.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/screens/routine-preview.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/(tabs)/index.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/(tabs)/routines.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "drizzle/0026_<generated-name>.sql",
+          "kind": "pattern_or_generated"
+        },
+        {
+          "path": "drizzle/meta/0026_snapshot.json",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "drizzle/meta/_journal.json",
+          "kind": "existing"
+        },
+        {
+          "path": "drizzle/migrations.js",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-routines.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** migrate an existing DB and prove old routines default active; archive/unarchive round-trip; all = active + archived; no linked history/exercises deleted; default lists exclude archive; explicit archived selection still opens preview and starts the same routine; four locales; AVD + Maestro archive/show/unarchive/start-session flow. This adopts the conservative behavior in the historical comment, subject to D1-style explicit owner confirmation of selection semantics."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "64-contract",
+        "64-schema",
+        "64-core",
+        "64-wiring",
+        "64-native"
+      ]
+    },
+    {
+      "number": 66,
+      "title": "[Feature] Add micro-session mode for short accessory / home protocols",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/66",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:18:56Z",
+      "labels": [],
+      "comment_count": 2,
+      "state": "PLANNED",
+      "task_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D6"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/screens/session-draft-recovery.test.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/services/session-mutation.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/utils/session-contract.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/routines/editor.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/SetEditor.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/session/SetList.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-routines.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/SessionLifecycleService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/types/index.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/validators/routes.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** at least one representative short protocol completes with fewer taps/navigation than standard; side value survives save/edit/undo/recovery/export if included; timer suppression works only for micro mode; app-kill recovery retains mode; standard flow regression is unchanged; AVD/Maestro and four-locale coverage. Do not implement custom auto-completion absent D6 approval."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "66-contract",
+        "66-schema",
+        "66-core",
+        "66-wiring",
+        "66-native"
+      ]
+    },
+    {
+      "number": 67,
+      "title": "[Feature] Add main-lane drift status and re-entry guidance",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/67",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:18:57Z",
+      "labels": [],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D1",
+        "D2"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/services/adherence-drift.test.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "app/(tabs)/index.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/programs/detail.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/summary.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AdherenceDriftService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "services/HistoryQueryService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/ScheduleManifestService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/TodayWorkoutService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/program/dashboard.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** correctly separate main, accessory, and recovery; active accessory sessions do not erase a stale main signal; deterministic thresholds and boundary-day tests; empty/no-active-program state is “unknown”, not overdue; re-entry summary/export is stable across restart. **Dependency:** #95's schedule contract if product uses “due/overdue”; otherwise owner may deliberately narrow copy to “inactive/stale” and compute from last completed program-assigned routine. Owner must choose lane location/threshold and warn-only policy before coding."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "67-contract",
+        "67-schema",
+        "67-core",
+        "67-wiring",
+        "67-native"
+      ]
+    },
+    {
+      "number": 70,
+      "title": "Feature: Nutrition Context Pipeline — sync daily intake alongside training data",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/70",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:18:58Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D10"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "app/(tabs)/index.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/NutritionContextCard.tsx",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "services/AlexandriaHealthClient.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "services/NutritionSummaryService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance/blocker:** verified auth, endpoint schema, local-day timezone, units, freshness/cache lifetime, timeout/error behavior; current-day fields display accurately; no write to training history; missing/stale/offline responses fail visibly and safely. **Hard blocker:** external nutrition dedup + usable daily endpoint/credentials; do not guess or close as shipped before those exist."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "70-contract",
+        "70-core",
+        "70-wiring",
+        "70-native"
+      ]
+    },
+    {
+      "number": 72,
+      "title": "Feature: Readiness-to-Train Gate — pre-session composite signal from Alexandria health data",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/72",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:18:59Z",
+      "labels": [],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D9",
+        "D10"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "app/(tabs)/index.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AlexandriaHealthClient.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "services/ReadinessService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance/blocker:** documented APIs and units, source timestamps, stale/unavailable handling, reproducible test vectors, no session block or automatic 10% deload, no “train as prescribed” medical-sounding composite. This is independently blocked on sleep/health data access; #70 nutrition is not a prerequisite unless D10 explicitly couples it. Integrate #75 only after safe signal contracts exist."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "72-contract",
+        "72-core",
+        "72-wiring",
+        "72-native"
+      ]
+    },
+    {
+      "number": 74,
+      "title": "Feature: Plateau Detection Alert — flag stale loads across consecutive sessions",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/74",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:00Z",
+      "labels": [],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "plateau_comparison"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/services/plateau-detector.test.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "app/session/summary.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AnalyticsService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/PlateauDetector.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/plateau-analysis.ts",
+          "kind": "proposed_new_or_to_confirm"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** tests for progressing, load-stalled, RIR-increasing, regressing reps, deleted/warm-up sets, missed sessions, target change, sparse/missing RIR, duplicate exercise occurrences, and non-strength records. Suggestions remain “consider” language, not automatic prescription. No new schema required if computed on demand."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "74-contract",
+        "74-core",
+        "74-wiring",
+        "74-native"
+      ]
+    },
+    {
+      "number": 75,
+      "title": "Feature: Cut Velocity Injury-Risk Flag — surface connective-tissue risk during aggressive cuts (tendon-strength-gap framework)",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/75",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:02Z",
+      "labels": [],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D9"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/services/cut-velocity.test.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "app/session/summary.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AnalyticsService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/CutVelocityAnalyzer.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/utils/cut-velocity-analysis.ts",
+          "kind": "proposed_new_or_to_confirm"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance/blocker:** tests for weight loss without plateau, plateau without weight loss, rapid apparent change caused by sparse/outlier data, missing/stale weight, and confirmed combined input. No injury diagnosis, prevention claim, clinical validation claim, blocking, or automatic deload. Owner must approve threshold/copy and whether to rename the feature before UI work. #74 is a hard data dependency; #72 is an integration target, not a reason to overstate the score."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "75-contract",
+        "75-core",
+        "75-wiring",
+        "75-native"
+      ]
+    },
+    {
+      "number": 79,
+      "title": "Feature: Superset \\u2014 agrupar exerc\\u00edcios back-to-back com descanso \\u00fanico (planejado + parear mid-session)",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/79",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:03Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D4",
+        "D5"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": ".maestro/superset-round.yaml",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "app/routines/editor.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/RoutinePreview.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotificationService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/SessionCompositionService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-occurrence.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-summary.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** planned and mid-session pair/unpair; A/B round gets one rest after both, no rest after each member; app background/resume timer remains correct; removing one group member dissolves the group; repeated same exercise positions remain distinct; standard non-superset flow unchanged. **Hard dependency:** #81's persisted session composition model. No duplicate-ID schema redesign."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "79-contract",
+        "79-schema",
+        "79-core",
+        "79-wiring",
+        "79-native"
+      ]
+    },
+    {
+      "number": 80,
+      "title": "Feature: Treino livre (freestyle) \\u2014 sess\\u00e3o sem rotina com prefill da \\u00faltima execu\\u00e7\\u00e3o",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/80",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:04Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D4"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "app/(tabs)/history.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/(tabs)/routines.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/freestyle.tsx",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/SessionCompositionService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-occurrence.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-start.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/validators/routes.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** no routine required; session survives restart; add multiple occurrences including same exercise without conflation; prefill matches the previous execution per set position but is not treated as a saved set; finish/history/export show a normal session; rest-notification cold recovery works with null `routineId`. **Hard dependency:** #81."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "80-contract",
+        "80-core",
+        "80-wiring",
+        "80-native"
+      ]
+    },
+    {
+      "number": 81,
+      "title": "Feature: Add/remove exerc\\u00edcio mid-session sem encerrar o treino",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/81",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:05Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D4",
+        "D5"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/fixtures/database.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/session/*",
+          "kind": "pattern_or_generated"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-session-composition.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "services/SessionCompositionService.ts",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/types/index.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-occurrence.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** add/remove during an active session; persists over app recovery and routine edits; stable order and occurrence identity; remove one superset member follows D5; removing preserves logged sets and historical PR contribution; undo restores active occurrence; completed session reads old rows unchanged. **Hard dependency:** schema/identity contract must be reviewed before other lanes scaffold against it."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "81-contract",
+        "81-schema",
+        "81-core",
+        "81-wiring",
+        "81-native"
+      ]
+    },
+    {
+      "number": 82,
+      "title": "Feature: Cardio como tipo de exerc\\u00edcio \\u2014 log tempo + velocidade/dist\\u00e2ncia com PR",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/82",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:06Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D7"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/SetCard.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/SetEditor.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/session/ExerciseHistoryModal.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-personal-records.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AlexandriaExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AnalyticsService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/CsvExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/TrainingVarianceService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/progression.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/types/index.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-summary.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/validators/*",
+          "kind": "pattern_or_generated"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance/blocker:** duration/distance input, units and precision, history/prefill, stable PR reconciliation after edit/delete/undo, strength volume/e1RM unchanged, mixed workout reporting correct, migrations do not rename existing duration exercises. Owner must decide exact time/distance/pace PR comparisons; “best time” is undefined without a target distance."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "82-contract",
+        "82-schema",
+        "82-core",
+        "82-wiring",
+        "82-native"
+      ]
+    },
+    {
+      "number": 95,
+      "title": "Feature: Data agendada em sessions + reschedule de treino para outro dia",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/95",
+      "source_state": "open",
+      "updated_at": "2026-09-15T17:19:07Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 1,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D1"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "app/(tabs)/history.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/programs/detail.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/programs/week-detail.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/reports/weekly.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/[routineId].tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/HistoryQueryService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/ScheduleManifestService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/TodayWorkoutService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/program/*",
+          "kind": "pattern_or_generated"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/date-utils.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** program day maps to expected local date; reschedule changes only `scheduled_date`; actual start/end, PR dates, and training facts remain actual; history calendar uses planned date when present and start-date fallback for legacy sessions; timezone/DST, week boundary, and cross-midnight tests; migration leaves existing rows null. If owner rejects adding day-level assignments, explicitly narrow and amend the prefill acceptance before implementation."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "95-contract",
+        "95-schema",
+        "95-core",
+        "95-wiring",
+        "95-native"
+      ]
+    },
+    {
+      "number": 112,
+      "title": "[Infra] Upgrade Expo SDK 54 -> 57 (ou migrar pra development build) — Expo Go treadmill bloqueia QA físico",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/112",
+      "source_state": "open",
+      "updated_at": "2026-09-06T03:22:00Z",
+      "labels": [],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D11"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": ".github/workflows/*",
+          "kind": "pattern_or_generated"
+        },
+        {
+          "path": "app/_layout.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "scripts/qa.sh",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** pinned Node/npm; Expo dependency alignment/doctor; build and install actual dev client; Metro connection; native notifications/permission tests; clean Android build and app launch. **Local blocker:** current checkout has a pre-existing deleted `android/app/build.gradle`; preserve it and build from a clean base worktree. Do not claim SDK 57 compatibility without a separate full migration/QA."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "112-contract",
+        "112-core",
+        "112-wiring",
+        "112-native"
+      ]
+    },
+    {
+      "number": 114,
+      "title": "[QA][E2E] Cenário app morto para notificações locais — impossível em Expo Go, validar em dev build",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/114",
+      "source_state": "open",
+      "updated_at": "2026-09-06T04:28:04Z",
+      "labels": [],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "owner_decisions": [],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": ".maestro/rest-notification-recovery.yaml",
+          "kind": "proposed_new_or_to_confirm"
+        },
+        {
+          "path": "__tests__/screens/notification-response.test.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/_layout.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotificationService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/notification-routing.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance/blocker:** evidence from supported dev build/device, correct session/exercise route, no duplicate session, no stale-session navigation, notification cancel/expiry behavior; cold and warm tests. **Hard dependency:** #112. Also fix/extend null-routine recovery with #80 rather than letting freestyle sessions silently fail to reopen."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "114-contract",
+        "114-core",
+        "114-wiring",
+        "114-native"
+      ]
+    },
+    {
+      "number": 136,
+      "title": "[UX][P2] Adicionar preferência de unidades métricas/imperiais mantendo storage canônico",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/136",
+      "source_state": "open",
+      "updated_at": "2026-09-08T22:45:11Z",
+      "labels": [],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D8"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/fixtures/database.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/(tabs)/bio.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/(tabs)/settings.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/bio/analytics.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/bio/checkin.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/bio/evolution.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/bio/goals.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/reports/weekly.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/finish.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/MonthlyCheckinComparison.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/PhotoOverlay.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/SetCard.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/SetEditor.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "components/session/ExerciseHistoryModal.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AlexandriaExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/CsvExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/ScheduleManifestService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/types/index.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-summary.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/units.ts",
+          "kind": "proposed_new_or_to_confirm"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** metric default/imperial persisted across restart and backup/restore; English + metric and Portuguese + imperial both possible; kg↔lb and cm↔in round-trip within the explicitly approved display/input tolerance; toggling preference never changes stored physical values, PRs, analytics, or historical rows; all exports label unit unequivocally. Serialize behind #147-#149 exporter work to avoid touching the same files concurrently."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "136-contract",
+        "136-schema",
+        "136-core",
+        "136-wiring",
+        "136-native"
+      ]
+    },
+    {
+      "number": 147,
+      "title": "feat: check \"não me pesei hoje\" no finish — usar último peso só no relatório, sem gravar pesagem falsa",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/147",
+      "source_state": "open",
+      "updated_at": "2026-09-21T21:08:59Z",
+      "labels": [
+        "enhancement",
+        "priority: média",
+        "data-integrity"
+      ],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D3"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/fixtures/database.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/screens/session-recovery-navigation.test.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/services/NotionExportService.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/services/session-lifecycle.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/finish.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-body-metrics.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/SessionLifecycleService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/db/schema.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/en.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/es.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/pt.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/i18n/translations/zh.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** checked path leaves `sessions.body_weight` null, creates zero new `body_metrics`, persists a stable borrowed snapshot/date and identifies it in Notion; unchecked path keeps existing parse/idempotent behavior; invalid latest row falls back to latest valid row; no prior weight; migration/restore retains provenance; AVD/Maestro covers both choices. #149 owns other output consumers, not `finishSession`."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "147-contract",
+        "147-schema",
+        "147-core",
+        "147-wiring",
+        "147-native"
+      ]
+    },
+    {
+      "number": 148,
+      "title": "refactor: separar avaliação de progressão do log do treino",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/148",
+      "source_state": "open",
+      "updated_at": "2026-09-22T03:50:21Z",
+      "labels": [
+        "enhancement",
+        "priority: média",
+        "ui/ux"
+      ],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [
+        "D12"
+      ],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/services/NotionExportService.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/utils/session-summary.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/utils/session-verdicts.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/summary.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-summary.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-verdict-markdown.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-verdicts.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** workout log contains only session facts; UI/clipboard/Notion expose a separate structured assessment; all five verdict/result cases plus no-target, flags, confidence, meta vs execution, and i18n are covered; weekly/session outputs stay separated; no `generateExerciseVerdict` behavior changes or automatic prescription; AVD visual QA."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "148-contract",
+        "148-core",
+        "148-wiring",
+        "148-native"
+      ]
+    },
+    {
+      "number": 149,
+      "title": "[Data][P2] Peso corporal emprestado sai sem discriminação em 3 exportadores + NotionExportService sem cobertura própria",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/149",
+      "source_state": "open",
+      "updated_at": "2026-09-26T13:39:37Z",
+      "labels": [
+        "enhancement",
+        "data-integrity"
+      ],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/services/csv-export.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/utils/session-summary.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/AlexandriaExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/CsvExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "src/utils/session-summary.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** measured, borrowed, no-prior, and legacy-unknown cases are honest/consistent; borrowed date is actual source date; units are explicit; existing raw measurements untouched. **Dependencies/lock:** #147 data contract and #151 service test harness; sequence after #148 on shared summary/Notion files, then #136 unit formatting."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "149-contract",
+        "149-core",
+        "149-wiring",
+        "149-native"
+      ]
+    },
+    {
+      "number": 150,
+      "title": "[Perf][P3] Caminho de undo ainda lê exercises a cada undo — fora do budget test da #130",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/150",
+      "source_state": "open",
+      "updated_at": "2026-09-26T13:40:06Z",
+      "labels": [],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/hooks/exercise-sets-query-budget.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/screens/session-recovery-navigation.test.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "app/session/exercise.tsx",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-exercise-sets.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "hooks/use-session-undo.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** exact structural-query counts for undo/restore, no regression in `currentName`, `routineExerciseId`, set state, PR reconciliation, and existing 10-second undo semantics. This is independent of schema; can run in a separate code lane once its test-file lock is available."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "150-contract",
+        "150-core",
+        "150-wiring",
+        "150-native"
+      ]
+    },
+    {
+      "number": 151,
+      "title": "[Tests][P2] NotionExportService.test.ts não importa NotionExportService — frontmatter e relatório semanal sem cobertura",
+      "url": "https://github.com/BenedettiLucca/iron-log/issues/151",
+      "source_state": "open",
+      "updated_at": "2026-09-26T13:40:22Z",
+      "labels": [
+        "enhancement"
+      ],
+      "comment_count": 0,
+      "state": "PLANNED",
+      "task_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "owner_decisions": [],
+      "section": "ISSUE-PACKAGES.md",
+      "candidate_paths": [
+        {
+          "path": "__tests__/fixtures/database.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/services/NotionExportService.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "__tests__/utils/session-verdicts.test.ts",
+          "kind": "existing"
+        },
+        {
+          "path": "services/NotionExportService.ts",
+          "kind": "existing"
+        }
+      ],
+      "acceptance_strategy": [
+        "**Acceptance:** suite imports and calls `NotionExportService.exportSessionMarkdown` and `.exportWeeklyReport`; deliberate implementation changes to their output fail assertions. Do this first as a test-only baseline package, then extend sequentially under the #147/#148/#149 file lock."
+      ],
+      "original_acceptance_source": "evidence/issues-snapshot.json",
+      "runtime_evidence": [],
+      "package_ids": [
+        "151-contract",
+        "151-core",
+        "151-wiring"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "id": "64-contract",
+      "issue": 64,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "64-schema",
+      "issue": 64,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "64-contract"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:archive_selection"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "64-core",
+      "issue": 64,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "64-schema"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:archive_selection"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "64-wiring",
+      "issue": 64,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "64-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HOME_HISTORY",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:archive_selection"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "64-native",
+      "issue": 64,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "64-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:archive_selection"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "66-contract",
+      "issue": 66,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "66-schema",
+      "issue": 66,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "66-contract"
+      ],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D6"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "66-core",
+      "issue": 66,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "66-schema"
+      ],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D6"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "66-wiring",
+      "issue": 66,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "66-core",
+        "81-core"
+      ],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N",
+        "SESSION"
+      ],
+      "blocker_requirements": [
+        "owner:D6"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "66-native",
+      "issue": 66,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "66-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D6"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "67-contract",
+      "issue": 67,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "67-schema",
+      "issue": 67,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "67-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D1",
+        "owner:D2"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "67-core",
+      "issue": 67,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "67-schema",
+        "95-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D1",
+        "owner:D2"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "67-wiring",
+      "issue": 67,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "67-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HOME_HISTORY",
+        "I18N",
+        "SCHEDULE"
+      ],
+      "blocker_requirements": [
+        "owner:D1",
+        "owner:D2"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "67-native",
+      "issue": 67,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "67-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D1",
+        "owner:D2"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "70-contract",
+      "issue": 70,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "70-core",
+      "issue": 70,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "70-contract"
+      ],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D10"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "70-wiring",
+      "issue": 70,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "70-core"
+      ],
+      "route_class": "U",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "OC-M",
+        "OMP",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HEALTH_CLIENT",
+        "HOME_HISTORY",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D10",
+        "external:verified_authorized_Alexandria_contract_and_live_data"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "70-native",
+      "issue": 70,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "70-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D10",
+        "external:verified_authorized_Alexandria_contract_and_live_data"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "72-contract",
+      "issue": 72,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "72-core",
+      "issue": 72,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "72-contract"
+      ],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D9",
+        "owner:D10"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "72-wiring",
+      "issue": 72,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "72-core"
+      ],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HEALTH_CLIENT",
+        "HOME_HISTORY",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D9",
+        "owner:D10",
+        "external:verified_authorized_Alexandria_contract_and_live_data"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "72-native",
+      "issue": 72,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "72-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D9",
+        "owner:D10",
+        "external:verified_authorized_Alexandria_contract_and_live_data"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "74-contract",
+      "issue": 74,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "74-core",
+      "issue": 74,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "74-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:plateau_comparison"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "74-wiring",
+      "issue": 74,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "74-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:plateau_comparison"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "74-native",
+      "issue": 74,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "74-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:plateau_comparison"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "75-contract",
+      "issue": 75,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "75-core",
+      "issue": 75,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "147-core",
+        "74-core",
+        "75-contract"
+      ],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D9"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "75-wiring",
+      "issue": 75,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "75-core"
+      ],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D9"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "75-native",
+      "issue": 75,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "75-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D9"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "79-contract",
+      "issue": 79,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "79-schema",
+      "issue": 79,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "79-contract",
+        "81-schema"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "79-core",
+      "issue": 79,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "79-schema",
+        "81-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "79-wiring",
+      "issue": 79,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "79-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N",
+        "SESSION"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "79-native",
+      "issue": 79,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "79-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "80-contract",
+      "issue": 80,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "80-core",
+      "issue": 80,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "80-contract",
+        "81-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D4"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "80-wiring",
+      "issue": 80,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "80-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HOME_HISTORY",
+        "I18N",
+        "SESSION"
+      ],
+      "blocker_requirements": [
+        "owner:D4"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "80-native",
+      "issue": 80,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "80-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D4"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "81-contract",
+      "issue": 81,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "81-schema",
+      "issue": 81,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "81-contract"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "81-core",
+      "issue": 81,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "81-schema"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "81-wiring",
+      "issue": 81,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "81-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N",
+        "SESSION"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "81-native",
+      "issue": 81,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "81-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D4",
+        "owner:D5"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "82-contract",
+      "issue": 82,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "82-schema",
+      "issue": 82,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "82-contract"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D7"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "82-core",
+      "issue": 82,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "82-schema"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D7"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "82-wiring",
+      "issue": 82,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "81-core",
+        "82-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N",
+        "SESSION"
+      ],
+      "blocker_requirements": [
+        "owner:D7"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "82-native",
+      "issue": 82,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "82-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D7"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "95-contract",
+      "issue": 95,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "95-schema",
+      "issue": 95,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "95-contract"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D1"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "95-core",
+      "issue": 95,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "95-schema"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D1"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "95-wiring",
+      "issue": 95,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "95-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "HOME_HISTORY",
+        "I18N",
+        "SCHEDULE"
+      ],
+      "blocker_requirements": [
+        "owner:D1"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "95-native",
+      "issue": 95,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "95-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D1"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "112-contract",
+      "issue": 112,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "112-core",
+      "issue": 112,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "112-contract"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D11"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "112-wiring",
+      "issue": 112,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "112-core"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N",
+        "PLATFORM"
+      ],
+      "blocker_requirements": [
+        "owner:D11"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "112-native",
+      "issue": 112,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "112-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D11"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "114-contract",
+      "issue": 114,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "114-core",
+      "issue": 114,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "112-native",
+        "114-contract"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "114-wiring",
+      "issue": 114,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "114-core"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "114-native",
+      "issue": 114,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "114-wiring",
+        "80-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "136-contract",
+      "issue": 136,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "136-schema",
+      "issue": 136,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "136-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D8"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "136-core",
+      "issue": 136,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "136-schema"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D8"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "136-wiring",
+      "issue": 136,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "136-core",
+        "149-wiring",
+        "82-wiring"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D8"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "136-native",
+      "issue": 136,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "136-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D8"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "147-contract",
+      "issue": 147,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "R",
+      "ordered_routes": [
+        "AGY-S",
+        "AGY-G",
+        "CLINE",
+        "OMP",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "147-schema",
+      "issue": 147,
+      "phase": "schema",
+      "state": "PLANNED",
+      "goal": "Serialize additive SQL, actual migration journal/snapshot/Expo loader and fixture; fresh/previous-DB migration and fault probes; independent review.",
+      "dependencies": [
+        "147-contract"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SCHEMA"
+      ],
+      "blocker_requirements": [
+        "owner:D3"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "147-core",
+      "issue": 147,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "147-schema",
+        "151-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D3"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "147-wiring",
+      "issue": 147,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "147-core"
+      ],
+      "route_class": "C",
+      "ordered_routes": [
+        "AGY-G",
+        "AGY-S",
+        "OMP",
+        "CLINE",
+        "OC-M",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D3"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "147-native",
+      "issue": 147,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "147-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D3"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "148-contract",
+      "issue": 148,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "148-core",
+      "issue": 148,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "148-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [
+        "owner:D12"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "148-wiring",
+      "issue": 148,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "147-contract",
+        "148-core",
+        "151-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N"
+      ],
+      "blocker_requirements": [
+        "owner:D12"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "148-native",
+      "issue": 148,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "148-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [
+        "owner:D12"
+      ],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "149-contract",
+      "issue": 149,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "149-core",
+      "issue": 149,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "147-core",
+        "148-wiring",
+        "149-contract",
+        "151-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "149-wiring",
+      "issue": 149,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "149-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "EXPORT",
+        "I18N"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "149-native",
+      "issue": 149,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "149-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "150-contract",
+      "issue": 150,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "150-core",
+      "issue": 150,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "150-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "150-wiring",
+      "issue": 150,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "150-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "SESSION"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "150-native",
+      "issue": 150,
+      "phase": "native",
+      "state": "PLANNED",
+      "goal": "Build reviewed SHA; dedicated synthetic AVD/feature Maestro plus required physical/live evidence; save APK/source/device/receipt, not launch-smoke alone.",
+      "dependencies": [
+        "150-wiring"
+      ],
+      "route_class": "N",
+      "ordered_routes": [
+        "AGY-G",
+        "CLINE",
+        "AGY-S",
+        "OMP",
+        "CURSOR",
+        "OC-M",
+        "CODEX"
+      ],
+      "locks": [
+        "ANDROID_QA"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "151-contract",
+      "issue": 151,
+      "phase": "contract",
+      "state": "PLANNED",
+      "goal": "Draft smallest typed/data/UI contract, failing-test vectors and exact per-slice allowlist; independently review it; owner choices stay explicitly pending.",
+      "dependencies": [],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "151-core",
+      "issue": 151,
+      "phase": "core",
+      "state": "PLANNED",
+      "goal": "Production-importing focused RED test; minimal service/policy/transaction GREEN; edge/fault/mutation probes; independently reviewed immutable anchor.",
+      "dependencies": [
+        "151-contract"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    },
+    {
+      "id": "151-wiring",
+      "issue": 151,
+      "phase": "wiring",
+      "state": "PLANNED",
+      "goal": "Wire only approved contract into actual consumers; smallest file/invariant writer leases; focused/full gates; independent review after union/rebase.",
+      "dependencies": [
+        "151-core"
+      ],
+      "route_class": "T",
+      "ordered_routes": [
+        "OMP",
+        "OC-M",
+        "CLINE",
+        "AGY-G",
+        "AGY-S",
+        "CURSOR",
+        "CODEX"
+      ],
+      "locks": [
+        "I18N"
+      ],
+      "blocker_requirements": [],
+      "requires_independent_review": true,
+      "review_findings_required": [],
+      "scope_freeze_required_before_dispatch": true,
+      "actual_model": null,
+      "head_sha": null,
+      "remote_sha": null,
+      "evidence": []
+    }
+  ],
+  "priority_rule": [
+    "critical_path_unlock",
+    "data_integrity",
+    "review_backlog",
+    "ready_age",
+    "stable_issue_priority"
+  ],
+  "scheduler": "event-driven_work-conserving_maximum_eligible_matching",
+  "heavy_resources": {
+    "full_gate": 1,
+    "native_builder": 1,
+    "android_qa": 1,
+    "initial_focused_jest_jobs": 2
+  }
+}

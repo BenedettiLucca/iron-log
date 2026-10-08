@@ -1,0 +1,42 @@
+{
+  "verdict": "PASS",
+  "checks": [
+    "20 exact source issue IDs covered once",
+    "14 source comments reconciled",
+    "issue titles/labels/counts preserved literally",
+    "88 packages have valid acyclic dependencies",
+    "every issue has acceptance and path inventory",
+    "every package PLANNED with empty runtime evidence",
+    "two-session actual-model/route caps include reviews",
+    "every fallback chain terminates at conditional Codex",
+    "all deliverables and README relative links exist",
+    "no execution/remote-write authorizations fabricated"
+  ],
+  "issue_count": 20,
+  "comment_count": 14,
+  "package_count": 88,
+  "dependency_edge_count": 86,
+  "topological_roots": [
+    "64-contract",
+    "66-contract",
+    "67-contract",
+    "70-contract",
+    "72-contract",
+    "74-contract",
+    "75-contract",
+    "79-contract",
+    "80-contract",
+    "81-contract",
+    "82-contract",
+    "95-contract",
+    "112-contract",
+    "114-contract",
+    "136-contract",
+    "147-contract",
+    "148-contract",
+    "149-contract",
+    "150-contract",
+    "151-contract"
+  ],
+  "provenance": "Structural planning checks only; no app tests/builds, provider inference, concurrency load test, GitHub mutation or issue completion."
+}

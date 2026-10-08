@@ -13,7 +13,6 @@ beforeEach(() => {
   sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
 });
 
-afterAll(() => sqlite.close());
 
 describe('ActivityHeatmapService', () => {
   describe('intensity levels', () => {

@@ -117,7 +117,6 @@ beforeEach(() => {
   jest.clearAllMocks();
   resetDb();
 });
-afterAll(() => sqlite.close());
 
 describe('NotionExportService.exportSessionMarkdown', () => {
   function seedPushSession() {

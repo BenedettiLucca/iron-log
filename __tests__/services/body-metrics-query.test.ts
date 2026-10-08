@@ -19,9 +19,6 @@ describe('Body metrics query separation (Issue #137 & Contract C2)', () => {
     sqlite.exec("DELETE FROM body_metrics; DELETE FROM sqlite_sequence WHERE name='body_metrics';");
   });
 
-  afterAll(() => {
-    sqlite.close();
-  });
 
   describe('fetchRecentBodyMetrics', () => {
     it('returns empty array when table is empty', async () => {

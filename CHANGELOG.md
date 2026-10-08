@@ -2,6 +2,59 @@
 
 All notable changes to Iron Log are documented here.
 
+## [3.16.0] - 2026-10-08
+
+### Added
+- **Superset** — agrupar exercícios back-to-back com descanso único, planejado no editor e pareável mid-session (#79)
+- **Treino livre (freestyle)** — sessão sem rotina com prefill da última execução, acessível da home (#80)
+- **Add/remove exercício mid-session** — sem encerrar o treino, com ocorrências materializadas e fila reordenável (#81)
+- **Micro-sessão** — modo curto para protocolos de acessório/casa via modal na home (#66)
+- **Cardio como tipo de exercício** — log tempo + distância editável por sessão; PR por distância exata (#82)
+- **Data agendada em sessões** — `scheduled_for` + occurrence, com reschedule para outro dia (#95)
+- **Drift da lane principal** — status on-track/lapsed/drifting com dias desde o último treino, por rotina (#67)
+- **Plateau detection** — alerta de carga parada entre sessões consecutivas (#74)
+- **Cut velocity injury-risk** — flag de risco de tecido conjuntivo em cortes agressivos (#75)
+- **Arquivamento de rotinas** — soft-archive com tab dedicada e sufixo de unicidade no import (#64)
+- **Unidades métricas/imperiais** — preferência de exibição com storage canônico métrico (#136)
+- **Progressão pura** — `evaluateProgression` separado do log do treino (verdicts increase/hold/regression) (#148)
+
+### Changed
+- **Expo SDK 54 → 57** (React Native 0.86.3) — build nativo local (dev-client), npm audit 106→100 vulns, 0 critical (#112)
+- **Peso corporal com proveniência** — "Pular" no prompt deixa `bodyWeight` NULL (sem pesagem sintética); relatórios usam último valor medido com marcador measured|borrowed (#147)
+- **Exports com proveniência de peso** — exportadores só carregam peso medido na sessão; sessões sem pesagem exportam null/absent (#149)
+- **Undo com budget** — leitura de queries limitada (≤3 `sqlite.prepare`) com cache memoizado, comportamento byte-idêntico (#150)
+
+### Fixed
+- **SetList sem leitura de ref em render-phase** — risco de stale closure removido; pin do eslint-config-expo dropado com guardas explícitas (#152)
+- **Cobertura real do NotionExportService** — testes importavam o service de verdade; frontmatter e relatório semanal cobertos (#151)
+- **Migrations map íntegro pós-prebuild** — expo prebuild truncava `drizzle/migrations.js`; guard automatizado (falha o build se faltar entrada) (#112 follow-up)
+
+### QA
+- Ciclo E2E completo validado nativamente (emulador API 36, APK dev-client): sessão → séries com RIR → edição de série → descanso → troca de exercício → finalização (SRPE, peso, notas) → resumo com vereditos e PRs; persistência verificada no SQLite do device (#114 parcial — notificações E2E seguem pendentes para device físico)
+
+---
+
+## [3.15.0] - 2026-09-15
+
+### Added
+- Comparação mensal de check-in com fotos (#20); busca e filtros no histórico (#138); Undo após apagar treino (#139)
+- Importers Strong/Hevy/FitNotes com lbs→kg e erro de formato na UI (#93); import JSON e clone de rotina atômicos (#134 #124)
+- Notificações: permissão solicitada (#113), reminders por suplemento com resync imediato (#107), deep-link (#89)
+
+### Changed
+- **Data trust**: backup/restore fail-closed com WAL checkpoint central (#102); mutação idempotente via `sets.operation_id` (#115 #141); PR reconciliation determinística (#104 #120); finish/discard transacionais (#116 #139); analytics com regra C1 e streak vazio=0 (#105 #118 #126 #128)
+- **Performance**: índices compostos em `sets` (2.7x em 10k sets, #135); cursor pagination no histórico (#119 #131 #138); bio/dashboard sem full-table scans (#132 #137)
+- Parsing decimal locale-aware — 72,5 funciona (#129); session UI keyboard-safe (#100), painel de input sem competição (#99), badge consistente (#98)
+- Exports completos com data local (#121 #122), share com merge não-destrutivo (#92)
+
+### Security
+- npm audit gate verde: `@xmldom/xmldom` e `js-yaml` resolvidos via overrides (#76); `gradle.properties` fora do tracking + rotação de keystore
+
+### Infra QA
+- `scripts/qa.sh` + Maestro smoke flows
+
+---
+
 ## [3.14.0] - 2026-08-27
 
 ### Added

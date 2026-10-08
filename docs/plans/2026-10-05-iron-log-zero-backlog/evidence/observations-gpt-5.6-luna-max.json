@@ -1,0 +1,3134 @@
+{
+  "schema_version": 1,
+  "total": 55,
+  "offset": 0,
+  "limit": 500,
+  "observations": [
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:apexAgents",
+      "benchmark_id": "aa-apex-agents::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.358407079646018,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; apexAgents"
+      },
+      "protocol": "Rubric-based local file grading, pass@1 across three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.5020861763756194,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1339.38,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.205714285714286,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.40823634735899733,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.24,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1489.33,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.911111111111111,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:harveyLab",
+      "benchmark_id": "aa-harvey-lab::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.878998407873788,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; harveyLab"
+      },
+      "protocol": "Criterion pass rate (share of atomic pass/fail rubric criteria the deliverables satisfy, mean over criteria; AA's default metric for this board), strict pass/fail from an LLM judge; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.394810009267841,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:itBenchSre",
+      "benchmark_id": "aa-itbench::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.403201506591337,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; itBenchSre"
+      },
+      "protocol": "Precision at full recall (a repeat scores 0 if it misses any ground-truth root-cause entity, otherwise precision over the submitted entities); an LLM judge only normalizes submitted entities onto the ground-truth entities; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.836666666666667,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.194444444444444,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:mmmuPro",
+      "benchmark_id": "aa-mmmu-pro::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.785549132947977,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; mmmuPro"
+      },
+      "protocol": "Multiple-choice regex extraction accuracy, pass@1 on 1730 questions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": -10.2833333333333,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.53587962962963,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.311340206185567,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.808988764044944,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.116161616161616,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa-coding:1.4:55",
+      "benchmark_id": "aa-coding-agent-index::1.4",
+      "subject": {
+        "source_id": "GPT-5.6 Luna (max)/Codex",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": "Codex"
+      },
+      "value": 0.5716614223656344,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/",
+        "retrieved_at": "2026-09-09",
+        "published_at": null,
+        "sha256": "e3b39c00dfff19717d8da6a875ff44e999b5255300da26f174c5bdcea843368b",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/2026-09-10-aa-coding-agents.json",
+        "locator": "rows[55]; GPT-5.6 Luna (max); Codex; score; original retained collector output"
+      },
+      "protocol": "Coding Agent Index 1.4; complete 3 components; Codex; original model name GPT-5.6 Luna (max)",
+      "comparison_key": null
+    },
+    {
+      "id": "aa-coding:1.5:b3c56ec69185d544992fd578edb75e8c",
+      "benchmark_id": "aa-coding-agent-index::1.5",
+      "subject": {
+        "source_id": "b3c56ec69185d544992fd578edb75e8c",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": "Codex"
+      },
+      "value": 0.4322468668029613,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/agents/coding-agents",
+        "retrieved_at": "2026-10-05",
+        "published_at": null,
+        "sha256": "5a33d2c22a23c9abc7f0dd516d624b9ebeb751a2a23e7f1fe8898b8a631b1661",
+        "file": "data/raw/benchmarks/daily-evidence/2026-10-05T09-11-27-381Z/aa-coding-agents-v1.5.json",
+        "locator": "rows[28]; GPT-5.6 Luna (max); Codex; score; original retained collector output"
+      },
+      "protocol": "Coding Agent Index 1.5; complete 3 components; Codex; original model name GPT-5.6 Luna (max)",
+      "comparison_key": null
+    },
+    {
+      "id": "public:4eaf6ef7cc7fc8490fa18892",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 36.538,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 29; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":36.538,\"stderr\":3.347,\"cost_per_test\":0.845008,\"latency\":2373.859,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cbdd6849fcaa33fed8e086d3",
+      "benchmark_id": "frontiercode-cost::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 0.3704,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 42; GPT-5.6 Luna|max; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"main\",\"harness\":\"codex\",\"new_score\":0.3981,\"correct\":0.4474,\"flagged_rate\":0.001,\"cost\":0.3704,\"tokens\":37418.9}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4a1e7724d057feeb86411e48",
+      "benchmark_id": "apprenticebench-cua::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 7,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 24; gpt-5.6-luna|Codex|max; field passed"
+      },
+      "protocol": "ApprenticeBench CUA board (snapshot 2026-09-14); computer-use agent operates the Odoo ERP through its screens across 100 sequential accounts-payable tasks with diminishing mentoring; each row is one model x harness x reasoning-effort configuration with cumulative success rate percent; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"cua\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":7,\"cost\":0.77,\"tokens\":30130000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:a44ede5bf85c206de7dc47a3",
+      "benchmark_id": "apprenticebench-cua-cost::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 0.77,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 24; gpt-5.6-luna|Codex|max; field cost"
+      },
+      "protocol": "ApprenticeBench CUA board (snapshot 2026-09-14); computer-use agent operates the Odoo ERP through its screens across 100 sequential accounts-payable tasks with diminishing mentoring; published USD cost per task per model x harness x reasoning-effort configuration; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"cua\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":7,\"cost\":0.77,\"tokens\":30130000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:132ed3d48da911efe3c5d784",
+      "benchmark_id": "apprenticebench-api::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 13,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 22; gpt-5.6-luna|Codex|max; field passed"
+      },
+      "protocol": "ApprenticeBench API board (snapshot 2026-09-14); agent completes the same 100 sequential accounts-payable tasks in the Odoo ERP with diminishing mentoring via dedicated application API calls; each row is one model x harness x reasoning-effort configuration with cumulative success rate percent; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"api\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":13,\"cost\":0.16,\"tokens\":4150000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:75fb5792b4d62eb846075f0c",
+      "benchmark_id": "apprenticebench-api-cost::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 0.16,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 22; gpt-5.6-luna|Codex|max; field cost"
+      },
+      "protocol": "ApprenticeBench API board (snapshot 2026-09-14); agent completes the same 100 sequential accounts-payable tasks in the Odoo ERP with diminishing mentoring via dedicated application API calls; published USD cost per task per model x harness x reasoning-effort configuration; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"api\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":13,\"cost\":0.16,\"tokens\":4150000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:9d9901c7baa1b4310f582b19",
+      "benchmark_id": "bullshitbench-v1::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.1818,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://raw.githubusercontent.com/petergpt/bullshit-benchmark/2678ac296fe6e234d391e0f4ab339f6a777ba2a3/data/latest/leaderboard.csv",
+        "retrieved_at": "2026-09-15T01:07:18.318850+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-bullshitbench/2605907319773e0e5858.gz",
+        "sha256": "2605907319773e0e5858a24bd8c63ec46501ce282082eff3d134283811d2af6f",
+        "locator": "csv; source row 87; openai/gpt-5.6-luna@reasoning=max; field green_rate"
+      },
+      "protocol": "BullshitBench V1 (snapshot-2026-09-10); 55 nonsense prompts; three-judge panel (Claude Sonnet 4.6, GPT-5.2, Gemini 3.1 Pro Preview) grades clear pushback / partial challenge / accepted nonsense; value = green_rate over all attempts; one row per model x reasoning label; not a Composite input.; reasoning=max; avg_score=0.8242; score_2=10; nonsense_count=55; answered_count=55; refusal_count=0; error_count=0",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:b6340d6dcd6496fcab70c096",
+      "benchmark_id": "bullshitbench-v2::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.41,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://raw.githubusercontent.com/petergpt/bullshit-benchmark/2678ac296fe6e234d391e0f4ab339f6a777ba2a3/data/v2/latest/leaderboard.csv",
+        "retrieved_at": "2026-09-15T01:07:23.764154+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-bullshitbench/0c866538642eab944f67.gz",
+        "sha256": "0c866538642eab944f672eb1464857ad3f4cb2de89d484360ad6fd0765b8a390",
+        "locator": "csv; source row 68; openai/gpt-5.6-luna@reasoning=max; field green_rate"
+      },
+      "protocol": "BullshitBench V2 (snapshot-2026-09-10); 100 nonsense prompts; three-judge panel (Claude Sonnet 4.6, GPT-5.2, Gemini 3.1 Pro Preview) grades clear pushback / partial challenge / accepted nonsense; value = green_rate over all attempts; one row per model x reasoning label; not a Composite input.; reasoning=max; avg_score=1.1967; score_2=41; nonsense_count=100; answered_count=100; refusal_count=0; error_count=0",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:e1faee16a9bedcaa85310d08",
+      "benchmark_id": "deepswe::snapshot-2026-09-15",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5-6-luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "mini-swe-agent"
+      },
+      "value": 0.671875,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-15T09:05:24Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-coding/epoch-deepswe_external.csv.gz",
+        "sha256": "7f0ae5e4d772c99b10a8b29ee8e2760771b63fe7f561e90d5ba48a0fae52e686",
+        "locator": "csv; source row 7; gpt-5.6-luna_max; field Pass@1"
+      },
+      "protocol": "DeepSWE as republished by Epoch AI (deepswe_external.csv); Pass@1 averaged over runs; mini-swe-agent harness; Reasoning effort=max; Runs=4; Pass@4=0.9026548672566371; 95% CI half-width=0.03992001235671055",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:3ca002c090657974f1432cc8",
+      "benchmark_id": "frontiermath-tiers-1-3::v2",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.8210526315789474,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-frontiermath_tiers_1_3_v2.csv.gz",
+        "sha256": "9694a4425d1f9f1df13544dcd14a19e3bd55cd387a9269f76f8d6c4cb1013393",
+        "locator": "csv; source row 71; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "FrontierMath Tiers 1–3 v2 (Epoch AI) as published in Epoch AI's Benchmarking Hub (frontiermath_tiers_1_3_v2.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.8210526315789474; stderr=0.02274515950332741; Started at=2026-07-09T14:18:35.000Z; id=YLAk5J3Wd8EruVXee8bAQb",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:ad9152f977f79f1b79d28b0b",
+      "benchmark_id": "frontiermath-tier-4::v2",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.6097560975609756,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-frontiermath_tier_4_v2.csv.gz",
+        "sha256": "0c5a60359ff520a571a00b1c9d0001893d950607b5f7085ca96add349c6e0ca9",
+        "locator": "csv; source row 26; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "FrontierMath Tier 4 v2 (Epoch AI) as published in Epoch AI's Benchmarking Hub (frontiermath_tier_4_v2.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.6097560975609756; stderr=0.07712872341874097; Started at=2026-07-09T14:18:35.000Z; id=NLiiJJSyA9wmg2FHENFpAq",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:b2af9d64841c193f04ac9e7a",
+      "benchmark_id": "simpleqa-verified::snapshot-2026-09-16",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.41,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-simpleqa_verified.csv.gz",
+        "sha256": "1eb352142a25e73543f6f4caa071af725e24fb5ac4f0055ae763402111c9be5a",
+        "locator": "csv; source row 70; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "SimpleQA Verified (run by Epoch AI) as published in Epoch AI's Benchmarking Hub (simpleqa_verified.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.41; stderr=0.015560917136921657; Started at=2026-08-10T23:44:20.000Z; id=CeDghdBk8CqtiFSbUzxNH5",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:18fa7332d740b09e4f8d7370",
+      "benchmark_id": "chess-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.4,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-chess_puzzles.csv.gz",
+        "sha256": "3e5c43320358dbdb1fbad2d646339dfb56f59ac666409d20d486783cbdf37497",
+        "locator": "csv; source row 177; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Chess Puzzles run by Epoch AI (inspect-ai): 100 novel programmatic chess positions, one Stockfish-judged best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.4; stderr=0.0492365963917331; Started at=2026-07-09T13:36:49.000Z; id=BJiQ8aRjMyCGPTBGYfBhyj",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:efd10ed5f30d00c27e1bbe95",
+      "benchmark_id": "mystery-game-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.21,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-mystery_game_puzzles.csv.gz",
+        "sha256": "8915ec1884e41ae8b8e677a826d238b61bbada2d3c9e2c8e74f8096260a8f367",
+        "locator": "csv; source row 110; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Mystery Game Puzzles run by Epoch AI (inspect-ai): 100 programmatic mid-game positions of an undisclosed game, one best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.21; stderr=0.040936018074033236; Started at=2026-07-28T20:59:07.000Z; id=Epg7eNLwwGPXtX3sSAwPf8",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:d9472b5993c46198614d6b27",
+      "benchmark_id": "epoch-gpqa-diamond::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.9160353535353535,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-gpqa_diamond.csv.gz",
+        "sha256": "8fc9a2c260248f1a95b5282d3af733894df6c39ebea9b50528231bfce1000748",
+        "locator": "csv; source row 145; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "GPQA Diamond run by Epoch AI (inspect-ai), separate identity from the AA and OpenRouter runs; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.9160353535353535; stderr=0.01728284355494035; Started at=2026-07-09T13:36:49.000Z; id=LWkDtkmd3TNmLzMhfZD5HW",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:79d7e450e1b67afcf6ae1f57",
+      "benchmark_id": "context-arena-mrcr-v2::8-needle",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 82.09301680200089,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://contextarena.ai/api/needle-summary?needles=8",
+        "retrieved_at": "2026-09-21T17:13:26.665692+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/949e2c8ad74e8a238d21.gz",
+        "sha256": "949e2c8ad74e8a238d21390d033bd16190cb27ca11d764d818f2e0f1040b0701",
+        "locator": "context_arena_summary; source row 43; openai/gpt-5.6-luna@reasoning=max; field cum_avg_128k"
+      },
+      "protocol": "Context Arena (Dillon Uzar) runs Google DeepMind's MRCR v2 (multi-round coreference resolution, 8 needles, the \"full\" test set) against each model through its API: a long synthetic conversation holds eight identical writing requests, and the model must reproduce the i-th response, prefixed by a random hash, scored by string similarity (missing hash = 0). Tests are grouped by total token count into power-of-two bins. The value is the cumulative average up to 128k — the unweighted mean of the 8k, 16k, 32k, 64k and 128k bin scores, the \"upto_128K (cumulative)\" figure GDM reports — in percent. Context Arena's AUC @128k/@1M, the 1M cumulative average, the per-bin scores and test counts, total runs and the latest run date stay in each row. Rows the site marks insufficient or unranked, and rows whose bins up to 128k are incomplete, are not scored. The site says results come from running models against the published GDM dataset via API; it does not state whether tools were available, which GDM's README asks every MRCR report to state. Secondary benchmark, never a Composite input.; source row: {\"model_slug\":\"openai/gpt-5.6-luna\",\"reasoning_mode\":\"max\",\"provider\":\"Openai\",\"run_providers\":[\"openai\"],\"max_context_length\":1050000,\"deprecated\":false,\"total_runs\":861,\"bins_upto_128k\":{\"8192\":[0.964317,80],\"16384\":[0.938863,80],\"32768\":[0.902446,136],\"65536\":[0.714896,85],\"131072\":[0.584129,103]},\"auc_128k\":0.7482454661148853,\"auc_1m\":0.35263200845493736,\"cum_avg_1m\":0.6165198313317533,\"has_incomplete_bins\":false,\"latest_run\":\"2026-07-09T20:14:27.240Z\"}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.8209301680200088
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/google-deepmind/eval_hub/master/eval_hub/mrcr_v2/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/7b2010f4685643f4af7b.gz",
+          "sha256": "7b2010f4685643f4af7bdccfb5e58e6822edea23d009d75cda4a86fa5c558f43",
+          "retrieved_at": "2026-09-21T17:13:30.878266+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-21: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:4e560697d95711fc4b3f30c0",
+      "benchmark_id": "livebench::2026-06-25",
+      "subject": {
+        "source_id": "gpt-5.6-luna-max",
+        "name": "gpt-5.6-luna-max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 73.56,
+      "unit": "points",
+      "basis": "derived",
+      "source": {
+        "url": "https://livebench.ai/table_2026_06_25.csv",
+        "retrieved_at": "2026-09-10T22:23:14Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-e70f40005b36.gz",
+        "sha256": "186ca65e7bb3a07aa26875eb3c45bfbe4e22d1ef36165cdaa11ad1a58087817c",
+        "locator": "livebench; source row 27; gpt-5.6-luna-max; field value"
+      },
+      "protocol": "Release 2026-06-25; seven category means with equal category weights, published 2-decimal overall and explicit Grok-3 exceptions. Complete task scores required.",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Mean of seven category means, rounded to the published 2 decimals; source Grok-3 Thinking=72 and Grok-3=58 overrides retained.",
+        "inputs": [
+          73.077,
+          93.5,
+          96,
+          80,
+          78.873,
+          86.957,
+          63.636,
+          36.667,
+          45,
+          98,
+          70,
+          92.157,
+          88.646,
+          86.504,
+          47.596,
+          100,
+          96.5,
+          51.201,
+          70,
+          47.817,
+          58.667,
+          69.067,
+          64.933
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://livebench.ai/categories_2026_06_25.json",
+          "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-8fb1bd6bc30b.gz",
+          "sha256": "dad300ad18655b69db720e1b88fc5a5eac06c5b2f0e52c2bf50f10ff057674f3",
+          "retrieved_at": "2026-09-10T22:23:16Z",
+          "published_at": null,
+          "locator": "categories_source"
+        },
+        {
+          "url": "https://livebench.ai/static/js/main.04358d6f.js",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-livebench/b29cff6f2cd542927e75.gz",
+          "sha256": "b29cff6f2cd542927e75c9a582f65c4e8d290fb8dd244387d2f85969bdd003aa",
+          "retrieved_at": "2026-09-21T02:05:35.724575+00:00",
+          "published_at": null,
+          "locator": "frontend_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-20: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:78c0832270c7b5abc2a83e8b",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.881,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.881,\"stderr\":1.087,\"cost_per_test\":0.766266,\"latency\":1396.334,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:328d6119411623993d0842a9",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 55.044,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 17; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":55.044,\"stderr\":0.309,\"cost_per_test\":0.261838,\"latency\":772.153,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:8a6f896e3cbcc314bff23d0c",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 79.026,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 9; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":79.026,\"stderr\":0.991,\"cost_per_test\":0.053767,\"latency\":355.751,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:2deae12c5c397defdf075cb8",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 77.055,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 22; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":77.055,\"stderr\":3.069,\"cost_per_test\":0.726426,\"latency\":1551.831,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:2c0e9b5bf3f400047fe4de87",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 44.774,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 13; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":44.774,\"stderr\":4.762,\"cost_per_test\":2.797004,\"latency\":3404.333,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cd64f4daca597379ebb6799e",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1.25,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 45; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":1.25,\"stderr\":0.833,\"cost_per_test\":0.383981,\"latency\":656.364,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:64da456029104be74a28d22d",
+      "benchmark_id": "vulcanbench-frontier::4",
+      "subject": {
+        "source_id": "GPT-5.6 Luna [max]",
+        "name": "GPT-5.6 Luna [max]",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 84.1469,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://vulcanbench.com/assets/data/swe-v4-board.csv",
+        "retrieved_at": "2026-09-18T20:46:32.035922+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/81d184fca0535d344be8.gz",
+        "sha256": "81d184fca0535d344be85ed8195e6ff294e7295b2f85decae924f6e402aa7f08",
+        "locator": "vulcanbench_frontier_csv; source row 11; GPT-5.6 Luna [max]; field combined_33"
+      },
+      "protocol": "VulcanBench Frontier v4 (formerly VulcanBench-SWE v4): 23 behavioural-reconstruction tasks; combined score = 100 × (0.50 functional hidden tests + 0.085 lint/complexity + 0.085 security + 0.33 judged Code quality, judged for a human reader by Muse Spark 1.3 and Grok 4.6 under the frozen protocol family code-quality-maintenance-v3.4–v3.6); one column per model × effort in its own agent harness (Codex or Claude Code); Fable 5.1’s columns include 11 disclosed Opus 4.8 fallback cells the operator keeps in the population; not a Composite input.; source row: {\"model\":\"GPT-5.6 Luna\",\"lab\":\"OpenAI\",\"harness\":\"Codex\",\"effort\":\"max\",\"n_tasks\":23,\"tasks_passed\":19,\"combined_33_se\":1.3494,\"code_quality\":65.3505,\"mean_minutes\":44.0992,\"mean_usd\":0.448386,\"protocol\":\"code-quality-maintenance-v3.5\",\"report\":\"benchmarks/swe-v4-gpt55-luna-v35.html\",\"best_effort\":true}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-18: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:74295dbdd7b6081361e102e7",
+      "benchmark_id": "surge-chartography::100-tasks",
+      "subject": {
+        "source_id": "GPT 5.6 Luna (Max reasoning)",
+        "name": "GPT 5.6 Luna (Max reasoning)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 31.4,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/chartography",
+        "retrieved_at": "2026-09-22T08:23:52.070427+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/9b815c23bd1d27e66be3.gz",
+        "sha256": "9b815c23bd1d27e66be3b41a7d3b18d69f1505b96d8d21bfc6035c5e9376002e",
+        "locator": "surge_benchmark_board; source row 14; GPT 5.6 Luna (Max reasoning); field value"
+      },
+      "protocol": "Chartography (Surge AI): 100 expert-written questions on real professional charts (Kaplan-Meier curves, candlesticks, contour maps, Sankey diagrams, Bode plots and more), the chart attached inline and no tools; each answer is judged against the golden answer and its expert-set acceptable range by one model-graded call (judge Gemini 3.5 Flash; the judge never sees the chart); leaderboard configuration ten runs per task; value = the board's accuracy (mean over tasks and runs, percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"GPT\",\"stated_setting\":\"Max reasoning\",\"board\":\"Chartography\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/b588ba1f8ab0ce492657.gz",
+          "sha256": "b588ba1f8ab0ce4926577c8c05312c46d705a85b755d8e8d4ec79a376982852f",
+          "retrieved_at": "2026-09-22T08:23:57.767000+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cb9f6486d6ec8ee3b1e0ba14",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 67.116,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":67.116,\"stderr\":2.936,\"cost_per_test\":0.295835,\"latency\":660.047,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:1885994cf888fab7e3901272",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.766266,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.881,\"stderr\":1.087,\"cost_per_test\":0.766266,\"latency\":1396.334,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:0f24ddf0f62c618aff49259f",
+      "benchmark_id": "frontiercode-extended-cost::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 0.3074,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 57; GPT-5.6 Luna|max; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"extended\",\"harness\":\"codex\",\"new_score\":0.5506,\"correct\":0.6089,\"flagged_rate\":0.0013,\"cost\":0.3074,\"tokens\":31859.7}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:653e83a6c3fdf674e06cdb58",
+      "benchmark_id": "furniture-assembly::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.425,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-26T04:22:02Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/epoch-hub/epoch-furniture_assembly.csv.gz",
+        "sha256": "ed6ad54aa8b73e49222adf91405d3c05b18b10a72a21a8b0f64a753d8d31a8b7",
+        "locator": "csv; source row 20; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Furniture Assembly Benchmark run by Epoch AI (60 IKEA assembly photos, agentic sandbox, lenient GPT-5.6 Sol grader for the mistake description); value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.425; stderr=0.06380695638890652; Started at=2026-09-10T20:22:42.000Z; id=UPAoeCG9AhQYyxCGc8C7Eq",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:78df54137076f127c39e208c",
+      "benchmark_id": "terminal-bench::4.0",
+      "subject": {
+        "source_id": "51c6d76e-5baa-48c1-97b3-88656c620eef",
+        "name": "GPT-5.6 Luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 17.27,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://www.tbench.ai/",
+        "retrieved_at": "2026-09-10T21:49:10Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/b-3be95230c580.html.gz",
+        "sha256": "007ff6fcb4f14f5433fa87d78896788bf62f89467d59fd3467ceb189eb99da02",
+        "locator": "terminalbench; source row 14; 51c6d76e-5baa-48c1-97b3-88656c620eef; field value"
+      },
+      "protocol": "Resolution rate on Terminal-Bench 4.0 tasks (95% confidence-interval whiskers), with cost and tokens per run; source row: {\"date\":\"2026-06-26\",\"agent_org\":{\"url\":\"https://openai.com\",\"label\":\"OpenAI\"},\"model_org\":{\"url\":\"https://openai.com\",\"label\":\"OpenAI\"},\"display_date\":\"Jun 26, 2026\",\"agent_display\":{\"url\":\"https://openai.com/codex/\",\"label\":\"Codex\"},\"model_display\":{\"url\":\"https://developers.openai.com/api/docs/models/gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna\"},\"reasoning_effort\":\"max\"}; effort=max; trials=330",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-packet.json",
+        "packet_sha256": "7ae2f1c08e405517c189c2d6b635fd11b2b4e32bbcd3542b8d9eaa0f5876bf12",
+        "verdict_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-verdict.json",
+        "verdict_sha256": "f548429fa99917b09321c54c18be546bdfc8f93187e8ada0068c6b2b2c759b74",
+        "critic_model": "z-ai/glm-5.3-flash",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:34da203d51c614ade0dde45d",
+      "benchmark_id": "cursorbench::4.0",
+      "subject": {
+        "source_id": "GPT-5.6 Luna Max",
+        "name": "GPT-5.6 Luna Max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 35.9,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-23T10:17:48.297160+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-23T10-16-55-034Z/403230f84b9678d2bb80.gz",
+        "sha256": "403230f84b9678d2bb80bddc70ae2a78827c69212ed116fa0d784a8853987a5f",
+        "locator": "html_table; source row 29; GPT-5.6 Luna Max; field value"
+      },
+      "protocol": "CursorBench 4.0; higher score is better; each row is a model and published reasoning-effort configuration with score percentage, cost per task, tokens per task and steps per task.; source row: {\"cells\":[\"29\",\"GPT-5.6 Luna Max\",\"35.9 %\",\"$ 1.03\",\"87,284\",\"208\"],\"configuration\":null,\"value_column\":2}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:fb5aaf1dbc00437b7bb3e0db",
+      "benchmark_id": "cursorbench-cost::4.0",
+      "subject": {
+        "source_id": "GPT-5.6 Luna Max",
+        "name": "GPT-5.6 Luna Max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1.03,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-25T08:51:29.141736+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-25T08-50-35-039Z/6be7c1c37d0fe87278a1.gz",
+        "sha256": "6be7c1c37d0fe87278a178769717342ac9e49cf94e8845726ace1a2ad2e72890",
+        "locator": "html_table; source row 29; GPT-5.6 Luna Max; field value"
+      },
+      "protocol": "CursorBench 4.0; published cost per task in USD for each model-effort configuration; score, tokens and steps are retained as context and are not converted into cost.; source row: {\"cells\":[\"29\",\"GPT-5.6 Luna Max\",\"35.9 %\",\"$ 1.03\",\"87,284\",\"208\"],\"configuration\":null,\"value_column\":3}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:d74e241d1dcc60c69bd5f1d1",
+      "benchmark_id": "frontiercode::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 39.81,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 42; GPT-5.6 Luna|max; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"main\",\"harness\":\"codex\",\"new_score\":0.3981,\"correct\":0.4474,\"flagged_rate\":0.001,\"cost\":0.3704,\"tokens\":37418.9}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.3981
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:182609698d889eb0499ec406",
+      "benchmark_id": "frontiercode-extended::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 55.059999999999995,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 57; GPT-5.6 Luna|max; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"extended\",\"harness\":\"codex\",\"new_score\":0.5506,\"correct\":0.6089,\"flagged_rate\":0.0013,\"cost\":0.3074,\"tokens\":31859.7}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.5506
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    }
+  ],
+  "divergences": [],
+  "cell": null,
+  "coverage": {
+    "model": {
+      "total_benchmarks": 317,
+      "total_capability_benchmarks": 298,
+      "available": 55,
+      "capability_available": 49,
+      "unknown": 261,
+      "not_tested": 0,
+      "not_published": 0,
+      "source_unreachable": 0,
+      "contested": 1,
+      "measured": 48,
+      "self_reported": 7
+    },
+    "benchmark": null
+  },
+  "collection": null,
+  "coverage_note": "Denominators are catalog model configurations × versioned registry entries; capability_available excludes Efficiency (cost) boards. Basis counts count covered cells, not runs; measured and self_reported may overlap. Unmatched source identities remain in observations and never inflate catalog coverage.",
+  "all_observations": [
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:apexAgents",
+      "benchmark_id": "aa-apex-agents::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.358407079646018,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; apexAgents"
+      },
+      "protocol": "Rubric-based local file grading, pass@1 across three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.5020861763756194,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1339.38,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.205714285714286,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.40823634735899733,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.24,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 1489.33,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.911111111111111,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:harveyLab",
+      "benchmark_id": "aa-harvey-lab::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.878998407873788,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; harveyLab"
+      },
+      "protocol": "Criterion pass rate (share of atomic pass/fail rubric criteria the deliverables satisfy, mean over criteria; AA's default metric for this board), strict pass/fail from an LLM judge; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.394810009267841,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:itBenchSre",
+      "benchmark_id": "aa-itbench::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.403201506591337,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; itBenchSre"
+      },
+      "protocol": "Precision at full recall (a repeat scores 0 if it misses any ground-truth root-cause entity, otherwise precision over the submitted entities); an LLM judge only normalizes submitted entities onto the ground-truth entities; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.836666666666667,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.194444444444444,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:mmmuPro",
+      "benchmark_id": "aa-mmmu-pro::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.785549132947977,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; mmmuPro"
+      },
+      "protocol": "Multiple-choice regex extraction accuracy, pass@1 on 1730 questions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": -10.2833333333333,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.53587962962963,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.311340206185567,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.808988764044944,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:426d24c8-49ae-482a-b4a8-20f1c53f21c1:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "426d24c8-49ae-482a-b4a8-20f1c53f21c1",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": null
+      },
+      "value": 0.116161616161616,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID 426d24c8-49ae-482a-b4a8-20f1c53f21c1; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort max",
+      "comparison_key": null
+    },
+    {
+      "id": "aa-coding:1.4:55",
+      "benchmark_id": "aa-coding-agent-index::1.4",
+      "subject": {
+        "source_id": "GPT-5.6 Luna (max)/Codex",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": "Codex"
+      },
+      "value": 0.5716614223656344,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/",
+        "retrieved_at": "2026-09-09",
+        "published_at": null,
+        "sha256": "e3b39c00dfff19717d8da6a875ff44e999b5255300da26f174c5bdcea843368b",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/2026-09-10-aa-coding-agents.json",
+        "locator": "rows[55]; GPT-5.6 Luna (max); Codex; score; original retained collector output"
+      },
+      "protocol": "Coding Agent Index 1.4; complete 3 components; Codex; original model name GPT-5.6 Luna (max)",
+      "comparison_key": null
+    },
+    {
+      "id": "aa-coding:1.5:b3c56ec69185d544992fd578edb75e8c",
+      "benchmark_id": "aa-coding-agent-index::1.5",
+      "subject": {
+        "source_id": "b3c56ec69185d544992fd578edb75e8c",
+        "name": "GPT-5.6 Luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": "max",
+        "harness": "Codex"
+      },
+      "value": 0.4322468668029613,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/agents/coding-agents",
+        "retrieved_at": "2026-10-05",
+        "published_at": null,
+        "sha256": "5a33d2c22a23c9abc7f0dd516d624b9ebeb751a2a23e7f1fe8898b8a631b1661",
+        "file": "data/raw/benchmarks/daily-evidence/2026-10-05T09-11-27-381Z/aa-coding-agents-v1.5.json",
+        "locator": "rows[28]; GPT-5.6 Luna (max); Codex; score; original retained collector output"
+      },
+      "protocol": "Coding Agent Index 1.5; complete 3 components; Codex; original model name GPT-5.6 Luna (max)",
+      "comparison_key": null
+    },
+    {
+      "id": "public:4eaf6ef7cc7fc8490fa18892",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 36.538,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 29; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":36.538,\"stderr\":3.347,\"cost_per_test\":0.845008,\"latency\":2373.859,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cbdd6849fcaa33fed8e086d3",
+      "benchmark_id": "frontiercode-cost::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 0.3704,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 42; GPT-5.6 Luna|max; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"main\",\"harness\":\"codex\",\"new_score\":0.3981,\"correct\":0.4474,\"flagged_rate\":0.001,\"cost\":0.3704,\"tokens\":37418.9}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4a1e7724d057feeb86411e48",
+      "benchmark_id": "apprenticebench-cua::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 7,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 24; gpt-5.6-luna|Codex|max; field passed"
+      },
+      "protocol": "ApprenticeBench CUA board (snapshot 2026-09-14); computer-use agent operates the Odoo ERP through its screens across 100 sequential accounts-payable tasks with diminishing mentoring; each row is one model x harness x reasoning-effort configuration with cumulative success rate percent; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"cua\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":7,\"cost\":0.77,\"tokens\":30130000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:a44ede5bf85c206de7dc47a3",
+      "benchmark_id": "apprenticebench-cua-cost::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 0.77,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 24; gpt-5.6-luna|Codex|max; field cost"
+      },
+      "protocol": "ApprenticeBench CUA board (snapshot 2026-09-14); computer-use agent operates the Odoo ERP through its screens across 100 sequential accounts-payable tasks with diminishing mentoring; published USD cost per task per model x harness x reasoning-effort configuration; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"cua\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":7,\"cost\":0.77,\"tokens\":30130000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:132ed3d48da911efe3c5d784",
+      "benchmark_id": "apprenticebench-api::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 13,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 22; gpt-5.6-luna|Codex|max; field passed"
+      },
+      "protocol": "ApprenticeBench API board (snapshot 2026-09-14); agent completes the same 100 sequential accounts-payable tasks in the Odoo ERP with diminishing mentoring via dedicated application API calls; each row is one model x harness x reasoning-effort configuration with cumulative success rate percent; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"api\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":13,\"cost\":0.16,\"tokens\":4150000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:75fb5792b4d62eb846075f0c",
+      "benchmark_id": "apprenticebench-api-cost::snapshot-2026-09-14",
+      "subject": {
+        "source_id": "gpt-5.6-luna|Codex|max",
+        "name": "gpt-5.6-luna · Codex · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 0.16,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://apprenticebench.com/assets/index-CwoZhdR2.js",
+        "retrieved_at": "2026-09-14T08:10:57.931660+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-14-apprenticebench/8b07652a1a512ea7c680.gz",
+        "sha256": "8b07652a1a512ea7c68038f59e0f64940dbf576fc3a6aa7c824db81e0d918c35",
+        "locator": "vite_board_runs; source row 22; gpt-5.6-luna|Codex|max; field cost"
+      },
+      "protocol": "ApprenticeBench API board (snapshot 2026-09-14); agent completes the same 100 sequential accounts-payable tasks in the Odoo ERP with diminishing mentoring via dedicated application API calls; published USD cost per task per model x harness x reasoning-effort configuration; not a Composite input; the page's human baseline (51%, $7.21/task) is not a model row; tokens per task is the mean of cache reads, fresh input, cache writes and output priced at list rates.; source row: {\"board\":\"api\",\"model\":\"gpt-5.6-luna\",\"org\":\"openai\",\"harness\":\"Codex\",\"effort\":\"max\",\"n\":100,\"passed\":13,\"cost\":0.16,\"tokens\":4150000.0}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:9d9901c7baa1b4310f582b19",
+      "benchmark_id": "bullshitbench-v1::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.1818,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://raw.githubusercontent.com/petergpt/bullshit-benchmark/2678ac296fe6e234d391e0f4ab339f6a777ba2a3/data/latest/leaderboard.csv",
+        "retrieved_at": "2026-09-15T01:07:18.318850+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-bullshitbench/2605907319773e0e5858.gz",
+        "sha256": "2605907319773e0e5858a24bd8c63ec46501ce282082eff3d134283811d2af6f",
+        "locator": "csv; source row 87; openai/gpt-5.6-luna@reasoning=max; field green_rate"
+      },
+      "protocol": "BullshitBench V1 (snapshot-2026-09-10); 55 nonsense prompts; three-judge panel (Claude Sonnet 4.6, GPT-5.2, Gemini 3.1 Pro Preview) grades clear pushback / partial challenge / accepted nonsense; value = green_rate over all attempts; one row per model x reasoning label; not a Composite input.; reasoning=max; avg_score=0.8242; score_2=10; nonsense_count=55; answered_count=55; refusal_count=0; error_count=0",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:b6340d6dcd6496fcab70c096",
+      "benchmark_id": "bullshitbench-v2::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.41,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://raw.githubusercontent.com/petergpt/bullshit-benchmark/2678ac296fe6e234d391e0f4ab339f6a777ba2a3/data/v2/latest/leaderboard.csv",
+        "retrieved_at": "2026-09-15T01:07:23.764154+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-bullshitbench/0c866538642eab944f67.gz",
+        "sha256": "0c866538642eab944f672eb1464857ad3f4cb2de89d484360ad6fd0765b8a390",
+        "locator": "csv; source row 68; openai/gpt-5.6-luna@reasoning=max; field green_rate"
+      },
+      "protocol": "BullshitBench V2 (snapshot-2026-09-10); 100 nonsense prompts; three-judge panel (Claude Sonnet 4.6, GPT-5.2, Gemini 3.1 Pro Preview) grades clear pushback / partial challenge / accepted nonsense; value = green_rate over all attempts; one row per model x reasoning label; not a Composite input.; reasoning=max; avg_score=1.1967; score_2=41; nonsense_count=100; answered_count=100; refusal_count=0; error_count=0",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:e1faee16a9bedcaa85310d08",
+      "benchmark_id": "deepswe::snapshot-2026-09-15",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5-6-luna (max)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "mini-swe-agent"
+      },
+      "value": 0.671875,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-15T09:05:24Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-coding/epoch-deepswe_external.csv.gz",
+        "sha256": "7f0ae5e4d772c99b10a8b29ee8e2760771b63fe7f561e90d5ba48a0fae52e686",
+        "locator": "csv; source row 7; gpt-5.6-luna_max; field Pass@1"
+      },
+      "protocol": "DeepSWE as republished by Epoch AI (deepswe_external.csv); Pass@1 averaged over runs; mini-swe-agent harness; Reasoning effort=max; Runs=4; Pass@4=0.9026548672566371; 95% CI half-width=0.03992001235671055",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:3ca002c090657974f1432cc8",
+      "benchmark_id": "frontiermath-tiers-1-3::v2",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.8210526315789474,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-frontiermath_tiers_1_3_v2.csv.gz",
+        "sha256": "9694a4425d1f9f1df13544dcd14a19e3bd55cd387a9269f76f8d6c4cb1013393",
+        "locator": "csv; source row 71; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "FrontierMath Tiers 1–3 v2 (Epoch AI) as published in Epoch AI's Benchmarking Hub (frontiermath_tiers_1_3_v2.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.8210526315789474; stderr=0.02274515950332741; Started at=2026-07-09T14:18:35.000Z; id=YLAk5J3Wd8EruVXee8bAQb",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:ad9152f977f79f1b79d28b0b",
+      "benchmark_id": "frontiermath-tier-4::v2",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.6097560975609756,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-frontiermath_tier_4_v2.csv.gz",
+        "sha256": "0c5a60359ff520a571a00b1c9d0001893d950607b5f7085ca96add349c6e0ca9",
+        "locator": "csv; source row 26; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "FrontierMath Tier 4 v2 (Epoch AI) as published in Epoch AI's Benchmarking Hub (frontiermath_tier_4_v2.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.6097560975609756; stderr=0.07712872341874097; Started at=2026-07-09T14:18:35.000Z; id=NLiiJJSyA9wmg2FHENFpAq",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:b2af9d64841c193f04ac9e7a",
+      "benchmark_id": "simpleqa-verified::snapshot-2026-09-16",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.41,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-simpleqa_verified.csv.gz",
+        "sha256": "1eb352142a25e73543f6f4caa071af725e24fb5ac4f0055ae763402111c9be5a",
+        "locator": "csv; source row 70; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "SimpleQA Verified (run by Epoch AI) as published in Epoch AI's Benchmarking Hub (simpleqa_verified.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.41; stderr=0.015560917136921657; Started at=2026-08-10T23:44:20.000Z; id=CeDghdBk8CqtiFSbUzxNH5",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:18fa7332d740b09e4f8d7370",
+      "benchmark_id": "chess-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.4,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-chess_puzzles.csv.gz",
+        "sha256": "3e5c43320358dbdb1fbad2d646339dfb56f59ac666409d20d486783cbdf37497",
+        "locator": "csv; source row 177; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Chess Puzzles run by Epoch AI (inspect-ai): 100 novel programmatic chess positions, one Stockfish-judged best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.4; stderr=0.0492365963917331; Started at=2026-07-09T13:36:49.000Z; id=BJiQ8aRjMyCGPTBGYfBhyj",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:efd10ed5f30d00c27e1bbe95",
+      "benchmark_id": "mystery-game-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.21,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-mystery_game_puzzles.csv.gz",
+        "sha256": "8915ec1884e41ae8b8e677a826d238b61bbada2d3c9e2c8e74f8096260a8f367",
+        "locator": "csv; source row 110; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Mystery Game Puzzles run by Epoch AI (inspect-ai): 100 programmatic mid-game positions of an undisclosed game, one best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.21; stderr=0.040936018074033236; Started at=2026-07-28T20:59:07.000Z; id=Epg7eNLwwGPXtX3sSAwPf8",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:d9472b5993c46198614d6b27",
+      "benchmark_id": "epoch-gpqa-diamond::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.9160353535353535,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-gpqa_diamond.csv.gz",
+        "sha256": "8fc9a2c260248f1a95b5282d3af733894df6c39ebea9b50528231bfce1000748",
+        "locator": "csv; source row 145; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "GPQA Diamond run by Epoch AI (inspect-ai), separate identity from the AA and OpenRouter runs; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.9160353535353535; stderr=0.01728284355494035; Started at=2026-07-09T13:36:49.000Z; id=LWkDtkmd3TNmLzMhfZD5HW",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:79d7e450e1b67afcf6ae1f57",
+      "benchmark_id": "context-arena-mrcr-v2::8-needle",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna@reasoning=max",
+        "name": "openai/gpt-5.6-luna@reasoning=max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 82.09301680200089,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://contextarena.ai/api/needle-summary?needles=8",
+        "retrieved_at": "2026-09-21T17:13:26.665692+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/949e2c8ad74e8a238d21.gz",
+        "sha256": "949e2c8ad74e8a238d21390d033bd16190cb27ca11d764d818f2e0f1040b0701",
+        "locator": "context_arena_summary; source row 43; openai/gpt-5.6-luna@reasoning=max; field cum_avg_128k"
+      },
+      "protocol": "Context Arena (Dillon Uzar) runs Google DeepMind's MRCR v2 (multi-round coreference resolution, 8 needles, the \"full\" test set) against each model through its API: a long synthetic conversation holds eight identical writing requests, and the model must reproduce the i-th response, prefixed by a random hash, scored by string similarity (missing hash = 0). Tests are grouped by total token count into power-of-two bins. The value is the cumulative average up to 128k — the unweighted mean of the 8k, 16k, 32k, 64k and 128k bin scores, the \"upto_128K (cumulative)\" figure GDM reports — in percent. Context Arena's AUC @128k/@1M, the 1M cumulative average, the per-bin scores and test counts, total runs and the latest run date stay in each row. Rows the site marks insufficient or unranked, and rows whose bins up to 128k are incomplete, are not scored. The site says results come from running models against the published GDM dataset via API; it does not state whether tools were available, which GDM's README asks every MRCR report to state. Secondary benchmark, never a Composite input.; source row: {\"model_slug\":\"openai/gpt-5.6-luna\",\"reasoning_mode\":\"max\",\"provider\":\"Openai\",\"run_providers\":[\"openai\"],\"max_context_length\":1050000,\"deprecated\":false,\"total_runs\":861,\"bins_upto_128k\":{\"8192\":[0.964317,80],\"16384\":[0.938863,80],\"32768\":[0.902446,136],\"65536\":[0.714896,85],\"131072\":[0.584129,103]},\"auc_128k\":0.7482454661148853,\"auc_1m\":0.35263200845493736,\"cum_avg_1m\":0.6165198313317533,\"has_incomplete_bins\":false,\"latest_run\":\"2026-07-09T20:14:27.240Z\"}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.8209301680200088
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/google-deepmind/eval_hub/master/eval_hub/mrcr_v2/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/7b2010f4685643f4af7b.gz",
+          "sha256": "7b2010f4685643f4af7bdccfb5e58e6822edea23d009d75cda4a86fa5c558f43",
+          "retrieved_at": "2026-09-21T17:13:30.878266+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-21: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:4e560697d95711fc4b3f30c0",
+      "benchmark_id": "livebench::2026-06-25",
+      "subject": {
+        "source_id": "gpt-5.6-luna-max",
+        "name": "gpt-5.6-luna-max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 73.56,
+      "unit": "points",
+      "basis": "derived",
+      "source": {
+        "url": "https://livebench.ai/table_2026_06_25.csv",
+        "retrieved_at": "2026-09-10T22:23:14Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-e70f40005b36.gz",
+        "sha256": "186ca65e7bb3a07aa26875eb3c45bfbe4e22d1ef36165cdaa11ad1a58087817c",
+        "locator": "livebench; source row 27; gpt-5.6-luna-max; field value"
+      },
+      "protocol": "Release 2026-06-25; seven category means with equal category weights, published 2-decimal overall and explicit Grok-3 exceptions. Complete task scores required.",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Mean of seven category means, rounded to the published 2 decimals; source Grok-3 Thinking=72 and Grok-3=58 overrides retained.",
+        "inputs": [
+          73.077,
+          93.5,
+          96,
+          80,
+          78.873,
+          86.957,
+          63.636,
+          36.667,
+          45,
+          98,
+          70,
+          92.157,
+          88.646,
+          86.504,
+          47.596,
+          100,
+          96.5,
+          51.201,
+          70,
+          47.817,
+          58.667,
+          69.067,
+          64.933
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://livebench.ai/categories_2026_06_25.json",
+          "file": "ops/rebuild-2026-09/evidence/phase-04/sources/final-8fb1bd6bc30b.gz",
+          "sha256": "dad300ad18655b69db720e1b88fc5a5eac06c5b2f0e52c2bf50f10ff057674f3",
+          "retrieved_at": "2026-09-10T22:23:16Z",
+          "published_at": null,
+          "locator": "categories_source"
+        },
+        {
+          "url": "https://livebench.ai/static/js/main.04358d6f.js",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-livebench/b29cff6f2cd542927e75.gz",
+          "sha256": "b29cff6f2cd542927e75c9a582f65c4e8d290fb8dd244387d2f85969bdd003aa",
+          "retrieved_at": "2026-09-21T02:05:35.724575+00:00",
+          "published_at": null,
+          "locator": "frontend_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-20: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:78c0832270c7b5abc2a83e8b",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.881,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.881,\"stderr\":1.087,\"cost_per_test\":0.766266,\"latency\":1396.334,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:328d6119411623993d0842a9",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 55.044,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 17; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":55.044,\"stderr\":0.309,\"cost_per_test\":0.261838,\"latency\":772.153,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:8a6f896e3cbcc314bff23d0c",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 79.026,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 9; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":79.026,\"stderr\":0.991,\"cost_per_test\":0.053767,\"latency\":355.751,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:2deae12c5c397defdf075cb8",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 77.055,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 22; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":77.055,\"stderr\":3.069,\"cost_per_test\":0.726426,\"latency\":1551.831,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:2c0e9b5bf3f400047fe4de87",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 44.774,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 13; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":44.774,\"stderr\":4.762,\"cost_per_test\":2.797004,\"latency\":3404.333,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cd64f4daca597379ebb6799e",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1.25,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 45; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":1.25,\"stderr\":0.833,\"cost_per_test\":0.383981,\"latency\":656.364,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:64da456029104be74a28d22d",
+      "benchmark_id": "vulcanbench-frontier::4",
+      "subject": {
+        "source_id": "GPT-5.6 Luna [max]",
+        "name": "GPT-5.6 Luna [max]",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 84.1469,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://vulcanbench.com/assets/data/swe-v4-board.csv",
+        "retrieved_at": "2026-09-18T20:46:32.035922+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-cr82-2/81d184fca0535d344be8.gz",
+        "sha256": "81d184fca0535d344be85ed8195e6ff294e7295b2f85decae924f6e402aa7f08",
+        "locator": "vulcanbench_frontier_csv; source row 11; GPT-5.6 Luna [max]; field combined_33"
+      },
+      "protocol": "VulcanBench Frontier v4 (formerly VulcanBench-SWE v4): 23 behavioural-reconstruction tasks; combined score = 100 × (0.50 functional hidden tests + 0.085 lint/complexity + 0.085 security + 0.33 judged Code quality, judged for a human reader by Muse Spark 1.3 and Grok 4.6 under the frozen protocol family code-quality-maintenance-v3.4–v3.6); one column per model × effort in its own agent harness (Codex or Claude Code); Fable 5.1’s columns include 11 disclosed Opus 4.8 fallback cells the operator keeps in the population; not a Composite input.; source row: {\"model\":\"GPT-5.6 Luna\",\"lab\":\"OpenAI\",\"harness\":\"Codex\",\"effort\":\"max\",\"n_tasks\":23,\"tasks_passed\":19,\"combined_33_se\":1.3494,\"code_quality\":65.3505,\"mean_minutes\":44.0992,\"mean_usd\":0.448386,\"protocol\":\"code-quality-maintenance-v3.5\",\"report\":\"benchmarks/swe-v4-gpt55-luna-v35.html\",\"best_effort\":true}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-18: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:74295dbdd7b6081361e102e7",
+      "benchmark_id": "surge-chartography::100-tasks",
+      "subject": {
+        "source_id": "GPT 5.6 Luna (Max reasoning)",
+        "name": "GPT 5.6 Luna (Max reasoning)",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 31.4,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/chartography",
+        "retrieved_at": "2026-09-22T08:23:52.070427+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/9b815c23bd1d27e66be3.gz",
+        "sha256": "9b815c23bd1d27e66be3b41a7d3b18d69f1505b96d8d21bfc6035c5e9376002e",
+        "locator": "surge_benchmark_board; source row 14; GPT 5.6 Luna (Max reasoning); field value"
+      },
+      "protocol": "Chartography (Surge AI): 100 expert-written questions on real professional charts (Kaplan-Meier curves, candlesticks, contour maps, Sankey diagrams, Bode plots and more), the chart attached inline and no tools; each answer is judged against the golden answer and its expert-set acceptable range by one model-graded call (judge Gemini 3.5 Flash; the judge never sees the chart); leaderboard configuration ten runs per task; value = the board's accuracy (mean over tasks and runs, percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"GPT\",\"stated_setting\":\"Max reasoning\",\"board\":\"Chartography\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/b588ba1f8ab0ce492657.gz",
+          "sha256": "b588ba1f8ab0ce4926577c8c05312c46d705a85b755d8e8d4ec79a376982852f",
+          "retrieved_at": "2026-09-22T08:23:57.767000+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:cb9f6486d6ec8ee3b1e0ba14",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 67.116,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":67.116,\"stderr\":2.936,\"cost_per_test\":0.295835,\"latency\":660.047,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:1885994cf888fab7e3901272",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "openai/gpt-5.6-luna",
+        "name": "openai/gpt-5.6-luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.766266,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 12; openai/gpt-5.6-luna; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.881,\"stderr\":1.087,\"cost_per_test\":0.766266,\"latency\":1396.334,\"compute_effort\":null,\"reasoning_effort\":\"max\",\"max_output_tokens\":128000,\"provider\":\"OpenAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:0f24ddf0f62c618aff49259f",
+      "benchmark_id": "frontiercode-extended-cost::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 0.3074,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 57; GPT-5.6 Luna|max; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"extended\",\"harness\":\"codex\",\"new_score\":0.5506,\"correct\":0.6089,\"flagged_rate\":0.0013,\"cost\":0.3074,\"tokens\":31859.7}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:653e83a6c3fdf674e06cdb58",
+      "benchmark_id": "furniture-assembly::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "gpt-5.6-luna_max",
+        "name": "gpt-5.6-luna_max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.425,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-26T04:22:02Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/epoch-hub/epoch-furniture_assembly.csv.gz",
+        "sha256": "ed6ad54aa8b73e49222adf91405d3c05b18b10a72a21a8b0f64a753d8d31a8b7",
+        "locator": "csv; source row 20; gpt-5.6-luna_max; field Best score (across scorers)"
+      },
+      "protocol": "Furniture Assembly Benchmark run by Epoch AI (60 IKEA assembly photos, agentic sandbox, lenient GPT-5.6 Sol grader for the mistake description); value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.425; stderr=0.06380695638890652; Started at=2026-09-10T20:22:42.000Z; id=UPAoeCG9AhQYyxCGc8C7Eq",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max"
+    },
+    {
+      "id": "public:78df54137076f127c39e208c",
+      "benchmark_id": "terminal-bench::4.0",
+      "subject": {
+        "source_id": "51c6d76e-5baa-48c1-97b3-88656c620eef",
+        "name": "GPT-5.6 Luna",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "Codex"
+      },
+      "value": 17.27,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://www.tbench.ai/",
+        "retrieved_at": "2026-09-10T21:49:10Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/b-3be95230c580.html.gz",
+        "sha256": "007ff6fcb4f14f5433fa87d78896788bf62f89467d59fd3467ceb189eb99da02",
+        "locator": "terminalbench; source row 14; 51c6d76e-5baa-48c1-97b3-88656c620eef; field value"
+      },
+      "protocol": "Resolution rate on Terminal-Bench 4.0 tasks (95% confidence-interval whiskers), with cost and tokens per run; source row: {\"date\":\"2026-06-26\",\"agent_org\":{\"url\":\"https://openai.com\",\"label\":\"OpenAI\"},\"model_org\":{\"url\":\"https://openai.com\",\"label\":\"OpenAI\"},\"display_date\":\"Jun 26, 2026\",\"agent_display\":{\"url\":\"https://openai.com/codex/\",\"label\":\"Codex\"},\"model_display\":{\"url\":\"https://developers.openai.com/api/docs/models/gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna\"},\"reasoning_effort\":\"max\"}; effort=max; trials=330",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and setting max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-packet.json",
+        "packet_sha256": "7ae2f1c08e405517c189c2d6b635fd11b2b4e32bbcd3542b8d9eaa0f5876bf12",
+        "verdict_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-verdict.json",
+        "verdict_sha256": "f548429fa99917b09321c54c18be546bdfc8f93187e8ada0068c6b2b2c759b74",
+        "critic_model": "z-ai/glm-5.3-flash",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:34da203d51c614ade0dde45d",
+      "benchmark_id": "cursorbench::4.0",
+      "subject": {
+        "source_id": "GPT-5.6 Luna Max",
+        "name": "GPT-5.6 Luna Max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 35.9,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-23T10:17:48.297160+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-23T10-16-55-034Z/403230f84b9678d2bb80.gz",
+        "sha256": "403230f84b9678d2bb80bddc70ae2a78827c69212ed116fa0d784a8853987a5f",
+        "locator": "html_table; source row 29; GPT-5.6 Luna Max; field value"
+      },
+      "protocol": "CursorBench 4.0; higher score is better; each row is a model and published reasoning-effort configuration with score percentage, cost per task, tokens per task and steps per task.; source row: {\"cells\":[\"29\",\"GPT-5.6 Luna Max\",\"35.9 %\",\"$ 1.03\",\"87,284\",\"208\"],\"configuration\":null,\"value_column\":2}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:fb5aaf1dbc00437b7bb3e0db",
+      "benchmark_id": "cursorbench-cost::4.0",
+      "subject": {
+        "source_id": "GPT-5.6 Luna Max",
+        "name": "GPT-5.6 Luna Max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1.03,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-25T08:51:29.141736+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-25T08-50-35-039Z/6be7c1c37d0fe87278a1.gz",
+        "sha256": "6be7c1c37d0fe87278a178769717342ac9e49cf94e8845726ace1a2ad2e72890",
+        "locator": "html_table; source row 29; GPT-5.6 Luna Max; field value"
+      },
+      "protocol": "CursorBench 4.0; published cost per task in USD for each model-effort configuration; score, tokens and steps are retained as context and are not converted into cost.; source row: {\"cells\":[\"29\",\"GPT-5.6 Luna Max\",\"35.9 %\",\"$ 1.03\",\"87,284\",\"208\"],\"configuration\":null,\"value_column\":3}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:d74e241d1dcc60c69bd5f1d1",
+      "benchmark_id": "frontiercode::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 39.81,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 42; GPT-5.6 Luna|max; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"main\",\"harness\":\"codex\",\"new_score\":0.3981,\"correct\":0.4474,\"flagged_rate\":0.001,\"cost\":0.3704,\"tokens\":37418.9}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.3981
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-15: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:182609698d889eb0499ec406",
+      "benchmark_id": "frontiercode-extended::1.1",
+      "subject": {
+        "source_id": "GPT-5.6 Luna|max",
+        "name": "GPT-5.6 Luna · max",
+        "model_id": "gpt-5.6-luna::max",
+        "variant": null,
+        "harness": "codex"
+      },
+      "value": 55.059999999999995,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 57; GPT-5.6 Luna|max; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"GPT-5.6 Luna\",\"effort\":\"max\",\"subset\":\"extended\",\"harness\":\"codex\",\"new_score\":0.5506,\"correct\":0.6089,\"flagged_rate\":0.0013,\"cost\":0.3074,\"tokens\":31859.7}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.5506
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model gpt-5.6-luna and effort max; exact catalog configuration gpt-5.6-luna::max",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    }
+  ]
+}

@@ -13,9 +13,6 @@ beforeEach(() => {
   );
 });
 
-afterAll(() => {
-  sqlite.close();
-});
 
 describe('RoutineImportService', () => {
   describe('pre-write validation', () => {

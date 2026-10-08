@@ -1,0 +1,2520 @@
+{
+  "schema_version": 1,
+  "total": 44,
+  "offset": 0,
+  "limit": 500,
+  "observations": [
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:analystAgent",
+      "benchmark_id": "aa-analystagent::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.4125,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; analystAgent"
+      },
+      "protocol": "pass^5: task correct in all five runs, with numeric checks and LLM judging; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.6667849638121398,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 1534.13,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.171428571428571,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.4834377797672337,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.17,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 1642.96,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.94949494949495,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.429101019462465,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.803333333333333,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.122222222222222,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 30.4833333333333,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.564814814814815,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.507216494845361,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.883895131086142,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.212121212121212,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|gpqa_diamond",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:x-ai/grok-4.6-20260810|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond-cost::snapshot-2026-09-15",
+      "value": 0.12205839393939394,
+      "unit": "USD",
+      "sample_size": 198,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 198 tasks; last run 2026-09-01T13:22:57.685Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":198,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T13:22:57.685Z\",\"avg_cost_per_task_usd\":0.12205839393939394,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline-cost::snapshot-2026-09-15",
+      "value": 0.35068044,
+      "unit": "USD",
+      "sample_size": 50,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 50 tasks; last run 2026-09-01T12:41:31.788Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":50,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T12:41:31.788Z\",\"avg_cost_per_task_usd\":0.35068044,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|gpqa_diamond",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter:x-ai/grok-4.6-20260810|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond::snapshot-2026-09-15",
+      "value": 0.93266,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 198 tasks, no standard deviation published; last run 2026-09-01T13:22:57.685Z. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":198,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T13:22:57.685Z\",\"avg_cost_per_task_usd\":0.12205839393939394,\"avg_latency_per_task_ms\":null}",
+      "sample_size": 198
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter:x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline::snapshot-2026-09-15",
+      "value": 0.76,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 50 tasks, no standard deviation published; last run 2026-09-01T12:41:31.788Z. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":50,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T12:41:31.788Z\",\"avg_cost_per_task_usd\":0.35068044,\"avg_latency_per_task_ms\":null}",
+      "sample_size": 50
+    },
+    {
+      "id": "public:5f86ad33dd3e21589c9d724d",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 48.077,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 6; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":48.077,\"stderr\":3.473,\"cost_per_test\":1.530204,\"latency\":1504.077,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:5495690dada827039f412a7c",
+      "benchmark_id": "frontiercode-cost::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 2.8758,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 27; Grok 4.6|high; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"main\",\"harness\":\"grok-build\",\"new_score\":0.4801,\"correct\":0.5315,\"flagged_rate\":0.007,\"cost\":2.8758,\"tokens\":36758.3}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4b2e81680aaf1ee3e847a445",
+      "benchmark_id": "deepswe::snapshot-2026-09-15",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4-6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "mini-swe-agent"
+      },
+      "value": 0.6518847006651884,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-15T09:05:24Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-coding/epoch-deepswe_external.csv.gz",
+        "sha256": "7f0ae5e4d772c99b10a8b29ee8e2760771b63fe7f561e90d5ba48a0fae52e686",
+        "locator": "csv; source row 52; grok-4.6_high; field Pass@1"
+      },
+      "protocol": "DeepSWE as republished by Epoch AI (deepswe_external.csv); Pass@1 averaged over runs; mini-swe-agent harness; Reasoning effort=high; Runs=4; Pass@4=0.8495575221238939; 95% CI half-width=0.015336008186572951",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:16a0bdd62a599b75a91e192b",
+      "benchmark_id": "simpleqa-verified::snapshot-2026-09-16",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.493,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-simpleqa_verified.csv.gz",
+        "sha256": "1eb352142a25e73543f6f4caa071af725e24fb5ac4f0055ae763402111c9be5a",
+        "locator": "csv; source row 40; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "SimpleQA Verified (run by Epoch AI) as published in Epoch AI's Benchmarking Hub (simpleqa_verified.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.493; stderr=0.01581774956184353; Started at=2026-08-27T19:29:53.000Z; id=TpHYtuPG6kYZFvMK7Z6Hqj",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:a09661580bf5ab0f57f8101b",
+      "benchmark_id": "chess-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.4,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-chess_puzzles.csv.gz",
+        "sha256": "3e5c43320358dbdb1fbad2d646339dfb56f59ac666409d20d486783cbdf37497",
+        "locator": "csv; source row 62; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "Chess Puzzles run by Epoch AI (inspect-ai): 100 novel programmatic chess positions, one Stockfish-judged best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.4; stderr=0.0492365963917331; Started at=2026-08-12T19:39:52.000Z; id=NGQ4Q8Wrb4aroMu5RecTS6",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:6fc819fece0ffba84549eba4",
+      "benchmark_id": "epoch-gpqa-diamond::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.9400252525252525,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-gpqa_diamond.csv.gz",
+        "sha256": "8fc9a2c260248f1a95b5282d3af733894df6c39ebea9b50528231bfce1000748",
+        "locator": "csv; source row 51; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "GPQA Diamond run by Epoch AI (inspect-ai), separate identity from the AA and OpenRouter runs; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.9400252525252525; stderr=0.014480018812911388; Started at=2026-08-12T19:39:52.000Z; id=hnP6Z88x8bPEBRZ2PW6kps",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:e9978f04edb629c6d0339823",
+      "benchmark_id": "context-arena-mrcr-v2::8-needle",
+      "subject": {
+        "source_id": "x-ai/grok-4.6@reasoning=high",
+        "name": "x-ai/grok-4.6@reasoning=high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 79.43938289690182,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://contextarena.ai/api/needle-summary?needles=8",
+        "retrieved_at": "2026-09-21T17:13:26.665692+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/949e2c8ad74e8a238d21.gz",
+        "sha256": "949e2c8ad74e8a238d21390d033bd16190cb27ca11d764d818f2e0f1040b0701",
+        "locator": "context_arena_summary; source row 83; x-ai/grok-4.6@reasoning=high; field cum_avg_128k"
+      },
+      "protocol": "Context Arena (Dillon Uzar) runs Google DeepMind's MRCR v2 (multi-round coreference resolution, 8 needles, the \"full\" test set) against each model through its API: a long synthetic conversation holds eight identical writing requests, and the model must reproduce the i-th response, prefixed by a random hash, scored by string similarity (missing hash = 0). Tests are grouped by total token count into power-of-two bins. The value is the cumulative average up to 128k — the unweighted mean of the 8k, 16k, 32k, 64k and 128k bin scores, the \"upto_128K (cumulative)\" figure GDM reports — in percent. Context Arena's AUC @128k/@1M, the 1M cumulative average, the per-bin scores and test counts, total runs and the latest run date stay in each row. Rows the site marks insufficient or unranked, and rows whose bins up to 128k are incomplete, are not scored. The site says results come from running models against the published GDM dataset via API; it does not state whether tools were available, which GDM's README asks every MRCR report to state. Secondary benchmark, never a Composite input.; source row: {\"model_slug\":\"x-ai/grok-4.6\",\"reasoning_mode\":\"high\",\"provider\":\"X-ai\",\"run_providers\":[\"SpaceXAI\"],\"max_context_length\":500000,\"deprecated\":false,\"total_runs\":625,\"bins_upto_128k\":{\"8192\":[0.958697,80],\"16384\":[0.915116,80],\"32768\":[0.891129,136],\"65536\":[0.717007,85],\"131072\":[0.49002,103]},\"auc_128k\":0.7191689207557711,\"auc_1m\":0.20242549264004722,\"cum_avg_1m\":0.5537895901246171,\"has_incomplete_bins\":false,\"latest_run\":\"2026-08-14T04:17:32.371Z\"}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.7943938289690182
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/google-deepmind/eval_hub/master/eval_hub/mrcr_v2/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/7b2010f4685643f4af7b.gz",
+          "sha256": "7b2010f4685643f4af7bdccfb5e58e6822edea23d009d75cda4a86fa5c558f43",
+          "retrieved_at": "2026-09-21T17:13:30.878266+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-21: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:bff8ba8596f791dca6be2902",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.167,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.167,\"stderr\":1.205,\"cost_per_test\":4.335319,\"latency\":2283.847,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:226e50ec55843692818a380a",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 53.682,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 24; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":53.682,\"stderr\":0.67,\"cost_per_test\":1.657732,\"latency\":1000.937,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:95eddb500c0ff06fb51df015",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 78.277,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 11; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":78.277,\"stderr\":2.085,\"cost_per_test\":0.453642,\"latency\":642.908,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:f89b1f780f8aa1f072d46390",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 76.239,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 23; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":76.239,\"stderr\":3.824,\"cost_per_test\":4.875513,\"latency\":1530.145,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:1df78e075f57b36d336e8708",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 44.603,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 14; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":44.603,\"stderr\":4.957,\"cost_per_test\":14.765608,\"latency\":5425.271,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:817ccac57aec5f9a1ada6ce3",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 15.833,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 4; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":15.833,\"stderr\":2.645,\"cost_per_test\":4.008154,\"latency\":2705.055,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:6bfe5eaa00305be68a410f46",
+      "benchmark_id": "surge-chartography::100-tasks",
+      "subject": {
+        "source_id": "Grok 4.6 (High reasoning)",
+        "name": "Grok 4.6 (High reasoning)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 21.9,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/chartography",
+        "retrieved_at": "2026-09-22T08:23:52.070427+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/9b815c23bd1d27e66be3.gz",
+        "sha256": "9b815c23bd1d27e66be3b41a7d3b18d69f1505b96d8d21bfc6035c5e9376002e",
+        "locator": "surge_benchmark_board; source row 29; Grok 4.6 (High reasoning); field value"
+      },
+      "protocol": "Chartography (Surge AI): 100 expert-written questions on real professional charts (Kaplan-Meier curves, candlesticks, contour maps, Sankey diagrams, Bode plots and more), the chart attached inline and no tools; each answer is judged against the golden answer and its expert-set acceptable range by one model-graded call (judge Gemini 3.5 Flash; the judge never sees the chart); leaderboard configuration ten runs per task; value = the board's accuracy (mean over tasks and runs, percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"Grok\",\"stated_setting\":\"High reasoning\",\"board\":\"Chartography\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/b588ba1f8ab0ce492657.gz",
+          "sha256": "b588ba1f8ab0ce4926577c8c05312c46d705a85b755d8e8d4ec79a376982852f",
+          "retrieved_at": "2026-09-22T08:23:57.767000+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:7c125eda5bb589210816d405",
+      "benchmark_id": "surge-gdp-pdf::100-tasks",
+      "subject": {
+        "source_id": "Grok 4.6 (High reasoning)",
+        "name": "Grok 4.6 (High reasoning)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 16,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/gdp-pdf",
+        "retrieved_at": "2026-09-22T08:23:55.126460+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/d44bb04fd9aa6e63f5c8.gz",
+        "sha256": "d44bb04fd9aa6e63f5c838020028d9100164cf3acebe5327feb9b711c5cda972",
+        "locator": "surge_benchmark_board; source row 23; Grok 4.6 (High reasoning); field value"
+      },
+      "protocol": "GDP.pdf (Surge AI): 100 held-out tasks, each a real professional prompt with its PDF documents, no tools; a response passes only when every rubric criterion is satisfied (all_pass), judged by Gemini 3.5 Flash; leaderboard configuration five runs per task; value = the board's all-pass rate (percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"Grok\",\"stated_setting\":\"High reasoning\",\"board\":\"GDP.pdf\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/gdp-pdf/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/fda47ebf36bf4299b5d6.gz",
+          "sha256": "fda47ebf36bf4299b5d69288978de80e06fa6a001b8bc75550eb1f38d8e9e148",
+          "retrieved_at": "2026-09-22T08:24:00.322672+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:b313c3d3f87ee163d0b8ac79",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 62.727,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 23; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":62.727,\"stderr\":3.085,\"cost_per_test\":3.056382,\"latency\":3178.533,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:fe5660c2f5dc642b949543fb",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 4.335319,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; grok/grok-4.6; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.167,\"stderr\":1.205,\"cost_per_test\":4.335319,\"latency\":2283.847,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:f902997e9994f4c19add5ea0",
+      "benchmark_id": "frontiercode-extended-cost::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 2.3827,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 42; Grok 4.6|high; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"extended\",\"harness\":\"grok-build\",\"new_score\":0.6131,\"correct\":0.6705,\"flagged_rate\":0.0047,\"cost\":2.3827,\"tokens\":31616.5}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:6022c18a4ffc548d0c71416c",
+      "benchmark_id": "lmarena-webdev::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "grok-4.6-high-public-webdev",
+        "name": "grok-4.6-high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1620.6103992288927,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/code/webdev",
+        "retrieved_at": "2026-09-26T04:28:07.189169+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/45baeb8a8c5ca92c79e6.gz",
+        "sha256": "45baeb8a8c5ca92c79e6576cc31b9c54df75714d4226a9ed7fc422bfb9a72ff9",
+        "locator": "lmarena_leaderboard; source row 16; grok-4.6-high-public-webdev; field value"
+      },
+      "protocol": "LMArena Code Arena WebDev, Overall category, snapshot with vote cutoff 2026-09-25T16:00:00Z; Bradley-Terry rating with 95% interval; harness from LMArena’s model key; source row: {\"rank\":17,\"rankUpper\":11,\"rankLower\":21,\"ratingLower\":1612.2825381566129,\"ratingUpper\":1628.9382603011722,\"votes\":7040,\"modelOrganization\":\"SpaceXAI\",\"releaseType\":null,\"voteCutoffISOString\":\"2026-09-25T16:00:00.000Z\",\"totalVotes\":795514}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:25b7b272792c0017b5149363",
+      "benchmark_id": "terminal-bench::4.0",
+      "subject": {
+        "source_id": "26354542-edc0-40cd-8f8d-9fe6fbe92ac3",
+        "name": "Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "Grok Build"
+      },
+      "value": 20.3,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://www.tbench.ai/",
+        "retrieved_at": "2026-09-10T21:49:10Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/b-3be95230c580.html.gz",
+        "sha256": "007ff6fcb4f14f5433fa87d78896788bf62f89467d59fd3467ceb189eb99da02",
+        "locator": "terminalbench; source row 12; 26354542-edc0-40cd-8f8d-9fe6fbe92ac3; field value"
+      },
+      "protocol": "Resolution rate on Terminal-Bench 4.0 tasks (95% confidence-interval whiskers), with cost and tokens per run; source row: {\"date\":\"2026-08-12\",\"agent_org\":{\"url\":\"https://x.ai\",\"label\":\"xAI\"},\"model_org\":{\"url\":\"https://x.ai\",\"label\":\"xAI\"},\"display_date\":\"Aug 12, 2026\",\"agent_display\":{\"url\":\"https://x.ai/build\",\"label\":\"Grok Build\"},\"model_display\":{\"url\":\"https://docs.x.ai/developers/models/grok-4.6\",\"label\":\"Grok 4.6\"},\"reasoning_effort\":\"high\"}; effort=high; trials=330",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-packet.json",
+        "packet_sha256": "7ae2f1c08e405517c189c2d6b635fd11b2b4e32bbcd3542b8d9eaa0f5876bf12",
+        "verdict_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-verdict.json",
+        "verdict_sha256": "f548429fa99917b09321c54c18be546bdfc8f93187e8ada0068c6b2b2c759b74",
+        "critic_model": "z-ai/glm-5.3-flash",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:2571bc2234bcc1be8aebdcea",
+      "benchmark_id": "cursorbench::4.0",
+      "subject": {
+        "source_id": "Grok 4.6 High",
+        "name": "Grok 4.6 High",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 40.4,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-23T10:17:48.297160+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-23T10-16-55-034Z/403230f84b9678d2bb80.gz",
+        "sha256": "403230f84b9678d2bb80bddc70ae2a78827c69212ed116fa0d784a8853987a5f",
+        "locator": "html_table; source row 23; Grok 4.6 High; field value"
+      },
+      "protocol": "CursorBench 4.0; higher score is better; each row is a model and published reasoning-effort configuration with score percentage, cost per task, tokens per task and steps per task.; source row: {\"cells\":[\"23\",\"Grok 4.6 High\",\"40.4 %\",\"$ 5.20\",\"41,387\",\"48\"],\"configuration\":null,\"value_column\":2}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4a9d5f6e9fc8612d1c173935",
+      "benchmark_id": "cursorbench-cost::4.0",
+      "subject": {
+        "source_id": "Grok 4.6 High",
+        "name": "Grok 4.6 High",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 5.2,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-25T08:51:29.141736+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-25T08-50-35-039Z/6be7c1c37d0fe87278a1.gz",
+        "sha256": "6be7c1c37d0fe87278a178769717342ac9e49cf94e8845726ace1a2ad2e72890",
+        "locator": "html_table; source row 23; Grok 4.6 High; field value"
+      },
+      "protocol": "CursorBench 4.0; published cost per task in USD for each model-effort configuration; score, tokens and steps are retained as context and are not converted into cost.; source row: {\"cells\":[\"23\",\"Grok 4.6 High\",\"40.4 %\",\"$ 5.20\",\"41,387\",\"48\"],\"configuration\":null,\"value_column\":3}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:9795554b478f57853bce5516",
+      "benchmark_id": "frontiercode::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 48.010000000000005,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 27; Grok 4.6|high; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"main\",\"harness\":\"grok-build\",\"new_score\":0.4801,\"correct\":0.5315,\"flagged_rate\":0.007,\"cost\":2.8758,\"tokens\":36758.3}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.4801
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:6a3cad0d8d073c764dcad268",
+      "benchmark_id": "frontiercode-extended::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 61.309999999999995,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 42; Grok 4.6|high; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"extended\",\"harness\":\"grok-build\",\"new_score\":0.6131,\"correct\":0.6705,\"flagged_rate\":0.0047,\"cost\":2.3827,\"tokens\":31616.5}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.6131
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    }
+  ],
+  "divergences": [],
+  "cell": null,
+  "coverage": {
+    "model": {
+      "total_benchmarks": 317,
+      "total_capability_benchmarks": 298,
+      "available": 44,
+      "capability_available": 38,
+      "unknown": 272,
+      "not_tested": 0,
+      "not_published": 0,
+      "source_unreachable": 0,
+      "contested": 1,
+      "measured": 37,
+      "self_reported": 7
+    },
+    "benchmark": null
+  },
+  "collection": null,
+  "coverage_note": "Denominators are catalog model configurations × versioned registry entries; capability_available excludes Efficiency (cost) boards. Basis counts count covered cells, not runs; measured and self_reported may overlap. Unmatched source identities remain in observations and never inflate catalog coverage.",
+  "all_observations": [
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:analystAgent",
+      "benchmark_id": "aa-analystagent::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.4125,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; analystAgent"
+      },
+      "protocol": "pass^5: task correct in all five runs, with numeric checks and LLM judging; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:automationBenchPartialScore",
+      "benchmark_id": "aa-automationbench::1.0.6",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.6667849638121398,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; automationBenchPartialScore"
+      },
+      "protocol": "Headline score on a private 657-task held-out split of AutomationBench dataset version 1.0.6: a task receives 0 if the model violates any guardrail, and errored tasks also score 0; otherwise the task receives the percentage of objectives the model completed, which the maintainer serves as a decimal fraction on a 0-1 scale; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:briefcaseBreakdown.overall.elo",
+      "benchmark_id": "aa-briefcase::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 1534.13,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; briefcaseBreakdown.overall.elo"
+      },
+      "protocol": "Combined Elo from rubric task success, analytical quality and presentation comparisons; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:critpt",
+      "benchmark_id": "aa-critpt::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.171428571428571,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; critpt"
+      },
+      "protocol": "Official grading server correctness, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:enterpriseOpsGym",
+      "benchmark_id": "aa-enterpriseops-gym::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.4834377797672337,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; enterpriseOpsGym"
+      },
+      "protocol": "Strict pass@1 success using outcome-based SQL state verifiers; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gdpPdfAllPass",
+      "benchmark_id": "aa-gdp-pdf::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.17,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gdpPdfAllPass"
+      },
+      "protocol": "All-pass fraction of attempts where every task criterion passes; five attempts per task; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gdpval",
+      "benchmark_id": "aa-gdpval::2",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 1642.96,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gdpval"
+      },
+      "protocol": "Bradley-Terry Elo from pairwise judge-panel comparisons, human experts anchored at 1000; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:gpqa",
+      "benchmark_id": "aa-gpqa-diamond::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.94949494949495,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; gpqa"
+      },
+      "protocol": "Multiple-choice pass@1 correctness on the 198-question Diamond subset; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:hle",
+      "benchmark_id": "aa-hle::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.429101019462465,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; hle"
+      },
+      "protocol": "Equality-checker correctness, pass@1; no tool use; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:lcr",
+      "benchmark_id": "aa-lcr::1.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.803333333333333,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; lcr"
+      },
+      "protocol": "Equality-checker pass@1 correctness over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:mlcrOverall",
+      "benchmark_id": "aa-mlcr::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.122222222222222,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; mlcrOverall"
+      },
+      "protocol": "Overall pass rate: a response is credited only if it passes the conciseness gate and the three-judge panel finds it both complete and accurate (majority vote each), on the expert and compound question types; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:omniscience",
+      "benchmark_id": "aa-omniscience::snapshot-2026-09-10",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 30.4833333333333,
+      "unit": "points",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; omniscience"
+      },
+      "protocol": "Headline Omniscience Index: rewards correct answers, penalizes incorrect guesses, neutral abstentions; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:scicode",
+      "benchmark_id": "aa-scicode::1.0.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.564814814814815,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; scicode"
+      },
+      "protocol": "Subproblem-level unit-test pass@1 over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:tauBanking",
+      "benchmark_id": "aa-tau3-banking::1.0.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.507216494845361,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; tauBanking"
+      },
+      "protocol": "Backend database success, pass@1 averaged over five repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:terminalbenchV21",
+      "benchmark_id": "aa-terminal-bench::2.1",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.883895131086142,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; terminalbenchV21"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "id": "aa:c8adc5cf-fd5a-407b-af51-dc3bede3e49c:terminalbenchV40",
+      "benchmark_id": "aa-terminal-bench::4.0",
+      "subject": {
+        "source_id": "c8adc5cf-fd5a-407b-af51-dc3bede3e49c",
+        "name": "Grok 4.6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "value": 0.212121212121212,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://artificialanalysis.ai/models/gpt-5-6-sol",
+        "retrieved_at": "2026-09-10T21:47:16.627Z",
+        "published_at": null,
+        "sha256": "d921f7b255347b1091c5595adbbb5170ed6e9fe62250967a8586eb303ee99d2d",
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/aa-29d2fef1679c.html.gz",
+        "locator": "model UUID c8adc5cf-fd5a-407b-af51-dc3bede3e49c; terminalbenchV40"
+      },
+      "protocol": "All verifier tests must pass; pass@1 averaged over three repeats; AA methodology captured 2026-09-22; effort high",
+      "comparison_key": null
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|gpqa_diamond",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:x-ai/grok-4.6-20260810|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond-cost::snapshot-2026-09-15",
+      "value": 0.12205839393939394,
+      "unit": "USD",
+      "sample_size": 198,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 198 tasks; last run 2026-09-01T13:22:57.685Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":198,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T13:22:57.685Z\",\"avg_cost_per_task_usd\":0.12205839393939394,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter-cost:x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline-cost::snapshot-2026-09-15",
+      "value": 0.35068044,
+      "unit": "USD",
+      "sample_size": 50,
+      "protocol": "Mean USD spent per task by OpenRouter's own run of this configuration, measured on 50 tasks; last run 2026-09-01T12:41:31.788Z. Measured cost of that specific run, not Benchmark Heaven's adjusted cost model. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":50,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T12:41:31.788Z\",\"avg_cost_per_task_usd\":0.35068044,\"avg_latency_per_task_ms\":null}"
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|gpqa_diamond",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=gpqa_diamond"
+      },
+      "comparison_key": null,
+      "id": "openrouter:x-ai/grok-4.6-20260810|gpqa_diamond",
+      "benchmark_id": "openrouter-gpqa-diamond::snapshot-2026-09-15",
+      "value": 0.93266,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 198 tasks, no standard deviation published; last run 2026-09-01T13:22:57.685Z. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":198,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T13:22:57.685Z\",\"avg_cost_per_task_usd\":0.12205839393939394,\"avg_latency_per_task_ms\":null}",
+      "sample_size": 198
+    },
+    {
+      "subject": {
+        "source_id": "x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+        "name": "SpaceXAI: Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": "high",
+        "harness": null
+      },
+      "basis": "measured",
+      "source": {
+        "url": "https://openrouter.ai/benchmarks",
+        "retrieved_at": "2026-09-15T23:29:03.209Z",
+        "published_at": null,
+        "sha256": "4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641",
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-openrouter-benchmarks/4fab3d14d915d4aada89d2225a23e0e15b693c8435a82eede999b74a0312c641.gz",
+        "locator": "own_data row model_permaslug=x-ai/grok-4.6-20260810, benchmark_type=tau_bench_verified_airline"
+      },
+      "comparison_key": null,
+      "id": "openrouter:x-ai/grok-4.6-20260810|tau_bench_verified_airline",
+      "benchmark_id": "openrouter-tau2-bench-airline::snapshot-2026-09-15",
+      "value": 0.76,
+      "unit": "fraction",
+      "protocol": "OpenRouter's own reproducible run over 50 tasks, no standard deviation published; last run 2026-09-01T12:41:31.788Z. OpenRouter runs x-ai/grok-4.6-20260810 at its default reasoning effort \"high\" when a request states none (OpenRouter model catalog); the run joins the catalog configuration grok-4.6::high.; source row: {\"configuration\":\"\",\"permaslug\":\"x-ai/grok-4.6-20260810\",\"total_tasks\":50,\"accuracy_stddev\":null,\"primary_metric\":null,\"search_engine\":null,\"search_surface\":null,\"run_config\":null,\"last_run\":\"2026-09-01T12:41:31.788Z\",\"avg_cost_per_task_usd\":0.35068044,\"avg_latency_per_task_ms\":null}",
+      "sample_size": 50
+    },
+    {
+      "id": "public:5f86ad33dd3e21589c9d724d",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 48.077,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 6; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":48.077,\"stderr\":3.473,\"cost_per_test\":1.530204,\"latency\":1504.077,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:5495690dada827039f412a7c",
+      "benchmark_id": "frontiercode-cost::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 2.8758,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 27; Grok 4.6|high; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"main\",\"harness\":\"grok-build\",\"new_score\":0.4801,\"correct\":0.5315,\"flagged_rate\":0.007,\"cost\":2.8758,\"tokens\":36758.3}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4b2e81680aaf1ee3e847a445",
+      "benchmark_id": "deepswe::snapshot-2026-09-15",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4-6 (high)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "mini-swe-agent"
+      },
+      "value": 0.6518847006651884,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-15T09:05:24Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-15-coding/epoch-deepswe_external.csv.gz",
+        "sha256": "7f0ae5e4d772c99b10a8b29ee8e2760771b63fe7f561e90d5ba48a0fae52e686",
+        "locator": "csv; source row 52; grok-4.6_high; field Pass@1"
+      },
+      "protocol": "DeepSWE as republished by Epoch AI (deepswe_external.csv); Pass@1 averaged over runs; mini-swe-agent harness; Reasoning effort=high; Runs=4; Pass@4=0.8495575221238939; 95% CI half-width=0.015336008186572951",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:16a0bdd62a599b75a91e192b",
+      "benchmark_id": "simpleqa-verified::snapshot-2026-09-16",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.493,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-16T09:43:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-16-epoch-hub/epoch-simpleqa_verified.csv.gz",
+        "sha256": "1eb352142a25e73543f6f4caa071af725e24fb5ac4f0055ae763402111c9be5a",
+        "locator": "csv; source row 40; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "SimpleQA Verified (run by Epoch AI) as published in Epoch AI's Benchmarking Hub (simpleqa_verified.csv); value = Best score (across scorers), a fraction; one row per Epoch model version; not a Composite input.; mean_score=0.493; stderr=0.01581774956184353; Started at=2026-08-27T19:29:53.000Z; id=TpHYtuPG6kYZFvMK7Z6Hqj",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:a09661580bf5ab0f57f8101b",
+      "benchmark_id": "chess-puzzles::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.4,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-chess_puzzles.csv.gz",
+        "sha256": "3e5c43320358dbdb1fbad2d646339dfb56f59ac666409d20d486783cbdf37497",
+        "locator": "csv; source row 62; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "Chess Puzzles run by Epoch AI (inspect-ai): 100 novel programmatic chess positions, one Stockfish-judged best move each; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.4; stderr=0.0492365963917331; Started at=2026-08-12T19:39:52.000Z; id=NGQ4Q8Wrb4aroMu5RecTS6",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:6fc819fece0ffba84549eba4",
+      "benchmark_id": "epoch-gpqa-diamond::snapshot-2026-09-18",
+      "subject": {
+        "source_id": "grok-4.6_high",
+        "name": "grok-4.6_high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.9400252525252525,
+      "unit": "fraction",
+      "basis": "measured",
+      "source": {
+        "url": "https://epoch.ai/data/benchmark_data.zip",
+        "retrieved_at": "2026-09-18T23:49:00Z",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-18-epoch-hub/epoch-gpqa_diamond.csv.gz",
+        "sha256": "8fc9a2c260248f1a95b5282d3af733894df6c39ebea9b50528231bfce1000748",
+        "locator": "csv; source row 51; grok-4.6_high; field Best score (across scorers)"
+      },
+      "protocol": "GPQA Diamond run by Epoch AI (inspect-ai), separate identity from the AA and OpenRouter runs; value = Best score (across scorers). mean_score, stderr, Started at and the Epoch run id stay in the protocol; CC BY 4.0, attribute Epoch AI.; mean_score=0.9400252525252525; stderr=0.014480018812911388; Started at=2026-08-12T19:39:52.000Z; id=hnP6Z88x8bPEBRZ2PW6kps",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-19: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:e9978f04edb629c6d0339823",
+      "benchmark_id": "context-arena-mrcr-v2::8-needle",
+      "subject": {
+        "source_id": "x-ai/grok-4.6@reasoning=high",
+        "name": "x-ai/grok-4.6@reasoning=high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 79.43938289690182,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://contextarena.ai/api/needle-summary?needles=8",
+        "retrieved_at": "2026-09-21T17:13:26.665692+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/949e2c8ad74e8a238d21.gz",
+        "sha256": "949e2c8ad74e8a238d21390d033bd16190cb27ca11d764d818f2e0f1040b0701",
+        "locator": "context_arena_summary; source row 83; x-ai/grok-4.6@reasoning=high; field cum_avg_128k"
+      },
+      "protocol": "Context Arena (Dillon Uzar) runs Google DeepMind's MRCR v2 (multi-round coreference resolution, 8 needles, the \"full\" test set) against each model through its API: a long synthetic conversation holds eight identical writing requests, and the model must reproduce the i-th response, prefixed by a random hash, scored by string similarity (missing hash = 0). Tests are grouped by total token count into power-of-two bins. The value is the cumulative average up to 128k — the unweighted mean of the 8k, 16k, 32k, 64k and 128k bin scores, the \"upto_128K (cumulative)\" figure GDM reports — in percent. Context Arena's AUC @128k/@1M, the 1M cumulative average, the per-bin scores and test counts, total runs and the latest run date stay in each row. Rows the site marks insufficient or unranked, and rows whose bins up to 128k are incomplete, are not scored. The site says results come from running models against the published GDM dataset via API; it does not state whether tools were available, which GDM's README asks every MRCR report to state. Secondary benchmark, never a Composite input.; source row: {\"model_slug\":\"x-ai/grok-4.6\",\"reasoning_mode\":\"high\",\"provider\":\"X-ai\",\"run_providers\":[\"SpaceXAI\"],\"max_context_length\":500000,\"deprecated\":false,\"total_runs\":625,\"bins_upto_128k\":{\"8192\":[0.958697,80],\"16384\":[0.915116,80],\"32768\":[0.891129,136],\"65536\":[0.717007,85],\"131072\":[0.49002,103]},\"auc_128k\":0.7191689207557711,\"auc_1m\":0.20242549264004722,\"cum_avg_1m\":0.5537895901246171,\"has_incomplete_bins\":false,\"latest_run\":\"2026-08-14T04:17:32.371Z\"}",
+      "comparison_key": null,
+      "source_basis": "measured",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.7943938289690182
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/google-deepmind/eval_hub/master/eval_hub/mrcr_v2/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-21-context-arena/7b2010f4685643f4af7b.gz",
+          "sha256": "7b2010f4685643f4af7bdccfb5e58e6822edea23d009d75cda4a86fa5c558f43",
+          "retrieved_at": "2026-09-21T17:13:30.878266+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-21: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:bff8ba8596f791dca6be2902",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.167,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.167,\"stderr\":1.205,\"cost_per_test\":4.335319,\"latency\":2283.847,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:226e50ec55843692818a380a",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 53.682,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 24; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":53.682,\"stderr\":0.67,\"cost_per_test\":1.657732,\"latency\":1000.937,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:95eddb500c0ff06fb51df015",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 78.277,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 11; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":78.277,\"stderr\":2.085,\"cost_per_test\":0.453642,\"latency\":642.908,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:f89b1f780f8aa1f072d46390",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 76.239,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 23; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":76.239,\"stderr\":3.824,\"cost_per_test\":4.875513,\"latency\":1530.145,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:1df78e075f57b36d336e8708",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 44.603,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 14; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":44.603,\"stderr\":4.957,\"cost_per_test\":14.765608,\"latency\":5425.271,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:817ccac57aec5f9a1ada6ce3",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 15.833,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 4; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":15.833,\"stderr\":2.645,\"cost_per_test\":4.008154,\"latency\":2705.055,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:6bfe5eaa00305be68a410f46",
+      "benchmark_id": "surge-chartography::100-tasks",
+      "subject": {
+        "source_id": "Grok 4.6 (High reasoning)",
+        "name": "Grok 4.6 (High reasoning)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 21.9,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/chartography",
+        "retrieved_at": "2026-09-22T08:23:52.070427+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/9b815c23bd1d27e66be3.gz",
+        "sha256": "9b815c23bd1d27e66be3b41a7d3b18d69f1505b96d8d21bfc6035c5e9376002e",
+        "locator": "surge_benchmark_board; source row 29; Grok 4.6 (High reasoning); field value"
+      },
+      "protocol": "Chartography (Surge AI): 100 expert-written questions on real professional charts (Kaplan-Meier curves, candlesticks, contour maps, Sankey diagrams, Bode plots and more), the chart attached inline and no tools; each answer is judged against the golden answer and its expert-set acceptable range by one model-graded call (judge Gemini 3.5 Flash; the judge never sees the chart); leaderboard configuration ten runs per task; value = the board's accuracy (mean over tasks and runs, percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"Grok\",\"stated_setting\":\"High reasoning\",\"board\":\"Chartography\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/chartography/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/b588ba1f8ab0ce492657.gz",
+          "sha256": "b588ba1f8ab0ce4926577c8c05312c46d705a85b755d8e8d4ec79a376982852f",
+          "retrieved_at": "2026-09-22T08:23:57.767000+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:7c125eda5bb589210816d405",
+      "benchmark_id": "surge-gdp-pdf::100-tasks",
+      "subject": {
+        "source_id": "Grok 4.6 (High reasoning)",
+        "name": "Grok 4.6 (High reasoning)",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 16,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://surgehq.ai/benchmarks/gdp-pdf",
+        "retrieved_at": "2026-09-22T08:23:55.126460+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/d44bb04fd9aa6e63f5c8.gz",
+        "sha256": "d44bb04fd9aa6e63f5c838020028d9100164cf3acebe5327feb9b711c5cda972",
+        "locator": "surge_benchmark_board; source row 23; Grok 4.6 (High reasoning); field value"
+      },
+      "protocol": "GDP.pdf (Surge AI): 100 held-out tasks, each a real professional prompt with its PDF documents, no tools; a response passes only when every rubric criterion is satisfied (all_pass), judged by Gemini 3.5 Flash; leaderboard configuration five runs per task; value = the board's all-pass rate (percent) for the row's model and stated setting; Surge runs the models itself; source row: {\"brand\":\"Grok\",\"stated_setting\":\"High reasoning\",\"board\":\"GDP.pdf\"}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://raw.githubusercontent.com/surge-ai/gdp-pdf/main/README.md",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-22-surge/fda47ebf36bf4299b5d6.gz",
+          "sha256": "fda47ebf36bf4299b5d69288978de80e06fa6a001b8bc75550eb1f38d8e9e148",
+          "retrieved_at": "2026-09-22T08:24:00.322672+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-22: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:b313c3d3f87ee163d0b8ac79",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 62.727,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 23; grok/grok-4.6; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":62.727,\"stderr\":3.085,\"cost_per_test\":3.056382,\"latency\":3178.533,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:fe5660c2f5dc642b949543fb",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "grok/grok-4.6",
+        "name": "grok/grok-4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 4.335319,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; grok/grok-4.6; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.167,\"stderr\":1.205,\"cost_per_test\":4.335319,\"latency\":2283.847,\"compute_effort\":null,\"reasoning_effort\":\"high\",\"max_output_tokens\":null,\"provider\":\"SpaceXAI\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:f902997e9994f4c19add5ea0",
+      "benchmark_id": "frontiercode-extended-cost::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 2.3827,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 42; Grok 4.6|high; field cost"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); mean USD spend per rollout per model and published reasoning effort; score, pass rate, flag rate and tokens retained as context.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"extended\",\"harness\":\"grok-build\",\"new_score\":0.6131,\"correct\":0.6705,\"flagged_rate\":0.0047,\"cost\":2.3827,\"tokens\":31616.5}",
+      "comparison_key": null,
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:6022c18a4ffc548d0c71416c",
+      "benchmark_id": "lmarena-webdev::snapshot-2026-09-26",
+      "subject": {
+        "source_id": "grok-4.6-high-public-webdev",
+        "name": "grok-4.6-high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 1620.6103992288927,
+      "unit": "Elo",
+      "basis": "measured",
+      "source": {
+        "url": "https://arena.ai/leaderboard/code/webdev",
+        "retrieved_at": "2026-09-26T04:28:07.189169+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/arena/45baeb8a8c5ca92c79e6.gz",
+        "sha256": "45baeb8a8c5ca92c79e6576cc31b9c54df75714d4226a9ed7fc422bfb9a72ff9",
+        "locator": "lmarena_leaderboard; source row 16; grok-4.6-high-public-webdev; field value"
+      },
+      "protocol": "LMArena Code Arena WebDev, Overall category, snapshot with vote cutoff 2026-09-25T16:00:00Z; Bradley-Terry rating with 95% interval; harness from LMArena’s model key; source row: {\"rank\":17,\"rankUpper\":11,\"rankLower\":21,\"ratingLower\":1612.2825381566129,\"ratingUpper\":1628.9382603011722,\"votes\":7040,\"modelOrganization\":\"SpaceXAI\",\"releaseType\":null,\"voteCutoffISOString\":\"2026-09-25T16:00:00.000Z\",\"totalVotes\":795514}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high"
+    },
+    {
+      "id": "public:25b7b272792c0017b5149363",
+      "benchmark_id": "terminal-bench::4.0",
+      "subject": {
+        "source_id": "26354542-edc0-40cd-8f8d-9fe6fbe92ac3",
+        "name": "Grok 4.6",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "Grok Build"
+      },
+      "value": 20.3,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://www.tbench.ai/",
+        "retrieved_at": "2026-09-10T21:49:10Z",
+        "published_at": null,
+        "file": "ops/rebuild-2026-09/evidence/phase-04/sources/b-3be95230c580.html.gz",
+        "sha256": "007ff6fcb4f14f5433fa87d78896788bf62f89467d59fd3467ceb189eb99da02",
+        "locator": "terminalbench; source row 12; 26354542-edc0-40cd-8f8d-9fe6fbe92ac3; field value"
+      },
+      "protocol": "Resolution rate on Terminal-Bench 4.0 tasks (95% confidence-interval whiskers), with cost and tokens per run; source row: {\"date\":\"2026-08-12\",\"agent_org\":{\"url\":\"https://x.ai\",\"label\":\"xAI\"},\"model_org\":{\"url\":\"https://x.ai\",\"label\":\"xAI\"},\"display_date\":\"Aug 12, 2026\",\"agent_display\":{\"url\":\"https://x.ai/build\",\"label\":\"Grok Build\"},\"model_display\":{\"url\":\"https://docs.x.ai/developers/models/grok-4.6\",\"label\":\"Grok 4.6\"},\"reasoning_effort\":\"high\"}; effort=high; trials=330",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and setting high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-packet.json",
+        "packet_sha256": "7ae2f1c08e405517c189c2d6b635fd11b2b4e32bbcd3542b8d9eaa0f5876bf12",
+        "verdict_file": "data/raw/benchmarks/daily-evidence/2026-09-26-epoch-scale-arena/gauntlet/tb4-identity-verdict.json",
+        "verdict_sha256": "f548429fa99917b09321c54c18be546bdfc8f93187e8ada0068c6b2b2c759b74",
+        "critic_model": "z-ai/glm-5.3-flash",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    },
+    {
+      "id": "public:2571bc2234bcc1be8aebdcea",
+      "benchmark_id": "cursorbench::4.0",
+      "subject": {
+        "source_id": "Grok 4.6 High",
+        "name": "Grok 4.6 High",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 40.4,
+      "unit": "percent",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-23T10:17:48.297160+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-23T10-16-55-034Z/403230f84b9678d2bb80.gz",
+        "sha256": "403230f84b9678d2bb80bddc70ae2a78827c69212ed116fa0d784a8853987a5f",
+        "locator": "html_table; source row 23; Grok 4.6 High; field value"
+      },
+      "protocol": "CursorBench 4.0; higher score is better; each row is a model and published reasoning-effort configuration with score percentage, cost per task, tokens per task and steps per task.; source row: {\"cells\":[\"23\",\"Grok 4.6 High\",\"40.4 %\",\"$ 5.20\",\"41,387\",\"48\"],\"configuration\":null,\"value_column\":2}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:4a9d5f6e9fc8612d1c173935",
+      "benchmark_id": "cursorbench-cost::4.0",
+      "subject": {
+        "source_id": "Grok 4.6 High",
+        "name": "Grok 4.6 High",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": null
+      },
+      "value": 5.2,
+      "unit": "USD",
+      "basis": "self_reported",
+      "source": {
+        "url": "https://cursor.com/cursorbench",
+        "retrieved_at": "2026-09-25T08:51:29.141736+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-25T08-50-35-039Z/6be7c1c37d0fe87278a1.gz",
+        "sha256": "6be7c1c37d0fe87278a178769717342ac9e49cf94e8845726ace1a2ad2e72890",
+        "locator": "html_table; source row 23; Grok 4.6 High; field value"
+      },
+      "protocol": "CursorBench 4.0; published cost per task in USD for each model-effort configuration; score, tokens and steps are retained as context and are not converted into cost.; source row: {\"cells\":[\"23\",\"Grok 4.6 High\",\"40.4 %\",\"$ 5.20\",\"41,387\",\"48\"],\"configuration\":null,\"value_column\":3}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-16: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:9795554b478f57853bce5516",
+      "benchmark_id": "frontiercode::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 48.010000000000005,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-13T20:31:37.884619+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/124169fc88fe23ad8be8.gz",
+        "sha256": "124169fc88fe23ad8be831bc6746003ecd3c872308ba50ea713ee30c7de5064a",
+        "locator": "effort_runs_json; source row 27; Grok 4.6|high; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Main (100 tasks); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"main\",\"harness\":\"grok-build\",\"new_score\":0.4801,\"correct\":0.5315,\"flagged_rate\":0.007,\"cost\":2.8758,\"tokens\":36758.3}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.4801
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-13-frontiercode/f2f055237ae1ea2192dc.gz",
+          "sha256": "f2f055237ae1ea2192dc8f64a5a09c932affa90a1c2c3dc2b827d7aa17cfb917",
+          "retrieved_at": "2026-09-13T20:31:40.605644+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-15: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/benchmark-table-2026-09-15/identity-review/packet.json",
+        "packet_sha256": "484cfc227b0c79ffc26102a89350082188c8b97d8f02ab7e9421db85f27cb89f",
+        "verdict_file": "ops/benchmark-table-2026-09-15/identity-review/verdict.json",
+        "verdict_sha256": "cf347639bc96eea03a27ad49331b47f5b8db8352638e806f64666b78389faad3",
+        "critic_model": "chutes/moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5"
+        ]
+      }
+    },
+    {
+      "id": "public:6a3cad0d8d073c764dcad268",
+      "benchmark_id": "frontiercode-extended::1.1",
+      "subject": {
+        "source_id": "Grok 4.6|high",
+        "name": "Grok 4.6 · high",
+        "model_id": "grok-4.6::high",
+        "variant": null,
+        "harness": "grok-build"
+      },
+      "value": 61.309999999999995,
+      "unit": "percent",
+      "basis": "derived",
+      "source": {
+        "url": "https://cognition.com/data/frontiercode-leaderboard/data.json",
+        "retrieved_at": "2026-09-26T04:23:00.682196+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/edba28c872b94a4abf66.gz",
+        "sha256": "edba28c872b94a4abf665ed5443c52a001c75646eb4ae01a2c83a794128893bc",
+        "locator": "effort_runs_json; source row 42; Grok 4.6|high; field new_score"
+      },
+      "protocol": "FrontierCode 1.1 Extended (150 tasks, the full set); Score = weighted aggregate of rubric items, blocking-criteria failures receive 0, unfair internet use zeroed; one row per model and published reasoning effort with the source harness.; source row: {\"model\":\"Grok 4.6\",\"effort\":\"high\",\"subset\":\"extended\",\"harness\":\"grok-build\",\"new_score\":0.6131,\"correct\":0.6705,\"flagged_rate\":0.0047,\"cost\":2.3827,\"tokens\":31616.5}",
+      "comparison_key": null,
+      "source_basis": "self_reported",
+      "derivation": {
+        "formula": "Source value × 100 to registry units",
+        "inputs": [
+          0.6131
+        ]
+      },
+      "supporting_sources": [
+        {
+          "url": "https://cognition.com/frontiercode",
+          "file": "data/raw/benchmarks/daily-evidence/2026-09-26-frontiercode/6f8eff1aea83bec6b2cb.gz",
+          "sha256": "6f8eff1aea83bec6b2cb071b367e7be7e9bf8707b06dc6ac99ea209b399a1082",
+          "retrieved_at": "2026-09-26T04:23:03.498355+00:00",
+          "published_at": null,
+          "locator": "method_source"
+        }
+      ],
+      "join_note": "Reviewed identity map 2026-09-26: label states model grok-4.6 and effort high; exact catalog configuration grok-4.6::high",
+      "identity_review": {
+        "packet_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/packet.json",
+        "packet_sha256": "b4a82663720e02420e1b11a94e173921a3dabeb7475720cad466d1f54f3b6685",
+        "verdict_file": "ops/rebuild-2026-09/evidence/phase-09/frontiercode/identity-review-extended/verdict.json",
+        "verdict_sha256": "17b7e1ba2b1343b954c9a796ab54f189305e8c1c6fe0e8c604feeb8110827d00",
+        "critic_model": "moonshotai/Kimi-K3-TEE",
+        "producer_models": [
+          "anthropic/claude-opus-5-5"
+        ]
+      }
+    }
+  ]
+}

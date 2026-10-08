@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "total": 0,
+  "offset": 0,
+  "limit": 500,
+  "observations": [],
+  "divergences": [],
+  "cell": null,
+  "coverage": {
+    "model": {
+      "total_benchmarks": 317,
+      "total_capability_benchmarks": 298,
+      "available": 0,
+      "capability_available": 0,
+      "unknown": 317,
+      "not_tested": 0,
+      "not_published": 0,
+      "source_unreachable": 0,
+      "contested": 0,
+      "measured": 0,
+      "self_reported": 0
+    },
+    "benchmark": null
+  },
+  "collection": null,
+  "coverage_note": "Denominators are catalog model configurations × versioned registry entries; capability_available excludes Efficiency (cost) boards. Basis counts count covered cells, not runs; measured and self_reported may overlap. Unmatched source identities remain in observations and never inflate catalog coverage.",
+  "all_observations": []
+}

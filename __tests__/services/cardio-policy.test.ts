@@ -31,7 +31,7 @@ describe('Contract IL82 — cardio as exercise type', () => {
       'DELETE FROM personal_records; DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;'
     );
   });
-  afterAll(() => sqlite.close());
+  
 
   // ────────────────────────────────────────────────────────────────────
   // #1 — record cardio set -> canonical fields

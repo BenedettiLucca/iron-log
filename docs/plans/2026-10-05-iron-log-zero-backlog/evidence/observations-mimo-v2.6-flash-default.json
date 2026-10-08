@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "total": 9,
+  "offset": 0,
+  "limit": 500,
+  "observations": [
+    {
+      "id": "public:3f846b27cdf5a6600015a112",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.584,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.584,\"stderr\":1.133,\"cost_per_test\":0.19671,\"latency\":2701.771,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:9aed6fcc9d6659f82949e3c6",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 56.277,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 14; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":56.277,\"stderr\":0.462,\"cost_per_test\":0.071536,\"latency\":421.99,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:ac6ec29297b7d303bb7d9973",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 76.404,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":76.404,\"stderr\":1.716,\"cost_per_test\":0.02332,\"latency\":809.733,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:8197d0b04c2c8417139ab229",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 40.368,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 24; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":40.368,\"stderr\":4.998,\"cost_per_test\":0.45437,\"latency\":11194.48,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:6c86080f9cd09963355bc6b5",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.19671,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-27T05:38:24.953845+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-27T05-33-09-831Z/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (updated 2026-09-10), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.584,\"stderr\":1.133,\"cost_per_test\":0.19671,\"latency\":2701.771,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:5183eaa06f10b93d2f02ea5b",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 37.981,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 27; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":37.981,\"stderr\":3.373,\"cost_per_test\":0.070424,\"latency\":919.689,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:c66354d0b9b2e652d8b5db0a",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 65.459,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 17; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":65.459,\"stderr\":2.709,\"cost_per_test\":0.108634,\"latency\":1521.906,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:becfaee3ebdbe7f6d3430dc0",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 78.96,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":78.96,\"stderr\":4.045,\"cost_per_test\":0.563041,\"latency\":3013.012,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:b5f8bdc44b429bd2026cd3a4",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 11.25,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 7; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":11.25,\"stderr\":2.287,\"cost_per_test\":0.085646,\"latency\":1031.586,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    }
+  ],
+  "divergences": [],
+  "cell": null,
+  "coverage": {
+    "model": {
+      "total_benchmarks": 317,
+      "total_capability_benchmarks": 298,
+      "available": 9,
+      "capability_available": 8,
+      "unknown": 308,
+      "not_tested": 0,
+      "not_published": 0,
+      "source_unreachable": 0,
+      "contested": 0,
+      "measured": 9,
+      "self_reported": 0
+    },
+    "benchmark": null
+  },
+  "collection": null,
+  "coverage_note": "Denominators are catalog model configurations × versioned registry entries; capability_available excludes Efficiency (cost) boards. Basis counts count covered cells, not runs; measured and self_reported may overlap. Unmatched source identities remain in observations and never inflate catalog coverage.",
+  "all_observations": [
+    {
+      "id": "public:3f846b27cdf5a6600015a112",
+      "benchmark_id": "vals-index::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 59.584,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component overall; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"overall\",\"accuracy\":59.584,\"stderr\":1.133,\"cost_per_test\":0.19671,\"latency\":2701.771,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:9aed6fcc9d6659f82949e3c6",
+      "benchmark_id": "vals-index-finance-agent::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 56.277,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 14; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component finance_agent; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"finance_agent\",\"accuracy\":56.277,\"stderr\":0.462,\"cost_per_test\":0.071536,\"latency\":421.99,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:ac6ec29297b7d303bb7d9973",
+      "benchmark_id": "vals-index-terminal-bench-2.1::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 76.404,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component terminal_bench_2_1; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"terminal_bench_2_1\",\"accuracy\":76.404,\"stderr\":1.716,\"cost_per_test\":0.02332,\"latency\":809.733,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:8197d0b04c2c8417139ab229",
+      "benchmark_id": "vals-index-code-migration::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 40.368,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 24; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component code_migration; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"code_migration\",\"accuracy\":40.368,\"stderr\":4.998,\"cost_per_test\":0.45437,\"latency\":11194.48,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:6c86080f9cd09963355bc6b5",
+      "benchmark_id": "vals-index-cost::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 0.19671,
+      "unit": "USD",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-27T05:38:24.953845+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-27T05-33-09-831Z/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 15; xiaomi/mimo-v2.6-flash; field cost_per_test"
+      },
+      "protocol": "Vals Index v2 (updated 2026-09-10), overall; published cost per test in USD per model slug; accuracy and latency retained as context, not converted.; source row: {\"task\":\"overall\",\"accuracy\":59.584,\"stderr\":1.133,\"cost_per_test\":0.19671,\"latency\":2701.771,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-27: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:5183eaa06f10b93d2f02ea5b",
+      "benchmark_id": "vals-index-legal-research::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 37.981,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 27; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_research; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_research\",\"accuracy\":37.981,\"stderr\":3.373,\"cost_per_test\":0.070424,\"latency\":919.689,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:c66354d0b9b2e652d8b5db0a",
+      "benchmark_id": "vals-index-emb::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 65.459,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 17; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component emb; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"emb\",\"accuracy\":65.459,\"stderr\":2.709,\"cost_per_test\":0.108634,\"latency\":1521.906,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:becfaee3ebdbe7f6d3430dc0",
+      "benchmark_id": "vals-index-vibe-code-bench::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 78.96,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 18; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component vibe_code_bench; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"vibe_code_bench\",\"accuracy\":78.96,\"stderr\":4.045,\"cost_per_test\":0.563041,\"latency\":3013.012,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    },
+    {
+      "id": "public:b5f8bdc44b429bd2026cd3a4",
+      "benchmark_id": "vals-index-hlab::2",
+      "subject": {
+        "source_id": "xiaomi/mimo-v2.6-flash",
+        "name": "xiaomi/mimo-v2.6-flash",
+        "model_id": "mimo-v2.6-flash::default",
+        "variant": null,
+        "harness": null
+      },
+      "value": 11.25,
+      "unit": "percent",
+      "basis": "measured",
+      "source": {
+        "url": "https://www.vals.ai/benchmarks/vals_index",
+        "retrieved_at": "2026-09-26T04:22:13.903077+00:00",
+        "published_at": null,
+        "file": "data/raw/benchmarks/daily-evidence/2026-09-26-vals-simplebench/capture/b99902ee631d2073658f.gz",
+        "sha256": "b99902ee631d2073658f65a28eec15013cf11be39f753d97d3d492f103bbfd5f",
+        "locator": "astro_props; source row 7; xiaomi/mimo-v2.6-flash; field accuracy"
+      },
+      "protocol": "Vals Index v2 (source metadata.version \"2\"; Vals re-dates the page when it adds models, so the page date is carried by each row's own capture, not by this identity), component legal_agent_benchmark; accuracy in percent, higher is better; each row is one model slug with its published compute/reasoning effort.; source row: {\"task\":\"legal_agent_benchmark\",\"accuracy\":11.25,\"stderr\":2.287,\"cost_per_test\":0.085646,\"latency\":1031.586,\"compute_effort\":null,\"reasoning_effort\":null,\"max_output_tokens\":128000,\"provider\":\"Xiaomi\"}",
+      "comparison_key": null,
+      "join_note": "Reviewed identity map 2026-09-26: label names mimo-v2.6-flash without a setting; the catalog has exactly one configuration, the default (mimo-v2.6-flash::default)"
+    }
+  ]
+}

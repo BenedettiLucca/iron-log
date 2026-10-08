@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-10-05T10:19:17.061Z",
+  "counts": {
+    "models": 890,
+    "families": 683,
+    "providers": 96,
+    "offers": 3266
+  },
+  "sources": {
+    "openrouter": "2026-10-05",
+    "artificialanalysis": "2026-10-05",
+    "designarena": "2026-10-05",
+    "aws_bedrock": "2026-10-05",
+    "azure_foundry": "2026-10-05",
+    "google_vertex": "2026-10-05",
+    "nebius": "2026-10-05",
+    "inceptron": "2026-10-05",
+    "scaleway": "2026-10-05",
+    "ionos": "2026-10-05",
+    "mistral": "2026-10-05",
+    "tensorx": "2026-10-05",
+    "chutes": "2026-10-05",
+    "ovhcloud": "2026-10-05",
+    "stackit": "2026-10-05",
+    "t_systems_llm_hub": "2026-10-05",
+    "trustedtokens": "2026-10-05",
+    "openrouter_data_policy": "2026-10-05T09:23:23.050Z",
+    "aa_coding_agents": "2026-09-09",
+    "github_copilot": "2026-10-05",
+    "claude_code": "2026-10-05",
+    "aa_coding_agents_v1_5": "2026-10-05",
+    "provider_meta": "2026-10-05",
+    "aa_efficiency": "2026-10-05T09:21:58.363Z",
+    "openrouter_efficiency": "2026-10-05T09:23:04.313Z",
+    "chutes_efficiency": "2026-10-05T09:23:21.168Z",
+    "epoch_eci": "2026-10-05T09:23:22.002Z",
+    "openrouter_aa_relay": "2026-09-18"
+  },
+  "source": "bundled",
+  "revision": "ad45244b57db58d5dcccc9c539360a4566d5ad2b"
+}

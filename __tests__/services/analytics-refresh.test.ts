@@ -18,7 +18,6 @@ const twelveWeeksAgo = now - 12 * 7 * DAY_MS;
 beforeEach(() => {
   sqlite.exec('DELETE FROM program_exercise_targets; DELETE FROM programs; DELETE FROM personal_records; DELETE FROM body_metrics; DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
 });
-afterAll(() => sqlite.close());
 
 describe('T22 — Analytics refresh snapshot and canonical distribution', () => {
   it('returns unified snapshot with keyStats and volumeDistribution adhering to C1 (no open/deleted) and C7 (time boundaries)', async () => {

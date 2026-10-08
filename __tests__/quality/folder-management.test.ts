@@ -61,7 +61,6 @@ describe('folder management wiring', () => {
         { name: 'Leg' },
       ]);
     } finally {
-      sqlite.close();
     }
   });
 

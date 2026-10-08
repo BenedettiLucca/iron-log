@@ -27,9 +27,6 @@ beforeEach(() => {
   sqlite.exec('DELETE FROM sets; DELETE FROM sessions; DELETE FROM exercises; DELETE FROM sqlite_sequence;');
 });
 
-afterAll(() => {
-  sqlite.close();
-});
 
 describe('CSV Parser and Detector', () => {
   it('parses CSV with quotes, escaped quotes, and commas correctly', () => {

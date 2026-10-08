@@ -130,9 +130,7 @@ describe('HistoryQueryService', () => {
     ]).run();
   });
 
-  afterAll(() => {
-    sqlite.close();
-  });
+  
 
   describe('Date Key Validation & Ranges', () => {
     it('validates valid date keys', () => {

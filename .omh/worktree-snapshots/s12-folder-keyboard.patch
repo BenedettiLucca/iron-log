@@ -1,0 +1,127 @@
+diff --git a/__tests__/quality/form-keyboard-safety.test.ts b/__tests__/quality/form-keyboard-safety.test.ts
+index a96f3f1..7a85b40 100644
+--- a/__tests__/quality/form-keyboard-safety.test.ts
++++ b/__tests__/quality/form-keyboard-safety.test.ts
+@@ -9,6 +9,7 @@ const keyboardSafeForms = [
+   { file: 'app/bio/goals.tsx', containers: 1 },
+   { file: 'app/routines/editor.tsx', containers: 1 },
+   { file: 'app/(tabs)/bio.tsx', containers: 1 },
++  { file: 'components/FolderManagerModal.tsx', containers: 1 },
+ ] as const;
+ 
+ const keyboardSafeContainerPattern = /<(?:ScrollView|FlatList)\b(?=[^>]*\bautomaticallyAdjustKeyboardInsets\b)(?=[^>]*\bkeyboardShouldPersistTaps="handled")(?=[^>]*\bkeyboardDismissMode="on-drag")[^>]*>/g;
+@@ -33,6 +34,27 @@ describe('shared form keyboard safety', () => {
+     expect(editor).toContain("behavior={Platform.OS === 'ios' ? 'padding' : 'height'}");
+   });
+ 
++  it('resizes the folder manager sheet above the Android keyboard', () => {
++    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
++
++    expect(modal).toContain('KeyboardAvoidingView');
++    expect(modal).toContain("behavior={Platform.OS === 'ios' ? 'padding' : 'height'}");
++  });
++
++  it('scrolls both folder inputs and their CTAs into view when focused', () => {
++    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
++
++    expect(modal).toContain('scrollResponderScrollNativeHandleToKeyboard');
++    expect(modal).toContain('scrollViewRef');
++    expect(modal.match(/onFocus=\{handleFolderInputFocus\}/g) ?? []).toHaveLength(2);
++  });
++
++  it('bounds the folder sheet so lower rows can scroll above the keyboard', () => {
++    const modal = fs.readFileSync(path.join(root, 'components/FolderManagerModal.tsx'), 'utf8');
++
++    expect(modal).toContain('flexShrink: 1');
++  });
++
+   it('scrolls every routine exercise field above the Android keyboard and fixed footer when focused', () => {
+     const editor = fs.readFileSync(path.join(root, 'app/routines/editor.tsx'), 'utf8');
+ 
+diff --git a/components/FolderManagerModal.tsx b/components/FolderManagerModal.tsx
+index 415140d..13f65b1 100644
+--- a/components/FolderManagerModal.tsx
++++ b/components/FolderManagerModal.tsx
+@@ -1,4 +1,4 @@
+-import { useState } from 'react';
++import { useRef, useState } from 'react';
+ import {
+   KeyboardAvoidingView,
+   Modal,
+@@ -9,6 +9,7 @@ import {
+   Text,
+   View,
+ } from 'react-native';
++import type { FocusEvent } from 'react-native';
+ import { useSafeAreaInsets } from 'react-native-safe-area-context';
+ import { Button } from '@/components/Button';
+ import { Card } from '@/components/Card';
+@@ -57,6 +58,7 @@ export function FolderManagerModal({
+ }: FolderManagerModalProps) {
+   const { t } = useI18n();
+   const insets = useSafeAreaInsets();
++  const scrollViewRef = useRef<ScrollView>(null);
+   const [newFolderName, setNewFolderName] = useState('');
+   const [editingFolder, setEditingFolder] = useState<Folder | null>(null);
+   const [editingName, setEditingName] = useState('');
+@@ -67,6 +69,19 @@ export function FolderManagerModal({
+   const [isDeleting, setIsDeleting] = useState(false);
+   const isSubmitting = isCreating || isRenaming || isDeleting;
+ 
++  const handleFolderInputFocus = (event: FocusEvent) => {
++    const target = event.target;
++    if (target == null) return;
++
++    requestAnimationFrame(() => {
++      scrollViewRef.current?.scrollResponderScrollNativeHandleToKeyboard(
++        target,
++        80,
++        true
++      );
++    });
++  };
++
+   const resetForm = () => {
+     setNewFolderName('');
+     setEditingFolder(null);
+@@ -142,12 +157,12 @@ export function FolderManagerModal({
+             accessible={false}
+           />
+           <KeyboardAvoidingView
+-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
++            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+             style={{ maxHeight: '92%' }}
+           >
+             <View
+               className="bg-background rounded-t-3xl border-t border-border"
+-              style={{ paddingBottom: Math.max(insets.bottom, 16) }}
++              style={{ paddingBottom: Math.max(insets.bottom, 16), flexShrink: 1 }}
+             >
+               <View className="px-4 py-4 border-b border-border flex-row items-center justify-between">
+                 <Text
+@@ -165,6 +180,9 @@ export function FolderManagerModal({
+               </View>
+ 
+               <ScrollView
++                ref={scrollViewRef}
++                style={{ flexShrink: 1 }}
++                automaticallyAdjustKeyboardInsets
+                 keyboardShouldPersistTaps="handled"
+                 keyboardDismissMode="on-drag"
+                 contentContainerStyle={{ padding: 16, gap: 16 }}
+@@ -188,6 +206,7 @@ export function FolderManagerModal({
+                     showCharacterCount
+                     error={editingFolder ? undefined : formError}
+                     editable={!isSubmitting}
++                    onFocus={handleFolderInputFocus}
+                   />
+                   <Button
+                     title={t('routines.createFolder')}
+@@ -228,6 +247,7 @@ export function FolderManagerModal({
+                                 error={formError}
+                                 editable={!isSubmitting}
+                                 autoFocus
++                                onFocus={handleFolderInputFocus}
+                               />
+                               <View className="flex-row gap-2 mt-3">
+                                 <Button

@@ -6,7 +6,7 @@ uma subárvore; pedidos explícitos do usuário prevalecem.
 
 ## O que é o repo
 
-React Native + Expo SDK 54, Expo Router, TypeScript, SQLite local com Drizzle, NativeWind/Reanimated
+React Native + Expo SDK 57, Expo Router, TypeScript, SQLite local com Drizzle, NativeWind/Reanimated
 e i18n pt/en/es/zh. As áreas críticas são `app/session/` (treino ativo), `src/db/` (schema e
 migrações), `hooks/`, `services/`, `components/`, `src/validators/` e `drizzle/`.
 

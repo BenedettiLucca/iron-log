@@ -1,0 +1,998 @@
+diff --git a/__tests__/components/SetList.test.tsx b/__tests__/components/SetList.test.tsx
+index 999a429..8beb71e 100644
+--- a/__tests__/components/SetList.test.tsx
++++ b/__tests__/components/SetList.test.tsx
+@@ -72,6 +72,7 @@ const makeSet = (overrides: Partial<Set> = {}): Set => ({
+   id: 1,
+   sessionId: 10,
+   exerciseId: 20,
++  routineExerciseId: null,
+   exerciseName: 'Agachamento',
+   setNumber: 1,
+   weightKg: 80,
+diff --git a/__tests__/screens/exercise-navigation.test.tsx b/__tests__/screens/exercise-navigation.test.tsx
+index 632b28a..8d758ca 100644
+--- a/__tests__/screens/exercise-navigation.test.tsx
++++ b/__tests__/screens/exercise-navigation.test.tsx
+@@ -55,6 +55,7 @@ let mockIsActiveSetRunning = false;
+ let mockExposeExistingSetActions = false;
+ let mockNextExercise: {
+   id: number;
++  routineExerciseId: number;
+   name: string;
+   target?: string;
+   notes?: string;
+@@ -89,6 +90,7 @@ jest.mock('@/src/validators/routes', () => ({
+     sessionId: 42,
+     routineId: 3,
+     exerciseId: 7,
++    routineExerciseId: 41,
+     exerciseName: 'Agachamento',
+     target: '3x8',
+     notes: '',
+@@ -206,6 +208,7 @@ jest.mock('@/components/session/RirExplainerModal', () => ({ RirExplainerModal:
+ 
+ const nextExercise = {
+   id: 8,
++  routineExerciseId: 42,
+   name: 'Supino',
+   target: '3x8',
+   notes: '',
+@@ -326,6 +329,10 @@ describe('ExerciseScreen persistence-gated navigation', () => {
+     expect(mockSaveSessionContext).toHaveBeenCalledTimes(2);
+     expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({
+       pathname: '/session/exercise',
++      params: expect.objectContaining({ routineExerciseId: 42 }),
++    }));
++    expect(mockSaveSessionContext).toHaveBeenLastCalledWith(expect.objectContaining({
++      routineExerciseId: 42,
+     }));
+   });
+ 
+@@ -672,6 +679,7 @@ describe('ExerciseScreen persistence-gated navigation', () => {
+       sessionId: 42,
+       routineId: 3,
+       exerciseId: 7,
++      routineExerciseId: 41,
+       exerciseName: 'Agachamento',
+       target: '3x8',
+       notes: '',
+diff --git a/__tests__/utils/exercise.test.ts b/__tests__/utils/exercise.test.ts
+index cb2f582..5b3680e 100644
+--- a/__tests__/utils/exercise.test.ts
++++ b/__tests__/utils/exercise.test.ts
+@@ -74,6 +74,20 @@ describe('countCompletedRoutineExercises', () => {
+     expect(countCompletedRoutineExercises(exercises, sessionSets)).toBe(2);
+   });
+ 
++  it('keeps progress isolated per routine occurrence when an exercise repeats', () => {
++    const repeatedExercises = [
++      { id: 1, routineExerciseId: 101, target: '1x5' },
++      { id: 2, routineExerciseId: 102, target: '1x8' },
++      { id: 1, routineExerciseId: 103, target: '1x10' },
++    ];
++    const sessionSets = [
++      { exerciseId: 1, routineExerciseId: 101, isWarmup: false },
++      { exerciseId: 2, routineExerciseId: 102, isWarmup: false },
++    ];
++
++    expect(countCompletedRoutineExercises(repeatedExercises, sessionSets)).toBe(2);
++  });
++
+   it('keeps progress isolated per exercise', () => {
+     const sessionSets = [
+       { exerciseId: 1, isWarmup: false },
+diff --git a/__tests__/utils/routine-template-integrity.test.ts b/__tests__/utils/routine-template-integrity.test.ts
+index 31bdf06..0412250 100644
+--- a/__tests__/utils/routine-template-integrity.test.ts
++++ b/__tests__/utils/routine-template-integrity.test.ts
+@@ -41,6 +41,7 @@ describe('routine/template integrity helpers', () => {
+ 
+   it('maps the real joined exercise name and nullable metadata', () => {
+     expect(mapTemplateExercise({
++      routineExerciseId: 70,
+       exerciseId: 7,
+       name: 'Bench Press',
+       target: null,
+@@ -48,6 +49,7 @@ describe('routine/template integrity helpers', () => {
+       restSeconds: null,
+       orderIndex: 3,
+     })).toEqual({
++      routineExerciseId: 70,
+       exerciseId: 7,
+       name: 'Bench Press',
+       target: '',
+@@ -60,6 +62,7 @@ describe('routine/template integrity helpers', () => {
+   it('preserves template exercise order and fields when creating a routine', () => {
+     const templateExercises: TemplateExercise[] = [
+       {
++        routineExerciseId: 100,
+         exerciseId: 10,
+         name: 'Squat',
+         target: '3x8',
+@@ -68,6 +71,7 @@ describe('routine/template integrity helpers', () => {
+         orderIndex: 4,
+       },
+       {
++        routineExerciseId: 200,
+         exerciseId: 20,
+         name: 'Bench',
+         target: '4x6',
+diff --git a/__tests__/validators/routes.test.ts b/__tests__/validators/routes.test.ts
+index 63109a2..c6ad871 100644
+--- a/__tests__/validators/routes.test.ts
++++ b/__tests__/validators/routes.test.ts
+@@ -14,6 +14,7 @@ describe('Route Param Schemas', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: '123',
+         exerciseId: '456',
++        routineExerciseId: '789',
+         exerciseName: 'Supino Reto',
+         target: '3x8-12',
+         notes: 'Foco na negativa',
+@@ -24,6 +25,7 @@ describe('Route Param Schemas', () => {
+       if (result.success) {
+         expect(result.data.sessionId).toBe(123);
+         expect(result.data.exerciseId).toBe(456);
++        expect(result.data.routineExerciseId).toBe(789);
+         expect(result.data.exerciseName).toBe('Supino Reto');
+         expect(result.data.restSeconds).toBe(90);
+       }
+@@ -33,6 +35,7 @@ describe('Route Param Schemas', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: '1',
+         exerciseId: '2',
++        routineExerciseId: '3',
+         exerciseName: 'Test',
+       });
+       expect(result.success).toBe(true);
+@@ -43,10 +46,20 @@ describe('Route Param Schemas', () => {
+       }
+     });
+ 
++    it('rejects a route without routine occurrence identity', () => {
++      const result = exerciseParamsSchema.safeParse({
++        sessionId: '1',
++        exerciseId: '2',
++        exerciseName: 'Test',
++      });
++      expect(result.success).toBe(false);
++    });
++
+     it('rejects non-numeric sessionId', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: 'abc',
+         exerciseId: '1',
++        routineExerciseId: '2',
+         exerciseName: 'Test',
+       });
+       expect(result.success).toBe(false);
+@@ -56,6 +69,7 @@ describe('Route Param Schemas', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: '-1',
+         exerciseId: '1',
++        routineExerciseId: '2',
+         exerciseName: 'Test',
+       });
+       expect(result.success).toBe(false);
+@@ -65,6 +79,7 @@ describe('Route Param Schemas', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: '0',
+         exerciseId: '1',
++        routineExerciseId: '2',
+         exerciseName: 'Test',
+       });
+       expect(result.success).toBe(false);
+@@ -74,6 +89,7 @@ describe('Route Param Schemas', () => {
+       const result = exerciseParamsSchema.safeParse({
+         sessionId: '1',
+         exerciseId: '2',
++        routineExerciseId: '3',
+         exerciseName: '',
+       });
+       expect(result.success).toBe(false);
+diff --git a/app/routines/editor.tsx b/app/routines/editor.tsx
+index 450f22d..3310db5 100644
+--- a/app/routines/editor.tsx
++++ b/app/routines/editor.tsx
+@@ -46,6 +46,7 @@ import { DEFAULT_FOLDER_NAME, isSameFolderName } from '@/src/utils/folders';
+ 
+ type SelectedExercise = {
+   id: number;
++  routineExerciseId?: number;
+   name: string;
+   target?: string;
+   notes?: string;
+@@ -98,6 +99,7 @@ export default function RoutineEditorScreen() {
+ 
+       const joins = await db.select({
+         id: exercises.id,
++        routineExerciseId: routineExercises.id,
+         name: exercises.name,
+         order: routineExercises.orderIndex,
+         target: routineExercises.target,
+@@ -111,6 +113,7 @@ export default function RoutineEditorScreen() {
+ 
+       const loadedExercises = joins.map(j => ({
+           id: j.id,
++          routineExerciseId: j.routineExerciseId,
+           name: j.name,
+           target: j.target || '',
+           notes: j.notes || '',
+diff --git a/app/routines/templates.tsx b/app/routines/templates.tsx
+index fe2482e..ca59d5a 100644
+--- a/app/routines/templates.tsx
++++ b/app/routines/templates.tsx
+@@ -62,6 +62,7 @@ export default function TemplateLibraryScreen() {
+         // Any per-template exercise query failure fails the whole load
+         const exercisesData = await db
+           .select({
++            routineExerciseId: routineExercises.id,
+             exerciseId: exercises.id,
+             name: exercises.name,
+             target: routineExercises.target,
+@@ -201,7 +202,7 @@ export default function TemplateLibraryScreen() {
+         <Text className="text-subtext text-2xs font-bold uppercase mb-2 tracking-wider">{t('routines.exercises')}:</Text>
+         <View className="flex-row flex-wrap gap-1.5">
+           {item.exercises.slice(0, 4).map((ex) => (
+-            <View key={ex.exerciseId} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
++            <View key={ex.routineExerciseId} className="bg-primary/5 border border-border/50 rounded-full px-3 py-1">
+               <Text className="text-text text-xs font-medium">
+                 {ex.name}{ex.target ? ` • ${ex.target}` : ''}
+               </Text>
+diff --git a/app/session/[routineId].tsx b/app/session/[routineId].tsx
+index ebbadc2..05260ab 100644
+--- a/app/session/[routineId].tsx
++++ b/app/session/[routineId].tsx
+@@ -26,7 +26,8 @@ import { useThemeColors } from '@/hooks/use-theme-colors';
+ import Svg, { Line, Polyline } from 'react-native-svg';
+ 
+ type RoutineExerciseRow = {
+-  id: number;
++  routineExerciseId: number;
++  exerciseId: number;
+   name: string;
+   order: number | null;
+   target: string | null;
+@@ -112,7 +113,8 @@ export default function SessionScreen() {
+   const loadExercises = useCallback(async () => {
+       try {
+           const data = await db.select({
+-            id: exercises.id,
++            routineExerciseId: routineExercises.id,
++            exerciseId: exercises.id,
+             name: exercises.name,
+             order: routineExercises.orderIndex,
+             target: routineExercises.target,
+@@ -257,7 +259,7 @@ export default function SessionScreen() {
+       <FlatList
+         key={`list-${refreshKey}`}
+         data={routineExs}
+-        keyExtractor={(item) => item.id.toString()}
++        keyExtractor={(item) => item.routineExerciseId.toString()}
+         contentContainerStyle={{ padding: 16, gap: 12 }}
+         ListEmptyComponent={
+           <View className="items-center py-12 px-8">
+@@ -283,7 +285,8 @@ export default function SessionScreen() {
+                 params: {
+                     sessionId,
+                     routineId: rIdStr,
+-                    exerciseId: item.id,
++                    exerciseId: item.exerciseId,
++                    routineExerciseId: item.routineExerciseId,
+                     exerciseName: item.name,
+                     target: item.target,
+                     notes: item.notes,
+@@ -375,7 +378,12 @@ function ExerciseCard({ exercise, sessionId, onPress, index }: ExerciseCardProps
+   const { data: setsData } = useLiveQuery(
+     db.select({ count: count() })
+       .from(sets)
+-      .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exercise.id), isNull(sets.deletedAt), eq(sets.isWarmup, false)))
++      .where(and(
++        eq(sets.sessionId, sessionId),
++        eq(sets.routineExerciseId, exercise.routineExerciseId),
++        isNull(sets.deletedAt),
++        eq(sets.isWarmup, false)
++      ))
+   );
+ 
+   const doneSets = setsData?.[0]?.count || 0;
+diff --git a/app/session/exercise.tsx b/app/session/exercise.tsx
+index bbf1336..306b020 100644
+--- a/app/session/exercise.tsx
++++ b/app/session/exercise.tsx
+@@ -57,6 +57,7 @@ export default function ExerciseScreen() {
+   const routineId = validated?.routineId ?? null;
+   const sessionId = validated?.sessionId ?? 0;
+   const exerciseId = validated?.exerciseId ?? 0;
++  const routineExerciseId = validated?.routineExerciseId ?? 0;
+   const exerciseName = validated?.exerciseName ?? '';
+   const target = validated?.target ?? '';
+   const notes = validated?.notes ?? '';
+@@ -115,6 +116,7 @@ export default function ExerciseScreen() {
+   } = useExerciseSets({
+     sessionId,
+     exerciseId,
++    routineExerciseId,
+     routineId,
+     exerciseName,
+     routineRest,
+@@ -185,6 +187,7 @@ export default function ExerciseScreen() {
+   const { saveSessionContext, loadSessionContext, clearSessionContext } = useSessionPersistence({
+     sessionId,
+     exerciseId,
++    routineExerciseId,
+     routineId,
+     exerciseName,
+     currentName,
+@@ -211,7 +214,7 @@ export default function ExerciseScreen() {
+     (async () => {
+       const context = await loadSessionContext();
+       if (!isMounted || !context) return;
+-      const draft = resolveSessionDraft(context, { sessionId, exerciseId });
++      const draft = resolveSessionDraft(context, { sessionId, exerciseId, routineExerciseId });
+       if (
+         draft &&
+         operationRef.current === 'idle' &&
+@@ -223,7 +226,7 @@ export default function ExerciseScreen() {
+     return () => {
+       isMounted = false;
+     };
+-  }, [sessionId, exerciseId, loadSessionContext, restoreDraft]);
++  }, [sessionId, exerciseId, routineExerciseId, loadSessionContext, restoreDraft]);
+ 
+   const navigation = useNavigation();
+ 
+@@ -348,6 +351,7 @@ export default function ExerciseScreen() {
+       if (nextExercise) {
+         await saveSessionContext({
+           exerciseId: nextExercise.id,
++          routineExerciseId: nextExercise.routineExerciseId,
+           exerciseName: nextExercise.name,
+           target: nextExercise.target ?? undefined,
+           notes: nextExercise.notes ?? undefined,
+@@ -377,6 +381,7 @@ export default function ExerciseScreen() {
+             sessionId,
+             routineId,
+             exerciseId: nextExercise.id,
++            routineExerciseId: nextExercise.routineExerciseId,
+             exerciseName: nextExercise.name,
+             target: nextExercise.target,
+             notes: nextExercise.notes,
+diff --git a/app/session/finish.tsx b/app/session/finish.tsx
+index 2882808..60e835f 100644
+--- a/app/session/finish.tsx
++++ b/app/session/finish.tsx
+@@ -119,9 +119,10 @@ export default function FinishSessionScreen() {
+           .where(and(eq(sets.sessionId, sessionIdNum), isNull(sets.deletedAt)));
+ 
+         // Get targets Map
+-        const targetsMap = new Map<number, string>();
++        const targetsMap = new Map<string, string>();
+         if (session.routineId) {
+           const reData = await db.select({
++            routineExerciseId: routineExercises.id,
+             exId: routineExercises.exerciseId,
+             target: routineExercises.target
+           })
+@@ -129,7 +130,12 @@ export default function FinishSessionScreen() {
+             .where(eq(routineExercises.routineId, session.routineId));
+ 
+           reData.forEach(r => {
+-            if (r.exId && r.target) targetsMap.set(r.exId, r.target);
++            if (r.target) {
++              const key = r.routineExerciseId != null
++                ? `routine:${r.routineExerciseId}`
++                : `exercise:${r.exId}`;
++              targetsMap.set(key, r.target);
++            }
+           });
+         }
+ 
+diff --git a/app/session/summary.tsx b/app/session/summary.tsx
+index f494ebd..782baff 100644
+--- a/app/session/summary.tsx
++++ b/app/session/summary.tsx
+@@ -67,9 +67,10 @@ export default function SummaryScreen() {
+         .where(and(eq(sets.sessionId, Number(sessionId)), isNull(sets.deletedAt)));
+ 
+       // 3. Buscar Targets da Rotina (Se houver routineId)
+-      const targetsMap = new Map<number, string>();
++      const targetsMap = new Map<string, string>();
+       if (session.routineId) {
+         const reData = await db.select({
++          routineExerciseId: routineExercises.id,
+           exId: routineExercises.exerciseId,
+           target: routineExercises.target
+         })
+@@ -77,7 +78,12 @@ export default function SummaryScreen() {
+           .where(eq(routineExercises.routineId, session.routineId));
+ 
+         reData.forEach(r => {
+-          if (r.exId && r.target) targetsMap.set(r.exId, r.target);
++          if (r.target) {
++            const key = r.routineExerciseId != null
++              ? `routine:${r.routineExerciseId}`
++              : `exercise:${r.exId}`;
++            targetsMap.set(key, r.target);
++          }
+         });
+       }
+ 
+diff --git a/drizzle/meta/_journal.json b/drizzle/meta/_journal.json
+index 4f87c18..b41f938 100644
+--- a/drizzle/meta/_journal.json
++++ b/drizzle/meta/_journal.json
+@@ -148,6 +148,13 @@
+       "when": 1787782354412,
+       "tag": "0020_low_microchip",
+       "breakpoints": true
++    },
++    {
++      "idx": 21,
++      "version": "6",
++      "when": 1787863472122,
++      "tag": "0021_small_jackpot",
++      "breakpoints": true
+     }
+   ]
+ }
+\ No newline at end of file
+diff --git a/drizzle/migrations.js b/drizzle/migrations.js
+index ba9ab0d..24c67b4 100644
+--- a/drizzle/migrations.js
++++ b/drizzle/migrations.js
+@@ -22,6 +22,7 @@ import m0017 from './0017_programs_periodization.sql';
+ import m0018 from './0018_safe_wind_dancer.sql';
+ import m0019 from './0019_optimal_marauders.sql';
+ import m0020 from './0020_low_microchip.sql';
++import m0021 from './0021_small_jackpot.sql';
+ 
+   export default {
+     journal,
+@@ -46,7 +47,8 @@ m0016,
+ m0017,
+ m0018,
+ m0019,
+-m0020
++m0020,
++m0021
+     }
+   }
+   
+\ No newline at end of file
+diff --git a/hooks/use-exercise-sets.ts b/hooks/use-exercise-sets.ts
+index 7eb08f9..ba902a6 100644
+--- a/hooks/use-exercise-sets.ts
++++ b/hooks/use-exercise-sets.ts
+@@ -16,6 +16,7 @@ import { SessionDraft } from '../src/utils/session-draft';
+ 
+ export interface RoutineExerciseListItem {
+   id: number;
++  routineExerciseId: number;
+   name: string;
+   type: string;
+   target: string | null;
+@@ -26,6 +27,7 @@ export interface RoutineExerciseListItem {
+ export interface UseExerciseSetsProps {
+   sessionId: number;
+   exerciseId: number;
++  routineExerciseId: number;
+   routineId: number | null;
+   exerciseName: string;
+   routineRest: number | null;
+@@ -34,6 +36,7 @@ export interface UseExerciseSetsProps {
+ export function useExerciseSets({
+   sessionId,
+   exerciseId,
++  routineExerciseId,
+   routineId,
+   exerciseName,
+   routineRest,
+@@ -107,7 +110,7 @@ export function useExerciseSets({
+ 
+   // Count completed exercises (based on target sets met)
+   const { data: allSessionSets } = useLiveQuery(
+-    db.select({ exerciseId: sets.exerciseId, isWarmup: sets.isWarmup })
++    db.select({ exerciseId: sets.exerciseId, routineExerciseId: sets.routineExerciseId, isWarmup: sets.isWarmup })
+       .from(sets)
+       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
+   );
+@@ -129,7 +132,7 @@ export function useExerciseSets({
+ 
+       const data = await db.select()
+         .from(sets)
+-        .where(and(eq(sets.sessionId, sessionId), eq(sets.exerciseId, exerciseId), isNull(sets.deletedAt)))
++        .where(and(eq(sets.sessionId, sessionId), eq(sets.routineExerciseId, routineExerciseId), isNull(sets.deletedAt)))
+         .orderBy(sets.setNumber);
+       setSessionSets(data);
+       setHasLoadedSessionSets(true);
+@@ -150,6 +153,7 @@ export function useExerciseSets({
+       if (routineId) {
+         const routineList = await db.select({
+           id: exercises.id,
++          routineExerciseId: routineExercises.id,
+           name: exercises.name,
+           type: exercises.type,
+           target: routineExercises.target,
+@@ -163,7 +167,7 @@ export function useExerciseSets({
+ 
+         setAllExercises(routineList);
+ 
+-        const currentIndex = routineList.findIndex(e => e.id === exerciseId);
++        const currentIndex = routineList.findIndex(e => e.routineExerciseId === routineExerciseId);
+         if (currentIndex !== -1 && currentIndex < routineList.length - 1) {
+           const next = routineList[currentIndex + 1];
+           setNextExercise(next);
+@@ -172,7 +176,7 @@ export function useExerciseSets({
+     } catch (e) {
+       logger.error(t('common.operationError'), e);
+     }
+-  }, [sessionId, exerciseId, routineId, t]);
++  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
+ 
+   const loadHistory = useCallback(async () => {
+     try {
+@@ -249,6 +253,7 @@ export function useExerciseSets({
+       const result = await db.insert(sets).values({
+         sessionId,
+         exerciseId,
++        routineExerciseId,
+         exerciseName: currentName,
+         setNumber: nextSetNumber,
+         weightKg: setValidation.data.weightKg,
+@@ -306,18 +311,19 @@ export function useExerciseSets({
+     } finally {
+       setIsSaving(false);
+     }
+-  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
++  }, [isSaving, exerciseType, duration, reps, weight, rir, sessionId, exerciseId, routineExerciseId, currentName, sessionSets, routineRest, undoTimeoutRef, loadData, isWarmupMode, t, trigger, setLastSavedSet, setTimerStatus, setTimerTarget, resetActiveSet, setIsDirty]);
+ 
+   const handleUndo = useCallback(async () => {
+     await hookHandleUndo({
+       exerciseId,
++      routineExerciseId,
+       sessionId,
+       exerciseType,
+       setSessionSets,
+       setCurrentName,
+       setToast,
+     });
+-  }, [hookHandleUndo, exerciseId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
++  }, [hookHandleUndo, exerciseId, routineExerciseId, sessionId, exerciseType, setSessionSets, setCurrentName, setToast]);
+ 
+   const handleDeleteSet = useCallback(async (setId: number) => {
+     try {
+@@ -333,8 +339,8 @@ export function useExerciseSets({
+   }, [loadData, registerDeletedSet, sessionSets, t]);
+ 
+   const handleRestoreDeletedSet = useCallback(async () => {
+-    await handleRestoreDeleted({ exerciseId, sessionId, setSessionSets, setToast });
+-  }, [exerciseId, handleRestoreDeleted, sessionId]);
++    await handleRestoreDeleted({ exerciseId, routineExerciseId, sessionId, setSessionSets, setToast });
++  }, [exerciseId, routineExerciseId, handleRestoreDeleted, sessionId]);
+ 
+   const handleEditSet = useCallback(async (setId: number) => {
+     try {
+diff --git a/hooks/use-session-persistence.ts b/hooks/use-session-persistence.ts
+index fa9e223..c3dd35c 100644
+--- a/hooks/use-session-persistence.ts
++++ b/hooks/use-session-persistence.ts
+@@ -27,6 +27,7 @@ interface UseSessionPersistenceReturn {
+ interface SessionContext {
+   sessionId: number;
+   exerciseId: number;
++  routineExerciseId: number | null;
+   exerciseName: string;
+   routineId: number | null;
+   target?: string;
+@@ -48,6 +49,7 @@ interface SessionContext {
+ interface SessionPersistenceOptions {
+   sessionId: number;
+   exerciseId: number;
++  routineExerciseId?: number | null;
+   routineId: number | null;
+   exerciseName: string;
+   currentName: string;
+@@ -71,6 +73,7 @@ function createSessionContext(opts: SessionPersistenceOptions): SessionContext {
+   return {
+     sessionId: opts.sessionId,
+     exerciseId: opts.exerciseId,
++    routineExerciseId: opts.routineExerciseId ?? null,
+     exerciseName: opts.currentName,
+     routineId: opts.routineId,
+     target: opts.target,
+diff --git a/hooks/use-session-undo.ts b/hooks/use-session-undo.ts
+index 553efc1..39e22a6 100644
+--- a/hooks/use-session-undo.ts
++++ b/hooks/use-session-undo.ts
+@@ -14,6 +14,7 @@ type ToastSetter = (toast: {
+ 
+ type SessionSetState = {
+   exerciseId: number;
++  routineExerciseId: number;
+   sessionId: number;
+   setSessionSets: React.Dispatch<React.SetStateAction<Set[]>>;
+   setToast?: ToastSetter;
+@@ -49,7 +50,7 @@ export function useSessionUndo(): UseSessionUndoReturn {
+       .from(sets)
+       .where(and(
+         eq(sets.sessionId, opts.sessionId),
+-        eq(sets.exerciseId, opts.exerciseId),
++        eq(sets.routineExerciseId, opts.routineExerciseId),
+         isNull(sets.deletedAt),
+       ))
+       .orderBy(sets.setNumber);
+diff --git a/services/NotionExportService.ts b/services/NotionExportService.ts
+index efbb23f..f650b45 100644
+--- a/services/NotionExportService.ts
++++ b/services/NotionExportService.ts
+@@ -4,6 +4,7 @@ import { sessions, sets, routineExercises } from '@/src/db/schema';
+ import { asc, isNull, eq, and, gte, lte, inArray } from 'drizzle-orm';
+ import { formatEpochDate, computeVolume } from './AlexandriaExportService';
+ import { generateSessionVerdicts } from '@/src/utils/session-verdicts';
++import { getRoutineOccurrenceKey } from '@/src/utils/session-summary';
+ import { buildSessionVerdictsMarkdown } from '@/src/utils/session-verdict-markdown';
+ import { logger } from '@/services/logger';
+ import { formatDateShort, getWeekNumber } from '@/src/utils/date-utils';
+@@ -28,9 +29,10 @@ export const NotionExportService = {
+       .where(and(eq(sets.sessionId, sessionId), isNull(sets.deletedAt)))
+       .orderBy(asc(sets.setNumber));
+ 
+-    const targetsMap = new Map<number, string>();
++    const targetsMap = new Map<string, string>();
+     if (session.routineId) {
+       const reData = await db.select({
++        routineExerciseId: routineExercises.id,
+         exId: routineExercises.exerciseId,
+         target: routineExercises.target,
+       })
+@@ -38,7 +40,12 @@ export const NotionExportService = {
+         .where(eq(routineExercises.routineId, session.routineId));
+ 
+       reData.forEach((r) => {
+-        if (r.exId && r.target) targetsMap.set(r.exId, r.target);
++        if (r.target) {
++          const key = r.routineExerciseId != null
++            ? `routine:${r.routineExerciseId}`
++            : `exercise:${r.exId}`;
++          targetsMap.set(key, r.target);
++        }
+       });
+     }
+ 
+@@ -63,16 +70,18 @@ export const NotionExportService = {
+     // 5. Title
+     md += `## ${session.routineName || t('reports.md.workout')}\n\n`;
+ 
+-    // 6. Group sets by exercise
++    // 6. Group sets by routine occurrence (A/B/A) so repeated exercises stay separate
+     const byExercise = new Map<string, typeof sessionSets>();
+     for (const s of sessionSets) {
++      const key = getRoutineOccurrenceKey(s.routineExerciseId, s.exerciseId);
+       const name = s.exerciseName || t('reports.md.unknown');
+-      if (!byExercise.has(name)) byExercise.set(name, []);
+-      byExercise.get(name)!.push(s);
++      if (!byExercise.has(key)) byExercise.set(key, []);
++      byExercise.get(key)!.push(s);
+     }
+ 
+     // 7. Build exercise tables
+-    for (const [name, exerciseSets] of byExercise) {
++    for (const [, exerciseSets] of byExercise) {
++      const name = exerciseSets[0]?.exerciseName || t('reports.md.unknown');
+       md += `### ${name}\n\n`;
+       md += `| ${t('reports.md.set')} | ${t('reports.md.weightKg')} | ${t('reports.md.reps')} | RIR | ${t('reports.md.warmup')} |\n`;
+       md += `|-----|-------------|------|-----|--------|\n`;
+diff --git a/src/db/schema.ts b/src/db/schema.ts
+index c96b636..7c2c758 100644
+--- a/src/db/schema.ts
++++ b/src/db/schema.ts
+@@ -1,4 +1,4 @@
+-import { sqliteTable, text, integer, real, uniqueIndex, index, primaryKey } from 'drizzle-orm/sqlite-core';
++import { sqliteTable, text, integer, real, uniqueIndex, index } from 'drizzle-orm/sqlite-core';
+ 
+ // TABELA: Templates de Treino (Ex: Treino A, Treino B)
+ export const routines = sqliteTable('routines', {
+@@ -25,6 +25,7 @@ export const exercises = sqliteTable('exercises', {
+ 
+ // TABELA: Exercícios contidos em uma Rotina (Join Table com ordem)
+ export const routineExercises = sqliteTable('routine_exercises', {
++  id: integer('id').primaryKey({ autoIncrement: true }),
+   routineId: integer('routine_id').references(() => routines.id),
+   exerciseId: integer('exercise_id').references(() => exercises.id),
+   orderIndex: integer('order_index'),
+@@ -32,7 +33,8 @@ export const routineExercises = sqliteTable('routine_exercises', {
+   notes: text('notes'),   // Ex: "Banco altura 4, foco na negativa"
+   restSeconds: integer('rest_seconds'), // Tempo de descanso em segundos
+ }, (t) => [
+-  primaryKey({ columns: [t.routineId, t.exerciseId] }),
++  index("re_routine_id_idx").on(t.routineId),
++  index("re_exercise_id_idx").on(t.exerciseId),
+ ]);
+ 
+ // TABELA: Sessões de Treino
+@@ -64,7 +66,10 @@ export const sets = sqliteTable('sets', {
+   isEdited: integer('is_edited', { mode: 'boolean' }).notNull().default(false),
+   createdAt: integer('created_at').$defaultFn(() => Date.now()),
+   deletedAt: integer('deleted_at'), // Epoch, null = active
+-});
++  routineExerciseId: integer('routine_exercise_id').references(() => routineExercises.id, { onDelete: 'set null' }),
++}, (t) => [
++  index("sets_routine_exercise_id_idx").on(t.routineExerciseId),
++]);
+ 
+ // TABELA: Métricas Corporais e Fotos
+ export const bodyMetrics = sqliteTable('body_metrics', {
+@@ -169,8 +174,6 @@ export const setsSessionIdx = index("sets_session_id_idx").on(sets.sessionId);
+ export const setsExerciseIdx = index("sets_exercise_id_idx").on(sets.exerciseId);
+ export const bodyMetricsDateIdx = index("body_metrics_date_idx").on(bodyMetrics.date);
+ export const personalRecordsExerciseIdx = index("pr_exercise_type_idx").on(personalRecords.exerciseId, personalRecords.recordType);
+-export const routineExercisesRoutineIdx = index("re_routine_id_idx").on(routineExercises.routineId);
+-export const routineExercisesExerciseIdx = index("re_exercise_id_idx").on(routineExercises.exerciseId);
+ export const sessionsRoutineIdx = index("sessions_routine_id_idx").on(sessions.routineId);
+ export const programsActiveIdx = index("programs_active_idx").on(programs.isActive);
+ export const programWeeksProgramIdx = index("pw_program_id_idx").on(programWeeks.programId);
+diff --git a/src/utils/exercise.ts b/src/utils/exercise.ts
+index f6003ce..c994b50 100644
+--- a/src/utils/exercise.ts
++++ b/src/utils/exercise.ts
+@@ -21,21 +21,44 @@ export function parseTargetSets(target: string | null | undefined): number | nul
+  * Excludes warm-up sets from completion counts.
+  */
+ export function countCompletedRoutineExercises(
+-  exercises: { id: number; target: string | null | undefined }[],
+-  sessionSets: { exerciseId: number; isWarmup?: boolean | null }[]
++  exercises: {
++    id?: number;
++    exerciseId?: number;
++    routineExerciseId?: number | null;
++    target?: string | null | undefined;
++  }[],
++  sessionSets: {
++    exerciseId?: number;
++    routineExerciseId?: number | null;
++    isWarmup?: boolean | null;
++  }[]
+ ): number {
+-  const setsPerExercise = new Map<number, number>();
++  const exerciseFrequency = new Map<number, number>();
++  for (const ex of exercises) {
++    const exId = ex.exerciseId ?? ex.id;
++    if (typeof exId === 'number') {
++      exerciseFrequency.set(exId, (exerciseFrequency.get(exId) || 0) + 1);
++    }
++  }
+ 
+-  sessionSets.forEach(set => {
+-    if (set.isWarmup === true) return;
+-    const currentCount = setsPerExercise.get(set.exerciseId) || 0;
+-    setsPerExercise.set(set.exerciseId, currentCount + 1);
+-  });
++  const workingSets = sessionSets.filter(set => set.isWarmup !== true);
+ 
+   return exercises.reduce((count, exercise) => {
+-    const targetSets = parseTargetSets(exercise.target);
+-    const doneSets = setsPerExercise.get(exercise.id) || 0;
++    const exId = exercise.exerciseId ?? exercise.id;
++    const routineExId = exercise.routineExerciseId;
++    const isSingleOccurrence = typeof exId === 'number' && exerciseFrequency.get(exId) === 1;
+ 
++    const doneSets = workingSets.filter(set => {
++      if (routineExId != null && set.routineExerciseId != null) {
++        return set.routineExerciseId === routineExId;
++      }
++      if (set.routineExerciseId == null) {
++        return isSingleOccurrence && typeof exId === 'number' && set.exerciseId === exId;
++      }
++      return isSingleOccurrence && typeof exId === 'number' && set.exerciseId === exId;
++    }).length;
++
++    const targetSets = parseTargetSets(exercise.target);
+     if (targetSets !== null) {
+       return doneSets >= targetSets ? count + 1 : count;
+     }
+diff --git a/src/utils/routine-template-integrity.ts b/src/utils/routine-template-integrity.ts
+index 126593c..e814832 100644
+--- a/src/utils/routine-template-integrity.ts
++++ b/src/utils/routine-template-integrity.ts
+@@ -1,11 +1,13 @@
+ export type RoutineExerciseInput = {
+   id: number;
++  routineExerciseId?: number;
+   target?: string;
+   notes?: string;
+   restSeconds?: number;
+ };
+ 
+ export type TemplateExercise = {
++  routineExerciseId: number;
+   exerciseId: number;
+   name: string;
+   target: string;
+@@ -15,6 +17,7 @@ export type TemplateExercise = {
+ };
+ 
+ export type TemplateJoinRow = {
++  routineExerciseId: number;
+   exerciseId: number;
+   name: string;
+   target: string | null;
+@@ -43,6 +46,7 @@ export function buildSaveAsTemplateValues(name: string, description: string) {
+ 
+ export function mapTemplateExercise(row: TemplateJoinRow): TemplateExercise {
+   return {
++    routineExerciseId: row.routineExerciseId,
+     exerciseId: row.exerciseId,
+     name: row.name,
+     target: row.target ?? '',
+diff --git a/src/utils/session-draft.ts b/src/utils/session-draft.ts
+index 6add4bf..5297ff9 100644
+--- a/src/utils/session-draft.ts
++++ b/src/utils/session-draft.ts
+@@ -29,7 +29,7 @@ export function hasPendingSessionDraft(state: SessionDraftState): boolean {
+ 
+ export function resolveSessionDraft(
+   value: unknown,
+-  identity: { sessionId: number; exerciseId: number }
++  identity: { sessionId: number; exerciseId: number; routineExerciseId?: number }
+ ): SessionDraft | null {
+   if (value === null || value === undefined || !identity) return null;
+ 
+@@ -70,6 +70,27 @@ export function resolveSessionDraft(
+     return null;
+   }
+ 
++  const routineExerciseId = obj.routineExerciseId;
++  if (routineExerciseId !== undefined && routineExerciseId !== null) {
++    if (
++      typeof routineExerciseId !== 'number' ||
++      !Number.isFinite(routineExerciseId) ||
++      !Number.isInteger(routineExerciseId) ||
++      routineExerciseId <= 0
++    ) {
++      return null;
++    }
++  }
++
++  if (identity.routineExerciseId !== undefined && identity.routineExerciseId > 0) {
++    if (
++      typeof routineExerciseId !== 'number' ||
++      routineExerciseId !== identity.routineExerciseId
++    ) {
++      return null;
++    }
++  }
++
+   if (typeof obj.weight !== 'string') return null;
+   if (typeof obj.reps !== 'string') return null;
+   if (typeof obj.duration !== 'string') return null;
+diff --git a/src/utils/session-summary.ts b/src/utils/session-summary.ts
+index f04cd5f..21b90cc 100644
+--- a/src/utils/session-summary.ts
++++ b/src/utils/session-summary.ts
+@@ -12,6 +12,26 @@ export interface SummarySet {
+   rir: number | null;
+   deletedAt?: number | null;
+   isWarmup: boolean;
++  routineExerciseId?: number | null;
++}
++
++export function getRoutineOccurrenceKey(
++  routineExerciseId: number | null | undefined,
++  exerciseId: number
++): string {
++  if (routineExerciseId != null) return `routine:${routineExerciseId}`;
++  return `exercise:${exerciseId}`;
++}
++
++function lookupTarget(
++  targetsMap: Map<string | number, string>,
++  occurrenceKey: string,
++  exerciseId: number
++): string | undefined {
++  let target = targetsMap.get(occurrenceKey);
++  if (target == null) target = targetsMap.get(`exercise:${exerciseId}`);
++  if (target == null) target = targetsMap.get(exerciseId);
++  return target;
+ }
+ 
+ export interface SummarySession {
+@@ -28,6 +48,7 @@ interface ExerciseSummary {
+   name: string;
+   sets: SummarySet[];
+   exId: number;
++  key: string;
+   target?: string;
+ }
+ 
+@@ -41,7 +62,7 @@ export interface SessionStats {
+ export interface BuildSessionSummaryInput {
+   session: SummarySession;
+   setsData: SummarySet[];
+-  targetsMap: Map<number, string>;
++  targetsMap: Map<string | number, string>;
+   t: TFunction;
+   locale: string;
+ }
+@@ -63,15 +84,16 @@ export function buildSessionSummary({
+   const exercisesMap = new Map<string, ExerciseSummary>();
+ 
+   activeSets.forEach(set => {
++    const key = getRoutineOccurrenceKey(set.routineExerciseId, set.exerciseId);
+     const exName = set.exerciseName || `${t('common.exercise')} ${set.exerciseId}`;
+-    if (!exercisesMap.has(exName)) {
+-      exercisesMap.set(exName, { sets: [], exId: set.exerciseId, name: exName });
++    if (!exercisesMap.has(key)) {
++      exercisesMap.set(key, { sets: [], exId: set.exerciseId, name: exName, key });
+     }
+-    exercisesMap.get(exName)!.sets.push(set);
++    exercisesMap.get(key)!.sets.push(set);
+   });
+ 
+   exercisesMap.forEach((data) => {
+-    const target = targetsMap.get(data.exId);
++    const target = lookupTarget(targetsMap, data.key, data.exId);
+     if (target) data.target = target;
+   });
+ 
+diff --git a/src/utils/session-verdicts.ts b/src/utils/session-verdicts.ts
+index e34a929..1392e41 100644
+--- a/src/utils/session-verdicts.ts
++++ b/src/utils/session-verdicts.ts
+@@ -1,4 +1,5 @@
+ import type { SummarySet } from './session-summary';
++import { getRoutineOccurrenceKey } from './session-summary';
+ 
+ type TFunction = (key: string, vars?: Record<string, string | number>) => string;
+ 
+@@ -203,24 +204,29 @@ export function generateExerciseVerdict(
+ 
+ export function generateSessionVerdicts(
+   setsData: SummarySet[],
+-  targetsMap: Map<number, string>,
++  targetsMap: Map<string | number, string>,
+   t: TFunction
+ ): ExerciseVerdict[] {
+-  // Group sets by exerciseId
+-  const exerciseSetsMap = new Map<number, SummarySet[]>();
++  // Group sets by routine occurrence key (A/B/A) so repeated exercises stay separate
++  const exerciseSetsMap = new Map<string, SummarySet[]>();
+   setsData.forEach(set => {
+-    if (!exerciseSetsMap.has(set.exerciseId)) {
+-      exerciseSetsMap.set(set.exerciseId, []);
++    const key = getRoutineOccurrenceKey(set.routineExerciseId, set.exerciseId);
++    if (!exerciseSetsMap.has(key)) {
++      exerciseSetsMap.set(key, []);
+     }
+-    exerciseSetsMap.get(set.exerciseId)!.push(set);
++    exerciseSetsMap.get(key)!.push(set);
+   });
+ 
+   const verdicts: ExerciseVerdict[] = [];
+ 
+-  exerciseSetsMap.forEach((sets, exerciseId) => {
++  exerciseSetsMap.forEach((sets, key) => {
+     const firstSet = sets[0];
++    const exerciseId = firstSet?.exerciseId ?? 0;
+     const exerciseName = firstSet?.exerciseName || `${t('common.exercise')} ${exerciseId}`;
+-    const targetStr = targetsMap.get(exerciseId) || null;
++    const targetStr = targetsMap.get(key)
++      ?? targetsMap.get(getRoutineOccurrenceKey(null, exerciseId))
++      ?? targetsMap.get(exerciseId)
++      ?? null;
+     const verdict = generateExerciseVerdict(exerciseId, exerciseName, targetStr, sets, t);
+ 
+     if (verdict.workingSets.length > 0) {
+diff --git a/src/validators/routes.ts b/src/validators/routes.ts
+index c539bbd..5146143 100644
+--- a/src/validators/routes.ts
++++ b/src/validators/routes.ts
+@@ -13,6 +13,7 @@ const numericParam = z.coerce.number().int().positive();
+ export const exerciseParamsSchema = z.object({
+   sessionId: numericParam,
+   exerciseId: numericParam,
++  routineExerciseId: numericParam,
+   exerciseName: z.string().min(1),
+   routineId: z.string().optional().nullable().transform(v => v ? Number(v) : null),
+   target: z.string().optional().default(''),

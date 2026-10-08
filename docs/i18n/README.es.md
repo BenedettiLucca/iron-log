@@ -4,7 +4,7 @@
 
 **Iron Log** es una plataforma completa de monitoreo fitness local-first. Diseñado para quienes se toman el entrenamiento en serio — registro rápido de cargas, seguimiento corporal, análisis de rendimiento y exportación de datos.
 
-**Versión:** 3.14.0 · **Expo SDK:** 54 · **Tests:** 894 pasando
+**Versión:** 3.16.0 · **Expo SDK:** 57 · **Tests:** 1646 pasando
 
 ---
 
@@ -84,7 +84,7 @@ El idioma se puede cambiar en cualquier momento desde **Configuración**.
 
 | Capa | Tecnología |
 |------|-----------|
-| **Core** | React Native (Expo SDK 54) + TypeScript |
+| **Core** | React Native (Expo SDK 57) + TypeScript |
 | **ORM** | Drizzle ORM + SQLite (expo-sqlite) |
 | **UI** | NativeWind v4 (Tailwind), Reanimated |
 | **Charts** | React Native Gifted Charts |
