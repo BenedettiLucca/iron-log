@@ -27,7 +27,14 @@ beforeEach(() => {
 describe('T08: SessionLifecycleService (Transactional lifecycle & Undo)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Hermeticity: drop fault-injection triggers left by a previous test that
+    // failed between CREATE and DROP (nondeterministic suite-order contamination
+    // observed post-wave-3; see AGENTS.md "jest split-phase").
     sqlite.exec(`
+      DROP TRIGGER IF EXISTS test_fail_body_metrics;
+      DROP TRIGGER IF EXISTS test_fail_discard;
+      DROP TRIGGER IF EXISTS test_fail_delete_pr;
+      DROP TRIGGER IF EXISTS test_fail_restore;
       DELETE FROM personal_records;
       DELETE FROM body_metrics;
       DELETE FROM sets;

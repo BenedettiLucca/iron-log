@@ -34,6 +34,6 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ['dist/*', '.expo/**'],
+    ignores: ['dist/*', '.expo/**', 'android-sdk/**'],
   },
 ]);
