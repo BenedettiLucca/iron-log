@@ -13,14 +13,25 @@ const numericParam = z.coerce.number().int().positive();
 export const exerciseParamsSchema = z.object({
   sessionId: numericParam,
   exerciseId: numericParam,
-  routineExerciseId: numericParam,
+  routineExerciseId: numericParam.optional().nullable(),
+  sessionExerciseId: numericParam.optional().nullable(),
   exerciseName: z.string().min(1),
-  routineId: z.string().optional().nullable().transform(v => v ? Number(v) : null),
+  routineId: z.string().optional().nullable().transform(v => {
+    if (!v || v === 'freestyle') return null;
+    const num = Number(v);
+    return Number.isInteger(num) ? num : null;
+  }),
   target: z.string().optional().default(''),
   notes: z.string().optional().default(''),
   restSeconds: z.string().optional().nullable().transform(v => v ? Number(v) : null),
   startTime: z.string().optional().transform(v => v ? Number(v) : Date.now()),
-});
+}).refine(
+  (data) => data.routineExerciseId != null || data.sessionExerciseId != null,
+  {
+    message: 'Occurrence identity required',
+    path: ['routineExerciseId'],
+  }
+);
 
 export type ExerciseParams = z.infer<typeof exerciseParamsSchema>;
 

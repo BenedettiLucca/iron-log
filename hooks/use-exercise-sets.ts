@@ -13,6 +13,9 @@ import { useHaptics } from './use-haptics';
 import { checkPersonalRecords, reconcilePersonalRecordsSync } from './use-personal-records';
 import { useSessionTimer } from './use-session-timer';
 import { useSessionUndo } from './use-session-undo';
+import { useSharedRest } from './use-shared-rest';
+import { SessionOccurrenceService } from '../services/SessionOccurrenceService';
+import { FreestyleSessionService } from '../services/FreestyleSessionService';
 import { SessionDraft } from '../src/utils/session-draft';
 import { scheduleRestNotification, cancelRestNotification } from '../services/NotificationService';
 
@@ -29,7 +32,7 @@ export interface RoutineExerciseListItem {
 export interface UseExerciseSetsProps {
   sessionId: number;
   exerciseId: number;
-  routineExerciseId: number;
+  routineExerciseId?: number | null;
   routineId: number | null;
   exerciseName: string;
   routineRest: number | null;
@@ -247,6 +250,21 @@ export function useExerciseSets({
     restoreActiveSetTime, resetActiveSet
   } = timer;
 
+  // Superset & Shared Rest Hook
+  const sharedRest = useSharedRest({
+    sessionId,
+    routineExerciseId: routineExerciseId || 0,
+    setTimerTarget,
+    setTimerStatus,
+    setTimerSeconds,
+  });
+
+  useEffect(() => {
+    if (timerStatus === 'idle') {
+      sharedRest.consumePreservedRest();
+    }
+  }, [sharedRest, timerStatus]);
+
   const restoreDraft = useCallback((draft: SessionDraft) => {
     restoredDraftRef.current = true;
     setWeight(draft.weight);
@@ -299,6 +317,54 @@ export function useExerciseSets({
         setCurrentName(exData[0].name);
       }
 
+      if (sessionId) {
+        const queue = await SessionOccurrenceService.getPendingQueue(sessionId);
+        if (queue.length > 0) {
+          const allExs = await db.select().from(exercises);
+          const allRoutineExs = routineId
+            ? await db.select().from(routineExercises).where(eq(routineExercises.routineId, routineId))
+            : [];
+
+          const queueItems: RoutineExerciseListItem[] = queue.map((q) => {
+            const ex = allExs.find((e) => e.id === q.exerciseId);
+            const re = q.routineExerciseId != null
+              ? allRoutineExs.find((r) => r.id === q.routineExerciseId)
+              : undefined;
+            return {
+              id: q.exerciseId,
+              routineExerciseId: q.routineExerciseId ?? q.sessionExerciseId ?? q.exerciseId,
+              name: ex?.name ?? '',
+              type: ex?.type ?? 'strength',
+              target: re?.target ?? null,
+              notes: re?.notes ?? null,
+              restSeconds: re?.restSeconds ?? ex?.defaultRestSeconds ?? null,
+            };
+          });
+
+          setAllExercises(queueItems);
+
+          const currentIndex = queue.findIndex((q) => {
+            if (routineExerciseId && q.routineExerciseId) {
+              return q.routineExerciseId === routineExerciseId;
+            }
+            if (routineExerciseId && q.sessionExerciseId) {
+              return q.sessionExerciseId === routineExerciseId;
+            }
+            return q.exerciseId === exerciseId;
+          });
+
+          if (currentIndex !== -1 && currentIndex < queueItems.length - 1) {
+            setNextExercise(queueItems[currentIndex + 1]);
+          } else {
+            setNextExercise(null);
+          }
+
+          const occurrences = queueItems.filter((e) => e.id === exerciseId);
+          isSingleOccurrenceRef.current = occurrences.length <= 1;
+          return;
+        }
+      }
+
       if (routineId) {
         const routineList = await db.select({
           id: exercises.id,
@@ -334,7 +400,7 @@ export function useExerciseSets({
     } catch (e) {
       logger.error(t('common.operationError'), e);
     }
-  }, [exerciseId, routineExerciseId, routineId, t]);
+  }, [sessionId, exerciseId, routineExerciseId, routineId, t]);
 
   const refreshSessionSets = useCallback(async (options?: { prefillIfEmpty?: boolean }): Promise<Set[]> => {
     try {
@@ -395,26 +461,16 @@ export function useExerciseSets({
       setHasLoadedSessionSets(true);
 
       if (options?.prefillIfEmpty && data.length === 0 && !restoredDraftRef.current) {
-        const lastSet = await db.select({ weight: sets.weightKg })
-          .from(sets)
-          .innerJoin(sessions, eq(sets.sessionId, sessions.id))
-          .where(and(
-            eq(sets.exerciseId, exerciseId),
-            ne(sets.sessionId, sessionId),
-            isNull(sets.deletedAt),
-            isNull(sessions.deletedAt),
-          ))
-          .orderBy(
-            desc(sessions.startTime),
-            desc(sql`coalesce(${sets.createdAt}, ${sessions.startTime})`),
-            desc(sets.setNumber),
-            desc(sets.id),
-          )
-          .limit(1);
+        const prefill = await FreestyleSessionService.getLastExecution(exerciseId, {
+          excludeSessionId: sessionId,
+        });
 
-        if (lastSet.length > 0 && lastSet[0].weight != null && !restoredDraftRef.current) {
+        if (prefill.hasHistory && !restoredDraftRef.current) {
           // Pre-fill from history: does NOT mark dirty
-          setWeight(lastSet[0].weight.toString());
+          if (prefill.weight) setWeight(prefill.weight);
+          if (prefill.reps) setReps(prefill.reps);
+          if (prefill.rir !== null && prefill.rir !== undefined) setRir(prefill.rir);
+          if (prefill.durationSeconds) setDuration(prefill.durationSeconds.toString());
         }
       }
 
@@ -610,10 +666,13 @@ export function useExerciseSets({
       resetActiveSet();
 
       if (!isDuration && !mutationResult.isDuplicate) {
-        const restTime = routineRest || 90;
-        setTimerTarget(Date.now() + restTime * 1000);
-        setTimerStatus('running');
-        scheduleRestNotification({ seconds: restTime, exerciseName: currentName });
+        const canTriggerRest = sharedRest.shouldTriggerRest(routineExerciseId || undefined);
+        if (canTriggerRest) {
+          const restTime = routineRest || 90;
+          setTimerTarget(Date.now() + restTime * 1000);
+          setTimerStatus('running');
+          scheduleRestNotification({ seconds: restTime, exerciseName: currentName });
+        }
       }
 
       return true;
@@ -640,6 +699,7 @@ export function useExerciseSets({
     undoTimeoutRef,
     refreshSessionSets,
     isWarmupMode,
+    sharedRest,
     t,
     trigger,
     setLastSavedSet,
@@ -652,7 +712,7 @@ export function useExerciseSets({
   const handleUndo = useCallback(async () => {
     await hookHandleUndo({
       exerciseId,
-      routineExerciseId,
+      routineExerciseId: routineExerciseId ?? null,
       routineId,
       sessionId,
       exerciseType,
@@ -679,7 +739,7 @@ export function useExerciseSets({
   }, [exerciseId, sessionId, refreshSessionSets, registerDeletedSet, sessionSets, t]);
 
   const handleRestoreDeletedSet = useCallback(async () => {
-    await handleRestoreDeleted({ exerciseId, routineExerciseId, routineId, sessionId, setSessionSets, setToast });
+    await handleRestoreDeleted({ exerciseId, routineExerciseId: routineExerciseId ?? null, routineId, sessionId, setSessionSets, setToast });
   }, [exerciseId, routineExerciseId, routineId, handleRestoreDeleted, sessionId]);
 
   const handleEditSet = useCallback(async (setId: number) => {
@@ -776,6 +836,10 @@ export function useExerciseSets({
     setShowSetEditor,
     hasLoadedSessionSets,
     completedExercisesCount,
+    isSuperset: sharedRest.isSuperset,
+    supersetGroupId: sharedRest.groupId,
+    isLastInGroup: sharedRest.isLastInGroup,
+    groupMembers: sharedRest.groupMembers,
     handleSaveSet,
     handleDeleteSet,
     handleEditSet,

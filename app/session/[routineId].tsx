@@ -3,7 +3,7 @@ import { View, Text, FlatList, TextInput, TouchableOpacity, Modal } from 'react-
 import { useLocalSearchParams, useRouter, Stack, useNavigation, useFocusEffect } from 'expo-router';
 import { db } from '../../src/db/client';
 import { sessions, routineExercises, exercises, sets, routines, bodyMetrics } from '../../src/db/schema';
-import { and, count, desc, eq, isNull, or } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNull, or } from 'drizzle-orm';
 import { Stopwatch } from '../../components/Stopwatch';
 import { Button } from '../../components/Button';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
@@ -26,15 +26,20 @@ import { Card } from '../../components/Card';
 import { Colors } from '../../constants/colors';
 import { useThemeColors } from '@/hooks/use-theme-colors';
 import Svg, { Line, Polyline } from 'react-native-svg';
+import { SessionOccurrenceService } from '@/services/SessionOccurrenceService';
+import { FreestyleSessionService } from '@/services/FreestyleSessionService';
+import { ExercisePickerModal } from '@/components/session/ExercisePickerModal';
 
 type RoutineExerciseRow = {
-  routineExerciseId: number;
+  routineExerciseId: number | null;
+  sessionExerciseId?: number;
   exerciseId: number;
   name: string;
   order: number | null;
   target: string | null;
   notes: string | null;
   restSeconds: number | null;
+  supersetGroupId?: string | null;
 };
 
 export default function SessionScreen() {
@@ -70,6 +75,9 @@ export default function SessionScreen() {
   const [pendingNavigation, setPendingNavigation] = useState<{ type: string } | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [exitToast, setExitToast] = useState({ visible: false, message: '' });
+  const [sessionToast, setSessionToast] = useState<{ visible: boolean; message: string; type?: 'success' | 'error' | 'info' }>({ visible: false, message: '' });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [exerciseToRemove, setExerciseToRemove] = useState<RoutineExerciseRow | null>(null);
   const [sessionRoutineName, setSessionRoutineName] = useState(routineName);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -81,13 +89,80 @@ export default function SessionScreen() {
   const exerciseNavigationGateRef = useRef(createNavigationGate());
   const isInitializingRef = useRef(false);
 
+  const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
+  const isFreestyle = rIdStr === 'freestyle' || !Number.isInteger(Number(rIdStr));
+
+  const loadExercises = useCallback(async (sid?: number | null) => {
+    const currentSessionId = sid ?? sessionId;
+    if (!currentSessionId) return;
+    try {
+      const queue = await SessionOccurrenceService.getPendingQueue(currentSessionId);
+      if (queue.length === 0) {
+        setRoutineExs([]);
+        return;
+      }
+
+      const exIds = Array.from(new Set(queue.map((q) => q.exerciseId)));
+      const reIds = queue
+        .map((q) => q.routineExerciseId)
+        .filter((id): id is number => id !== null);
+
+      const exRows = await db
+        .select({
+          exerciseId: exercises.id,
+          name: exercises.name,
+          defaultRestSeconds: exercises.defaultRestSeconds,
+        })
+        .from(exercises)
+        .where(inArray(exercises.id, exIds));
+
+      const reRows = reIds.length > 0
+        ? await db
+            .select({
+              routineExerciseId: routineExercises.id,
+              target: routineExercises.target,
+              notes: routineExercises.notes,
+              restSeconds: routineExercises.restSeconds,
+            })
+            .from(routineExercises)
+            .where(inArray(routineExercises.id, reIds))
+        : [];
+
+      const exMap = new Map(exRows.map((e) => [e.exerciseId, e]));
+      const reMap = new Map(reRows.map((r) => [r.routineExerciseId, r]));
+
+      const mapped: RoutineExerciseRow[] = queue.map((q) => {
+        const ex = exMap.get(q.exerciseId);
+        const re = q.routineExerciseId ? reMap.get(q.routineExerciseId) : null;
+        return {
+          routineExerciseId: q.routineExerciseId ?? q.sessionExerciseId ?? q.id ?? 0,
+          sessionExerciseId: q.sessionExerciseId ?? q.id,
+          exerciseId: q.exerciseId,
+          name: ex?.name ?? '',
+          order: q.position,
+          target: re?.target ?? null,
+          notes: re?.notes ?? null,
+          restSeconds: re?.restSeconds ?? ex?.defaultRestSeconds ?? null,
+          supersetGroupId: q.supersetGroupId ?? null,
+        };
+      });
+
+      setRoutineExs(mapped);
+    } catch (e) {
+      logger.error('Erro ao carregar exercícios da sessão', e);
+    }
+  }, [sessionId]);
+
   // Force refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       exerciseNavigationGateRef.current.reset();
       setRefreshKey(prev => prev + 1);
+      if (sessionId) {
+        loadExercises(sessionId);
+      }
       return () => {};
-    }, [])
+    }, [sessionId, loadExercises])
   );
 
   // Smart exit protection with toast + double-press
@@ -122,30 +197,6 @@ export default function SessionScreen() {
     return unsubscribe;
   }, [navigation, t]);
 
-  const rIdStr = Array.isArray(routineId) ? routineId[0] : routineId;
-
-  const loadExercises = useCallback(async () => {
-      try {
-          const data = await db.select({
-            routineExerciseId: routineExercises.id,
-            exerciseId: exercises.id,
-            name: exercises.name,
-            order: routineExercises.orderIndex,
-            target: routineExercises.target,
-            notes: routineExercises.notes,
-            restSeconds: routineExercises.restSeconds
-          })
-          .from(routineExercises)
-          .innerJoin(exercises, eq(routineExercises.exerciseId, exercises.id))
-          .where(eq(routineExercises.routineId, Number(rIdStr)))
-          .orderBy(routineExercises.orderIndex);
-
-          setRoutineExs(data);
-      } catch (e) {
-          logger.error('Erro inesperado', e);
-      }
-  }, [rIdStr]);
-
   const initSession = useCallback(async () => {
     if (isInitializingRef.current) return;
     isInitializingRef.current = true;
@@ -166,16 +217,43 @@ export default function SessionScreen() {
         const existing = existingSessions[0];
         setSessionId(existing.id);
         setStartTime(existing.startTime);
-        setSessionRoutineName(existing.routineName || (routineName as string) || '');
+        setSessionRoutineName(existing.routineName || (routineName as string) || (isFreestyle ? t('session.freestyle') : ''));
         if (existing.bodyWeight !== null && existing.bodyWeight !== undefined) {
           setBodyWeightInput(existing.bodyWeight.toString());
         }
-        await loadExercises();
+        await loadExercises(existing.id);
         return;
       }
 
       const now = initialStartTime ?? Date.now();
       setStartTime(now);
+
+      if (isFreestyle) {
+        const name = (routineName as string) || t('session.freestyle');
+        setSessionRoutineName(name);
+
+        const freestyleResult = await FreestyleSessionService.startFreestyle({
+          startTime: now,
+          routineName: name,
+        });
+
+        setSessionId(freestyleResult.id);
+        await loadExercises(freestyleResult.id);
+
+        const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
+          .from(bodyMetrics)
+          .where(eq(bodyMetrics.type, 'daily'))
+          .orderBy(desc(bodyMetrics.date))
+          .limit(1);
+
+        const lastWeight = lastMetrics.length > 0 && lastMetrics[0].weight
+          ? lastMetrics[0].weight.toString()
+          : '';
+
+        setBodyWeightInput(lastWeight);
+        setShowBodyWeightDialog(true);
+        return;
+      }
 
       const routeRoutineName = routineName as string;
       const fetchedRoutine = await db.select({ name: routines.name })
@@ -197,8 +275,8 @@ export default function SessionScreen() {
         sRpe: 0,
       }).returning();
 
-      await loadExercises();
       setSessionId(result[0].id);
+      await loadExercises(result[0].id);
 
       // Fetch last known weight and show body weight dialog
       const lastMetrics = await db.select({ weight: bodyMetrics.weight, date: bodyMetrics.date })
@@ -221,7 +299,41 @@ export default function SessionScreen() {
       setIsLoading(false);
       isInitializingRef.current = false;
     }
-  }, [rIdStr, loadExercises, routineName, initialSessionId, initialStartTime, t]);
+  }, [rIdStr, isFreestyle, loadExercises, routineName, initialSessionId, initialStartTime, t]);
+
+  const handleAddExercise = useCallback(async (selectedExerciseId: number) => {
+    if (!sessionId) return;
+    try {
+      if (!isFreestyle) {
+        await SessionOccurrenceService.dissolveIfSingle(sessionId);
+      }
+      await FreestyleSessionService.addExerciseWithPrefill(sessionId, selectedExerciseId);
+      await loadExercises(sessionId);
+      setSessionToast({ visible: true, message: t('session.exerciseAdded'), type: 'success' });
+    } catch (e) {
+      logger.error('Failed to add exercise to session', e);
+    } finally {
+      setShowAddModal(false);
+    }
+  }, [sessionId, isFreestyle, loadExercises, t]);
+
+  const handleConfirmRemove = useCallback(async () => {
+    if (!exerciseToRemove || !sessionId) return;
+    try {
+      await SessionOccurrenceService.removeSessionExercise({
+        sessionId,
+        routineExerciseId: exerciseToRemove.routineExerciseId,
+        sessionExerciseId: exerciseToRemove.sessionExerciseId,
+        exerciseId: exerciseToRemove.exerciseId,
+      });
+      await loadExercises(sessionId);
+      setSessionToast({ visible: true, message: t('session.exerciseRemoved'), type: 'success' });
+    } catch (e) {
+      logger.error('Failed to remove exercise from session', e);
+    } finally {
+      setExerciseToRemove(null);
+    }
+  }, [exerciseToRemove, sessionId, loadExercises, t]);
 
   useEffect(() => {
     if (rIdStr && !sessionId && !hasError) {
@@ -333,19 +445,45 @@ export default function SessionScreen() {
       <FlatList
         key={`list-${refreshKey}`}
         data={routineExs}
-        keyExtractor={(item) => item.routineExerciseId.toString()}
+        keyExtractor={(item) => String(item.routineExerciseId)}
         contentContainerStyle={{ padding: 16, gap: 12 }}
+        ListFooterComponent={
+          routineExs.length > 0 ? (
+            <View className="pt-2 pb-6">
+              <Button
+                title={`+ ${t('session.addExercise')}`}
+                onPress={() => setShowAddModal(true)}
+                variant="secondary"
+                size="md"
+                accessibilityLabel={t('session.addExercise')}
+              />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           <View className="items-center py-12 px-8">
             <Text className="text-5xl mb-4">📋</Text>
-            <Text className="text-text text-lg font-bold text-center mb-2">{t('routines.noExercises')}</Text>
-            <Text className="text-subtext text-sm text-center mb-6">{t('routines.addExercisesHint')}</Text>
-            <Button
-              title={t('common.back')}
-              onPress={() => router.back()}
-              variant="secondary"
-              size="md"
-            />
+            <Text className="text-text text-lg font-bold text-center mb-2">
+              {isFreestyle ? t('session.noExercisesInSession') : t('routines.noExercises')}
+            </Text>
+            <Text className="text-subtext text-sm text-center mb-6">
+              {isFreestyle ? t('session.addExercisesToStart') : t('routines.addExercisesHint')}
+            </Text>
+            <View className="gap-3 w-full max-w-xs">
+              <Button
+                title={`+ ${t('session.addExercise')}`}
+                onPress={() => setShowAddModal(true)}
+                variant="primary"
+                size="md"
+                accessibilityLabel={t('session.addExercise')}
+              />
+              <Button
+                title={t('common.back')}
+                onPress={() => router.back()}
+                variant="ghost"
+                size="md"
+              />
+            </View>
           </View>
         }
         renderItem={({ item, index }) => (
@@ -354,20 +492,22 @@ export default function SessionScreen() {
             sessionId={sessionId}
             isSingleOccurrence={routineExs.filter((candidate) => candidate.exerciseId === item.exerciseId).length === 1}
             index={index}
+            onRemove={() => setExerciseToRemove(item)}
             onPress={() => exerciseNavigationGateRef.current.run(() => {
               router.push({
                 pathname: '/session/exercise',
                 params: {
-                    sessionId,
-                    routineId: rIdStr,
-                    exerciseId: item.exerciseId,
-                    routineExerciseId: item.routineExerciseId,
-                    exerciseName: item.name,
-                    target: item.target,
-                    notes: item.notes,
-                    restSeconds: item.restSeconds?.toString(),
-                    startTime: startTime.toString()
-                }
+                  sessionId,
+                  routineId: isFreestyle ? 'freestyle' : rIdStr,
+                  exerciseId: item.exerciseId,
+                  routineExerciseId: item.routineExerciseId ?? undefined,
+                  sessionExerciseId: item.sessionExerciseId,
+                  exerciseName: item.name,
+                  target: item.target ?? '',
+                  notes: item.notes ?? '',
+                  restSeconds: item.restSeconds?.toString(),
+                  startTime: startTime.toString(),
+                },
               });
             })}
           />
@@ -421,11 +561,38 @@ export default function SessionScreen() {
         onCancel={() => setShowFinishDialog(false)}
       />
 
+      <Dialog
+        visible={exerciseToRemove !== null}
+        title={t('exercise.removeExerciseTitle')}
+        message={t('session.removeExerciseConfirm')}
+        confirmText={t('common.remove')}
+        cancelText={t('common.cancel')}
+        type="destructive"
+        onConfirm={handleConfirmRemove}
+        onCancel={() => setExerciseToRemove(null)}
+      />
+
+      {showAddModal && (
+        <ExercisePickerModal
+          visible={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSelectExercise={handleAddExercise}
+          title={t('session.addExercise')}
+        />
+      )}
+
       <Toast
         visible={exitToast.visible}
         message={exitToast.message}
         type="info"
         onHide={() => setExitToast({ visible: false, message: '' })}
+      />
+
+      <Toast
+        visible={sessionToast.visible}
+        message={sessionToast.message}
+        type={sessionToast.type}
+        onHide={() => setSessionToast({ visible: false, message: '' })}
       />
 
       <Modal
@@ -506,10 +673,11 @@ interface ExerciseCardProps {
   sessionId: number;
   isSingleOccurrence: boolean;
   onPress: () => void;
+  onRemove: () => void;
   index: number;
 }
 
-function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index }: ExerciseCardProps) {
+function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, onRemove, index }: ExerciseCardProps) {
   const { t } = useI18n();
   const theme = useThemeColors();
   const a11y = buildWorkoutA11y({
@@ -526,12 +694,14 @@ function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index 
       .from(sets)
       .where(and(
         eq(sets.sessionId, sessionId),
-        isSingleOccurrence
-          ? or(
-            eq(sets.routineExerciseId, exercise.routineExerciseId),
-            and(isNull(sets.routineExerciseId), eq(sets.exerciseId, exercise.exerciseId)),
-          )
-          : eq(sets.routineExerciseId, exercise.routineExerciseId),
+        exercise.routineExerciseId != null
+          ? isSingleOccurrence
+            ? or(
+              eq(sets.routineExerciseId, exercise.routineExerciseId),
+              and(isNull(sets.routineExerciseId), eq(sets.exerciseId, exercise.exerciseId)),
+            )
+            : eq(sets.routineExerciseId, exercise.routineExerciseId)
+          : eq(sets.exerciseId, exercise.exerciseId),
         isNull(sets.deletedAt),
         eq(sets.isWarmup, false)
       ))
@@ -556,6 +726,8 @@ function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index 
         onPress={onPress}
         variant={isActive ? 'default' : 'bordered'}
         className={`transition-all ${
+          exercise.supersetGroupId ? 'border-l-4 border-l-secondary' : ''
+        } ${
           isActive
             ? 'border-primary shadow-md'
             : 'border-border shadow-sm'
@@ -578,6 +750,13 @@ function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index 
               <Text className="flex-1 text-base font-bold text-text" numberOfLines={2}>
                 {exercise.name}
               </Text>
+              {exercise.supersetGroupId && (
+                <View className="bg-secondarySurface px-2 py-0.5 rounded-full border border-secondary/20 flex-shrink-0">
+                  <Text className="text-secondaryText text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
+                    {t('session.superset')}
+                  </Text>
+                </View>
+              )}
               {isActive && (
                 <View className="bg-successSurface px-2 py-0.5 rounded-full border border-success/20 flex-shrink-0">
                   <Text className="text-successText text-xs font-bold uppercase tracking-wide" numberOfLines={1}>
@@ -602,9 +781,23 @@ function ExerciseCard({ exercise, sessionId, isSingleOccurrence, onPress, index 
               </View>
             )}
 
-            <Text className={`text-xs mt-3 uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
-              {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
-            </Text>
+            <View className="flex-row justify-between items-center mt-3">
+              <Text className={`text-xs uppercase font-bold tracking-wider ${isActive ? 'text-text' : 'text-subtext/60'}`}>
+                {isComplete ? t('session.completed') : isActive ? t('session.inProgress') : t('session.tapToStart')}
+              </Text>
+
+              <TouchableOpacity
+                onPress={(e) => {
+                  e.stopPropagation?.();
+                  onRemove();
+                }}
+                className="min-h-[44px] min-w-[44px] px-2 py-1 items-center justify-center rounded-lg"
+                accessibilityRole="button"
+                accessibilityLabel={`${t('session.removeExercise')}: ${exercise.name}`}
+              >
+                <Text className="text-dangerText text-xs font-semibold">{t('common.remove')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View className="ml-4">

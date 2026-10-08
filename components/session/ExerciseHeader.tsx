@@ -21,6 +21,8 @@ interface ExerciseHeaderProps {
   routineRest: number | null;
   target: string;
   notes: string;
+  isSuperset?: boolean;
+  isLastInGroup?: boolean;
 }
 
 export function ExerciseHeader({
@@ -38,6 +40,8 @@ export function ExerciseHeader({
   routineRest,
   target,
   notes,
+  isSuperset,
+  isLastInGroup,
 }: ExerciseHeaderProps) {
   return (
     <View className="bg-card border-b border-border" style={{ paddingTop: insetsTop }}>
@@ -85,19 +89,26 @@ export function ExerciseHeader({
           <View className="flex-row justify-between items-start">
             <View className="flex-1 mr-3">
               <Text className="text-text text-xl font-bold" numberOfLines={2}>{currentName}</Text>
-              <View className="flex-row items-center gap-2 mt-1.5">
+              <View className="flex-row items-center gap-2 mt-1.5 flex-wrap">
                 <Text
                   className="text-primaryText text-xs font-semibold bg-primarySurface px-2 py-0.5 rounded-md"
                   accessibilityLabel={targetInfo ? t('exerciseSession.setOf', { current: currentSetNumber, total: targetInfo.sets }) : `${t('exercise.set')} ${currentSetNumber}`}
                 >
                   S{currentSetNumber}{targetInfo ? `/${targetInfo.sets}` : ''}
                 </Text>
+                {isSuperset && (
+                  <View className="bg-secondarySurface px-2 py-0.5 rounded-md border border-secondary/30">
+                    <Text className="text-secondaryText text-2xs font-bold uppercase">
+                      {t('session.superset')}
+                    </Text>
+                  </View>
+                )}
                 {routineRest && (
                   <Text
                     className="text-subtext text-2xs bg-background px-2 py-0.5 rounded-md border border-border"
                     accessibilityLabel={t('exerciseSession.restTime', { seconds: routineRest })}
                   >
-                    ⏱ {routineRest}s
+                    ⏱ {routineRest}s{isSuperset && !isLastInGroup ? ` (${t('exercise.supersetNotice')})` : ''}
                   </Text>
                 )}
               </View>
